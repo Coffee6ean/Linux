@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/">Home Page</a>
+        <a href="/form">Greet v1</a>
+        <a href="/form-2">Greet v2</a>
+        <a href="/lucky">Lucky Number</a>
+        <!--
+            <a href="">{% block page_name%}{% endblock %}</a>
+        -->
+    </nav>
+    <main id="content">
+        <div>
+            {% block content %}
+                
+            {% endblock %}
+        </div>
+    </main>
+    <footer>Hello</footer>
+    <script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,8 +1,13 @@
-from flask import Flask, request 
+from flask import Flask, request, render_template
+from random import randint
+#from flask_debugtoolbar import DebugToolbarExtension
 
 app = Flask(__name__)  #=> Creating new server
 
 print('Hi')
+app.config['SECRET_KEY'] = 'thousandSunny17'
+#debug = DebugToolbarExtension(app)
+
 #--- Routes ---#
 @app.route('/')
 def home_page():
@@ -23,17 +28,16 @@ def home_page():
     """
     return html
 
+# Varianbles
+@app.route('/lucky')
+def lucky_number():
+    num = randint(1,10)
+    return render_template('lucky.html', lucky_num = num, msg = 'You are soo lucky')
+
 @app.route('/hello')  # Decorator
-def say_hello():
-    """Return simple 'Hello'"""
-    html = """
-    <html>
-        <body>
-            <h1>Hello There</h1>
-        </body>
-    </html>
-    """
-    return html
+def say_hello(name):
+    "Shows page through rendering template"
+    return render_template('hello.html')
 
 @app.route('/bye')  # Decorator
 def say_goodbye():
@@ -93,7 +97,7 @@ def show_subrredit(subreddit):
         <h1>Browsing the '{subreddit}' Subrredit</h1>
     """
 
-@app.route('/r/<subreddit>/comments/<int: post_id>')
+@app.route('/r/<subreddit>/comments/<int:post_id>')
 def show_comments(subreddit, post_id):
     return f"""
         <h1>
