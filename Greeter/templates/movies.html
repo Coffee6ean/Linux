@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Movies{% endblock %}'
+{% block content %}
+    <h1>Movies</h1>
+    <div>
+        <u>
+            {% for movie in movies %}
+                <li>{{movie}}</li>
+            {% endfor %}
+        </u>
+    </div>
+    <div style="margin-top: 20px;">
+        <form action="/movies/new" method="POST">
+            <input type="text" placeholder="New title" name="title">
+            <button>Submit</button>
+        </form>
+    </div>
+{% endblock %}

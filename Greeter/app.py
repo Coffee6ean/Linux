@@ -1,10 +1,10 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, redirect, flash, jsonify
 from random import choice, randint, sample
 #from flask_debugtoolbar import DebugToolbarExtension
 
 app = Flask(__name__)  #=> Creating new server
 
-print('Hi')
+print('Initialize')
 app.config['SECRET_KEY'] = 'thousandSunny17'
 #debug = DebugToolbarExtension(app)
 
@@ -13,6 +13,38 @@ app.config['SECRET_KEY'] = 'thousandSunny17'
 def home_page():
     """Return simple 'Home Page' route"""
     return render_template('hello.html')
+
+#--- Redirect to 'Home Page' ---#
+@app.route('/old-home-page')
+def redirect_to_home():
+    """Redirects to new 'Home Page'"""
+    flash('Deprecated page. Redirecting to new route')
+    return redirect('/')
+
+MOVIES = {'Amadeus', 'Rango', 'Batman', 'The Truman Show', 'Lego Movie'}
+
+@app.route('/movies')
+def show_all_movies():
+    return render_template('movies.html', movies = MOVIES)
+
+#--- Redirect: POST method & Flash Messaging ---#
+@app.route('/movies/new', methods = ['POST'])
+def add_movie():
+    title = request.form['title']
+    #Pretend DB
+    if title in MOVIES:
+        flash('Movie already registered', 'error')
+    else:
+        MOVIES.add(title)
+        flash('Added new movie', 'success')
+    return redirect('/movies')
+
+#--- Returning JSON ---#
+@app.route('/movies/json')
+def get_movies_json():
+    #info = jsonify('{"Boyhood": {"year" : 2015}}')
+    info = jsonify(list(MOVIES))
+    return info
 
 @app.route('/form')
 def form_page():
@@ -24,6 +56,7 @@ def form_2_page():
     """Return simple 'Home Page' route"""
     return render_template('form_2.html')
 
+#--- Variables & Inputs ---#
 @app.route('/greet')
 def get_greeting():
     username = request.args['username']

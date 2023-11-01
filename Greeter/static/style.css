@@ -26,3 +26,20 @@ body {
     background-color: #ddd;
     color: black;
 }
+
+.flash-messages p {
+    padding: 1rem;
+    border-radius: 1rem;
+}
+
+.flash-messages .success {
+    margin: 15px;
+    background-color:green;
+    color: #f2f2f2;
+}
+
+.flash-messages .error {
+    margin: 15px;
+    background-color:red;
+    color: #f2f2f2;
+}

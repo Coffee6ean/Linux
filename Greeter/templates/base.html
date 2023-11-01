@@ -12,11 +12,22 @@
         <a href="/form">Greet v1</a>
         <a href="/form-2">Greet v2</a>
         <a href="/lucky">Lucky Number</a>
+        <a href="/movies">Movies</a>
         <!--
             <a href="">{% block page_name%}{% endblock %}</a>
         -->
     </nav>
+
     <main id="content">
+        {% with messages = get_flashed_messages(with_categories = true) %}
+            {% if messages %}
+                <section class="flash-messages">
+                    {% for category, msg in get_flashed_messages(with_categories = true) %}
+                        <p class="{{category}}">{{msg}}</p>
+                    {% endfor %}
+                </section>
+            {% endif %}
+        {% endwith %}
         <div>
             {% block content %}
                 
