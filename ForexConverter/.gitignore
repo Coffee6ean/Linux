@@ -1,0 +1,14 @@
+# Environment
+venv/
+.venv
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+# IPython
+profile_default/
+ipython_config.py
+
+# Flask stuff:
+instance/
+.webassets-cache

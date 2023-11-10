@@ -1,0 +1,26 @@
+ul {
+    overflow-y: hidden;
+    max-height: 0;
+    transition: max-height 0.3s; /* For a smooth transition animation */
+}
+
+ul.active {
+    overflow-y: scroll;
+    max-height: 200px;
+}
+
+ul li:hover {
+    background-color: gainsboro;
+  }
+  
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}

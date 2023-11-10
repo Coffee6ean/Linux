@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Forex Converter{% endblock %}
+{% block content %}
+    <div class="container-fluid" id="app-header">
+        <div class="row">
+            <div class="col">
+                <h1>Forex Converter</h1>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid" id="app-body">
+        <form>
+            <div class="form-group">
+                <label for="convert-from">Converting From</label>
+                <input name="firstInput" id="convert-from" class="form-control" type="text" placeholder="Currency" onkeypress="return noEnter()">
+                <ul id="first-dropdown-list">
+                    <!-- Space to list all available currencies -->
+                </ul>
+            </div>
+            <div class="form-group">
+                <label for="convert-to">Converting To</label>
+                <input name="secondInput" id="convert-to" class="form-control" type="text" placeholder="Currency" onkeypress="return noEnter()">
+                <ul id="second-dropdown-list">
+                    <!-- Space to list all available currencies -->
+                </ul>
+            </div>
+            <div class="form-group">
+                <label for="input-amount">Amount</label>
+                <input name="amountInput" id="input-amount" class="form-control" type="text" placeholder="Amount" onkeypress="return noEnter()">
+            </div>
+            <div id="submit" class="d-grid gap-2 mx-auto m-3">
+                <button>Submit</button>
+            </div>
+        </form>
+    </div>
+    <div id="app-footer">
+        <div id="result">
+            {% if result is not none and result != 0 %}
+                <h3>Calculated Rate: {{ result }}</h3>
+            {% endif %}
+        </div>
+        
+        <!-- Flash messages -->
+        <section class="flash-messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, msg in messages %}
+                        <div class="alert alert-{{ category }}" role="alert">
+                            {{ msg }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </section>
+    </div>
+    <script src="static/app.js"></script>
+{% endblock %}
