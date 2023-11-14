@@ -71,7 +71,7 @@ function renderListInDropdown(listJSON, ulElement) {
 // Function to handle selecting an option from the dropdown
 function useRenderedOption(event) {
     const ul = event.target.parentElement;
-
+    
     // Update the selected input field with the chosen currency
     if (ul.id.includes('first')) {
         convertFrom.value = event.target.innerText;
