@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+</head>
+<body>
+    {% for msg in get_flashed_messages() %}
+        <p>{{msg}}</p>
+    {% endfor %}
+    <ul>
+        <li><a href="/snacks/new">Add New Snack</a></li>
+        <li><a href="/phones">View Phones Directory</a></li>
+    </ul>
+</body>
+</html>

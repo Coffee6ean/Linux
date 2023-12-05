@@ -11,7 +11,7 @@ from ManyToMany.join_models import \
     get_directory, get_directory_join, get_directory_join_class, \
     get_directory_outerjoin_dept, get_directory_outerjoin_emp
 
-from DefiningAForm.forms import AddSnackForm
+from DefiningAForm.forms import AddSnackForm, NewEmployeeForm
 
 app = Flask(__name__)
 
@@ -28,13 +28,46 @@ app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 connect_db(app)
 
 # ROUTES
+@app.route('/')
+def home_page():
+    return render_template('home.html')
+
 @app.route("/phones")
 def list_phones():
+    """Renders directory of employees and phone numbers (from dept)"""
     emps = Employee.query.all()
     return render_template('phones.html', emps=emps)
 
-@app.route("/snacks/new")
+@app.route("/snacks/new", methods=['GET', 'POST'])
 def add_snack():
+    print(request.form)
     form = AddSnackForm()
 
-    return render_template("add_snack_form.html", form=form)
+    if form.validate_on_submit():
+        name = form.name.data
+        price = form.price.data
+        quantity = form.quantity.data
+        is_helthy = form.is_healthy.data
+        flash(f"Created new snack: name is {name}, price is ${price}")
+        return redirect('/')
+    else:
+        return render_template("add_snack_form.html", form=form)
+    
+@app.route('/employees/new', methods=['GET', 'POST'])
+def add_employee():
+    form = NewEmployeeForm()
+    depts = db.session.query(Department.dept_code, Department.dept_name).all()
+    form.dept_code.choices = [(dept_code, dept_name) for dept_code, dept_name in depts]
+
+    if form.validate_on_submit():
+        name = form.name.data
+        state = form.state.data
+        dept_code = form.dept_code.data
+
+        emp = Employee(name=name, state=state, dept_code=dept_code)
+        db.session.add(emp)
+        db.session.commit()
+
+        return redirect('/phones')
+    else:
+        return render_template('add_employee_form.html', form=form)
