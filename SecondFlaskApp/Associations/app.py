@@ -11,7 +11,7 @@ from ManyToMany.join_models import \
     get_directory, get_directory_join, get_directory_join_class, \
     get_directory_outerjoin_dept, get_directory_outerjoin_emp
 
-from DefiningAForm.forms import AddSnackForm, NewEmployeeForm
+from DefiningAForm.forms import AddSnackForm, EmployeeForm
 
 app = Flask(__name__)
 
@@ -55,7 +55,7 @@ def add_snack():
     
 @app.route('/employees/new', methods=['GET', 'POST'])
 def add_employee():
-    form = NewEmployeeForm()
+    form = EmployeeForm()
     depts = db.session.query(Department.dept_code, Department.dept_name).all()
     form.dept_code.choices = [(dept_code, dept_name) for dept_code, dept_name in depts]
 
@@ -71,3 +71,20 @@ def add_employee():
         return redirect('/phones')
     else:
         return render_template('add_employee_form.html', form=form)
+    
+@app.route("/employees/<int:id>/edit", methods=['GET', 'POST'])
+def edit_employee(id):
+    emp = Employee.query.get_or_404(id)
+    form = EmployeeForm(obj=emp)
+    depts = db.session.query(Department.dept_code, Department.dept_name).all()
+    form.dept_code.choices = [(dept_code, dept_name) for dept_code, dept_name in depts]
+
+    if form.validate_on_submit():
+        emp.name = form.name.data
+        emp.state = form.state.data
+        emp.dept_code = form.dept_code.data
+        db.session.commit()
+        
+        return redirect('/phones')
+    else:
+        return render_template("edit_employee_form.html", form=form)

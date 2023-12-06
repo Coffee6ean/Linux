@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Snack</title>
+    <title>Edit Employee</title>
 </head>
 <body>
-    <h1>New Snack</h1>
+    <h1>Edit Employee</h1>
     <form method="POST">
         {{form.hidden_tag()}}
         {% for field in form if field.widget.input_type != 'hidden' %}
             <p>
                 {{field.label}}
                 {{field}}
-
                 {% for err in field.errors %}
                     {{err}}
                 {% endfor %}

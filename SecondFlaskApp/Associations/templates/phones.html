@@ -10,10 +10,10 @@
         crossorigin="anonymous">
 </head>
 <body>
-    <h1>Phone Numbers</h1>
-    <div class="container-fluid">
-        <table class="table table-striped">
-            <thead class="table-dark">
+    <div class="container">
+        <h1 class="display-1">Phone Numbers</h1>
+            <table class="table table-striped ">
+            <thead class="thead-dark">
                 <th>Employee</th>
                 <th>Department</th>
                 <th>Phone</th>
@@ -21,12 +21,13 @@
             <tbody>
                 {% for emp in emps %}
                     <tr>
-                        <td>{{emp.name}}</td>
+                        <td>{{emp.name}} <a class="btn btn-sm btn-info" href="/employees/{{emp.id}}/edit">Edit</a></td>
                         <td>{{emp.dept.dept_name}}</td>
+
                         {% if emp.dept.phone %}
-                            <td>{{emp.dept.phone}}
+                            <td>{{emp.dept.phone}}</td>
                         {% else %}
-                            <td class="bg-danger">-</td>
+                            <td class="text-danger">NO PHONE</td>
                         {% endif %}
                     </tr>
                 {% endfor %}

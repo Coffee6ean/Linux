@@ -4,18 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>New Employee</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" 
+        rel="stylesheet" 
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" 
+        crossorigin="anonymous">
 </head>
 <body>
-    <h1>Add New Employee</h1>
-    <form method="POST">
-        {{form.hidden_tag()}}
-        {% for field in form if field.widget.input_type != 'hidden' %}
-            <p>
-                {{field.label}}
-                {{field}}
-            </p>
-        {% endfor %}
-        <button>Submit</button>
-    </form>
+    <div class="container">
+        <h1 class="display-1 text-center">Add New Employee</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+            <!-- {{form.name.label(class_="text-info")}}
+            {{form.name(class_="form-control form-control-lg")}}
+            {{form.state.label(class_="text-danger")}}
+            {{form.state(class_="form-control")}} -->
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                
+                    {% for field in form if field.widget.input_type != 'hidden'%}
+                        <div class="form-group">
+                          {{field.label}}
+                          {{field(class_="form-control")}}
+                          {% for err in field.errors %}
+                              <small class="form-text text-danger">
+                                {{err}}
+                              </small>
+                          {% endfor %}
+                        </div>
+                    {% endfor %}
+                    <button class="btn  btn-success g my-2">Submit</button>
+                    <a href="/phones" class="btn btn-danger">Go Back</a>
+                </form>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
