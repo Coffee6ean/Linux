@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Adopt an Animal{% endblock %}'
+{% block content %}
+    <div class="container-fluid">
+        <h1 class="display-1">Adopt an Animal</h1>
+        <div class="row">
+            {% for pet in pets%}
+                <div class="col-sm-12 col-md-6 col-xl-3 my-1">
+                    <div class="card">
+                        <img src={{pet.photo_url}} class="card-img-top" alt="">
+                        <div class="card-body">
+                            <h5 class="card-title">{{pet.name}}</h5>
+                            <p class="card-text">{{pet.notes}}</p>
+                            <a href="#" class="btn btn-primary">Go meet {{pet.name}}</a>
+                          </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Adopt an Animal{% endblock %}'
+{% block content %}
+    <h1 class="display-1">Pets List</h1>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <table class="table table-striped">
+                    <thead class="table-dark">
+                        <th>Pet</th>
+                        <th>Name</th>
+                        <th>Species</th>
+                        <th>Photo</th>
+                        <th>Age</th>
+                        <th>Notes</th>
+                        <th>Available</th>
+                    </thead>
+                    {% for pet in pets %}
+                        <tbody>
+                            <td>{{pet.id}}</td>
+                            <td>{{pet.name}}</td>
+                            <td>{{pet.species}}</td>
+                            <td>{{pet.photo_url}}</td>
+                            <td>{{pet.age}}</td>
+                            <td>{{pet.notes}}</td>
+                            <td>{{pet.available}}</td>
+                        </tbody>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
