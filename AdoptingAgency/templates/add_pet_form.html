@@ -1,9 +1,11 @@
 {% extends 'base.html' %}
 {% block title %}Adopt an Animal{% endblock %}'
 {% block content %}
-    <h1>Add New Pet</h1>
-    <form method="POST">
-        {% include "_form.html" %}
-        <button class="btn btn-primary my-2" type="submit">Add</button>
-    </form>
+    <div class="container-fluid">
+        <h1>Add New Pet</h1>
+        <form method="POST">
+            {% include "_form.html" %}
+            <button class="btn btn-primary my-2" type="submit">Add</button>
+        </form>
+    </div>  
 {% endblock %}

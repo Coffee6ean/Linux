@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container-fluid">
+        <h1>{{pet.name}}</h1>
+        {% if pet.photo_url %}
+            <img class="img-fluid" src="{{pet.photo_url}}">
+        {% endif %}
+
+        <h2>Update</h2>
+        <form method="POST">
+          {% include "_form.html" %}
+          <button class="btn btn-primary my-2" type="submit">Update</button>
+        </form>
+    </div>
+{% endblock %}

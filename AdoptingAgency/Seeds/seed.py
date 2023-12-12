@@ -50,3 +50,7 @@ def seed_data():
 
     # Commit session
     db.session.commit()
+
+# Run before the first request
+initialize_app()
+seed_data()
