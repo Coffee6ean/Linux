@@ -1,0 +1,1 @@
+RESTFUL_APP_KEY = 'thousandSunny17'
