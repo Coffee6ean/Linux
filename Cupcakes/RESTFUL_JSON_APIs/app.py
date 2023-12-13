@@ -7,17 +7,25 @@ app = Flask(__name__)
 
 app.app_context().push()
 
+# Configure the Flask app
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///cupcakes_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = RESTFUL_APP_KEY
 
+# Connect the Flask app to the database
 connect_db(app)
 
 # ROUTES
 
+@app.route("/")
+def root():
+    """Render homepage."""
+    return render_template("index.html")
+
 # Listing
 @app.route('/api/cupcakes')
 def list_cupcakes():
+    """List all cupcakes."""
     all_cupcakes = [cupcake.serialize() for cupcake in Cupcake.query.all()]
     response_json = jsonify(cupcakes=all_cupcakes)
 
@@ -26,6 +34,7 @@ def list_cupcakes():
 # Getting
 @app.route('/api/cupcakes/<int:id>')
 def get_cupcake(id):
+    """Get details of a specific cupcake."""
     cupcake = Cupcake.query.get_or_404(id)
     response_json = jsonify(cupcake=cupcake.serialize())
 
@@ -34,6 +43,7 @@ def get_cupcake(id):
 # Creating
 @app.route('/api/cupcakes', methods=['POST'])
 def create_cupcake():
+    """Create a new cupcake."""
     data = request.json
 
     new_cupcake = Cupcake(
@@ -52,6 +62,7 @@ def create_cupcake():
 # Update
 @app.route('/api/cupcakes/<int:id>', methods=['PATCH'])
 def edit_cupcake(id):
+    """Edit details of a specific cupcake."""
     data = request.json
 
     edit_cupcake = Cupcake.query.get_or_404(id)
@@ -64,11 +75,12 @@ def edit_cupcake(id):
     db.session.commit()
     response_json = jsonify(cupcake=edit_cupcake.serialize())
 
-    return (response_json, 204)
+    return (response_json, 200)
 
 # Delete
 @app.route("/api/cupcakes/<int:cupcake_id>", methods=["DELETE"])
 def remove_cupcake(cupcake_id):
+    """Remove a specific cupcake."""
     delete_cupcake = Cupcake.query.get_or_404(cupcake_id)
 
     db.session.delete(delete_cupcake)
