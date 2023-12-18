@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Stupid Twitter{% endblock %}
+
+{% block content %}
+    <h1 class="display-1">Tweets</h1>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+
+        {% for field in form if field.widget.input_type != 'hidden' %}
+            <p>
+                {{field.label}}
+                {{field(class_='form-control')}}
+
+                {% for error in field.errors %}
+                    <span class="form-text text-danger">{{error}}</span>
+                {% endfor %}
+            </p>
+        {% endfor %}
+        <button class="btn btn-success" type="submit">Post Tweet</button>
+    </form>
+    <div class="container-fluid m-2">
+        {% for tweet in tweets %}
+            <div class="card m-1">
+                <div class="card-body">
+                    <h5 class="card-title"><b>{{tweet.user.username}}</b></h5>
+                    <h6 class="card-subtitle mb-2 text-muted">Date</h6>
+                    <p class="card-text">{{tweet.text}}</p>
+                    {% if session['user_id'] == tweet.user_id %}
+                        <form style="display: inline;" action="/tweets/{{tweet.id}}" method="POST">
+                            <button class="btn btn-sm btn-danger" id="delete-tweet">
+                                <span class="material-symbols-outlined">delete</span>
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+                </div>
+        {% endfor %}
+            </div>
+{% endblock %}  
