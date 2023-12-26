@@ -17,10 +17,12 @@ class User_Profile(db.Model):
     about = db.Column(db.Text, nullable=True)
     pronouns = db.Column(db.Text, nullable=True)
     website = db.Column(db.Text, nullable=True)
+    linked_in = db.Column(db.Text, nullable=True)
 
     #Foreign Keys - Relationships
     posts = db.relationship('Post', backref='user')
     boards = db.relationship('Board', backref='user')
+    projects = db.relationship('Project', backref='user')
 
     @classmethod
     def register(cls, email, username, password, 

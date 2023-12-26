@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Error: 404{% endblock %}
+{% block content %}
+    {% if user %}
+        <h1>Sorry, user {{user.first_name}} {{user.last_name}} ({{user.username}}) doesn't exist :[.</h1>
+    {% else %}
+        <h1>Sorry, this is not the page you're looking for :[.</h1>
+    {% endif %}
+    <iframe src="https://giphy.com/embed/8L0Pky6C83SzkzU55a"
+            width="480"
+            height="480"
+            frameBorder="0"
+            class="giphy-embed ml-auto mr-auto d-block"
+            allowFullScreen></iframe>
+{% endblock %}

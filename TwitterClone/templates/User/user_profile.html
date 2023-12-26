@@ -1,0 +1,39 @@
+{extends 'base.html'}
+{% block title %}Profile - {{user.username}}{% endblock %}
+{% block content %}
+    <div class="container" id="user_profile_background">
+        <img src="{{user.background}}" alt="">
+    </div>
+    <div class="container-fluid" id="user_profile_header">
+        <div class="row">
+            <div class="col" id="user_profile_picture">
+                <img src="{{user.picture}}" alt="">
+            </div>
+            <div class="col">
+                {% if user.sur_name %}
+                    <h3>{{user.first_name}} {{user.sur_name}} {user.last_name}</h3>
+                {% else %}
+                    <h3>{{user.first_name}} {user.last_name}</h3>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <p>{{user.about}}</p>
+        </div>
+    </div>
+    <div class="container" id="user_profile_body">
+        <div class="row">
+            <nav>
+                <a href="./user_presentation.html">Presentation</a>
+                <a href="./user_posts.html">Recent Activity</a>
+                <a href="./user_projects.html">Recent Work</a>
+                <a href="">Other</a>
+            </nav>
+        </div>
+        <div class="row">
+            {% block content %}
+
+            {% endblock %}
+        </div>
+    </div>
+{% endblock %}

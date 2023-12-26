@@ -15,4 +15,3 @@ class Board(db.Model):
 
     def serialize(self):
         return f"<Project id={self.id} title={self.title} board={self.board}>"
-    
