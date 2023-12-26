@@ -1,11 +1,13 @@
 from flask import Flask, redirect, request, \
                 render_template, session, flash
-import sys
+import os
+template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
+import sys  
 sys.path.append('../')
 from models.main import db, connect_db
 from app.Keys.secrets import APP_KEY
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder=template_dir)
 
 app.app_context().push()        
 
@@ -20,4 +22,12 @@ connect_db(app)
 
 @app.route('/')
 def landing_page():
-    return render_template('landing_page.html')
+    return render_template('Webpage/landing_page.html')
+
+@app.route('/login')
+def login_page():
+    return render_template('Webpage/user_login.html')
+
+@app.route('/register')
+def register_page():
+    return render_template('Webpage/user_registration.html')
