@@ -25,8 +25,7 @@ class User_Profile(db.Model):
     projects = db.relationship('Project', backref='user')
 
     @classmethod
-    def register(cls, email, username, password, 
-                 first_name, last_name, birth_date):
+    def register(cls, email, username, password, birth_date):
         """Register a user."""
 
         hashed_pwd = bcrypt.generate_password_hash(password)
@@ -35,8 +34,6 @@ class User_Profile(db.Model):
             email = email,
             username = username,
             password = hashed_utf8,
-            first_name = first_name,
-            last_name = last_name,
             birth_date = birth_date
         )
 
