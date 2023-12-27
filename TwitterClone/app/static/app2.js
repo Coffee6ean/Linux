@@ -2,17 +2,13 @@ function main() {
     const logIn = document.querySelector("#log-in");
     const signUp = document.querySelector("#sign-up");
 
-    logIn.addEventListener('click', function() {
-        $('.modal-body').html();
-    })
-    
-    signUp.addEventListener('click', () => {
-        $('.modal-body').html();
-    })
+    logIn.addEventListener('click', () => {
+        $('.modal-body').load("{{ url_for('static', filename='Webpage/user_login.html') }}");
+    });
 
-    $(document).ready(function () {
-        
-    })
+    signUp.addEventListener('click', () => {
+        $('.modal-body').load("{{ url_for('static', filename='Webpage/user_signup.html') }}");
+    });
 }
 
 document.addEventListener('DOMContentLoaded', main);
