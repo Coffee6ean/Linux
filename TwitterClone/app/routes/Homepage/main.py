@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, \
                 flash, session
 import sys
 sys.path.append('../')
-from models.user import User_Profile, Board
+from models.main import User_Profile, Board
 
 homepage_bp = Blueprint('homepage', __name__, template_folder='../../templates/Homepage')
 

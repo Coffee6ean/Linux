@@ -1,9 +1,37 @@
 {% extends 'base.html' %}
 {% block title %}Landing Page{% endblock %}
 {% block content %}
-    <h1 class="display-1">Elevate Clone</h1>
-    <div class="container-fluid">
-        <img src="https://elevateconstructionist.com/wp-content/uploads/2023/07/banner.jpg" class="img-fluid" alt="">
+    <div id="landing-page-background"> 
+        <div class="container-fluid" id="landing-page-components">
+            <div class="col-6">
+                <div class="row" id="landing-page-logo">
+                    <h1 class="display-1"><i class="fa-brands fa-x-twitter fa-2xl"></i>/Clone</h1>
+                </div>
+            </div>
+            <div class="col">
+                <div class="row">
+                    <span id="landing-page-slogan-1">Chronicle the Now.</span>
+                </div>
+                <div class="row">
+                    <span id="landing-page-slogan-2">Your Tweets, Your Time.</span>
+                </div>
+            </div>
+        </div>
     </div>
-    <footer>Lol easy peasy. Get Reckt. I love you K-Roll</footer>
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col-4" id="landing-page-disclaimer">
+                <p>By signing up, you agree to the Terms of Service and Privacy Policy, including Cookie Use.</p>
+            </div>
+            <div class="col-4" id="landing-page-resources">
+                <a href="#">Advertising</a>
+                <a href="#">Marketing</a>
+                <a href="#">Developers</a>
+            </div>
+            <div class="col-4" id="landing-page-signature">
+                <span>Powered by</span>
+                <i class="fa-solid fa-kiwi-bird fa-xl"></i>
+            </div>
+        </div>
+    </div>
 {% endblock %}

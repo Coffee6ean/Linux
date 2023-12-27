@@ -1,20 +1,88 @@
 /* ------ Landing Page Styling ------ */
+/* Landing Page*/
+* {
+    margin: 0;
+    padding: 0;
+}
+
+#landing-page-components{
+    display: block;
+    justify-content: center;
+    text-align: center;
+}
+
+/* Background Image */
+#landing-page-background {
+    background-image: url('https://images.unsplash.com/photo-1580838368578-2eb2f83a2672?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+    /*background-image: url('https://images.unsplash.com/photo-1545917992-dea2d782ef46?q=80&w=989&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');*/
+    background-size: cover;
+    background-repeat: no-repeat;
+    height: 85vh;
+}
+
+/* Page Logo */
+#landing-page-logo {
+    padding-top: 50px;
+    padding-left: 20px;
+    margin-bottom: 35px;
+    text-align: left;
+}
+
+/* Page Slogan */
+#landing-page-slogan-1 {
+    font-size: 64px;
+    color: azure;
+    text-align: right;
+}
+
+#landing-page-slogan-2 {
+    font-size: 64px;
+    color: azure;
+    text-align: right;
+}
+
+/* Page Disclaimer */
+#landing-page-disclaimer {
+    text-align: left;
+    justify-self: end;
+    font-size: small;
+    padding-top: 15px;
+}
+
+/* Page Resources */
+#landing-page-resources {
+    display: block;
+    text-align: center;
+    justify-content: center;
+}
+
+#landing-page-resources a {
+    margin: 5px;
+}
+
+/* Page Signature */
+#landing-page-signature {
+    display: block;
+    text-align: end;
+}
+
 /* Nav Bar */
 nav {
     padding: 0;
-    background-color: #333;
+    background-color: none;
     overflow: hidden;
 }
 
 #topnav-left a {
     float: left;
-    color: #f2f2f2;
+    color: #5c1539;
     text-align: center;
     border-radius: 5px;
     margin-left: 10px;
     padding: 8px 14px;
     text-decoration: none;
     font-size: 17px;
+    font-weight: 500;
 }
 
 #topnav-left a:hover {
@@ -23,16 +91,23 @@ nav {
 }
 
 #topnav-left a.active {
-    background-color: #0d6efd;
+    background-color: #5c1539;
     color: white;
 }
 
-#topnav-right {
+#topnav-right a {
     float: right;
+    margin-right: 15px;
+    background-color: black;
 }
 
-button #log-in, #sign-up {
-    margin: 10px;
+#topnav-right a:hover {
+    transform: scale(1.1);
+    transition: transform 0.25s;
+}
+
+#log-in, #sign-up {
+    color: white;
 }
 
 /* Modal */
