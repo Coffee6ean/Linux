@@ -60,6 +60,15 @@
     margin: 5px;
 }
 
+#landing-page-resources a:link {
+    text-decoration: none;
+    color: gray;
+}
+
+#landing-page-resources a:hover {
+    text-decoration: underline;
+}
+
 /* Page Signature */
 #landing-page-signature {
     display: block;
@@ -98,7 +107,7 @@ nav {
 #topnav-right a {
     float: right;
     margin-right: 15px;
-    background-color: black;
+    background-color: grey;
 }
 
 #topnav-right a:hover {

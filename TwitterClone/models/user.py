@@ -1,4 +1,4 @@
-from . import db, bcrypt
+from .main import db, bcrypt
 
 class User_Profile(db.Model):
     """User Profile Model."""
@@ -9,7 +9,7 @@ class User_Profile(db.Model):
     picture = db.Column(db.Text, nullable=True)
     username = db.Column(db.String(50), nullable=False, unique=True)
     password = db.Column(db.Text, nullable=False)
-    email = db.column(db.Text, nullable=False, unique=True)
+    email = db.Column(db.Text, nullable=False, unique=True)
     first_name = db.Column(db.String(30), nullable=False)
     sur_name = db.Column(db.String(30), nullable=True)
     last_name = db.Column(db.String(30), nullable=False)

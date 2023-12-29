@@ -1,17 +1,18 @@
 {% block content %}
+    {{ login_form.hidden_tag() }}
     <h1 class="display-1">Welcome back to Twitter Clone</h1>
     <div class="container-fluid">
         <i class="fa-brands fa-twitter fa-2xl" id="twitter-sm-logo"></i>
         <div class="row m-1" id="email_register">
             <div class="col">
-                <label for="email_input">Email</label>
-                <input type="text" class="form-control" id="email_input" placeholder="Email">
+                <label for="email_input" class="form-label">{{ login_form.email.label }}</label>
+                {{ login_form.email(class="form-control") }}
             </div>
         </div>
         <div class="row m-1" id="password_register">
             <div class="col">
-                <label for="password_input">Password</label>
-                <input type="text" class="form-control" id="password_input" placeholder="Create a password">
+                <label for="password_input" class="form-label">{{ login_form.password.label }}</label>
+                {{ login_form.password(class="form-control") }}
             </div>
         </div>
     </div>

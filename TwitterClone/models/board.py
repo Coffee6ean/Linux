@@ -1,4 +1,4 @@
-from . import db, bcrypt
+from .main import db, bcrypt
 
 class Board(db.Model):
     """Board Model."""

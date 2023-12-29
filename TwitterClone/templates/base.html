@@ -24,8 +24,8 @@
     <nav class="navbar">
       <div id="topnav-left">
         <a class="active" href="/">Home</a>
-        <a href="">About</a>
-        <a href="">Contact</a>
+        <a href="#">About</a>
+        <a href="#">Contact</a>
       </div>
       <!-- Button trigger modal -->
       <div id="topnav-right">
@@ -38,7 +38,7 @@
       </div>
     </nav>
     <!-- Modal -->
-    <form action="" method="POST">
+    <form action="" method="POST" id="modal-form">
       <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
           <div class="modal-dialog">
               <div class="modal-content">
@@ -50,8 +50,8 @@
 
                   </div>
                   <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                      <button type="button" class="btn btn-primary">Submit</button>
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="modal-close-button">Close</button>
+                      <button type="button" class="btn btn-primary" id="modal-submit-button">Submit</button>
                   </div>
               </div>
           </div>
@@ -74,7 +74,10 @@
         </div>  
     </section>
 </body>
-<!-- JQuery -->
+<!-- Axios CDN -->
+<script src="https://unpkg.com/axios/dist/axios.js"></script>
+<script src="https://unpkg.com/axios@1.1.2/dist/axios.min.js"></script>
+<!-- JQuery CDN -->
 <script 
   src="https://code.jquery.com/jquery-3.7.1.min.js" 
   integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" 

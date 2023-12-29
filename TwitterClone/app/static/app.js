@@ -1,4 +1,4 @@
-function main() {
+function init() {
     const logIn = document.querySelector("#log-in");
     const signUp = document.querySelector("#sign-up");
 
@@ -20,7 +20,7 @@ function main() {
                 </div> \
             </div> \
         </div>');
-    })
+    });
     
     signUp.addEventListener('click', () => {
         $('#modal-title').text('Sign Up');
@@ -53,7 +53,7 @@ function main() {
                 </div> \
             </div> \
         </div>');
-    })
+    });
 }
 
-document.addEventListener('DOMContentLoaded', main);
+document.addEventListener('DOMContentLoaded', init);

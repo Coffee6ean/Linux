@@ -1,4 +1,4 @@
-from . import db
+from .main import db, bcrypt
 
 class Post(db.Model):
     """Project Model."""
