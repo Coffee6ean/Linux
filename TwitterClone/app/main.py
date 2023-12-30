@@ -32,9 +32,9 @@ def index():
     login_form = LoginForm()
     signup_form = SignupForm()
 
-    if login_form.validate_on_submit() and signup_form.validate_on_submit():
+    if login_form.validate_on_submit():
         data = {k: v for k, v in login_form.data.items() if k != "csrf_token"}
         new_user = User_Profile(**data)
-        return redirect('test_success.html', user=new_user)
+        return render_template('test_success.html')
     else:
         return render_template('test.html', login_form=login_form, signup_form=signup_form)

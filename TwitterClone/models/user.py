@@ -85,6 +85,11 @@ class User_Profile(db.Model):
         }
     
     def __repr__(self):
-        return f"<User id={self.id} username={self.username} \
-                firstname={self.first_name} lastname={self.last_name} \
-                password={self.password} birth_date={self.birth_date}>"
+        return f"<User [ \
+            id={self.id}, \
+            username={self.username}, \
+            firstname={self.first_name}, \
+            lastname={self.last_name}, \
+            password={self.password}, \
+            birth_date={self.birth_date} \
+            ]>"
