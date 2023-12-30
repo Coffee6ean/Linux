@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, redirect, \
                 flash, session
+from datetime import datetime
 import sys
 sys.path.append('../')
 from models.main import User_Profile
@@ -36,18 +37,16 @@ def register_new_user():
     form = RegisterForm()
     if form.validate_on_submit():
         email = form.email.data
-        first_name = form.first_name.data
-        last_name = form.last_name.data
         username = form.username.data
         password = form.password.data
-        birth_date = birth_date
+        birth_date_str = form.birth_date.data  # Received as a string
+        birth_date = datetime.strptime(birth_date_str, '%m/%d/%Y').date()  # Convert to date type
+
         new_user = User_Profile.register(
             email = email,
             username = username,
             password = password,
-            first_name = first_name,
-            last_name = last_name,
-            birth_date = birth_date
+            birth_date = datetime.strptime(birth_date).date()
         )
         db.session.add(new_user)
 

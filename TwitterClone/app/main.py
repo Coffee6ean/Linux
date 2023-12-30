@@ -15,7 +15,7 @@ app = Flask(__name__, template_folder=template_dir)
 app.app_context().push()        
 
 # Configure the Flask app
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///auth_demo_db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///twitter_clone_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
 app.config['SECRET_KEY'] = 'lol'

@@ -20,4 +20,4 @@ class SignupForm(FlaskForm):
             message="Password must include at least one lowercase letter, one uppercase letter, one digit, and one special character."
         )
     ])
-    birth_date = DateField("Birthdate", validators=[InputRequired()])
+    birth_date = StringField("Birthdate", validators=[InputRequired()])

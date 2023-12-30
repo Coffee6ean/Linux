@@ -1,4 +1,10 @@
+from sqlalchemy import Date
 from .main import db, bcrypt
+from .post import Post
+from .board import Board
+from .project import Project
+from .association import user_board_association, user_project_association
+
 
 class User_Profile(db.Model):
     """User Profile Model."""
@@ -10,19 +16,31 @@ class User_Profile(db.Model):
     username = db.Column(db.String(50), nullable=False, unique=True)
     password = db.Column(db.Text, nullable=False)
     email = db.Column(db.Text, nullable=False, unique=True)
-    first_name = db.Column(db.String(30), nullable=False)
+    first_name = db.Column(db.String(30), nullable=True)
     sur_name = db.Column(db.String(30), nullable=True)
-    last_name = db.Column(db.String(30), nullable=False)
-    birth_date = db.Column(db.Integer, nullable=False)
+    last_name = db.Column(db.String(30), nullable=True)
+    birth_date = db.Column(Date, nullable=False)
     about = db.Column(db.Text, nullable=True)
     pronouns = db.Column(db.Text, nullable=True)
     website = db.Column(db.Text, nullable=True)
     linked_in = db.Column(db.Text, nullable=True)
 
-    #Foreign Keys - Relationships
+    # Foreign Keys & Relationships - 
     posts = db.relationship('Post', backref='user')
-    boards = db.relationship('Board', backref='user')
-    projects = db.relationship('Project', backref='user')
+    boards = db.relationship(
+        'Board', # Related model name
+        secondary=user_board_association, # Association table for many-to-many relationship
+        backref='users', # Reverse relationship field on the 'Project' model
+        lazy='joined', # Lazy loading strategy for the relationship
+        uselist=True # Whether to use a list or a scalar for the relationship
+    )
+    projects = db.relationship(
+        'Project', 
+        secondary=user_project_association, 
+        backref='users', 
+        lazy='joined', 
+        uselist=True
+    )
 
     @classmethod
     def register(cls, email, username, password, birth_date):
@@ -41,9 +59,9 @@ class User_Profile(db.Model):
         return new_user
     
     @classmethod
-    def authenticate(cls, username, password):
+    def authenticate(cls, email, password):
         """Validate that user exists and password is correct."""
-        user = User_Profile.query.filter_by(username=username).first()
+        user = User_Profile.query.filter_by(email=email).first()
 
         if user and bcrypt.check_password_hash(user.password, password):
             return user
