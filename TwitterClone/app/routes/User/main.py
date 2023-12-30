@@ -2,7 +2,8 @@ from flask import Blueprint, render_template, redirect, \
                 flash, session
 import sys
 sys.path.append('../')
-from models.main import User_Profile, Board
+from models.user import User_Profile
+from models.board import Board
 
 user_bp = Blueprint('user', __name__, template_folder='../../templates/User')
 
@@ -13,7 +14,7 @@ def show_user_profile():
     return render_template('User/user_profile.html', user=user)
 
 @user_bp.route('/user/profile')
-def show_user_profile():
+def still_show_user_profile():
     return redirect('/user/profile/')
 
 @user_bp.route('/user/profile/', methods=['GET', 'POST'])
@@ -27,15 +28,15 @@ def delete_user_profile():
 
 @user_bp.route('/user/<int:id>/')
 def get_user_profile(id):   
-    user = User_Profile.query.get_or_404(session['user_id'])
+    user = User_Profile.query.get_or_404(id)
     if user:
         return render_template('User/user_profile.html', user=user)
     else:
         return render_template('404_page', user=user)
     
 @user_bp.route('/user/<int:id>')
-def get_user_profile():
-    return redirect('/user/<int:id>/')
+def still_get_user_profile(id):
+    return redirect(f'/user/{id}/')
 
 @user_bp.route('/user/posts/')
 def get_user_posts():

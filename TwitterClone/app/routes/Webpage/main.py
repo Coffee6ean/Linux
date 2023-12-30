@@ -3,14 +3,29 @@ from flask import Blueprint, render_template, redirect, \
 from datetime import datetime
 import sys
 sys.path.append('../')
-from models.main import User_Profile
+from models.main import db
+from models.user import User_Profile
+from Forms.login_form import LoginForm
+from Forms.signup_form import SignupForm
 
 webpage_bp = Blueprint('webpage', __name__, template_folder='../../templates/Webpage')
 
 # WEB-PAGE ROUTES
+@webpage_bp.route('/test', methods=['GET', 'POST'])
+def index():
+    login_form = LoginForm()
+    signup_form = SignupForm()
+
+    if login_form.validate_on_submit():
+        data = {k: v for k, v in login_form.data.items() if k != "csrf_token"}
+        new_user = User_Profile(**data)
+        return render_template('Homepage/home_page.html')
+    else:
+        return render_template('test.html', login_form=login_form, signup_form=signup_form)
+
 @webpage_bp.route('/')
-def show_landing_page():
-    return render_template('Webpage/landing_page.html') 
+def still_show_landing_page():
+    return redirect('/test')
 
 @webpage_bp.route('/login/', methods=['GET', 'POST'])
 def log_user_in():
@@ -29,12 +44,12 @@ def log_user_in():
     return render_template('Webpage/user_login.html', form=form)
 
 @webpage_bp.route('/login')
-def log_user_in():
+def still_log_user_in():
     return redirect('/login/')
 
 @webpage_bp.route('/register/', methods=['GET', 'POST'])
 def register_new_user():
-    form = RegisterForm()
+    form = SignupForm()
     if form.validate_on_submit():
         email = form.email.data
         username = form.username.data
@@ -61,5 +76,5 @@ def register_new_user():
     return render_template('Webpage/user_registration', form=form)
 
 @webpage_bp.route('/register')
-def register_new_user():
+def still_register_new_user():
     return redirect('/register/')

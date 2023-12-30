@@ -6,11 +6,25 @@ import sys
 sys.path.append('../')
 from models.main import db, connect_db
 from models.user import User_Profile
+
+# Forms 
 from app.Forms.login_form import LoginForm
 from app.Forms.signup_form import SignupForm
+
+# Routes 
+from app.routes.User.main import user_bp
+from app.routes.Homepage.main import homepage_bp
+from app.routes.Webpage.main import webpage_bp
+
+# Key
 from app.Keys.secrets import APP_KEY
 
 app = Flask(__name__, template_folder=template_dir)
+
+# Register blueprints
+app.register_blueprint(user_bp)
+app.register_blueprint(homepage_bp)
+app.register_blueprint(webpage_bp)
 
 app.app_context().push()        
 
@@ -22,19 +36,6 @@ app.config['SECRET_KEY'] = 'lol'
 app.config['DEBUG_TB_INTERCEPTIONS_REDIRECTS'] = False
 
 connect_db(app)
-
-@app.route('/')
-def landing_page():
-    return render_template('Webpage/landing_page.html')
-
-@app.route('/test', methods=['GET', 'POST'])
-def index():
-    login_form = LoginForm()
-    signup_form = SignupForm()
-
-    if login_form.validate_on_submit():
-        data = {k: v for k, v in login_form.data.items() if k != "csrf_token"}
-        new_user = User_Profile(**data)
-        return render_template('test_success.html')
-    else:
-        return render_template('test.html', login_form=login_form, signup_form=signup_form)
+    
+if __name__ == '__main__':
+    app.run(debug=True)
