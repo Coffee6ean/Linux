@@ -10,6 +10,7 @@ CREATE DATABASE twitter_clone_db;
 -- Create a user table
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
+    banner TEXT,
     picture TEXT,
     username VARCHAR(50) UNIQUE NOT NULL,
     password TEXT NOT NULL,

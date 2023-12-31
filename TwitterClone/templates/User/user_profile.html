@@ -1,39 +1,32 @@
-{extends 'base.html'}
+{% extends 'base.html' %}
 {% block title %}Profile - {{user.username}}{% endblock %}
 {% block content %}
-    <div class="container" id="user_profile_background">
-        <img src="{{user.background}}" alt="">
+    <div class="container-fluid" id="user_profile_background">
+        <div class="row"><img src="{{user.banner}}" alt="User Banner Image"></div>
     </div>
     <div class="container-fluid" id="user_profile_header">
-        <div class="row">
-            <div class="col" id="user_profile_picture">
-                <img src="{{user.picture}}" alt="">
+        <div class="row align-items-center">
+            <div class="col-md-4" id="user_profile_picture">
+                <img src="{{user.picture}}" id="user-profile-picture" alt="User Profile Picture" class="img-fluid rounded-circle">
+                <label for="user-profile-picture">{{user.username}}</label>
             </div>
-            <div class="col">
-                {% if user.sur_name %}
-                    <h3>{{user.first_name}} {{user.sur_name}} {user.last_name}</h3>
-                {% else %}
-                    <h3>{{user.first_name}} {user.last_name}</h3>
-                {% endif %}
+            <div class="col-md-8">
+                <h2>{{user.first_name}} {% if user.sur_name %}{{user.sur_name}} {% endif %}{{user.last_name}}</h2>
+                <p>{{user.about}}</p>
             </div>
-        </div>
-        <div class="row">
-            <p>{{user.about}}</p>
         </div>
     </div>
     <div class="container" id="user_profile_body">
         <div class="row">
             <nav>
-                <a href="./user_presentation.html">Presentation</a>
-                <a href="./user_posts.html">Recent Activity</a>
-                <a href="./user_projects.html">Recent Work</a>
-                <a href="">Other</a>
+                <a href="">Presentation</a>
+                <a href="">Recent Activity</a>
+                <a href="">Recent Work</a>
+                <a href="#">Other</a>
             </nav>
         </div>
         <div class="row">
-            {% block content %}
-
-            {% endblock %}
+            <!-- Add content for each section, e.g., user presentation, recent activity, recent work, etc. -->
         </div>
     </div>
 {% endblock %}

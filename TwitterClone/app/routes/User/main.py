@@ -10,8 +10,13 @@ user_bp = Blueprint('user', __name__, template_folder='../../templates/User')
 # USER ROUTES
 @user_bp.route('/user/profile/')
 def show_user_profile():
-    user = User_Profile.query.get_or_404(session['user_id'])
-    return render_template('User/user_profile.html', user=user)
+    if 'user_id' in session:
+        user = User_Profile.query.get_or_404(session['user_id'])
+        return render_template('User/user_profile.html', user=user)
+    else:
+        # Handle the case when 'user_id' is not in the session
+        flash('User not logged in.')
+        return redirect('/test')
 
 @user_bp.route('/user/profile')
 def still_show_user_profile():

@@ -22,9 +22,9 @@ from app.Keys.secrets import APP_KEY
 app = Flask(__name__, template_folder=template_dir)
 
 # Register blueprints
-app.register_blueprint(user_bp)
-app.register_blueprint(homepage_bp)
 app.register_blueprint(webpage_bp)
+app.register_blueprint(homepage_bp)
+app.register_blueprint(user_bp)
 
 app.app_context().push()        
 
@@ -32,10 +32,7 @@ app.app_context().push()
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///twitter_clone_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
-app.config['SECRET_KEY'] = 'lol'
+app.config['SECRET_KEY'] = APP_KEY
 app.config['DEBUG_TB_INTERCEPTIONS_REDIRECTS'] = False
 
 connect_db(app)
-    
-if __name__ == '__main__':
-    app.run(debug=True)

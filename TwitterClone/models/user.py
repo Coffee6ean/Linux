@@ -5,6 +5,8 @@ from .board import Board
 from .project import Project
 from .association import user_board_association, user_project_association
 
+DEFAULT_PROFILE_BANNER = 'https://img.freepik.com/fotos-premium/vista-superior-do-local-de-trabalho-elegante-escuro-com-smartphone-e-material-de-escritorio_67155-2963.jpg?w=996'
+DEFAULT_USER_PICTURE = 'https://e7.pngegg.com/pngimages/419/473/png-clipart-computer-icons-user-profile-login-user-heroes-sphere-thumbnail.png'
 
 class User_Profile(db.Model):
     """User Profile Model."""
@@ -12,7 +14,8 @@ class User_Profile(db.Model):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    picture = db.Column(db.Text, nullable=True)
+    banner = db.Column(db.Text, nullable=True, default=DEFAULT_PROFILE_BANNER)
+    picture = db.Column(db.Text, nullable=True, default=DEFAULT_USER_PICTURE)
     username = db.Column(db.String(50), nullable=False, unique=True)
     password = db.Column(db.Text, nullable=False)
     email = db.Column(db.Text, nullable=False, unique=True)
@@ -63,7 +66,7 @@ class User_Profile(db.Model):
         """Validate that user exists and password is correct."""
         user = User_Profile.query.filter_by(email=email).first()
 
-        if user and bcrypt.check_password_hash(user.password, password):
+        if user and bcrypt.check_password_hash(user.password, str(password)):
             return user
         else:
             return False
@@ -71,6 +74,7 @@ class User_Profile(db.Model):
     def serialize(self):
         return {
             "id": self.id, 
+            "banner": self.banner,
             "picture": self.picture,
             "username": self.username, 
             "password": self.password, 
@@ -85,11 +89,4 @@ class User_Profile(db.Model):
         }
     
     def __repr__(self):
-        return f"<User [ \
-            id={self.id}, \
-            username={self.username}, \
-            firstname={self.first_name}, \
-            lastname={self.last_name}, \
-            password={self.password}, \
-            birth_date={self.birth_date} \
-            ]>"
+        return f"<User [id={self.id}, username={self.username}, firstname={self.first_name}, lastname={self.last_name}, password={self.password}, birth_date={self.birth_date}]>"
