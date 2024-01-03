@@ -1,28 +1,28 @@
 {% block content %}
-    <nav class="navbar">
-        <div id="topnav-left">
-          <a class="active" href="/home_page">Home</a>
-        </div>
-        <div id="topnav-center">
-            <div class="container-fluid">
-                <div class="input-group">
+    <div id="user-profile-navbar">
+        <nav class="navbar">
+            <div id="topnav-left">
+              <a class="active" href="/home_page">Home</a>
+            </div>
+            <div id="topnav-center">
+                <div class="container-fluid input-group" id="search-bar">
                     <input type="text" class="form-control" placeholder="Search..." aria-label="Search" aria-describedby="search-addon">
                     <div class="input-group-append">
-                      <span class="input-group-text" id="search-addon">
-                        <i class="fa-solid fa-search"></i> <!-- You can replace this with your icon or use an image -->
-                      </span>
+                        <span class="input-group-text" id="search-addon">
+                            <i class="fa-solid fa-search"></i> 
+                        </span>
                     </div>
-                  </div>
+                </div>
             </div>
-        </div>
-        <!-- Button trigger modal -->
-        <div id="topnav-right">
-            <a href="#">
-                <i class="fa-sharp fa-solid fa-gear fa-lg"></i>
-            </a>
-            <a href="/user/logout" class="btn" id="log-out">
-                Log Out
-            </a>
-        </div>
-    </nav>
+            <!-- Button trigger modal -->
+            <div id="topnav-right">
+                <a href="#">
+                    <i class="fa-solid fa-gear fa-2xl"></i>
+                </a>
+                <a href="/user/logout" class="btn" id="log-out">
+                    Log Out
+                </a>
+            </div>
+        </nav>
+    </div>
 {% endblock %}

@@ -1,32 +1,34 @@
 {% extends 'base.html' %}
 {% block title %}Profile - {{user.username}}{% endblock %}
 {% block content %}
-    <div class="container-fluid" id="user_profile_background">
-        <div class="row"><img src="{{user.banner}}" alt="User Banner Image"></div>
-    </div>
-    <div class="container-fluid" id="user_profile_header">
-        <div class="row align-items-center">
-            <div class="col-md-4" id="user_profile_picture">
-                <img src="{{user.picture}}" id="user-profile-picture" alt="User Profile Picture" class="img-fluid rounded-circle">
-                <label for="user-profile-picture">{{user.username}}</label>
-            </div>
-            <div class="col-md-8">
-                <h2>{{user.first_name}} {% if user.sur_name %}{{user.sur_name}} {% endif %}{{user.last_name}}</h2>
-                <p>{{user.about}}</p>
+    <div id="user-profile-header">
+        <div class="row">
+            <img src="{{user.banner}}" alt="User Banner Image" id="user-profile-banner">
+            <div class="centered" id="user-profile-content">
+                <div id="user-profile-details">
+                    <div id="user-profile-picture">
+                        <img src="{{user.picture}}" alt="User Profile Picture" class="img-fluid rounded-circle">
+                    </div>
+                    <div>
+                        <h2>{{user.username}}</h2>
+                        <span>{{user.email}}</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    <div class="container" id="user_profile_body">
+    <div class="container" id="user-profile-body">
         <div class="row">
-            <nav>
-                <a href="">Presentation</a>
-                <a href="">Recent Activity</a>
-                <a href="">Recent Work</a>
-                <a href="#">Other</a>
+            <nav id="user-profile-nav">
+                <a href="{{ url_for('user.presentation') }}">Presentation</a>
+                <a href="{{ url_for('user.recent_activity') }}">Recent Activity</a>
+                <a href="{{ url_for('user.recent_work') }}">Recent Work</a>
+                <a href="{{ url_for('user.other') }}">Other</a>
             </nav>
         </div>
         <div class="row">
-            <!-- Add content for each section, e.g., user presentation, recent activity, recent work, etc. -->
+            <!-- Content will be loaded here dynamically based on user's selection -->
+            {% block user_content %}{% endblock %}
         </div>
     </div>
 {% endblock %}

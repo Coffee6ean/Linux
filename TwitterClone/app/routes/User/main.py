@@ -37,6 +37,23 @@ def delete_user_profile():
         db.session.commit()
         return redirect('/')
 
+# User Profile - Sections
+@user_bp.route('/user/presentation')
+def presentation():
+    return render_template('User/sections/presentation.html')
+
+@user_bp.route('/user/recent_activity')
+def recent_activity():
+    return render_template('User/sections/recent_activity.html')
+
+@user_bp.route('/user/recent_work')
+def recent_work():
+    return render_template('User/sections/recent_work.html')
+
+@user_bp.route('/user/other')
+def other():
+    return render_template('User/sections/other.html')
+
 @user_bp.route('/user/<int:id>')
 def get_user_profile(id):   
     user = User_Profile.query.get_or_404(id)

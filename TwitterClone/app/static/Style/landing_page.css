@@ -77,17 +77,16 @@
 
 /* Nav Bar */
 nav {
-    padding: 0;
-    background-color: none;
+    background-color: #5c1539;
     overflow: hidden;
 }
 
 #topnav-left a {
     float: left;
-    color: #5c1539;
+    color: white;
     text-align: center;
     border-radius: 5px;
-    margin-left: 10px;
+    margin-left: 20px;
     padding: 8px 14px;
     text-decoration: none;
     font-size: 17px;
@@ -97,11 +96,6 @@ nav {
 #topnav-left a:hover {
     background-color: #ddd;
     color: black;
-}
-
-#topnav-left a.active {
-    background-color: #5c1539;
-    color: white;
 }
 
 #topnav-right a {
@@ -115,8 +109,15 @@ nav {
     transition: transform 0.25s;
 }
 
-#log-in, #sign-up {
+#log-in, #sign-up, #log-out {
     color: white;
+}
+
+#topnav-right a > i {
+    padding-top: 19px;
+    position: flex;
+    float: right;
+    background-color: #5c1539;
 }
 
 /* Modal */

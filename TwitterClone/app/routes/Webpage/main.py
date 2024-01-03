@@ -35,6 +35,7 @@ def log_user_in():
         else:
             login_form.email.errors = ['Invalid username/password.']
     flash('Oops! Invalid username/password.')
+    return redirect('/')
 
 
 @webpage_bp.route('/signup', methods=['GET', 'POST'])
@@ -64,3 +65,4 @@ def sign_user_up():
         session['user_id'] = new_user.id
         flash(f'Welcome to the team!')
         return render_template('User/user_profile', user=new_user)
+    return redirect('/')
