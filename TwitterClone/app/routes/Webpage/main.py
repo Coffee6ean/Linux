@@ -8,19 +8,15 @@ from models.user import User_Profile
 from Forms.login_form import LoginForm
 from Forms.signup_form import SignupForm
 
-webpage_bp = Blueprint('webpage', __name__, template_folder='../../templates/Webpage')
+webpage_bp = Blueprint('webpage', __name__, template_folder='../../templates/Webpage/')
 
 # WEB-PAGE ROUTES
-@webpage_bp.route('/test', methods=['GET', 'POST'])
+@webpage_bp.route('/', methods=['GET', 'POST'])
 def index():
     login_form = LoginForm()
     signup_form = SignupForm()
     
-    return render_template('test.html', login_form=login_form, signup_form=signup_form)
-
-@webpage_bp.route('/')
-def still_show_landing_page():
-    return redirect('/test')
+    return render_template('Webpage/landing_page.html', login_form=login_form, signup_form=signup_form)
 
 @webpage_bp.route('/login', methods=['GET', 'POST'])
 def log_user_in():
@@ -39,7 +35,6 @@ def log_user_in():
         else:
             login_form.email.errors = ['Invalid username/password.']
     flash('Oops! Invalid username/password.')
-    return redirect('/test')
 
 
 @webpage_bp.route('/signup', methods=['GET', 'POST'])
@@ -69,4 +64,3 @@ def sign_user_up():
         session['user_id'] = new_user.id
         flash(f'Welcome to the team!')
         return render_template('User/user_profile', user=new_user)
-    return redirect('/test')
