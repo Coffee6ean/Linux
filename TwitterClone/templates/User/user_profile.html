@@ -3,32 +3,54 @@
 {% block content %}
     <div id="user-profile-header">
         <div class="row">
-            <img src="{{user.banner}}" alt="User Banner Image" id="user-profile-banner">
-            <div class="centered" id="user-profile-content">
-                <div id="user-profile-details">
-                    <div id="user-profile-picture">
-                        <img src="{{user.picture}}" alt="User Profile Picture" class="img-fluid rounded-circle">
-                    </div>
-                    <div>
-                        <h2>{{user.username}}</h2>
-                        <span>{{user.email}}</span>
-                    </div>
+            <div id="user-profile-banner-container">
+                <img src="{{user.banner}}" alt="User Banner Image" id="user-profile-banner" class="w-100">
+            </div>
+            <div class="row align-items-center justify-content-between" id="user-profile-content">
+                <div id="user-profile-details" class="col-md-4 text-center">
+                    <h2>{{user.username}}</h2>
+                    <span>{{user.email}}</span>
+                </div>
+                <div id="user-profile-picture" class="col-md-4 text-center">
+                    <img src="{{user.picture}}" alt="User Profile Picture" class="rounded-circle">
+                </div>
+                <div id="user-profile-action" class="col-md-4 text-center">
+                    <a href="#" class="btn btn-circle" id="profile-picture-button">
+                        <i class="fa-solid fa-camera-retro fa-2x"></i>
+                    </a>
+                    <a href="#" class="btn btn-circle" id="profile-banner-button">
+                        <i class="fa-regular fa-image fa-2x"></i>
+                    </a>
+                    <a href="#" class="btn btn-circle" id="profile-edit-button">
+                        <i class="fa-regular fa-pen-to-square fa-2x"></i>
+                    </a>
                 </div>
             </div>
         </div>
     </div>
     <div class="container" id="user-profile-body">
         <div class="row">
-            <nav id="user-profile-nav">
-                <a href="{{ url_for('user.presentation') }}">Presentation</a>
-                <a href="{{ url_for('user.recent_activity') }}">Recent Activity</a>
-                <a href="{{ url_for('user.recent_work') }}">Recent Work</a>
-                <a href="{{ url_for('user.other') }}">Other</a>
+            <nav id="user-profile-nav" class="col-12">
+                <div class="col-3">
+                    <a class="nav-link" id="user-action-presentation">Presentation</a>
+                </div>
+                <div class="col-3">
+                    <a class="nav-link" id="user-action-activity">Recent Activity</a>
+                </div>
+                <div class="col-3">
+                    <a class="nav-link" id="user-action-work">Recent Work</a>
+                </div>
+                <div class="col-3">
+                    <a class="nav-link" id="user-action-other">Other</a>
+                </div>
             </nav>
         </div>
         <div class="row">
             <!-- Content will be loaded here dynamically based on user's selection -->
-            {% block user_content %}{% endblock %}
+            <div class="container-fluid" id="user-profile-section">
+                {% block user_content %}{% endblock %}
+            </div>
         </div>
     </div>
+    
 {% endblock %}

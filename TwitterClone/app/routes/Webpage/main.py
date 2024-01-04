@@ -29,12 +29,12 @@ def log_user_in():
         print('#################')
         print('User:', user)
         if user:
-            flash(f'Welcome back, {user.username}!') 
+            flash(f'Welcome back, {user.username}!', 'success') 
             session['user_id'] = user.id
             return redirect(url_for('user.show_user_profile'))
         else:
             login_form.email.errors = ['Invalid username/password.']
-    flash('Oops! Invalid username/password.')
+    flash('Oops! Invalid username/password.', 'danger')
     return redirect('/')
 
 
@@ -63,6 +63,6 @@ def sign_user_up():
             signup_form.username.errors.append('Username taken. Please pick another')
             return render_template('test.html', signup_form=signup_form)
         session['user_id'] = new_user.id
-        flash(f'Welcome to the team!')
+        flash(f'Welcome to the team, {new_user.username}!', 'success')
         return render_template('User/user_profile', user=new_user)
     return redirect('/')

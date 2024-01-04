@@ -118,6 +118,7 @@ nav {
     position: flex;
     float: right;
     background-color: #5c1539;
+    color: white;
 }
 
 /* Modal */
@@ -140,4 +141,23 @@ nav {
 
 input, label {
     display:block;
+}
+
+/* Pop-up Messages */
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.alert-info {
+    color: #0d6efd;
+    background-color: #ced4da;
+    border-color: #ced4da;
 }

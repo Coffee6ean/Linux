@@ -1,8 +1,86 @@
 /* ------ User Profile Page Styling ------ */
-/* User Page */
-#user-profile-content {
-    position: absolute;
-    background-color: #f8f9fa;
+/* Banner Image */
+#user-profile-banner-container {
+    width: 100%;
+    max-height: 30vh; /* Adjust the maximum height as needed */
+    overflow: hidden;
+}
+
+#user-profile-banner {
+    width: 100%;
+    height: auto;
+}
+
+/* User Picture */
+#user-profile-picture img {
+    width: 300px; /* Adjust the size of the profile picture as needed */
+    height: 300px;
+    object-fit: cover; /* Maintain aspect ratio and cover the container */
+    border: 8px solid #fff; /* Thick white border */
+    border-radius: 50%; /* Circular shape */
+    overflow: hidden; /* Hide overflow content */
+}
+
+/* User Details */
+#user-profile-details span {
+    font-weight: bold;
+    color: black;
+}
+
+#user-profile-details h2 {
+    color: black;
+}
+
+/* User Actions */
+#user-profile-action a {
+    color: white;
+    background-color: #5c1539;
+    margin: 5px;
+}
+
+#user-profile-action a:hover {
+    transform: scale(1.1);
+    transition: transform 0.25s;
+}
+
+.btn-circle {
+    border-radius: 50%;
+    width: 60px; /* Adjust the size as needed */
+    height: 60px; /* Adjust the size as needed */
+    padding: 5px; /* Adjust the padding as needed */
+    padding-top: 12px;
+}
+
+/* User profile body styling */
+#user-profile-body {
+    align-self: center;
+    padding: 5px;
+}
+
+/* User profile nav */
+#user-profile-nav {
+    display: flex;
+    border-radius: 5px;
+    justify-content: center;
+}
+
+#user-profile-nav a {
+    color: white; 
+    text-decoration: none; 
+    font-weight: bold; 
+    font-size: 16px; 
+    transition: background-color 0.3s; 
+    text-align: center;
+    padding: 12px;
+    width: 100%;
+}
+
+#user-profile-nav a.active {
+    background-color: #845b8b;
+}
+
+#user-profile-nav a:hover {
+    background-color: #845b8b;
 }
 
 /* Search Bar */
@@ -27,67 +105,4 @@
     border-radius: 0 5px 5px 0;
     color: white;
     cursor: pointer;
-}
-
-/* Banner Image */
-#user-profile-banner {
-    width: 100%;
-    height: auto;
-}
-
-/* User Picture */
-#user-profile-details {
-    margin-top: 25%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-#user-profile-picture img {
-    width: 300px; /* Adjust the size of the profile picture as needed */
-    height: 300px;
-    border: 8px solid #fff; /* Thick white border */
-    border-radius: 50%; /* Circular shape */
-    overflow: hidden; /* Hide overflow content */
-    margin-bottom: 10px;
-}
-
-/* User Details */
-#user-profile-details span {
-    font-weight: bold;
-    color: #f8f9fa;
-}
-
-#user-profile-details h2 {
-    color: #f8f9fa;
-}
-
-/* User profile body styling */
-#user-profile-body {
-    margin-top: 20px;
-}
-
-/* User profile nav */
-#user-profile-nav {
-    display: flex;
-    justify-content: space-around;
-    background-color: #5c1539; /* Background color for the navigation bar */
-    padding: 10px 0; /* Add padding to the top and bottom of the navigation bar */
-    border-radius: 5px;
-}
-
-#user-profile-nav a {
-    color: white; /* Text color for the navigation links */
-    text-decoration: none; /* Remove underlines from the links */
-    font-weight: bold; /* Make the text bold */
-    font-size: 16px; /* Adjust the font size */
-}
-
-#user-profile-nav a:hover {
-    color: #ddd; /* Change the text color on hover */
 }

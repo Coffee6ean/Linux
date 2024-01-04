@@ -21,7 +21,7 @@ def show_user_profile():
         return render_template('User/user_profile.html', user=user)
     else:
         # Handle the case when 'user_id' is not in the session
-        flash('User not logged in.')
+        flash('User not logged in.', 'danger')
         return redirect('/')
 
 @user_bp.route('/user/profile/')
@@ -36,23 +36,6 @@ def delete_user_profile():
         db.session.delete(user)
         db.session.commit()
         return redirect('/')
-
-# User Profile - Sections
-@user_bp.route('/user/presentation')
-def presentation():
-    return render_template('User/sections/presentation.html')
-
-@user_bp.route('/user/recent_activity')
-def recent_activity():
-    return render_template('User/sections/recent_activity.html')
-
-@user_bp.route('/user/recent_work')
-def recent_work():
-    return render_template('User/sections/recent_work.html')
-
-@user_bp.route('/user/other')
-def other():
-    return render_template('User/sections/other.html')
 
 @user_bp.route('/user/<int:id>')
 def get_user_profile(id):   
@@ -72,8 +55,19 @@ def get_user_posts():
     all_user_posts = [post for post in user.posts]
     return render_template()
     
-# BOARD ROUTES
-@user_bp.route('/posts')
-def show_all_posts():
-    boards = Board.query.all()
-    return render_template('')
+# User Profile - Sections
+@user_bp.route('/user/presentation')
+def presentation():
+    return render_template('User/sections/presentation.html')
+
+@user_bp.route('/user/recent_activity')
+def recent_activity():
+    return render_template('User/sections/recent_activity.html')
+
+@user_bp.route('/user/recent_work')
+def recent_work():
+    return render_template('User/sections/recent_work.html')
+
+@user_bp.route('/user/other')
+def other():
+    return render_template('User/sections/other.html')
