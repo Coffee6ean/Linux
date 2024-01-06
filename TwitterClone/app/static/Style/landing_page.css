@@ -109,7 +109,7 @@ nav {
     transition: transform 0.25s;
 }
 
-#log-in, #sign-up, #log-out {
+#log-in, #sign-up, #register, #log-out {
     color: white;
 }
 

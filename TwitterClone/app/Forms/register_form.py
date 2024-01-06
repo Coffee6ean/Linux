@@ -1,19 +1,9 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, EmailField, \
-                    DateField
-from wtforms.validators import InputRequired, Email, Length, \
-                            Regexp
+from wtforms import StringField, PasswordField, DateField
+from wtforms.validators import InputRequired, Email, Length, Regexp
 
-class SignupForm(FlaskForm):
-    """Form for User Log-In"""
-
-    def __init__(self, *args, **kwargs):
-        super(SignupForm, self).__init__(*args, **kwargs)
-
-        # Change the ID of the CSRF token
-        self.csrf_token.id = 'signup_form_csrf_token'
-
-    email = EmailField("Email", validators=[
+class RegisterForm(FlaskForm):
+    email = StringField("Email", validators=[
         InputRequired(), 
         Email(), 
         Length(max=50)]
@@ -30,7 +20,7 @@ class SignupForm(FlaskForm):
             message="Password must include at least one lowercase letter, one uppercase letter, one digit, and one special character."
         )
     ])
-    birth_date = StringField("Birthdate", validators=[InputRequired()])
+    birth_date = DateField("Birthdate", validators=[InputRequired()])
 
     def __repr__(self):
         return f"SignupForm(email={self.email.data}, username={self.username.data}, " \

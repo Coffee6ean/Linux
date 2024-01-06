@@ -3,4 +3,22 @@
 
 {% block content %}
     <h1 class="display-1">Users</h1>
+    <div class="container-fluid m-2">
+        {% for user in users %}
+            <div class="card m-1">
+                <div class="card-body">
+                    <h5 class="card-title"><b>{{user.username}}</b></h5>
+                    <h6 class="card-subtitle mb-2 text-muted">Date</h6>
+                    <p class="card-text">{{user.text}}</p>
+                    {% if session['user_id'] == user.user_id %}
+                        <form style="display: inline;" action="/users/{{user.id}}" method="POST">
+                            <button class="btn btn-sm btn-danger" id="delete-user">
+                                <span class="material-symbols-outlined">delete</span>
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}  

@@ -1,32 +1,50 @@
 {% block content %}
-    {{ signup_form.hidden_tag() }}
-    <h1 class="display-1">Welcome to Twitter Clone</h1>
-    <div class="container-fluid">
-        <i class="fa-brands fa-twitter fa-2xl" id="twitter-sm-logo"></i>
-        <p class="sign-up-slogan">Post. Discuss. Connect</p>
-        <div class="row m-1" id="email_signup">
-            <div class="col">
-                <label for="email_input" class="form-label">{{ signup_form.email.label }} </label>
-                {{ signup_form.email(class="form-control") }}
+    <form action="/signup" method="POST" id="signup-modal-form">
+        <div class="modal fade" id="signupModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="modal-title"></h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        {{ signup_form.hidden_tag() }}
+                        <h1 class="display-1">Welcome to Twitter Clone</h1>
+                        <div class="container-fluid">
+                            <i class="fa-brands fa-twitter fa-2xl" id="twitter-sm-logo"></i>
+                            <p class="sign-up-slogan">Post. Discuss. Connect</p>
+                            <div class="row m-1" id="email_signup">
+                                <div class="col">
+                                    <label for="email_input" class="form-label">{{ signup_form.email.label }} </label>
+                                    {{ signup_form.email(class="form-control", id="signup_form_email") }}
+                                </div>
+                            </div>
+                            <div class="row m-1" id="username_signup">
+                                <div class="col">
+                                    <label for="username_input" class="form-label">{{ signup_form.username.label }} </label>
+                                    {{ signup_form.username(class="form-control", id="signup_form_username") }}
+                                </div>
+                            </div>
+                            <div class="row m-1" id="password_signup">
+                                <div class="col">
+                                    <label for="password_input" class="form-label">{{ signup_form.password.label }} </label>
+                                    {{ signup_form.password(class="form-control", id="signup_form_password") }}
+                                </div>
+                            </div>
+                            <div class="row m-1" id="birthdate_signup">
+                                <div class="col">
+                                    <label for="birthdate_input" class="form-label">{{ signup_form.birth_date.label }} </label>
+                                    {{ signup_form.birth_date(class="form-control", id="signup_form_birthdate", type="date") }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="modal-signup-close-button">Close</button>
+                        <button type="submit" class="btn btn-primary" id="modal-signup-submit-button">Submit</button>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="row m-1" id="username_signup">
-            <div class="col">
-                <label for="username_input" class="form-label">{{ signup_form.username.label }} </label>
-                {{ signup_form.username(class="form-control") }}
-            </div>
-        </div>
-        <div class="row m-1" id="password_signup">
-            <div class="col">
-                <label for="password_input" class="form-label">{{ signup_form.password.label }} </label>
-                {{ signup_form.password(class="form-control") }}
-            </div>
-        </div>
-        <div class="row m-1" id="birthdate_signup">
-            <div class="col">
-                <label for="birthdate_input" class="form-label">{{ signup_form.birth_date.label }} </label>
-                {{ signup_form.birth_date(class="form-control", type="date") }}
-            </div>
-        </div>
-    </div>
+    </form>
 {% endblock %}

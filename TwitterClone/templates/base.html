@@ -27,46 +27,12 @@
         {% include "Webpage/Navbars/user_profile.html" %}
     {% else %}
         {% include "Webpage/Navbars/landing_page.html" %}
-        <!-- Modal -->
-        <form action="/login" method="POST" id="login-modal-form">
-            <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="modal-title"></h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            {% include "Webpage/modals/user_login.html" %}
-                        </div>    
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="modal-close-button">Close</button>
-                            <button type="submit" class="btn btn-primary" id="modal-submit-button">Submit</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </form>
-        <!-- Modal -->
-        <form action="/signup" method="POST" id="signup-modal-form">
-            <div class="modal fade" id="signupModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="modal-title"></h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                        {% include "Webpage/modals/user_signup.html" %}
-                        </div>    
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="modal-close-button">Close</button>
-                            <button type="submit" class="btn btn-primary" id="modal-submit-button">Submit</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </form>
+        <!-- Log-In Modal -->
+        {% include "Webpage/modals/user_login.html" %}
+        <!-- Sign-Up Modal -->
+        {% include "Webpage/modals/user_signup.html" %}
+        <!-- Register Modal -->
+        {% include "Webpage/modals/user_registration.html" %}
     {% endif %}
     <!-- Templates -->
     <section class="content">

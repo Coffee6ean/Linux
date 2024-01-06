@@ -24,10 +24,6 @@ def show_user_profile():
         flash('User not logged in.', 'danger')
         return redirect('/')
 
-@user_bp.route('/user/profile/')
-def still_show_user_profile():
-    return redirect('/user/profile')
-
 @user_bp.route('/user/profile', methods=['GET', 'POST'])
 def delete_user_profile():
     user = User_Profile.query.get_or_404(session['user_id'])
@@ -44,10 +40,7 @@ def get_user_profile(id):
         return render_template('user_profile.html', user=user)
     else:
         return render_template('404_page', user=user)
-    
-@user_bp.route('/user/<int:id>/')
-def still_get_user_profile(id):
-    return redirect(f'/user/{id}')
+
 
 @user_bp.route('/user/posts')
 def get_user_posts():

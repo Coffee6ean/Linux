@@ -1,0 +1,49 @@
+{% block content %}
+    <form action="/register" method="POST" id="register-modal-form">
+        <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="modal-title"></h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <h1 class="display-1">Welcome to Twitter Clone</h1>
+                        <div class="container-fluid">
+                            <i class="fa-brands fa-twitter fa-2xl" id="twitter-sm-logo"></i>
+                            <p class="sign-up-slogan">Post. Discuss. Connect</p>
+                            <div class="row m-1" id="email_register">
+                                <div class="col">
+                                    <label for="register_form_email" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="register_form_email" name="email" required>
+                                </div>
+                            </div>
+                            <div class="row m-1" id="username_register">
+                                <div class="col">
+                                    <label for="register_form_username" class="form-label">Username</label>
+                                    <input type="text" class="form-control" id="register_form_username" name="username" required>
+                                </div>
+                            </div>
+                            <div class="row m-1" id="password_register">
+                                <div class="col">
+                                    <label for="register_form_password" class="form-label">Password</label>
+                                    <input type="password" class="form-control" id="register_form_password" name="password" required>
+                                </div>
+                            </div>
+                            <div class="row m-1" id="birthdate_register">
+                                <div class="col">
+                                    <label for="register_form_birthdate" class="form-label">Birth Date</label>
+                                    <input type="date" class="form-control" id="register_form_birthdate" name="birthdate" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="modal-register-close-button">Close</button>
+                        <button type="submit" class="btn btn-primary" id="modal-register-submit-button">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock %}

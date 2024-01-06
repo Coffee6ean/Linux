@@ -57,8 +57,8 @@ class User_Profile(db.Model):
             password = hashed_utf8,
             birth_date = birth_date
         )
-
         db.session.add(new_user)
+
         return new_user
     
     @classmethod

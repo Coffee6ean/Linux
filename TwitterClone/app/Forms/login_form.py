@@ -12,3 +12,7 @@ class LoginForm(FlaskForm):
     password = PasswordField("Password", validators=[
         InputRequired(message="Oops! It seems there might be an issue with the password. Please verify and try again")
     ])
+
+    def __repr__(self):
+        return f"LoginForm(email={self.email.data}, password={self.password.data})"
+    
