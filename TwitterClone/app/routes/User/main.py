@@ -2,36 +2,50 @@ from flask import Blueprint, render_template, redirect, \
                 flash, session
 import sys
 sys.path.append('../')
+from models.main import db
 from models.user import User_Profile
 from models.board import Board
 
-user_bp = Blueprint('user', __name__, template_folder='../../templates/User/')
+user_bp = Blueprint('user', __name__, template_folder=['../../templates/User/', '../../templates/'])
 
 # USER ROUTES
 @user_bp.route('/user/logout')
 def logout_user():
-    session.pop('user_id')
+    session.pop('username')
     flash('Successfully logged out', 'info')
     return redirect('/')
 
-@user_bp.route('/user/profile')
-def show_user_profile():
-    if 'user_id' in session:
-        user = User_Profile.query.get_or_404(session['user_id'])
+@user_bp.route('/user/<username>')
+def show_user_profile(username):
+    if username in session or username == session['username']:
+        user = User_Profile.query.get_or_404(username)
         return render_template('User/user_profile.html', user=user)
     else:
-        # Handle the case when 'user_id' is not in the session
+        # Handle the case when 'username' is not in the session
         flash('User not logged in.', 'danger')
         return redirect('/')
+    
+@user_bp.route('/user/<username>/edit', methods=['GET', 'UPDATE'])
+def edit_user_profile(username):
+    if username in session or username == session['username']:
+        user = User_Profile.query.get_or_404(username)
+        return render_template('User/edit_profile.html', user=user)
+    else:
+        # Handle the case when 'username' is not in the session
+        return render_template('404_page.html')
 
-@user_bp.route('/user/profile', methods=['GET', 'POST'])
-def delete_user_profile():
-    user = User_Profile.query.get_or_404(session['user_id'])
-    form = DeleteForm()
-    if form.validate_on_submit():
-        db.session.delete(user)
-        db.session.commit()
-        return redirect('/')
+@user_bp.route('/user/<username>/delete', methods=['POST'])
+def delete_user_profile(username):
+    """Remove user from app."""
+
+    if "username" not in session or username != session['username']:
+        return render_template('404_page.html')
+    
+    user = User_Profile.query.get_or_404(session['username'])
+    db.session.delete(user)
+    db.session.commit()
+    session.pop('username')
+    return redirect('/')
 
 @user_bp.route('/user/<int:id>')
 def get_user_profile(id):   
@@ -44,7 +58,7 @@ def get_user_profile(id):
 
 @user_bp.route('/user/posts')
 def get_user_posts():
-    user = User_Profile.query.get_or_404(session['user_id'])
+    user = User_Profile.query.get_or_404(session['username'])
     all_user_posts = [post for post in user.posts]
     return render_template()
     

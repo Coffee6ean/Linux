@@ -40,8 +40,8 @@ def log_user_in():
         print('###################################')
         if user:
             flash(f'Welcome back, {user.username}!', 'success') 
-            session['user_id'] = user.id
-            return redirect(url_for('user.show_user_profile'))
+            session['username'] = user.username
+            return redirect(f"/user/{user.username}")
         else:
             login_form.email.errors = ['Invalid username/password.']
     flash('Oops! Invalid username/password.', 'danger')
@@ -76,9 +76,9 @@ def sign_user_up():
         print('###################################')
   
         db.session.commit()
-        session['user_id'] = new_user.id
+        session['username'] = new_user.username
         flash(f'Welcome to the team, {new_user.username}!', 'success')
-        return redirect(url_for('user.show_user_profile'))
+        return redirect(f"/user/{new_user.username}")
     else:
         flash('Email/Username taken. Please pick another', 'danger')
         return redirect('/') 
@@ -102,8 +102,8 @@ def register():
         except:
             flash('Username/Email taken. Please pick another', 'danger')
             return redirect('/')
-        session['user_id'] = new_user.id
+        session['username'] = new_user.username
         flash(f'Welcome to the team, {new_user.username}!', 'success')
-        return redirect(url_for('user.show_user_profile'))
+        return redirect(f"/user/{new_user.username}")
 
     return render_template('register_template.html')

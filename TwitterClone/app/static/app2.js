@@ -1,11 +1,10 @@
 function main() {
-    const logIn = document.querySelector("#log-in");
-    const signUp = document.querySelector("#sign-up");
     const presentationBtn = document.querySelector("#user-action-presentation");
     const activityBtn = document.querySelector("#user-action-activity");
-    const workBtn = document.querySelector("#user-action-work");
-    const otherBtn = document.querySelector("#user-action-other");
     const navLinks = document.querySelectorAll('.nav-link');
+    const editPictureBtn = document.querySelector('#profile-picture-icon');
+    const editBannerBtn = document.querySelector('#profile-banner-icon');
+    const editProfileBtn = document.querySelector('#profile-edit-button');
 
     /*
     logIn.addEventListener('click', () => {
@@ -36,6 +35,16 @@ function main() {
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Quaerat corrupti tenetur iusto assumenda error rerum, quis ullam quos aliquid fugiat eos adipisci voluptas dolore deserunt et sapiente obcaecati quod explicabo. \
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatum exercitationem rem perspiciatis fugit minima voluptatibus amet ipsum labore, excepturi magnam? Quo a odit, possimus illo voluptas assumenda modi facere quasi.'
         );
+    });
+
+    editPictureBtn.addEventListener('click', () => {
+        const popover = document.querySelector('#profile-picture-popover');
+        popover.classList.toggle('hideForm');
+    });
+
+    editBannerBtn.addEventListener('click', () => {
+        const popover = document.querySelector('#banner-picture-popover');
+        popover.classList.toggle('hideForm');
     });
 
     navLinks.forEach(function (link) {

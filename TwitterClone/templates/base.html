@@ -19,11 +19,12 @@
     <!-- Style DOC -->
     <link rel="stylesheet" href="../static/Style/landing_page.css">
     <link rel="stylesheet" href="../static/Style/user_profile.css">
-    <link rel="stylesheet" meida="screen" href="app/Images/FirstSunriseOnAnnapurnaDakshin.jpg">
+    <link rel="stylesheet" href="../static/Style/user_profile.css">
+    <!-- link rel="stylesheet" meida="screen" href="app/Images/FirstSunriseOnAnnapurnaDakshin.jpg" -->
 </head>
 <body>
     <!-- Nav Bar-->
-    {% if session['user_id'] %}
+    {% if session['username'] %}
         {% include "Webpage/Navbars/user_profile.html" %}
     {% else %}
         {% include "Webpage/Navbars/landing_page.html" %}

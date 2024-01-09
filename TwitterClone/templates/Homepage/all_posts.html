@@ -2,15 +2,15 @@
 {% block title %}Twitter Clone{% endblock %}
 
 {% block content %}
-    <h1 class="display-1">Tweets</h1>
-    <div class="container-fluid m-2">
+    <div class="container-fluid">
+        <h1 class="display-1">Tweets</h1>
         {% for post in posts %}
             <div class="card m-1">
                 <div class="card-body">
                     <h5 class="card-title"><b>{{post.user.username}}</b></h5>
                     <h6 class="card-subtitle mb-2 text-muted">Date</h6>
                     <p class="card-text">{{post.text}}</p>
-                    {% if session['user_id'] == post.user_id %}
+                    {% if session['username'] == post.username %}
                         <form style="display: inline;" action="/posts/{{post.id}}" method="POST">
                             <button class="btn btn-sm btn-danger" id="delete-post">
                                 <span class="material-symbols-outlined">delete</span>

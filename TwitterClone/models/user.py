@@ -13,10 +13,10 @@ class User_Profile(db.Model):
     
     __tablename__ = 'users'
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id = db.Column(db.Integer, autoincrement=True)
+    username = db.Column(db.String(50), nullable=False, unique=True, primary_key=True)
     banner = db.Column(db.Text, nullable=True, default=DEFAULT_PROFILE_BANNER)
     picture = db.Column(db.Text, nullable=True, default=DEFAULT_USER_PICTURE)
-    username = db.Column(db.String(50), nullable=False, unique=True)
     password = db.Column(db.Text, nullable=False)
     email = db.Column(db.Text, nullable=False, unique=True)
     first_name = db.Column(db.String(30), nullable=True)

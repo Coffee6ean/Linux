@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Profile - {{user.username}}{% endblock %}
+{% block content %}
+    <div class="container-fluid">
+        <h1 class="display-1">Edit Profile</h1>
+        {% if user.username==session['username'] %}
+            <form action="">
+                <input type="text">
+                <input type="text">
+                <input type="text">
+            </form>
+        {% endif %}
+    </div>
+{% endblock %}

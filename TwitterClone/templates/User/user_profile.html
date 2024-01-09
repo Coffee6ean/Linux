@@ -15,15 +15,27 @@
                     <img src="{{user.picture}}" alt="User Profile Picture" class="rounded-circle">
                 </div>
                 <div id="user-profile-action" class="col-md-4 text-center">
-                    <a href="#" class="btn btn-circle" id="profile-picture-button">
-                        <i class="fa-solid fa-camera-retro fa-2x"></i>
-                    </a>
-                    <a href="#" class="btn btn-circle" id="profile-banner-button">
-                        <i class="fa-regular fa-image fa-2x"></i>
-                    </a>
-                    <a href="#" class="btn btn-circle" id="profile-edit-button">
-                        <i class="fa-regular fa-pen-to-square fa-2x"></i>
-                    </a>
+                    <div class="row justify-content-center">
+                        <a href="#" class="btn btn-circle" id="profile-picture-button">
+                            <i class="fa-solid fa-camera-retro fa-2x" id="profile-picture-icon"></i>
+                            <form action="#" class="hideForm" id="profile-picture-popover">
+                                <label for="profile-picture-input">New profile picture url:</label>
+                                <input id="profile-picture-input" type="text" placeholder="Enter link" autocomplete="off">
+                                <button type="submit">Submit</button>
+                            </form>
+                        </a>
+                        <a href="#" class="btn btn-circle" id="profile-banner-button">
+                            <i class="fa-regular fa-image fa-2x" id="profile-banner-icon"></i>
+                            <form action="#" class="hideForm" id="banner-picture-popover">
+                                <label for="banner-picture-input">New banner picture url:</label>
+                                <input id="banner-picture-input" type="text" placeholder="Enter link" autocomplete="off">
+                                <button type="submit">Submit</button>
+                            </form>
+                        </a>
+                        <a href="/user/{{user.username}}/edit" class="btn btn-circle" id="profile-edit-button">
+                            <i class="fa-regular fa-pen-to-square fa-2x"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

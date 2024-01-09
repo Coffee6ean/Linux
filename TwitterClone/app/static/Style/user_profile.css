@@ -1,4 +1,4 @@
-/* ------ User Profile Page Styling ------ */
+/* ------ User Profile - Styling ------ */
 /* Banner Image */
 #user-profile-banner-container {
     width: 100%;
@@ -9,6 +9,11 @@
 #user-profile-banner {
     width: 100%;
     height: auto;
+}
+
+/* User Profile Content */
+#user-profile-content {
+    margin-top: -110px;
 }
 
 /* User Picture */
@@ -49,6 +54,54 @@
     height: 60px; /* Adjust the size as needed */
     padding: 5px; /* Adjust the padding as needed */
     padding-top: 12px;
+}
+
+/* Popover */
+#user-profile-action > div > a {
+    position: relative;
+    cursor: pointer;
+}
+
+#user-profile-action > div > a > i {
+    width: 100%;
+    height: 100%;
+}
+
+#user-profile-action > div > a > form { /* #user-profile-action > div > a > form => #profile-picture-popover */
+    position: absolute;
+    bottom: 3rem;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    background-color: #845b8b;
+    color: black;
+    width: 280px;
+    margin-bottom: -200px;
+}
+
+.hideForm {
+    opacity: 0;
+    visibility: hidden;
+}
+
+#user-profile-action > div > a > form input {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    border: 2px solid #eee;
+    font-size: 1rem;
+    outline: none;
+}
+
+#user-profile-action > div > a > form button {
+    display: block;
+    width: 100%;
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+    background: grey;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
 }
 
 /* User profile body styling */
