@@ -20,7 +20,7 @@ def show_all_posts():
     return render_template('Homepage/all_posts.html', posts=posts)
 
 # ALL USERS ROUTES
-@homepage_bp.route('/users')
+@homepage_bp.route('/user/all')
 def show_all_users():
     users = User_Profile.query.all()
     return render_template('Homepage/all_users.html', users=users)

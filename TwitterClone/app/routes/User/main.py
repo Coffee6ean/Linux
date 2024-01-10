@@ -1,10 +1,11 @@
 from flask import Blueprint, render_template, redirect, \
-                flash, session
+                flash, session, url_for
 import sys
 sys.path.append('../')
 from models.main import db
 from models.user import User_Profile
 from models.board import Board
+from Forms.edit_form import EditForm
 
 user_bp = Blueprint('user', __name__, template_folder=['../../templates/User/', '../../templates/'])
 
@@ -25,14 +26,35 @@ def show_user_profile(username):
         flash('User not logged in.', 'danger')
         return redirect('/')
     
-@user_bp.route('/user/<username>/edit', methods=['GET', 'UPDATE'])
+@user_bp.route('/user/<username>/edit')
 def edit_user_profile(username):
     if username in session or username == session['username']:
         user = User_Profile.query.get_or_404(username)
-        return render_template('User/edit_profile.html', user=user)
+        edit_form = EditForm(obj=user)
+        if edit_form.validate_on_submit():
+            edit_form.populate_obj(user)
+            db.session.commit()
+            flash('Profile updated successfully!', 'success')
+            return redirect(f"/user/{user.username}")
+        return render_template('User/edit_profile.html', edit_form=edit_form, user=user)
     else:
         # Handle the case when 'username' is not in the session
         return render_template('404_page.html')
+    
+@user_bp.route('/user/<username>/update', methods=['GET', 'UPDATE'])
+def update_user_profile(username):
+    if username in session or username == session['username']:
+        user = User_Profile.query.get_or_404(username)
+        edit_form = EditForm(obj=user)
+        if edit_form.validate_on_submit():
+            edit_form.populate_obj(user)
+            db.session.commit()
+            flash('Profile updated successfully!', 'success')
+            return redirect(f"/user/{user.username}")
+        return render_template('User/edit_profile.html', edit_form=edit_form, user=user)
+    else:
+        # Handle the case when 'username' is not in the session
+        return render_template('404_page.html')    
 
 @user_bp.route('/user/<username>/delete', methods=['POST'])
 def delete_user_profile(username):

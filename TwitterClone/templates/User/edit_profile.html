@@ -1,14 +1,80 @@
 {% extends 'base.html' %}
 {% block title %}Profile - {{user.username}}{% endblock %}
 {% block content %}
-    <div class="container-fluid">
-        <h1 class="display-1">Edit Profile</h1>
+    <div class="container" id="edit-profile-page">
+        <div class="title-section">
+            <h1 class="display-1">Edit Profile</h1>
+            <p>Keep your personal details private. Information you add here is visible to anyone who can view your profile.</p>
+        </div>
         {% if user.username==session['username'] %}
-            <form action="">
-                <input type="text">
-                <input type="text">
-                <input type="text">
-            </form>
+            <div class="form-section">
+                <form method="post" id="edit-profile-form">
+                    {{ edit_form.hidden_tag() }}
+                    {{ edit_form.csrf_token }}
+                    <div class="form-group">
+                        <label>{{ edit_form.username.label }}</label>
+                        {{ edit_form.username(class="form-control") }}
+                    </div>
+                    <div class="form-group">
+                        <label>{{ edit_form.banner.label }}</label>
+                        {{ edit_form.banner(class="form-control") }}
+                    </div>
+                    <div class="form-group">
+                        <label>{{ edit_form.picture.label }}</label>
+                        {{ edit_form.picture(class="form-control") }}
+                    </div>
+                    <div class="form-group">
+                        <label>{{ edit_form.password.label }}</label>
+                        {{ edit_form.password(class="form-control") }}
+                    </div>
+                    <div class="form-group">
+                        <label>{{ edit_form.email.label }}</label>
+                        {{ edit_form.email(class="form-control") }}
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label>{{ edit_form.first_name.label }}</label>
+                            {{ edit_form.first_name(class="form-control") }}
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>{{ edit_form.last_name.label }}</label>
+                            {{ edit_form.last_name(class="form-control") }}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>{{ edit_form.birth_date.label }}</label>
+                        {{ edit_form.birth_date(class="form-control") }}
+                    </div>
+                    <div class="form-group">
+                        <label>{{ edit_form.about.label }}</label>
+                        {{ edit_form.about(class="form-control") }}
+                    </div>
+                    <div class="form-group">
+                        <label for="pronouns">Pronouns</label>
+                        <select id="pronouns" name="pronouns" class="form-select">
+                            <option value=" - "> - </option>
+                            <option value="ey/em">ey/em</option>
+                            <option value="he/him">he/him</option>
+                            <option value="ne/nem">ne/nem</option>
+                            <option value="she/her">she/her</option>
+                            <option value="they/them">they/them</option>
+                            <option value="ve/ver">ve/ver</option>
+                            <option value="xe/xem">xe/xem</option>
+                            <option value="xie/xem">xie/xem</option>
+                            <option value="ze/zir">ze/zir</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>{{ edit_form.website.label }}</label>
+                        {{ edit_form.website(class="form-control") }}
+                    </div>
+                    <div class="form-group">
+                        <label>{{ edit_form.linked_in.label }}</label>
+                        {{ edit_form.linked_in(class="form-control") }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
         {% endif %}
     </div>
 {% endblock %}
