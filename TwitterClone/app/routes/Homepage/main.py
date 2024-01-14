@@ -17,7 +17,7 @@ def show_home_page():
 @homepage_bp.route('/posts')
 def show_all_posts():
     posts = Post.query.all()
-    return render_template('Homepage/all_posts.html', posts=posts)
+    return render_template('Homepage/Posts/all_posts.html', posts=posts)
 
 # ALL USERS ROUTES
 @homepage_bp.route('/user/all')

@@ -17,13 +17,15 @@ function main() {
     */
 
     presentationBtn.addEventListener('click', () => {
-        $('#user-profile-section').html(
-            '<span> \
-                Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ex, quam nihil. Corrupti, cupiditate sequi exercitationem distinctio nulla animi odio accusantium magnam, quam quae aliquam, nam hic unde illum repellat quisquam! \
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellendus aspernatur dolore minima, commodi cumque doloribus. Eligendi repellendus laboriosam at neque, voluptatum minima dolorem. Similique, fugiat! Architecto expedita doloribus nostrum dolorum. \
-                Lorem ipsum, dolor sit amet consectetur adipisicing elit. Exercitationem nulla optio excepturi amet quo temporibus, ea quas asperiores voluptatem sint eligendi quae, beatae adipisci sit veritatis deserunt perspiciatis nostrum velit. \
-            </span>'
-        );
+        // Load content dynamically using jQuery
+        $('#user-profile-section').load("/user/<username>/section", function(response, status, xhr) {
+            if (status == "error") {
+                console.error("Error loading content:", xhr.statusText);
+            } else {
+                // Code to execute after content is loaded
+                console.log("Content loaded successfully!");
+            }
+        });
     });
 
     activityBtn.addEventListener('click', () => {

@@ -5,51 +5,43 @@
         <div class="title-section">
             <h1 class="display-1">Edit Profile</h1>
             <p>Keep your personal details private. Information you add here is visible to anyone who can view your profile.</p>
-        </div>
-        {% if user.username==session['username'] %}
-            <div class="form-section">
-                <form method="post" id="edit-profile-form">
-                    {{ edit_form.hidden_tag() }}
-                    {{ edit_form.csrf_token }}
-                    <div class="form-group">
-                        <label>{{ edit_form.username.label }}</label>
-                        {{ edit_form.username(class="form-control") }}
+        </div>  
+        <div class="form-section">
+            <form action="/user/{{session['username']}}/update" method="POST" id="edit-profile-form">
+                {{ edit_form.hidden_tag() }}
+                {{ edit_form.csrf_token }}
+                <div class="form-group">
+                    <label>{{ edit_form.username.label }}</label>
+                    {{ edit_form.username(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    <label>{{ edit_form.banner.label }}</label>
+                    {{ edit_form.banner(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    <label>{{ edit_form.picture.label }}</label>
+                    {{ edit_form.picture(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    <label>{{ edit_form.email.label }}</label>
+                    {{ edit_form.email(class="form-control") }}
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-6">
+                        <label>{{ edit_form.first_name.label }}</label>
+                        {{ edit_form.first_name(class="form-control") }}
                     </div>
-                    <div class="form-group">
-                        <label>{{ edit_form.banner.label }}</label>
-                        {{ edit_form.banner(class="form-control") }}
+                    <div class="form-group col-md-6">
+                        <label>{{ edit_form.last_name.label }}</label>
+                        {{ edit_form.last_name(class="form-control") }}
                     </div>
-                    <div class="form-group">
-                        <label>{{ edit_form.picture.label }}</label>
-                        {{ edit_form.picture(class="form-control") }}
-                    </div>
-                    <div class="form-group">
-                        <label>{{ edit_form.password.label }}</label>
-                        {{ edit_form.password(class="form-control") }}
-                    </div>
-                    <div class="form-group">
-                        <label>{{ edit_form.email.label }}</label>
-                        {{ edit_form.email(class="form-control") }}
-                    </div>
-                    <div class="row">
-                        <div class="form-group col-md-6">
-                            <label>{{ edit_form.first_name.label }}</label>
-                            {{ edit_form.first_name(class="form-control") }}
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label>{{ edit_form.last_name.label }}</label>
-                            {{ edit_form.last_name(class="form-control") }}
-                        </div>
-                    </div>
-                    <div class="form-group">
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-6">
                         <label>{{ edit_form.birth_date.label }}</label>
                         {{ edit_form.birth_date(class="form-control") }}
                     </div>
-                    <div class="form-group">
-                        <label>{{ edit_form.about.label }}</label>
-                        {{ edit_form.about(class="form-control") }}
-                    </div>
-                    <div class="form-group">
+                    <div class="form-group col-md-6">
                         <label for="pronouns">Pronouns</label>
                         <select id="pronouns" name="pronouns" class="form-select">
                             <option value=" - "> - </option>
@@ -64,17 +56,25 @@
                             <option value="ze/zir">ze/zir</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label>{{ edit_form.website.label }}</label>
-                        {{ edit_form.website(class="form-control") }}
-                    </div>
-                    <div class="form-group">
-                        <label>{{ edit_form.linked_in.label }}</label>
-                        {{ edit_form.linked_in(class="form-control") }}
-                    </div>
+                </div>
+                <div class="form-group">
+                    <label>{{ edit_form.about.label }}</label>
+                    {{ edit_form.about(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    <label>{{ edit_form.website.label }}</label>
+                    {{ edit_form.website(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    <label>{{ edit_form.linked_in.label }}</label>
+                    {{ edit_form.linked_in(class="form-control") }}
+                </div>
+                <div>
                     <button type="submit" class="btn btn-primary">Save Changes</button>
-                </form>
-            </div>
-        {% endif %}
+                    <button class="btn btn-primary">Reset</button>
+                    <a href="/user/{{user.username}}" type="btn" class="btn btn-primary">Back</a>
+                </div>
+            </form>
+        </div>
     </div>
 {% endblock %}

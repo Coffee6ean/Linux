@@ -26,6 +26,8 @@ def log_user_in():
 
     print('###################################')
     print('Form:', login_form)
+    print('Form Errors:', login_form.errors)
+    print('Form Validation:', login_form.validate_on_submit())
     print('###################################')
     if login_form.validate_on_submit():
         form_email = login_form.email.data
@@ -33,10 +35,10 @@ def log_user_in():
         user = User_Profile.authenticate(email=form_email, password=form_password)
         print('###################################')
         print(f'id: {user.id}')
-        print(f'email: {user.email}')        
-        print(f'username: {user.username}')     
-        print(f'password: {user.password}')     
-        print(f'birth date: {user.birth_date}')   
+        print(f'email: {user.email}')
+        print(f'username: {user.username}')
+        print(f'password: {user.password}')
+        print(f'birth date: {user.birth_date}')
         print('###################################')
         if user:
             flash(f'Welcome back, {user.username}!', 'success') 

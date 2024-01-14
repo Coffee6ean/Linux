@@ -5,20 +5,24 @@
         <h1 class="display-1">Users</h1>    
         <div class="row">
             {% for user in users %}
-            <div class="col-lg-2 col-sm-4">
+            <div class="col-lg-2 col-md-4 col-sm-4">
                 <div class="card" style="width: 18rem;">
                     <img src="{{user.picture}}" class="card-img-top" alt="...">
                     <div class="card-body">
                         <h5 class="card-title"><b>{{user.username}}</b></h5>
                         <h6 class="card-subtitle mb-2 text-muted">{{user.email}}</h6>
                         <p class="card-text">{{user.about}}</p>
-                        {% if session['username'] == user.username %}
-                            <form style="display: inline;" action="/users/{{user.id}}" method="POST">
+                        <form style="display: inline;" action="/users/{{user.id}}" method="POST">
+                            {% if session['username'] == user.username %}
                                 <button class="btn btn-sm btn-danger" id="delete-user">
-                                    <span class="material-symbols-outlined">delete</span>
+                                    <span class="material-symbols-outlined">Delete</span>
                                 </button>
-                            </form>
-                        {% endif %}
+                            {% endif %}
+                            <a href="/user/{{user.username}}" class="btn btn-sm btn-secondary" id="view-user">View</a>
+                            <button class="btn btn-sm btn-secondary" id="contact-user">
+                                <span class="material-symbols-outlined">Contact</span>
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>  
