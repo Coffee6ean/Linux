@@ -4,6 +4,11 @@ import os
 template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
 import sys  
 sys.path.append('../')
+
+# App Configuration
+from lib.app_config import DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS, DEBUG
+
+# Models 
 from models.main import db, connect_db
 from models.user import User_Profile
 
@@ -29,10 +34,10 @@ app.register_blueprint(user_bp)
 app.app_context().push()        
 
 # Configure the Flask app
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///twitter_clone_db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
 app.config['SQLALCHEMY_ECHO'] = True
 app.config['SECRET_KEY'] = APP_KEY
-app.config['DEBUG_TB_INTERCEPTIONS_REDIRECTS'] = False
+app.config['DEBUG_TB_INTERCEPTIONS_REDIRECTS'] = DEBUG
 
 connect_db(app)

@@ -2,9 +2,9 @@
     <div id="user-profile-navbar">
         <nav class="navbar">
             <div id="topnav-left">
-                <a href="/home_page">Home</a>
-                <a href="/posts">Posts</a>
-                <a href="/user/all">Users</a>
+                <a href="/{{version}}/home_page">Home</a>
+                <a href="/{{version}}/posts">Posts</a>
+                <a href="/{{version}}/user/all">Users</a>
             </div>
             <div id="topnav-center">
                 <div class="container-fluid input-group" id="search-bar">
@@ -18,10 +18,10 @@
             </div>
             <!-- Button trigger modal -->
             <div id="topnav-right">
-                <a href="/user/{{session['username']}}">
+                <a href="/{{version}}/user/{{session['username']}}">
                     <i class="fa-regular fa-circle-user fa-2xl"></i>
                 </a>
-                <a href="/user/logout" class="btn" id="log-out">
+                <a href="/{{version}}/user/logout" class="btn" id="log-out">
                     Log Out
                 </a>
             </div>

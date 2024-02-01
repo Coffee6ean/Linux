@@ -1,3 +1,14 @@
+async function getLoggedUserData() {
+    try {
+        const req = await axios.get('http://127.0.0.1:5000/api/v1/user/blues_clues');
+        const res = req.data;
+        console.log(res);
+        return res;
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+    }
+}
+
 function main() {
     const presentationBtn = document.querySelector("#user-action-presentation");
     const activityBtn = document.querySelector("#user-action-activity");
@@ -6,17 +17,10 @@ function main() {
     const editBannerBtn = document.querySelector('#profile-banner-icon');
     const editProfileBtn = document.querySelector('#profile-edit-button');
 
-    /*
-    logIn.addEventListener('click', () => {
-        $('.modal-body').load("{{ url_for('static', filename='Webpage/user_login.html') }}");
-    });
-
-    signUp.addEventListener('click', () => {
-        $('.modal-body').load("{{ url_for('static', filename='Webpage/user_signup.html') }}");
-    });
-    */
 
     presentationBtn.addEventListener('click', () => {
+        data = getLoggedUserData()
+
         // Load content dynamically using jQuery
         $('#user-profile-section').load("/user/<username>/section", function(response, status, xhr) {
             if (status == "error") {
@@ -60,6 +64,9 @@ function main() {
             link.classList.add('active');
         });
     });
+
+    // Trigger click on the Presentation button to load its content on page load
+    presentationBtn.click();
 }
 
 document.addEventListener('DOMContentLoaded', main);

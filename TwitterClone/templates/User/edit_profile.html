@@ -7,7 +7,7 @@
             <p>Keep your personal details private. Information you add here is visible to anyone who can view your profile.</p>
         </div>  
         <div class="form-section">
-            <form action="/user/{{session['username']}}/update" method="POST" id="edit-profile-form">
+            <form action="/{{version}}/user/{{session['username']}}/update" method="POST" id="edit-profile-form">
                 {{ edit_form.hidden_tag() }}
                 {{ edit_form.csrf_token }}
                 <div class="form-group">
@@ -72,7 +72,7 @@
                 <div>
                     <button type="submit" class="btn btn-primary">Save Changes</button>
                     <button class="btn btn-primary">Reset</button>
-                    <a href="/user/{{user.username}}" type="btn" class="btn btn-primary">Back</a>
+                    <a href="/{{version}}/user/{{user.username}}" type="btn" class="btn btn-primary">Back</a>
                 </div>
             </form>
         </div>

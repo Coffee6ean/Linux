@@ -12,13 +12,13 @@
                         <h5 class="card-title"><b>{{user.username}}</b></h5>
                         <h6 class="card-subtitle mb-2 text-muted">{{user.email}}</h6>
                         <p class="card-text">{{user.about}}</p>
-                        <form style="display: inline;" action="/users/{{user.id}}" method="POST">
+                        <form style="display: inline;" action="/{{version}}/users/{{user.id}}" method="POST">
                             {% if session['username'] == user.username %}
                                 <button class="btn btn-sm btn-danger" id="delete-user">
                                     <span class="material-symbols-outlined">Delete</span>
                                 </button>
                             {% endif %}
-                            <a href="/user/{{user.username}}" class="btn btn-sm btn-secondary" id="view-user">View</a>
+                            <a href="/{{version}}/user/{{user.username}}" class="btn btn-sm btn-secondary" id="view-user">View</a>
                             <button class="btn btn-sm btn-secondary" id="contact-user">
                                 <span class="material-symbols-outlined">Contact</span>
                             </button>

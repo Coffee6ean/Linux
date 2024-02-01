@@ -1,26 +1,46 @@
+# Flask Imports
 from flask import Blueprint, render_template, redirect, \
                 flash, session, url_for, request
 from datetime import datetime
+
+# System Imports
 import sys
+
+# Append Parent Directory to sys.path
 sys.path.append('../')
+
+# Database and Model Imports
 from models.main import db
 from models.user import User_Profile
+
+# Form Imports
 from Forms.login_form import LoginForm
 from Forms.signup_form import SignupForm
 from Forms.register_form import RegisterForm
 
-webpage_bp = Blueprint('webpage', __name__, template_folder=['../../templates/Webpage/', '../../templates/'])
+# Configuration Imports
+from lib.app_config import APP_VERSION
+
+# Constants for Routes
+BASE_ROUTE = f'/{APP_VERSION}'
+
+# Blueprint Initialization
+webpage_bp = Blueprint('webpage', __name__, template_folder=[
+    '../../templates/Webpage/', 
+    '../../templates/'
+])
+
 
 # WEB-PAGE ROUTES
-@webpage_bp.route('/', methods=['GET', 'POST'])
+@webpage_bp.route(f'{BASE_ROUTE}/', methods=['GET', 'POST'])
 def index():
     login_form = LoginForm()
     signup_form = SignupForm()
     register_form = RegisterForm()
     
-    return render_template('Webpage/landing_page.html', login_form=login_form, signup_form=signup_form)
+    return render_template('Webpage/landing_page.html', login_form=login_form, signup_form=signup_form, version=APP_VERSION)
 
-@webpage_bp.route('/login', methods=['GET', 'POST'])
+@webpage_bp.route(f'{BASE_ROUTE}/login', methods=['GET', 'POST'])
 def log_user_in():
     login_form = LoginForm()
 
@@ -43,14 +63,13 @@ def log_user_in():
         if user:
             flash(f'Welcome back, {user.username}!', 'success') 
             session['username'] = user.username
-            return redirect(f"/user/{user.username}")
+            return redirect(f"{BASE_ROUTE}/user/{user.username}")
         else:
             login_form.email.errors = ['Invalid username/password.']
     flash('Oops! Invalid username/password.', 'danger')
-    return redirect('/')
+    return redirect(f'{BASE_ROUTE}/')
 
-
-@webpage_bp.route('/signup', methods=['GET', 'POST'])
+@webpage_bp.route(f'{BASE_ROUTE}/signup', methods=['GET', 'POST'])
 def sign_user_up():
     signup_form = SignupForm()
 
@@ -80,13 +99,13 @@ def sign_user_up():
         db.session.commit()
         session['username'] = new_user.username
         flash(f'Welcome to the team, {new_user.username}!', 'success')
-        return redirect(f"/user/{new_user.username}")
+        return redirect(f"{BASE_ROUTE}/user/{new_user.username}")
     else:
         flash('Email/Username taken. Please pick another', 'danger')
-        return redirect('/') 
+        return redirect(f'{BASE_ROUTE}/') 
         #return render_template('Webpage/landing_page.html', signup_form=signup_form)
 
-@webpage_bp.route('/register', methods=['GET', 'POST'])
+@webpage_bp.route(f'{BASE_ROUTE}/register', methods=['GET', 'POST'])
 def register():
     """Register a user: handle form submission."""
 
@@ -103,9 +122,9 @@ def register():
             db.session.commit()
         except:
             flash('Username/Email taken. Please pick another', 'danger')
-            return redirect('/')
+            return redirect(f'{BASE_ROUTE}/')
         session['username'] = new_user.username
         flash(f'Welcome to the team, {new_user.username}!', 'success')
-        return redirect(f"/user/{new_user.username}")
+        return redirect(f"{BASE_ROUTE}/user/{new_user.username}")
 
-    return render_template('register_template.html')
+    return render_template('register_template.html', version=APP_VERSION)

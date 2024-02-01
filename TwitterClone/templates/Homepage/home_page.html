@@ -11,7 +11,7 @@
                     <h6 class="card-subtitle mb-2 text-muted">Date</h6>
                     <p class="card-text">{{tweet.text}}</p>
                     {% if session['username'] == tweet.user.username %}
-                        <form style="display: inline;" action="/tweets/{{tweet.id}}" method="POST">
+                        <form style="display: inline;" action="/{{version}}/tweets/{{tweet.id}}" method="POST">
                             <button class="btn btn-sm btn-danger" id="delete-tweet">
                                 <span class="material-symbols-outlined">delete</span>
                             </button>
