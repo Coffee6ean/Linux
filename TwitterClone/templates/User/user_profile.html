@@ -57,11 +57,9 @@
                 </div>
             </nav>
         </div>
-        <div class="row">
-            <!-- Content will be loaded here dynamically based on user's selection -->
-            <div class="container-fluid" id="user-profile-section">
-                {% block user_content %}{% endblock %}
-            </div>
-        </div>
+    </div>
+    <div class="container-fluid" id="user-profile-section">
+        <!-- Content will be loaded here dynamically based on user's selection -->
+        {% block user_content %}{% endblock %}
     </div>
 {% endblock %}

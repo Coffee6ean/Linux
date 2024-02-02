@@ -30,7 +30,7 @@ user_bp = Blueprint('user', __name__, template_folder=[
 ])
 
 
-# USER ROUTES
+#-- USER ROUTES --#
 @user_bp.route(f'{USER_ROUTE}/logout')
 def logout_user():
     session.pop('username')
@@ -129,9 +129,11 @@ def get_presentation():
     return render_template('User/Sections/presentation.html')
 
 # User Profile - Sections
-@user_bp.route(f'{USER_ROUTE}/presentation')
-def presentation():
-    return render_template('User/sections/presentation.html')
+@user_bp.route(f'{USER_ROUTE}/<username>/presentation')
+def presentation(username):
+    user = User_Profile.query.get_or_404(username)
+
+    return render_template('User/Sections/presentation.html', user=user)
 
 @user_bp.route(f'{USER_ROUTE}/recent_activity')
 def recent_activity():
