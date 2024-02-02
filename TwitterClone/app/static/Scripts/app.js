@@ -14,6 +14,7 @@ async function getLoggedUserData(username) {
 }
 
 function main() {
+    const headStyle = document.querySelector('head');
     const usernameTag = document.querySelector('#user-profile-details > h2');
     const presentationBtn = document.querySelector("#user-action-presentation");
     const activityBtn = document.querySelector("#user-action-activity");
@@ -22,8 +23,16 @@ function main() {
     const editBannerBtn = document.querySelector('#profile-banner-icon');
     const editProfileBtn = document.querySelector('#profile-edit-button');
 
-
     presentationBtn.addEventListener('click', async () => {
+        // Create a new link element
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = '/static/Style/User/user_presentation.css';  // Update this with your actual path
+            
+        // Append the link element to the head
+        document.head.appendChild(link);
+
         const username = usernameTag.innerText;
         let url = BASE_URL + `v1/user/${username}/presentation`;
         console.log(url);

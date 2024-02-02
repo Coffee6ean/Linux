@@ -1,71 +1,82 @@
 {% block user_content %}
-    <div id="user-presentation">
-        <h2>{{ user.username }}</h2>
-        <ul>
-            <li><strong>Email:</strong> {{ user.email }}</li>
-            <li><strong>First Name:</strong> {{ user.first_name }}</li>
-            <li><strong>Last Name:</strong> {{ user.last_name }}</li>
-            <li><strong>Birth Date:</strong> {{ user.birth_date.strftime('%m/%d/%Y') }}</li>
-            <li><strong>Pronouns:</strong> {{ user.pronouns }}</li>
-            <li><strong>About:</strong> {{ user.about }}</li>
-            <li><strong>Website:</strong> <a href="{{ user.website }}" target="_blank">{{ user.website }}</a></li>
-            <li><strong>LinkedIn:</strong> <a href="{{ user.linked_in }}" target="_blank">{{ user.linked_in }}</a></li>
-        </ul>
-
-        <!-- Files Section (Carousel) -->
-        <h3>Files</h3>
-        <div id="files-carousel" class="carousel slide" data-bs-ride="carousel">
-            <div class="carousel-inner">
-                {% for file in user.files %}
-                    <div class="carousel-item {% if loop.first %}active{% endif %}">
-                        <!-- Placeholder image, replace with actual file icon -->
-                        <img src="{{ url_for('static', filename='images/file-icon.png') }}" class="d-block w-100" alt="File">
-                        <div class="carousel-caption d-none d-md-block">
-                            <h5>{{ file.name }}</h5>
-                            <p>{{ file.description }}</p>
-                        </div>
-                    </div>
-                {% endfor %}
+    <div id="user-presentation" class="presentation-container">
+        <div class="row">
+            <div class="col">
+                <h3 class="presentation-section-title">Presentation</h3>
+                <hr/>
+                <ul class="user-details">
+                    <li><strong>First Name:</strong> {{ user.first_name }}</li>
+                    <li><strong>Last Name:</strong> {{ user.last_name }}</li>
+                    <li><strong>Birth Date:</strong> {{ user.birth_date.strftime('%m/%d/%Y') }}</li>
+                    <li><strong>Pronouns:</strong> {{ user.pronouns }}</li>
+                    <li><strong>About:</strong> {{ user.about }}</li>
+                    <li><strong>Website:</strong> <a href="{{ user.website }}" target="_blank">{{ user.website }}</a></li>
+                    <li><strong>LinkedIn:</strong> <a href="{{ user.linked_in }}" target="_blank">{{ user.linked_in }}</a></li>
+                </ul>
             </div>
-            <button class="carousel-control-prev" type="button" data-bs-target="#files-carousel" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#files-carousel" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
-            </button>
+            <div class="col">
+                <!-- Pictures Section -->
+                <h3 class="presentation-section-title">Pictures</h3>
+                <hr/>
+                <div class="picture-gallery">
+                    {% for picture in user.pictures %}
+                        <img src="{{ url_for('static', filename='images/picture-placeholder.jpg') }}" alt="{{ picture.description }}">
+                    {% endfor %}
+                </div>
+            </div>
         </div>
-
-        <!-- Pictures Section -->
-        <h3>Pictures</h3>
-        <div class="picture-gallery">
-            {% for picture in user.pictures %}
-                <!-- Placeholder image, replace with actual picture -->
-                <img src="{{ url_for('static', filename='images/picture-placeholder.jpg') }}" alt="{{ picture.description }}">
-            {% endfor %}
+        <div class="row">
+            <!-- Files Section (Carousel) -->
+            <h3 class="presentation-section-title">Files</h3>
+            <div id="files-carousel" class="carousel slide presentation-section" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    {% for file in user.files %}
+                        <div class="carousel-item {% if loop.first %}active{% endif %}">
+                            <img src="{{ url_for('static', filename='images/file-icon.png') }}" class="d-block w-100" alt="File">
+                            <div class="carousel-caption d-none d-md-block">
+                                <h5>{{ file.name }}</h5>
+                                <p>{{ file.description }}</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#files-carousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#files-carousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
         </div>
-
-        <!-- Clarity Documentation (PDF) -->
-        <h3>Clarity Documentation</h3>
-        <iframe src="{{ url_for('static', filename='pdfs/clarity_documentation.pdf') }}" width="100%" height="600px"></iframe>
-
-        <!-- Morning Routine (To-Do List) -->
-        <h3>Morning Routine</h3>
-        <ul class="morning-routine-list">
-            {% for task in user.morning_routine %}
-                <li>{{ task }}</li>
-            {% endfor %}
-        </ul>
-
-        <!-- Personal Training (Link or Embedded Video) -->
-        <h3>Personal Training</h3>
-        {% if user.personal_training_link %}
-            <a href="{{ user.personal_training_link }}" target="_blank">Personal Training Video</a>
-        {% endif %}
-
-        <!-- Schedule (Google Calendar) -->
-        <h3>Schedule</h3>
-        <iframe src="https://calendar.google.com/calendar/embed?src=user_calendar_id" width="800" height="600" frameborder="0" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+        <div class="row">
+            <!-- Clarity Documentation (PDF) -->
+            <h3 class="presentation-section-title">Clarity Documentation</h3>
+            <iframe class="pdf-container" src="{{ url_for('static', filename='pdfs/clarity_documentation.pdf') }}" width="100%" height="600px"></iframe>
+        </div>
+        <div class="row">
+            <div class="col-3">
+                <!-- Morning Routine (To-Do List) -->
+                <h3 class="presentation-section-title">Morning Routine</h3>
+                <ul class="morning-routine-list">
+                    {% for task in user.morning_routine %}
+                        <li>{{ task }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="col-3">
+                <!-- Personal Training (Link or Embedded Video) -->
+                <h3 class="presentation-section-title">Personal Training</h3>
+                {% if user.personal_training_link %}
+                    <a class="personal-training-link" href="{{ user.personal_training_link }}" target="_blank">Personal Training Video</a>
+                {% endif %}
+            </div>
+            <div class="col">
+                <!-- Schedule (Google Calendar) -->
+                <h3 class="presentation-section-title">Schedule</h3>
+                <iframe src="https://calendar.google.com/calendar/embed?src=user_calendar_id" width="800" height="600" frameborder="0" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+            </div>
+        </div>
     </div>
 {% endblock %}

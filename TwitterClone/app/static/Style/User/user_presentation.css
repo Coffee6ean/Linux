@@ -1,0 +1,66 @@
+/* General styling for user presentation container */
+#user-presentation {
+    padding: 20px;
+    border-radius: 10px; /* Rounded corners */
+}
+
+/* Styling for user details */
+.user-details {
+    list-style-type: none;
+    padding: 0;
+}
+
+.user-details li {
+    margin-bottom: 10px;
+}
+
+/* Styling for each section */
+.presentation-section {
+    margin-bottom: 20px;
+    padding: 20px;
+    border-radius: 10px; /* Rounded corners */
+    border: 1px solid #5c1539; /* Border color */
+}
+
+/* Styling for files carousel */
+#files-carousel {
+    border: 1px solid #5c1539; /* Border color */
+    background-color: #f8f9fa;
+    border-radius: 10px; /* Rounded corners */
+}
+
+/* Styling for pictures gallery */
+.picture-gallery img {
+    max-width: 100%;
+    border: 1px solid #5c1539; /* Border color */
+    border-radius: 10px; /* Rounded corners */
+    margin-bottom: 10px;
+}
+
+/* Styling for PDF iframe */
+.pdf-container {
+    border: 1px solid #5c1539; /* Border color */
+    border-radius: 10px; /* Rounded corners */
+}
+
+/* Styling for morning routine list */
+.morning-routine-list {
+    border: 1px solid #5c1539; /* Border color */
+    list-style-type: none;
+    padding: 0;
+}
+
+.morning-routine-list li {
+    border: 1px solid #5c1539; /* Border color */
+    margin-bottom: 10px;
+}
+
+/* Styling for personal training link */
+.personal-training-link {
+    border: 1px solid #5c1539; /* Border color */
+    border-radius: 10px; /* Rounded corners */
+    padding: 10px;
+    display: inline-block;
+    text-decoration: none;
+    color: #007bff; /* Link color */
+}
