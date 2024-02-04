@@ -1,16 +1,15 @@
-from flask import Flask, redirect, request, \
-                render_template, session, flash
+from flask import Flask
+
 import os
 template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
 import sys  
 sys.path.append('../')
 
 # App Configuration
-from lib.app_config import DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS, DEBUG
+from config.app_config import DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS, DEBUG
 
 # Models 
 from models.main import db, connect_db
-from models.user import User_Profile
 
 # Forms 
 from app.Forms.login_form import LoginForm

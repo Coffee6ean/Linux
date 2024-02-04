@@ -11,7 +11,7 @@ sys.path.append('../')
 
 # Database and Model Imports
 from models.main import db
-from models.user import User_Profile
+from models.User.user import User_Profile
 
 # Form Imports
 from Forms.login_form import LoginForm
@@ -19,7 +19,11 @@ from Forms.signup_form import SignupForm
 from Forms.register_form import RegisterForm
 
 # Configuration Imports
-from lib.app_config import APP_VERSION
+from config.app_config import APP_VERSION
+
+# Helper functions
+from ..lib.Forms import reusable_methods as form_logger
+from ..lib.User import reusable_methods as user_logger
 
 # Constants for Routes
 BASE_ROUTE = f'/{APP_VERSION}'
@@ -31,7 +35,7 @@ webpage_bp = Blueprint('webpage', __name__, template_folder=[
 ])
 
 
-# WEB-PAGE ROUTES
+#--- WEB-PAGE ROUTES ---#
 @webpage_bp.route(f'{BASE_ROUTE}/', methods=['GET', 'POST'])
 def index():
     login_form = LoginForm()
@@ -44,28 +48,20 @@ def index():
 def log_user_in():
     login_form = LoginForm()
 
-    print('###################################')
-    print('Form:', login_form)
-    print('Form Errors:', login_form.errors)
-    print('Form Validation:', login_form.validate_on_submit())
-    print('###################################')
+    form_logger.print_form_debug_info(login_form)
     if login_form.validate_on_submit():
         form_email = login_form.email.data
         form_password = login_form.password.data
         user = User_Profile.authenticate(email=form_email, password=form_password)
-        print('###################################')
-        print(f'id: {user.id}')
-        print(f'email: {user.email}')
-        print(f'username: {user.username}')
-        print(f'password: {user.password}')
-        print(f'birth date: {user.birth_date}')
-        print('###################################')
+        user_logger.print_user_details(user)
+
         if user:
             flash(f'Welcome back, {user.username}!', 'success') 
             session['username'] = user.username
             return redirect(f"{BASE_ROUTE}/user/{user.username}")
         else:
             login_form.email.errors = ['Invalid username/password.']
+    form_logger.print_form_validation_failed(login_form)
     flash('Oops! Invalid username/password.', 'danger')
     return redirect(f'{BASE_ROUTE}/')
 
@@ -73,11 +69,7 @@ def log_user_in():
 def sign_user_up():
     signup_form = SignupForm()
 
-    print('###################################')
-    print('Form:', signup_form)
-    print('Form Errors:', signup_form.errors)
-    print('Form Validation:', signup_form.validate_on_submit())
-    print('###################################')
+    form_logger.print_form_debug_info(signup_form)
     if signup_form.validate_on_submit():
         form_email = signup_form.email.data
         form_username = signup_form.username.data
@@ -88,22 +80,16 @@ def sign_user_up():
         new_user = User_Profile.register(
             form_email, form_username, form_password, form_birth_date
         )
-        print('###################################')
-        print(f'id: {new_user.id}')
-        print(f'email: {new_user.email}')        
-        print(f'username: {new_user.username}')     
-        print(f'password: {new_user.password}')     
-        print(f'birth date: {new_user.birth_date}')   
-        print('###################################')
+        user_logger.print_user_details(new_user)
   
         db.session.commit()
         session['username'] = new_user.username
         flash(f'Welcome to the team, {new_user.username}!', 'success')
         return redirect(f"{BASE_ROUTE}/user/{new_user.username}")
     else:
+        form_logger.print_form_validation_failed(signup_form)
         flash('Email/Username taken. Please pick another', 'danger')
-        return redirect(f'{BASE_ROUTE}/') 
-        #return render_template('Webpage/landing_page.html', signup_form=signup_form)
+        return redirect(f'{BASE_ROUTE}/')
 
 @webpage_bp.route(f'{BASE_ROUTE}/register', methods=['GET', 'POST'])
 def register():

@@ -1,9 +1,17 @@
-from sqlalchemy import Date
-from .main import db, bcrypt
-from .post import Post
-from .board import Board
-from .project import Project
-from .association import user_board_association, user_project_association
+from sqlalchemy import Date, Boolean
+from ..main import db, bcrypt
+
+# User Specific Tables
+from ..User.picture import Picture
+from ..User.file import File
+from ..User.task import Task
+from ..User.link import Link
+
+# Tables
+from ..post import Post
+from ..board import Board
+from ..project import Project
+from ..association import user_board_association, user_project_association
 
 DEFAULT_PROFILE_BANNER = 'https://img.freepik.com/fotos-premium/vista-superior-do-local-de-trabalho-elegante-escuro-com-smartphone-e-material-de-escritorio_67155-2963.jpg?w=996'
 DEFAULT_USER_PICTURE = 'https://e7.pngegg.com/pngimages/419/473/png-clipart-computer-icons-user-profile-login-user-heroes-sphere-thumbnail.png'
@@ -13,12 +21,14 @@ class User_Profile(db.Model):
     
     __tablename__ = 'users'
 
-    id = db.Column(db.Integer, autoincrement=True)
-    username = db.Column(db.String(50), nullable=False, unique=True, primary_key=True)
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     banner = db.Column(db.Text, nullable=True, default=DEFAULT_PROFILE_BANNER)
     picture = db.Column(db.Text, nullable=True, default=DEFAULT_USER_PICTURE)
+    username = db.Column(db.String(50), nullable=False, unique=True)
     password = db.Column(db.Text, nullable=False)
     email = db.Column(db.Text, nullable=False, unique=True)
+    role = db.Column(db.String(20))  # e.g., user, staff, admin, super
+    profession = db.Column(db.String(50))  # e.g., department, profession
     first_name = db.Column(db.String(30), nullable=True)
     sur_name = db.Column(db.String(30), nullable=True)
     last_name = db.Column(db.String(30), nullable=True)
@@ -27,6 +37,12 @@ class User_Profile(db.Model):
     pronouns = db.Column(db.Text, nullable=True)
     website = db.Column(db.Text, nullable=True)
     linked_in = db.Column(db.Text, nullable=True)
+
+    # Relationships
+    pictures = db.relationship('Picture', backref='user', lazy=True)
+    files = db.relationship('File', backref='user', lazy=True)
+    tasks = db.relationship('Task', backref='user', lazy=True)
+    links = db.relationship('Link', backref='user', lazy=True)
 
     # Foreign Keys & Relationships - 
     posts = db.relationship('Post', backref='user')

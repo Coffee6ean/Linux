@@ -8,12 +8,12 @@ import sys
 sys.path.append('../')
 
 # Model Imports
-from models.user import User_Profile
+from models.User.user import User_Profile
 from models.post import Post
 from models.board import Board
 
 # Configuration Imports
-from lib.app_config import APP_VERSION
+from config.app_config import APP_VERSION
 from ..Webpage.main import BASE_ROUTE 
 
 # Blueprint Initialization

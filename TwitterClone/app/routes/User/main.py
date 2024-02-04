@@ -1,5 +1,6 @@
 # Flask Imports
-from flask import Blueprint, render_template, redirect, flash, session, url_for, jsonify
+from flask import Blueprint, render_template, redirect, \
+                    flash, session, url_for, jsonify
 
 # System Imports
 import sys
@@ -9,15 +10,19 @@ sys.path.append('../')
 
 # Database and Model Imports
 from models.main import db
-from models.user import User_Profile
+from models.User.user import User_Profile
 from models.board import Board
 
 # Form Imports
 from Forms.edit_form import EditForm
 
 # Configuration Imports
-from lib.app_config import APP_VERSION
+from config.app_config import APP_VERSION
 from ..Webpage.main import BASE_ROUTE 
+
+# Helper functions
+from ..lib.Forms import reusable_methods as form_logger
+from ..lib.User import reusable_methods as user_logger
 
 # Constants for Routes
 USER_ROUTE = f'/{APP_VERSION}/user'
@@ -30,7 +35,7 @@ user_bp = Blueprint('user', __name__, template_folder=[
 ])
 
 
-#-- USER ROUTES --#
+#--- USER ROUTES ---#
 @user_bp.route(f'{USER_ROUTE}/logout')
 def logout_user():
     session.pop('username')
@@ -39,19 +44,21 @@ def logout_user():
 
 @user_bp.route(f'{USER_ROUTE}/<username>')
 def show_user_profile(username):
-    if 'username' in session:
-        current_user = session['username']
-        # Check if the current user is trying to view their own profile or another user's profile
-        if current_user == username:
-            user = User_Profile.query.get_or_404(username)
+    if 'user_id' in session:
+        current_user_id = session['user_id']
+        user = User_Profile.query.get_or_404(username)
+
+        if current_user_id == user.id:
+            # User is viewing their own profile
+            return render_template('User/user_profile.html', user=user, version=APP_VERSION)
         else:
-            user = User_Profile.query.get_or_404(username)
-            # Add logic here if you want to restrict certain information for other users
-        return render_template('User/user_profile.html', user=user, version=APP_VERSION)
+            # User is viewing someone else's profile
+            return render_template('User/user_profile.html', user=user, version=APP_VERSION)
     else:
-        # Handle the case when user is not in the session
+        # Handle the case when the user is not in the session
         flash('User not logged in.', 'danger')
         return redirect(f'{BASE_ROUTE}/')
+
     
 @user_bp.route(f'{USER_ROUTE}/<username>/edit')
 def edit_user_profile(username):
@@ -68,37 +75,19 @@ def update_user_profile(username):
     if username in session or username == session['username']:
         user = User_Profile.query.get_or_404(username)
         edit_form = EditForm(obj=user)
+        form_logger.print_form_debug_info(edit_form)
 
-        print('###################################')
-        print()
-        print('Form:', edit_form)
-        print('Form Errors:', edit_form.errors)
-        print('Form Validation:', edit_form.validate())
-        print()
-        print('###################################')
         if edit_form.validate_on_submit():
             # Populate the existing user object with form data
             edit_form.populate_obj(user)
-            print('###################################')
-            print()
-            print(f'id: {user.id}')
-            print(f'email: {user.email}')
-            print(f'username: {user.username}')
-            print(f'password: {user.password}')
-            print(f'birth date: {user.birth_date}')
-            print()
-            print('###################################')
+            user_logger.print_user_details(user)
             
             db.session.commit()
             session['username'] = user.username
             flash('Profile updated successfully!', 'success')
             return redirect(f"{USER_ROUTE}/{user.username}")
-        print('###################################')
-        print()
-        print('Form Validation Failed')
-        print('Form Errors:', edit_form.errors)
-        print()
-        print('###################################')
+        
+        form_logger.print_form_validation_failed(edit_form)
         flash('Oppss! Something went wrong. Try again', 'danger')
         return render_template('User/edit_profile.html', edit_form=edit_form, user=user, version=APP_VERSION)
     else:
@@ -153,11 +142,7 @@ def api_get_user_data(username):
     """Return basic info about user in JSON."""
 
     user = User_Profile.query.get_or_404(username)
-    print('###################################')
-    print()
-    print(user.serialize())
-    print()
-    print('###################################')
+    user_logger.print_user_serialization(user)
 
     return user.serialize()
 
