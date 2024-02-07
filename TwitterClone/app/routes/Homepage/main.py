@@ -8,7 +8,7 @@ import sys
 sys.path.append('../')
 
 # Model Imports
-from models.User.user import User_Profile
+from models.user import User_Profile
 from models.post import Post
 from models.board import Board
 

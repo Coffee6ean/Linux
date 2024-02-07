@@ -10,7 +10,7 @@ sys.path.append('../')
 
 # Database and Model Imports
 from models.main import db
-from models.User.user import User_Profile
+from models.user import User_Profile
 from models.board import Board
 
 # Form Imports

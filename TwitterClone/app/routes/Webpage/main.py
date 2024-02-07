@@ -11,7 +11,7 @@ sys.path.append('../')
 
 # Database and Model Imports
 from models.main import db
-from models.User.user import User_Profile
+from models.user import User_Profile
 
 # Form Imports
 from Forms.login_form import LoginForm
@@ -36,6 +36,10 @@ webpage_bp = Blueprint('webpage', __name__, template_folder=[
 
 
 #--- WEB-PAGE ROUTES ---#
+@webpage_bp.route('/')
+def auto_redirect():
+    return redirect(url_for('webpage.index'))
+
 @webpage_bp.route(f'{BASE_ROUTE}/', methods=['GET', 'POST'])
 def index():
     login_form = LoginForm()
