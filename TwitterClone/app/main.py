@@ -11,10 +11,6 @@ from config.app_config import DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS, DEBU
 # Models 
 from models.main import db, connect_db
 
-# Forms 
-from app.Forms.login_form import LoginForm
-from app.Forms.signup_form import SignupForm
-
 # Routes 
 from app.routes.User.main import user_bp
 from app.routes.Homepage.main import homepage_bp

@@ -14,9 +14,9 @@ from models.main import db
 from models.user import User_Profile
 
 # Form Imports
-from Forms.login_form import LoginForm
-from Forms.signup_form import SignupForm
-from Forms.register_form import RegisterForm
+from forms.login_form import LoginForm
+from forms.signup_form import SignupForm
+from forms.register_form import RegisterForm
 
 # Configuration Imports
 from config.app_config import APP_VERSION
@@ -79,7 +79,7 @@ def sign_user_up():
         form_username = signup_form.username.data
         form_password = signup_form.password.data
         birth_date_str = signup_form.birth_date.data  # Received as a string
-        form_birth_date = datetime.strptime(birth_date_str, '%m/%d/%Y').date()  # Convert to date type
+        form_birth_date = datetime.strptime(birth_date_str, '%Y-%m-%d').date()  # Convert to date type
 
         new_user = User_Profile.register(
             form_email, form_username, form_password, form_birth_date

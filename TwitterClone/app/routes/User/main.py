@@ -14,7 +14,7 @@ from models.user import User_Profile
 from models.board import Board
 
 # Form Imports
-from Forms.edit_form import EditForm
+from forms.edit_form import EditForm
 
 # Configuration Imports
 from config.app_config import APP_VERSION

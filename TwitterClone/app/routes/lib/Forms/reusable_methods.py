@@ -11,7 +11,7 @@ def print_form_debug_info(form):
 def print_form_validation_failed(form):
     print('###################################')
     print()
-    print(f'- Form Validation Failed')
+    print(f'Form Validation Failed')
     print(f'- Form Errors: {form.errors}')
     print()
     print('###################################')
