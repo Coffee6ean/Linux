@@ -1,5 +1,6 @@
-from .main import db, bcrypt
-from .association import user_board_association
+from sqlalchemy import ForeignKey
+from .main import db
+import datetime
 
 class Board(db.Model):
     """Board Model."""
@@ -11,9 +12,14 @@ class Board(db.Model):
     description = db.Column(db.Text, nullable=True)
     topic = db.Column(db.Text, nullable=True)
     board = db.Column(db.Text, nullable=True)
+    created_at = db.Column(
+        db.DateTime,
+        nullable=False,
+        default=datetime.datetime.now) 
+    tags = ['board']
     
-    # Foreign Keys & Relationships - 
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    # Centralized Relationship Class - Entity
+    entities = db.relationship('Entity', backref='board_related_entities')
 
     def serialize(self):
         return f"<Project id={self.id} title={self.title} board={self.board}>"

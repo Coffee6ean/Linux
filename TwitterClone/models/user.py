@@ -1,17 +1,13 @@
-from sqlalchemy import Date, Boolean
-from ..main import db, bcrypt
+from sqlalchemy import Date
+from .main import db, bcrypt
 
 # User Specific Tables
-from ..User.picture import Picture
-from ..User.file import File
-from ..User.task import Task
-from ..User.link import Link
+from .file import File
+from .task import Task
+from .link import Link
 
 # Tables
-from ..post import Post
-from ..board import Board
-from ..project import Project
-from ..association import user_board_association, user_project_association
+from .entity import Entity
 
 DEFAULT_PROFILE_BANNER = 'https://img.freepik.com/fotos-premium/vista-superior-do-local-de-trabalho-elegante-escuro-com-smartphone-e-material-de-escritorio_67155-2963.jpg?w=996'
 DEFAULT_USER_PICTURE = 'https://e7.pngegg.com/pngimages/419/473/png-clipart-computer-icons-user-profile-login-user-heroes-sphere-thumbnail.png'
@@ -27,8 +23,8 @@ class User_Profile(db.Model):
     username = db.Column(db.String(50), nullable=False, unique=True)
     password = db.Column(db.Text, nullable=False)
     email = db.Column(db.Text, nullable=False, unique=True)
-    role = db.Column(db.String(20))  # e.g., user, staff, admin, super
-    profession = db.Column(db.String(50))  # e.g., department, profession
+    role = db.Column(db.String(20))  
+    profession = db.Column(db.String(50)) 
     first_name = db.Column(db.String(30), nullable=True)
     sur_name = db.Column(db.String(30), nullable=True)
     last_name = db.Column(db.String(30), nullable=True)
@@ -37,29 +33,10 @@ class User_Profile(db.Model):
     pronouns = db.Column(db.Text, nullable=True)
     website = db.Column(db.Text, nullable=True)
     linked_in = db.Column(db.Text, nullable=True)
+    tags = ['user']
 
-    # Relationships
-    pictures = db.relationship('Picture', backref='user', lazy=True)
-    files = db.relationship('File', backref='user', lazy=True)
-    tasks = db.relationship('Task', backref='user', lazy=True)
-    links = db.relationship('Link', backref='user', lazy=True)
-
-    # Foreign Keys & Relationships - 
-    posts = db.relationship('Post', backref='user')
-    boards = db.relationship(
-        'Board', # Related model name
-        secondary=user_board_association, # Association table for many-to-many relationship
-        backref='users', # Reverse relationship field on the 'Project' model
-        lazy='joined', # Lazy loading strategy for the relationship
-        uselist=True # Whether to use a list or a scalar for the relationship
-    )
-    projects = db.relationship(
-        'Project', 
-        secondary=user_project_association, 
-        backref='users', 
-        lazy='joined', 
-        uselist=True
-    )
+    # Centralized Relationship Class - Entity
+    entities = db.relationship('Entity', backref='user_related_entities')
 
     @classmethod
     def register(cls, email, username, password, birth_date):
@@ -100,8 +77,11 @@ class User_Profile(db.Model):
             "last_name": self.last_name,
             "birth_date": self.birth_date,
             "about": self.about,
-            "pronouns": self. pronouns,
-            "website": self.website
+            "pronouns": self.pronouns,
+            "website": self.website,
+            "linked_in": self.linked_in,
+            "role": self.role,
+            "profession": self.profession
         }
     
     def __repr__(self):

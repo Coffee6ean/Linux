@@ -1,4 +1,6 @@
-from .main import db, bcrypt
+from sqlalchemy import ForeignKey
+from .main import db
+import datetime
 
 class Feedback(db.Model):
     """Feedback Model."""
@@ -13,3 +15,10 @@ class Feedback(db.Model):
         db.ForeignKey('users.username'),
         nullable=False,
     )
+    created_at = db.Column(
+        db.DateTime,
+        nullable=False,
+        default=datetime.datetime.now)
+
+    # Centralized Relationship Class - Entity
+    entity = db.relationship('Entity', backref='file')
