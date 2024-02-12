@@ -44,11 +44,11 @@ def logout_user():
 
 @user_bp.route(f'{USER_ROUTE}/<username>')
 def show_user_profile(username):
-    if 'user_id' in session:
-        current_user_id = session['user_id']
-        user = User_Profile.query.get_or_404(username)
+    if 'username' in session:
+        current_user = session['username']
+        user = User_Profile.query.filter_by(username=username).first()
 
-        if current_user_id == user.id:
+        if current_user == user.username:
             # User is viewing their own profile
             return render_template('User/user_profile.html', user=user, version=APP_VERSION)
         else:
