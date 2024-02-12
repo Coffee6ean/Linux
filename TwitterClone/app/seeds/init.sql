@@ -7,7 +7,10 @@ CREATE DATABASE twitter_clone_db;
 -- Connect to the Database
 \c twitter_clone_db;
 
+-- Create Entities Table
+\i /home/coffee_6ean/Linux/TwitterClone/app/seeds/entities.sql;
+
 -- Call other scripts for table creation with correct paths
-\i /home/coffee_6ean/Linux/TwitterClone/app/seeds/Users/users.sql
-\i /home/coffee_6ean/Linux/TwitterClone/app/seeds/Projects/projects.sql
-\i /home/coffee_6ean/Linux/TwitterClone/app/seeds/Boards/discussion_boards.sql
+\i /home/coffee_6ean/Linux/TwitterClone/app/seeds/users.sql;
+\i /home/coffee_6ean/Linux/TwitterClone/app/seeds/projects.sql;
+\i /home/coffee_6ean/Linux/TwitterClone/app/seeds/boards.sql;
