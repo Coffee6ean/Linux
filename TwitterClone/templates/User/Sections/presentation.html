@@ -16,12 +16,42 @@
             </div>
             <div class="col">
                 <!-- Pictures Section -->
-                <h3 class="presentation-section-title">Pictures</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3 class="presentation-section-title">Pictures</h3>
+                    <a type="button" class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#uploadPictureModal">Add New Picture</a>
+                </div>
                 <hr/>
                 <div class="picture-gallery">
                     {% for picture in user.pictures %}
                         <img src="{{ url_for('static', filename='images/picture-placeholder.jpg') }}" alt="{{ picture.description }}">
                     {% endfor %}
+                </div>
+                <!-- Upload Picture Modal -->
+                <div class="modal fade" id="uploadPictureModal" tabindex="-1" aria-labelledby="uploadPictureModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="uploadPictureModalLabel">Upload Picture</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+
+                            <div class="modal-body">
+                                <!-- Upload Picture Form -->
+                                <form method="POST" action="/{{ version }}/user/{{ user.username }}/presentation/upload/picture" enctype="multipart/form-data">
+                                    {{ picture_form.hidden_tag() }}
+                                    <div class="mb-3">
+                                        {{ picture_form.image.label(class="form-label") }}
+                                        {{ picture_form.image(class="form-control") }}
+                                    </div>
+                                    <div class="mb-3">
+                                        {{ picture_form.description.label(class="form-label") }}
+                                        {{ picture_form.description(class="form-control", placeholder="Enter description") }}
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Upload</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
