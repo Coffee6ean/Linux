@@ -1,5 +1,5 @@
 from flask import Flask
-
+from flask_cors import CORS  # Import CORS extension
 import os
 template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
 import sys  
@@ -21,6 +21,9 @@ from app.Keys.secrets import APP_KEY
 
 app = Flask(__name__, template_folder=template_dir)
 
+# Apply CORS to your Flask app
+CORS(app)
+
 # Register blueprints
 app.register_blueprint(webpage_bp)
 app.register_blueprint(homepage_bp)
@@ -34,5 +37,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
 app.config['SQLALCHEMY_ECHO'] = True
 app.config['SECRET_KEY'] = APP_KEY
 app.config['DEBUG_TB_INTERCEPTIONS_REDIRECTS'] = DEBUG
+app.config['WTF_CSRF_ENABLED'] = True
 
 connect_db(app)

@@ -35,7 +35,6 @@ function main() {
 
         const username = usernameTag.innerText;
         let url = BASE_URL + `v1/user/${username}/presentation`;
-        console.log(url);
 
         // Load content dynamically using jQuery
         $('#user-profile-section').load(url, function(response, status, xhr) {
