@@ -1,13 +1,13 @@
 from flask import flash, redirect
 
-def print_user_details(new_user):
+def print_user_details(user):
     print('###################################')
     print()
-    print(f'- id: {new_user.id}')
-    print(f'- email: {new_user.email}')        
-    print(f'- username: {new_user.username}')     
-    print(f'- password: {new_user.password}')     
-    print(f'- birth date: {new_user.birth_date}')  
+    print(f'- id: {user.id}')
+    print(f'- email: {user.email}')        
+    print(f'- username: {user.username}')     
+    print(f'- password: {user.password}')     
+    print(f'- birth date: {user.birth_date}')  
     print() 
     print('###################################')
 
