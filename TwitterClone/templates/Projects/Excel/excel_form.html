@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Profile - {{user.username}}{% endblock %}
+{% block content %}
+    <div class="container">
+        <!-- Form section -->
+        <h2>Excel Data Viewer</h2>
+        <form id="excelForm">
+            <!-- Input fields -->
+            <label for="excelLink">Excel File Link:</label>
+            <input type="text" id="excelLink" name="excelLink" placeholder="Enter Excel file link..." required>
+            <label for="startRow">Start Row:</label>
+            <input type="number" id="startRow" name="startRow" placeholder="Enter start row..." required>
+            <label for="endRow">End Row:</label>
+            <input type="number" id="endRow" name="endRow" placeholder="Enter end row..." required>
+            <label for="startColumn">Start Column:</label>
+            <input type="number" id="startColumn" name="startColumn" placeholder="Enter start column..." required>
+            <label for="endColumn">End Column:</label>
+            <input type="number" id="endColumn" name="endColumn" placeholder="Enter end column..." required>
+            <!-- Submit button -->
+            <input type="submit" value="Submit">
+        </form>
+        <!-- Table section -->
+        <div id="tableContainer"></div>
+    </div>
+{% endblock %}    

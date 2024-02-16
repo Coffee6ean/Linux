@@ -15,6 +15,7 @@ from models.main import db, connect_db
 from app.routes.User.main import user_bp
 from app.routes.Homepage.main import homepage_bp
 from app.routes.Webpage.main import webpage_bp
+from app.routes.Projects.main import project_bp
 
 # Key
 from app.Keys.secrets import APP_KEY
@@ -28,6 +29,7 @@ CORS(app)
 app.register_blueprint(webpage_bp)
 app.register_blueprint(homepage_bp)
 app.register_blueprint(user_bp)
+app.register_blueprint(project_bp)
 
 app.app_context().push()        
 
