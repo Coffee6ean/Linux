@@ -3,7 +3,7 @@ import numpy as np
 
 # Read image
 #image = cv2.imread('/home/coffee_6ean/Linux/AdvancedModels/Images/Input/LeanTest_Line_Detection_1.png')
-image = cv2.imread('/home/coffee_6ean/Linux/AdvancedModels/Images/Input/LeanTest_Line_Detection_Ultimate.png')
+image = cv2.imread('/home/coffee_6ean/Linux/AdvancedModels/Images/Process/preprocessed_image_eroded2.jpg')
 
 # Convert image to grayscale
 gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
@@ -18,9 +18,9 @@ lines = cv2.HoughLinesP(
 			edges, # Input edge image
 			2, # Distance resolution in pixels
 			np.pi/180, # Angle resolution in radians
-			threshold=50, # Min number of votes for valid line
-			minLineLength=5, # Min allowed length of line
-			maxLineGap=10 # Max allowed gap between line for joining them
+			threshold=80, # Min number of votes for valid line
+			minLineLength=7, # Min allowed length of line
+			maxLineGap=7 # Max allowed gap between line for joining them
 			)
 
 # Iterate over points
