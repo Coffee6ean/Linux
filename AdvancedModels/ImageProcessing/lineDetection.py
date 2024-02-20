@@ -2,7 +2,8 @@ import cv2
 import numpy as np
 
 # Read image
-image = cv2.imread('/home/coffee_6ean/Linux/AdvancedModels/Images/Input/LeanTest_Line_Detection_1.PNG')
+#image = cv2.imread('/home/coffee_6ean/Linux/AdvancedModels/Images/Input/LeanTest_Line_Detection_1.png')
+image = cv2.imread('/home/coffee_6ean/Linux/AdvancedModels/Images/Input/LeanTest_Line_Detection_Ultimate.png')
 
 # Convert image to grayscale
 gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
