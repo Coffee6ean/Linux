@@ -39,6 +39,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
 app.config['SQLALCHEMY_ECHO'] = True
 app.config['SECRET_KEY'] = APP_KEY
 app.config['DEBUG_TB_INTERCEPTIONS_REDIRECTS'] = DEBUG
-app.config['WTF_CSRF_ENABLED'] = True
+app.config['WTF_CSRF_ENABLED'] = False
 
 connect_db(app)

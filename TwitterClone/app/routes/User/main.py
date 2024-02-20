@@ -146,7 +146,7 @@ def upload_picture(username):
     picture_form = PictureForm()
 
     form_logger.print_form_debug_info(picture_form)
-    form_logger.print_form_csrf_token(picture_form)
+    #form_logger.print_form_csrf_token(picture_form)
     if picture_form.validate_on_submit():
         try:
             image_file = picture_form.image.data
