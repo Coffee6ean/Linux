@@ -8,7 +8,7 @@ import numpy as np
 # Make sure that the image is in the same
 # directory in which this python program is
 img = cv2.imread('/home/coffee_6ean/Linux/AdvancedModels/Pictures/LeanTest_Line_Detection_1.PNG')
-cv2.imshow('Image with Detected Lines', img)
+#cv2.imshow('Image with Detected Lines', img)
 
 # Convert the img to grayscale
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -54,6 +54,8 @@ for r_theta in lines:
     cv2.line(img, (x1, y1), (x2, y2), (0, 0, 255), 2)
  
 # Display the image with detected lines
-cv2.imshow('Image with Detected Lines', img)
+#cv2.imshow('Image with Detected Lines', img)
+# Save the result image
+cv2.imwrite('detectedLines.png',img)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
