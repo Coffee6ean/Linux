@@ -16,7 +16,7 @@ def load_images_from_folder(folder):
 
 # Image Path
 input_folder_path = '/home/coffee_6ean/Linux/AdvancedModels/Images/Input'
-output_folder_path = '/home/coffee_6ean/Linux/AdvancedModels/Images/Process'
+output_folder_path = '/home/coffee_6ean/Linux/AdvancedModels/Images/Process/Washing/'
 
 # Load images from the input folder
 images = load_images_from_folder(input_folder_path)
