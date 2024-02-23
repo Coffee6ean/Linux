@@ -14,13 +14,13 @@ from config.app_config import DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS, DEBU
 from models.main import db, connect_db
 
 # Import blueprints
-from app.routes.User.main import user_bp
-from app.routes.Homepage.main import homepage_bp
-from app.routes.Webpage.main import webpage_bp
-from app.routes.Projects.main import project_bp
+from src.routes.User.main import user_bp
+from src.routes.Homepage.main import homepage_bp
+from src.routes.Webpage.main import webpage_bp
+from src.routes.Projects.main import project_bp
 
 # Import secret key
-from app.Keys.secrets import APP_KEY
+from src.Keys.secrets import APP_KEY
 
 # Define template directory
 template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
