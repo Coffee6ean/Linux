@@ -36,6 +36,7 @@ user_bp = Blueprint('user', __name__, template_folder=[
     '../../templates/User/', 
     '../../templates/'
 ])
+from app.main import csrf
 
 
 #--- USER ROUTES ---#
@@ -135,7 +136,8 @@ def display_user_presentation(username):
                            user=user, picture_form=picture_form, 
                            version=APP_VERSION)
 
-@user_bp.route(f'{USER_ROUTE}/<username>/presentation/upload/picture', methods=['GET','POST'])
+@user_bp.route(f'{USER_ROUTE}/<username>/presentation/upload/picture', methods=['POST'])
+@csrf.exempt
 def upload_picture(username):
     # Make sure the current user is authorized to upload pictures
     current_user = User_Profile.query.get_or_404(session.get('user_id'))
@@ -146,7 +148,7 @@ def upload_picture(username):
     picture_form = PictureForm()
 
     form_logger.print_form_debug_info(picture_form)
-    #form_logger.print_form_csrf_token(picture_form)
+    form_logger.print_form_csrf_token(picture_form)
     if picture_form.validate_on_submit():
         try:
             image_file = picture_form.image.data

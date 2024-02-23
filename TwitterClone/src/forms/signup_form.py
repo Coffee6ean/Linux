@@ -11,7 +11,7 @@ class SignupForm(FlaskForm):
         super(SignupForm, self).__init__(*args, **kwargs)
 
         # Change the ID of the CSRF token
-        self.csrf_token.id = 'signup_form_csrf_token'
+        self.csrf_token.id = 'csrf_token'
 
     email = EmailField("Email", validators=[
         InputRequired(), 
