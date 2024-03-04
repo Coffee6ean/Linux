@@ -25,7 +25,7 @@ def highlight_borders(image, kernel_size=(3, 3), iterations=1):
 
 
 # Image Path
-input_folder_path = '/home/coffee_6ean/Linux/AdvancedModels/src/models/images/Process/Opening'
+input_folder_path = '/home/coffee_6ean/Linux/AdvancedModels/src/models/images/Process/Washing'
 output_folder_path = '/home/coffee_6ean/Linux/AdvancedModels/src/models/images/Process/Dilating'
 
 # Load images from the input folder
