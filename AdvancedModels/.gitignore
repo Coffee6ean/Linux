@@ -4,3 +4,9 @@ venv/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
+
+# NPM Dependency lock
+package-lock.json
+
+# NPM dependencies 
+node_modules
