@@ -1,9 +1,10 @@
 import React from "react";
+import { Typography } from "@mui/material";
 
 function MapPage () {
     return (
         <div>
-            <h1>Map Page</h1>
+            <Typography variant="h1">Map Page</Typography>
         </div>
     );
 }
