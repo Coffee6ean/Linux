@@ -6,20 +6,21 @@ from datetime import datetime
 
 # --- Functions --- #
 def print_result(value):
-    print('\n//----------------- Content Below -----------------//')
+    print('\n//----------------- Print Results -----------------//')
     print()
     print(value)
     print()
-    print('//-------------------------------------------------//')    
 
 
-def read_uploaded_pdf(pdf_file_path, metadata):
+def read_uploaded_pdf(pdf_file_path, metadata, initial_anchor, final_anchor):
     """
     Read and process a PDF file containing activity data.
 
     Args:
         pdf_file_path (str): The file path of the uploaded PDF.
         metadata (dict): The metadata extracted from the PDF.
+        initial_anchor (str): The initial anchor tag for processing.
+        final_anchor (str): The final anchor tag for processing.
 
     Returns:
         int: 0 if the file is processed successfully, -1 if an error occurs.
@@ -30,22 +31,29 @@ def read_uploaded_pdf(pdf_file_path, metadata):
             # Create a PdfReader object
             reader = PdfReader(pdf_file_path)
 
-            # Initialize an empty string to hold the content of the entire document
-            full_content_str = ""
-
-            # Iterate through all pages and extract text
-            #for page in reader.pages:
-            #    full_content_str += page.extract_text() + "\n"  # Append text from each page
+            # Extract text from the first page to get the header
             first_page = reader.pages[0]
+            content_str = first_page.extract_text()
+            header, _ = pdf_reformatting(content_str, initial_anchor, final_anchor)
 
-            # Reformat the extracted text
-            header, body = pdf_reformatting(first_page.extract_text())
+            # Initialize a list to hold body content
+            all_bodies = []
+
+            # Iterate through all pages and extract text for the body
+            for page in reader.pages:
+                content_str = page.extract_text()
+
+                # Reformat the extracted text for the current page
+                _, body = pdf_reformatting(content_str, initial_anchor, final_anchor)
+
+                # Append the body to the list
+                all_bodies.extend(body)  # Use extend to add lines to the list
 
             # Include metadata in the processing
-            print("Extracted Metadata:", metadata)
+            print_result(f"Extracted Metadata: {metadata}")
 
             # Convert the parsed data to JSON
-            jsonify_parsed_data(metadata, header, body)
+            jsonify_parsed_data(metadata, header, all_bodies)
 
             return 0  # Indicate successful processing
         except Exception as e:
@@ -87,7 +95,7 @@ def extract_pdf_metadata(pdf_file_path):
     return metadata
 
 
-def pdf_reformatting(pdf_content):
+def pdf_reformatting(pdf_content, initial_anchor, final_anchor):
     """
     Reformats the content of a PDF by extracting the header and body sections based on user-defined anchor tags.
 
@@ -99,12 +107,8 @@ def pdf_reformatting(pdf_content):
             - The formatted header as a list of words.
             - The formatted body as a list of lines.
     """
-    # Prompt the user for anchor tags to identify sections of the content
-    initial_anchor = input("Please enter the initial anchor tag: ")
-    final_anchor = input("Please enter the final anchor tag: ")
-
     # Remove content after the final anchor tag
-    content_up_to_final_anchor = re.match(fr'[\S\s]+?(?= {final_anchor})', pdf_content)
+    content_up_to_final_anchor = re.search(fr'[\S\s]+?(?= {final_anchor})', pdf_content)
     if content_up_to_final_anchor:
         # Extract content up to the final anchor tag
         extracted_content = content_up_to_final_anchor.group()
@@ -112,8 +116,8 @@ def pdf_reformatting(pdf_content):
         print("Error. Invalid content.")
         return [], []  # Return empty lists if content is invalid
 
-    # Extract the header section and remove the initial anchor tag
-    header_match = re.match(fr'[\S\s]+?({initial_anchor})', extracted_content)
+    # Extract the header section
+    header_match = re.search(fr'[\S\s]+?({initial_anchor})', extracted_content)
     if header_match:
         header_content = header_match.group()
     else:
@@ -124,14 +128,10 @@ def pdf_reformatting(pdf_content):
     body_content = re.sub(fr'[\S\s]+?({initial_anchor})', '', extracted_content).strip()
 
     # Format the header and body for output
-    formatted_header = re.sub('\n', ' ', header_content).split()  # Split by whitespace
-    formatted_body = body_content.split('\n') if body_content else []  # Split body into lines
+    formatted_header = re.sub('\n', ' ', header_content).split()  # Split header by whitespace
+    formatted_body = body_content.splitlines()  # Split body into lines
 
-    # Print the formatted results (optional)
-    #print_result(formatted_header)
-    #print_result(formatted_body)
-
-    return formatted_header, formatted_body
+    return formatted_header, formatted_body  # Return header and body
 
 
 def parse_header_data(formatted_header):
@@ -174,7 +174,8 @@ def parse_header_data(formatted_header):
         # Break the outer loop if all keys have been found
         if len(structured_header) == len(stdrd_cpm_body):
             break
-
+    
+    print_result(f"Extracted Header: {structured_header}")
     return structured_header
 
 
