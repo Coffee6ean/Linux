@@ -1,0 +1,435 @@
+{
+  "project_metadata": {
+    "document_id": "4874",
+    "document_title": "SWA DEN GUB",
+    "document_subtitle": "INTERNAL Remaining Activities REV 10-3 Startup",
+    "issue_date": "2023-09-25T00:00:00Z",
+    "created_at": "2024-08-09T00:26:08.759135"
+  },
+  "project_content": {
+    "header": [
+      "id",
+      "name",
+      "duration",
+      "start",
+      "finish",
+      "total_float"
+    ],
+    "body": [
+      {
+        "id": "SWA GUB DEN",
+        "name": "SWA GUB DEN",
+        "duration": "601d",
+        "start": "17-Feb-23",
+        "finish": "16-Jun-25",
+        "total_float": "0d",
+        "activities": []
+      },
+      {
+        "id": "GUB",
+        "name": "GUB",
+        "duration": "601d",
+        "start": "17-Feb-23",
+        "finish": "16-Jun-25",
+        "total_float": "0d",
+        "activities": []
+      },
+      {
+        "id": "Summary",
+        "name": "Summary",
+        "duration": "533d",
+        "start": "08-May-23",
+        "finish": "16-Jun-25",
+        "total_float": "0d",
+        "activities": [
+          {
+            "id": "SUM-DUR-B",
+            "name": "Summary - Construction (Calendar Days)",
+            "duration": "680d",
+            "start": "08-May-23",
+            "finish": "11-Apr-25",
+            "total_float": "-43d"
+          },
+          {
+            "id": "G-MIL-1010",
+            "name": "*Milestone: Construction Substantial Completion (68 0 Calendar Days from Mobilization)",
+            "duration": "0d",
+            "start": "11-Apr-25",
+            "finish": "",
+            "total_float": "-31d"
+          },
+          {
+            "id": "G-SUM-DUR-B10",
+            "name": "Summary - Construction (Work Days)",
+            "duration": "472d",
+            "start": "08-May-23",
+            "finish": "11-Apr-25",
+            "total_float": "-31d"
+          },
+          {
+            "id": "G-CON-6870",
+            "name": "*Milestone: Beneficial Occupancy",
+            "duration": "0d",
+            "start": "02-May-25",
+            "finish": "",
+            "total_float": "30d"
+          },
+          {
+            "id": "G-CON-6880",
+            "name": "*Milestone: Final Completion",
+            "duration": "0d",
+            "start": "16-Jun-25",
+            "finish": "",
+            "total_float": "0d"
+          }
+        ]
+      },
+      {
+        "id": "Milestones",
+        "name": "Milestones",
+        "duration": "275d",
+        "start": "23-Oct-23",
+        "finish": "20-Nov-24",
+        "total_float": "20d",
+        "activities": [
+          {
+            "id": "G-MIL-2000",
+            "name": "*Milestone: Building Pad Certified Complete / Ready  for Drilled Piers",
+            "duration": "0d",
+            "start": "23-Oct-23",
+            "finish": "",
+            "total_float": "-14d"
+          },
+          {
+            "id": "G-MIL-3010",
+            "name": "*Milestone: Drilled Pier Start",
+            "duration": "0d",
+            "start": "24-Oct-23",
+            "finish": "",
+            "total_float": "-25d"
+          },
+          {
+            "id": "G-MIL-3020",
+            "name": "*Milestone: Grade Beam Start",
+            "duration": "0d",
+            "start": "16-Nov-23",
+            "finish": "",
+            "total_float": "-30d"
+          },
+          {
+            "id": "G-MIL-3030",
+            "name": "*Milestone: SOG Start",
+            "duration": "0d",
+            "start": "19-Dec-23",
+            "finish": "",
+            "total_float": "-24d"
+          },
+          {
+            "id": "G-MIL-3040",
+            "name": "*Milestone: Tilt Wall Start",
+            "duration": "0d",
+            "start": "23-Jan-24",
+            "finish": "",
+            "total_float": "-25d"
+          },
+          {
+            "id": "G-MIL-2020",
+            "name": "*Milestone: Tilt Complete (Last Panel Erection)",
+            "duration": "0d",
+            "start": "10-May-24",
+            "finish": "",
+            "total_float": "-25d"
+          },
+          {
+            "id": "G-MIL-3050",
+            "name": "*Milestone: Structural Steel Start",
+            "duration": "0d",
+            "start": "15-May-24",
+            "finish": "",
+            "total_float": "-27d"
+          },
+          {
+            "id": "G-MIL-2040",
+            "name": "*Milestone: Steel Complete",
+            "duration": "0d",
+            "start": "04-Jun-24",
+            "finish": "",
+            "total_float": "-5d"
+          },
+          {
+            "id": "G-MIL-3060",
+            "name": "*Milestone: Interior Fit-Out Start",
+            "duration": "0d",
+            "start": "17-Jun-24",
+            "finish": "",
+            "total_float": "-1d"
+          },
+          {
+            "id": "G-MIL-2030",
+            "name": "*Milestone: Building Dry-In",
+            "duration": "0d",
+            "start": "27-Aug-24",
+            "finish": "",
+            "total_float": "4d"
+          },
+          {
+            "id": "G-MIL-2010",
+            "name": "*Milestone: SOGs Complete",
+            "duration": "0d",
+            "start": "03-Sep-24",
+            "finish": "",
+            "total_float": "-6d"
+          },
+          {
+            "id": "G-MIL-2060",
+            "name": "*Milestone: Permanent Power Established",
+            "duration": "0d",
+            "start": "20-Nov-24",
+            "finish": "",
+            "total_float": "20d"
+          }
+        ]
+      },
+      {
+        "id": "Preconstruction & Design",
+        "name": "Preconstruction & Design",
+        "duration": "463d",
+        "start": "17-Feb-23",
+        "finish": "27-Nov-24",
+        "total_float": "21d",
+        "activities": []
+      },
+      {
+        "id": "Design",
+        "name": "Design",
+        "duration": "395d",
+        "start": "02-May-23",
+        "finish": "27-Nov-24",
+        "total_float": "21d",
+        "activities": [
+          {
+            "id": "G-PRECN-1180",
+            "name": "Ghafari - Design - 100% (After Permit Review)",
+            "duration": "10d",
+            "start": "09-Oct-23",
+            "finish": "20-Oct-23",
+            "total_float": "12d"
+          }
+        ]
+      },
+      {
+        "id": "FRAGNET 02 - Drawing Release 07 & 16",
+        "name": "FRAGNET 02 - Drawing Release 07 & 16",
+        "duration": "26d",
+        "start": "22-Sep-23",
+        "finish": "30-Oct-23",
+        "total_float": "195d",
+        "activities": [
+          {
+            "id": "G-FRG-02-1020",
+            "name": "Owner Review and Approval - DR 07 & 16",
+            "duration": "15d",
+            "start": "22-Sep-23",
+            "finish": "26-Sep-23",
+            "total_float": "209d"
+          },
+          {
+            "id": "G-FRG-02-1030",
+            "name": "Additional Site Storm Drain - DR 07 & 16",
+            "duration": "10d",
+            "start": "17-Oct-23",
+            "finish": "30-Oct-23",
+            "total_float": "195d"
+          }
+        ]
+      },
+      {
+        "id": "FRAGNET 05 - Drawing Release 11",
+        "name": "FRAGNET 05 - Drawing Release 11",
+        "duration": "313d",
+        "start": "04-May-23",
+        "finish": "02-Aug-24",
+        "total_float": "-14d",
+        "activities": [
+          {
+            "id": "G-FRG-05-1010",
+            "name": "McCarthy Develop Pricing - DR 11",
+            "duration": "20d",
+            "start": "04-May-23",
+            "finish": "28-Sep-23",
+            "total_float": "160d"
+          },
+          {
+            "id": "G-FRG-05-1020",
+            "name": "Owner Review and Approval - DR 11",
+            "duration": "15d",
+            "start": "29-Sep-23",
+            "finish": "19-Oct-23",
+            "total_float": "160d"
+          },
+          {
+            "id": "G-FRG-05-1030",
+            "name": "Additional Electrical Overhead Conduit - DR 11",
+            "duration": "5d",
+            "start": "09-Jul-24",
+            "finish": "15-Jul-24",
+            "total_float": "-21d"
+          },
+          {
+            "id": "G-FRG-05-1040",
+            "name": "Additional Electrical In-Wall Conduit - DR 11",
+            "duration": "5d",
+            "start": "29-Jul-24",
+            "finish": "02-Aug-24",
+            "total_float": "-14d"
+          }
+        ]
+      },
+      {
+        "id": "FRAGNET 04 - Drawing Release 10",
+        "name": "FRAGNET 04 - Drawing Release 10",
+        "duration": "113d",
+        "start": "02-May-23",
+        "finish": "19-Oct-23",
+        "total_float": "-5d",
+        "activities": [
+          {
+            "id": "G-FRG-04-1010",
+            "name": "McCarthy Develop Pricing - DR 10",
+            "duration": "20d",
+            "start": "02-May-23",
+            "finish": "28-Sep-23",
+            "total_float": "-5d"
+          },
+          {
+            "id": "G-FRG-04-1020",
+            "name": "Owner Review and Approval - DR 10",
+            "duration": "15d",
+            "start": "29-Sep-23",
+            "finish": "19-Oct-23",
+            "total_float": "-5d"
+          }
+        ]
+      },
+      {
+        "id": "FRAGNET 06 - Drawing Release 12",
+        "name": "FRAGNET 06 - Drawing Release 12",
+        "duration": "393d",
+        "start": "15-May-23",
+        "finish": "27-Nov-24",
+        "total_float": "21d",
+        "activities": [
+          {
+            "id": "G-FRG-06-1010",
+            "name": "McCarthy Develop Pricing - DR 12",
+            "duration": "20d",
+            "start": "15-May-23",
+            "finish": "03-Oct-23",
+            "total_float": "-10d"
+          },
+          {
+            "id": "G-FRG-06-1020",
+            "name": "Owner Review and Approval - DR 12",
+            "duration": "15d",
+            "start": "04-Oct-23",
+            "finish": "24-Oct-23",
+            "total_float": "-10d"
+          },
+          {
+            "id": "G-FRG-06-1030",
+            "name": "Additional Tilt Panel Shop Drawings - DR 12",
+            "duration": "15d",
+            "start": "25-Oct-23",
+            "finish": "14-Nov-23",
+            "total_float": "-10d"
+          },
+          {
+            "id": "G-FRG-06-1040",
+            "name": "Additional Tilt Panel Embeds - DR 12",
+            "duration": "2d",
+            "start": "23-Feb-24",
+            "finish": "26-Feb-24",
+            "total_float": "8d"
+          },
+          {
+            "id": "G-FRG-06-1050",
+            "name": "Additional Steel Erection - DR 12",
+            "duration": "2d",
+            "start": "22-May-24",
+            "finish": "23-May-24",
+            "total_float": "-29d"
+          },
+          {
+            "id": "G-FRG-06-1080",
+            "name": "Additional Framing in Adim / Entry - DR 12",
+            "duration": "3d",
+            "start": "29-Jul-24",
+            "finish": "31-Jul-24",
+            "total_float": "-23d"
+          },
+          {
+            "id": "G-FRG-06-1060",
+            "name": "Additional Time for Exterior Doors - DR 12",
+            "duration": "2d",
+            "start": "18-Sep-24",
+            "finish": "19-Sep-24",
+            "total_float": "35d"
+          },
+          {
+            "id": "G-FRG-06-1070",
+            "name": "Additional Time for Stair Erection - DR 12",
+            "duration": "2d",
+            "start": "26-Nov-24",
+            "finish": "27-Nov-24",
+            "total_float": "21d"
+          }
+        ]
+      },
+      {
+        "id": "FRAGNET 08 - Drawing Release 15",
+        "name": "FRAGNET 08 - Drawing Release 15",
+        "duration": "15d",
+        "start": "22-Sep-23",
+        "finish": "26-Sep-23",
+        "total_float": "38d",
+        "activities": [
+          {
+            "id": "G-FRG-08-1020",
+            "name": "Owner Review and Approval - DR 15",
+            "duration": "15d",
+            "start": "22-Sep-23",
+            "finish": "26-Sep-23",
+            "total_float": "38d"
+          }
+        ]
+      },
+      {
+        "id": "GMP",
+        "name": "GMP",
+        "duration": "25d",
+        "start": "23-Oct-23",
+        "finish": "28-Nov-23",
+        "total_float": "12d",
+        "activities": []
+      },
+      {
+        "id": "Final GMP",
+        "name": "Final GMP",
+        "duration": "25d",
+        "start": "23-Oct-23",
+        "finish": "28-Nov-23",
+        "total_float": "12d",
+        "activities": [
+          {
+            "id": "G-PRECN-1130",
+            "name": "Pricing Confirmation After 100%",
+            "duration": "25d",
+            "start": "23-Oct-23",
+            "finish": "28-Nov-23",
+            "total_float": "12d"
+          }
+        ]
+      }
+    ]
+  }
+}
