@@ -321,4 +321,3 @@ def convert_date_format(date_str):
     except ValueError:
         print_result(f"Invalid date format: {date_str}")
         return ""
-
