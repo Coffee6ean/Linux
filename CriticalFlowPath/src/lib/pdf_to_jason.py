@@ -145,6 +145,9 @@ def parse_header_data(formatted_header):
         list: A new list containing the values from formatted_header that meet the condition.
     """
     # Define the standard required attributes for each activity
+    stdrd_final_body = ["parent_id", "scope_of_work", "phase", "trade", "company_trade"]
+        
+    # Define the standard required attributes for each activity
     stdrd_cpm_body = {
         "id": "",
         "name": "",
@@ -153,14 +156,14 @@ def parse_header_data(formatted_header):
         "finish": "",
         "total_float": ""
     }
-
+ 
     # Condition: Keep values with length greater than 1
     condition = lambda x: len(x) > 1
 
     # Create a new list with values meeting the condition
     trimmed_columns = [col_val.lower() for col_val in formatted_header if condition(col_val)]
 
-    # Initialize col_col to store matching standard attributes
+    # Initialize structured_header to store matching standard attributes
     structured_header = []
 
     # Check for presence of trimmed columns in standard attributes
@@ -170,13 +173,15 @@ def parse_header_data(formatted_header):
                 if stdrd_val not in structured_header:  # Avoid duplicates
                     structured_header.append(stdrd_val)  # Append matching standard attribute
                 break  # Exit inner loop once a match is found
-
-        # Break the outer loop if all keys have been found
+        
+        # Break the outer loop when all standard attributes are found
         if len(structured_header) == len(stdrd_cpm_body):
             break
     
-    print_result(f"Extracted Header: {structured_header}")
-    return structured_header
+    # Combine the final standard attributes with the structured header
+    final_header_list = stdrd_final_body + structured_header
+    print(f"Extracted Header: {final_header_list}")
+    return final_header_list
 
 
 def parse_activity_data(raw_data):
@@ -213,12 +218,17 @@ def parse_activity_data(raw_data):
 
             # Create a structured parent activity
             parent_activity = {
+                "parent_id": "N/A",
                 "id": activity_id,
                 "name": activity_name,
                 "duration": duration,
                 "start": start_date,
                 "finish": finish_date,
                 "total_float": total_float,
+                "scope_of_work": "",
+                "phase": "",
+                "trade": "",
+                "company_trade": "",
                 "activities": []  # Initialize an empty list for child activities
             }
             structured_activities.append(parent_activity)
@@ -240,12 +250,17 @@ def parse_activity_data(raw_data):
 
                 # Create a structured child activity
                 child_activity = {
+                    "parent_id": current_parent['id'],
                     "id": child_id,
                     "name": child_name,
                     "duration": child_duration,
                     "start": child_start,
                     "finish": child_finish,
                     "total_float": child_total_float,
+                    "scope_of_work": "",
+                    "phase": "",
+                    "trade": "",
+                    "company_trade": "",
                 }
 
                 # Add the child activity to the current parent's activities list
