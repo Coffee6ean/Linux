@@ -41,7 +41,7 @@ class JsonToExcel:
     """
     def __init__(self):
         pass
-
+       
     def retrieve_json_file(self):
         """
         Retrieves the JSON data from the 'results' folder.
@@ -65,7 +65,6 @@ class JsonToExcel:
         else:
             print('Error. Path not found in system')
         return json_data
-    
 
     def create_workbook(self):
         """
@@ -98,10 +97,9 @@ class JsonToExcel:
 
         return workbook, worksheet  # Return the workbook and worksheet for further use
 
-
     def write_data_to_excel(self, excel_file):
         """
-        Writes the JSON data to an Excel file using pandas.
+        Writes the JSON data to an Excel file.
 
         Args:
             excel_file (str): The path to the Excel file where the data will be written.
@@ -131,20 +129,17 @@ class JsonToExcel:
                 for entry in body:
                     # Add the parent activity row
                     parent_data = {
+                        "parent_id": "N/A",  # Assuming no parent for top-level activities
                         'id': entry['id'],
                         'name': entry['name'],
-                        'trade': '',
-                        'location': '',
                         'duration': entry['duration'],
                         'start': entry['start'],
                         'finish': entry['finish'],
                         'total_float': entry['total_float'],
-                        'activity_id': None,
-                        'activity_name': None,
-                        'activity_duration': None,
-                        'activity_start': None,
-                        'activity_finish': None,
-                        'activity_total_float': None
+                        "scope_of_work": entry.get('scope_of_work', ''),
+                        "phase": entry.get('phase', ''),
+                        "trade": entry.get('trade', ''),
+                        "company_trade": entry.get('company_trade', ''),
                     }
                     flattened_data.append(parent_data)
 
@@ -153,22 +148,19 @@ class JsonToExcel:
                         for activity in entry['activities']:
                             # Add child activity row
                             child_data = {
-                                'id': None,  # Parent ID is not needed here
-                                'name': None,  # Parent name is not needed here
-                                'duration': None,  # Parent duration is not needed here
-                                'start': None,  # Parent start is not needed here
-                                'finish': None,  # Parent finish is not needed here
-                                'total_float': None,  # Parent total_float is not needed here
-                                'activity_id': activity['id'],
-                                'activity_name': activity['name'],
-                                'activity_trade': '',
-                                'activity_location': '',
-                                'activity_duration': activity['duration'],
-                                'activity_start': activity['start'],
-                                'activity_finish': activity['finish'],
-                                'activity_total_float': activity['total_float']
+                                "parent_id": entry['id'],  # Set parent_id to the current entry's id
+                                'id': activity['id'],
+                                'name': activity['name'],
+                                'duration': activity['duration'],
+                                'start': activity['start'],
+                                'finish': activity['finish'],
+                                'total_float': activity['total_float'],
+                                "scope_of_work": activity.get('scope_of_work', ''),
+                                "phase": activity.get('phase', ''),
+                                "trade": activity.get('trade', ''),
+                                "company_trade": activity.get('company_trade', ''),
                             }
-                            flattened_data.append(child_data)
+                            flattened_data.append(child_data)  # Append child data after the parent
 
                 # Convert flattened data to DataFrame
                 flattened_df = pd.DataFrame(flattened_data)
@@ -179,7 +171,7 @@ class JsonToExcel:
             print(f"Successfully converted JSON to Excel and saved to {excel_file}")
         else:
             print("Error: No data to convert.")
-    
+
 
 if __name__ == "__main__":
     json_obj_instance = JsonToExcel()  # Create an instance of the JsonObj class
