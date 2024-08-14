@@ -145,7 +145,7 @@ def parse_header_data(formatted_header):
         list: A new list containing the values from formatted_header that meet the condition.
     """
     # Define the standard required attributes for each activity
-    stdrd_final_body = ["parent_id", "scope_of_work", "phase", "trade", "company_trade"]
+    stdrd_final_body = ["parent_id", "scope_of_work", "phase", "trade", "company"]
         
     # Define the standard required attributes for each activity
     stdrd_cpm_body = {
@@ -228,7 +228,7 @@ def parse_activity_data(raw_data):
                 "scope_of_work": "",
                 "phase": "",
                 "trade": "",
-                "company_trade": "",
+                "company": "",
                 "activities": []  # Initialize an empty list for child activities
             }
             structured_activities.append(parent_activity)
@@ -260,7 +260,7 @@ def parse_activity_data(raw_data):
                     "scope_of_work": "",
                     "phase": "",
                     "trade": "",
-                    "company_trade": "",
+                    "company": "",
                 }
 
                 # Add the child activity to the current parent's activities list

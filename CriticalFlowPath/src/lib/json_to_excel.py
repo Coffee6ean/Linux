@@ -139,7 +139,7 @@ class JsonToExcel:
                         "scope_of_work": entry.get('scope_of_work', ''),
                         "phase": entry.get('phase', ''),
                         "trade": entry.get('trade', ''),
-                        "company_trade": entry.get('company_trade', ''),
+                        "company": entry.get('company', ''),
                     }
                     flattened_data.append(parent_data)
 
@@ -158,7 +158,7 @@ class JsonToExcel:
                                 "scope_of_work": activity.get('scope_of_work', ''),
                                 "phase": activity.get('phase', ''),
                                 "trade": activity.get('trade', ''),
-                                "company_trade": activity.get('company_trade', ''),
+                                "company": activity.get('company', ''),
                             }
                             flattened_data.append(child_data)  # Append child data after the parent
 
