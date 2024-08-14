@@ -8,7 +8,7 @@ from pdf_to_jason import print_result
 class ExcelPostProcessing:
     def __init__(self, input_file_path):
         self.input_file_path = input_file_path
-        self.list_validation = [
+        self.trade_list_validation = [
             'Carpenter',
             'Electrician',
             'Plumber',
@@ -27,6 +27,41 @@ class ExcelPostProcessing:
             'Insulation Worker',
             'Elevator Constructor',
             'Millwright'
+        ]
+        self.phase_list_validation = [
+            'Civil',
+            'Comissioning',
+            'Elevator',
+            'Exteriors/Skin',
+            'Foundations',
+            'Framing Structure',
+            'Garage',
+            'Interior Finishes',
+            'Interior Rough Ins',
+            'Landscaping Decks',
+            'N/A',
+            'Roof',
+            'Site Prep',
+            'Site Utilities',
+            'Structure',
+            'Transformer Vault'
+        ]
+        self.scope_of_work_list_validation = [
+            'Construction',
+            'Concrete Works' # Foundations, slabs, etc
+            'Demolition',  # Removing existing structures
+            'Electrical',
+            'Finishes',
+            'Framing',
+            'HVAC',  # Heating, Ventilation, and Air Conditioning
+            'Insulation',  # Insulation installation
+            'Landscaping',  # Outdoor work
+            'N/A',
+            'Painting',  # Interior and exterior painting
+            'Plumbing',
+            'Paving',  # Road and pathway work
+            'Roofing',  # Work related to roofs
+            'Site Work',
         ]
     
     def create_schedule_body(self):
@@ -98,6 +133,70 @@ class ExcelPostProcessing:
         print("Gantt chart created and saved successfully.")
         workbook.close()
 
+    def validate_columns(self, header):
+        """
+        Applies data validation to columns in the 'Project Content' worksheet based on the specified header.
+
+        Args:
+            header (str): The header name to match columns for data validation.
+
+        This function adds a drop-down list for valid entries in the specified columns.
+        """
+        # Load the workbook and select the relevant worksheet
+        workbook = load_workbook(filename=self.input_file_path)
+        ws = workbook['Project Content']
+
+        # Access the first row
+        first_row = ws['1']  # This gets the first row
+
+        # Ensure that the first row is not empty
+        if first_row is None:
+            print("Error: The first row is empty.")
+            return
+
+        # Find the validation list based on the header
+        if header == 'scope_of_work':
+            validation_list = self.scope_of_work_list_validation
+        elif header == 'phase':
+            validation_list = self.phase_list_validation
+        elif header == 'trade':
+            validation_list = self.trade_list_validation
+        else:
+            print(f"Error: Invalid header '{header}'. Supported headers are 'scope_of_work', 'phase', and 'trade'.")
+            return
+
+        # Apply data validation to the columns that match the passed header
+        header_columns = [col for col in first_row if col.value and header.lower() in str(col.value).lower()]
+
+        if not header_columns:
+            print(f"No columns found matching header: '{header}'")
+            return
+
+        for col in header_columns:
+            col_index = col.column  # Get the index of the column (1-based)
+
+            # Create a DataValidation object with the specified list
+            dv = DataValidation(
+                type='list',
+                formula1=f'"{",".join(validation_list)}"',
+                allow_blank=True
+            )
+            dv.error = 'Your entry is not in the list'
+            dv.errorTitle = 'Invalid Entry'
+            dv.prompt = 'Please select from the list'
+            dv.promptTitle = 'List Selection'
+
+            # Add data validation to the worksheet
+            ws.add_data_validation(dv)
+
+            # Define the range for data validation (from row 2 to the last row)
+            dv.add(f'{get_column_letter(col_index)}2:{get_column_letter(col_index)}{ws.max_row}')
+
+        # Save the workbook after applying data validation
+        workbook.save(self.input_file_path)
+        print(f"Data validation applied to columns matching '{header}' successfully.")
+        workbook.close()
+
     def apply_post_processing(self):
         """
         Applies styling and data validation to the Excel workbook.
@@ -112,18 +211,6 @@ class ExcelPostProcessing:
         if first_row is None:
             print("Error: The first row is empty.")
             return
-
-        # Apply data validation to 'trade' columns
-        trade_columns = [col for col in first_row if col.value and 'trade' in str(col.value).lower()]
-        for col in trade_columns:
-            col_index = col.column  # Get the index of the column (1-based)
-            dv = DataValidation(type='list', formula1=f'"{",".join(self.list_validation)}"', allow_blank=True)
-            dv.error = 'Your entry is not in the list'
-            dv.errorTitle = 'Invalid Entry'
-            dv.prompt = 'Please select from the list'
-            dv.promptTitle = 'List Selection'
-            ws.add_data_validation(dv)
-            dv.add(f'{get_column_letter(col_index)}2:{get_column_letter(col_index)}{ws.max_row}')
 
         # Style the header row
         for cell in ws['1']:  # Assuming the first row contains headers
@@ -160,5 +247,8 @@ class ExcelPostProcessing:
 
 if __name__ == "__main__":
     post_processing = ExcelPostProcessing('/home/coffee_6ean/Linux/CriticalFlowPath/results/excel/output.xlsx')
+    post_processing.validate_columns('scope_of_work')
+    post_processing.validate_columns('phase')
+    post_processing.validate_columns('trade')
     post_processing.apply_post_processing()
     post_processing.create_schedule_body()
