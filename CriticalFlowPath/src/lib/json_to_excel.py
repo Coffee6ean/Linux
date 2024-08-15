@@ -1,12 +1,9 @@
 import os
 import json
 import pandas as pd
-from openpyxl.utils import get_column_letter
 from openpyxl.workbook.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
 from openpyxl.cell.cell import Cell
-from openpyxl.worksheet.datavalidation import DataValidation
-from openpyxl.styles import PatternFill, Border, Side, Alignment, Protection, Font
 
 from pdf_to_jason import print_result
 
