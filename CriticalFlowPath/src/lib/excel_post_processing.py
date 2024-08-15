@@ -3,7 +3,6 @@ from openpyxl import load_workbook
 from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
-from pdf_to_jason import print_result
 
 class ExcelPostProcessing:
     def __init__(self, input_file_path):
@@ -214,7 +213,7 @@ class ExcelPostProcessing:
 
         # Style the header row
         for cell in ws['1']:  # Assuming the first row contains headers
-            cell.font = Font(bold=True, color="FFFFFF")  # Bold and white font
+            cell.font = Font(name='Century Gothic', size=12, bold=True, color="FFFFFF")  # Bold and white font
             cell.fill = PatternFill(start_color="00800080", end_color="00800080", fill_type="solid")
             cell.alignment = Alignment(horizontal="center")  # Center alignment
 
@@ -235,7 +234,7 @@ class ExcelPostProcessing:
             if row[0].value == 'N/A':
                 parent_row = row
                 for cell in parent_row:
-                    cell.font = Font(bold=True, color="00333333") 
+                    cell.font = Font(name='Century Gothic', size=12, bold=True, color="00333333")  # Bold and white font
                     cell.fill = PatternFill(start_color="00FFFFFF", end_color="00FFFFFF", fill_type="solid")
                     thin = Side(border_style="thin", color="000000")
                     cell.border = Border(bottom=thin)
