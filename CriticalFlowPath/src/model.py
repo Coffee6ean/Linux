@@ -1,33 +1,24 @@
 import os
-from pypdf import PdfReader
-from lib.pdf_to_jason import read_uploaded_pdf, extract_pdf_metadata
+import modules
 
+def print_result(value):
+    print()
+    print()
+    print(f'//----------------- {value} -----------------//')
+    print()
 
-def process_pdf_file():
-    """
-    Prompt the user for a PDF file path, extract metadata, and read the PDF file.
-    """
-    # Prompt the user to enter the PDF file path
-    pdf_file_path = input("Please enter the path to the PDF file: ")
-
-    # Prompt the user for anchor tags to identify sections of the content
-    initial_anchor = input("Please enter the initial anchor tag: ")
-    final_anchor = input("Please enter the final anchor tag: ")
-
-
-    # Check if the file exists
-    if os.path.exists(pdf_file_path) and pdf_file_path.endswith('.pdf'):
-        # Extract metadata from the PDF
-        metadata = extract_pdf_metadata(pdf_file_path)
-
-        # Process the PDF file and include the metadata and anchors
-        if read_uploaded_pdf(pdf_file_path, metadata, initial_anchor, final_anchor) == 0:
-            print("PDF processing completed successfully.")
-        else:
-            print("An error occurred during PDF processing.")
-    else:
-        print("The specified file does not exist or is not a PDF.")
+def system_pdf_to_excel_gantt():
+    print_result("PdfToJson processing...")
+    modules.PdfToJson.main()
+    print_result("JsonToExcel processing...")
+    modules.JsonToExcel.main()
+    print_result("ExcelPostProcessing processing...")
+    modules.ExcelPostProcessing.main()
+    print_result("ScheduleFramework processing...")
+    modules.ScheduleFramework.main()
+    print_result("End")
 
 
 # Call the function to process the PDF file
-process_pdf_file()
+if __name__ == "__main__":
+    system_pdf_to_excel_gantt()
