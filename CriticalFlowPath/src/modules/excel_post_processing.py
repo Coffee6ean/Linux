@@ -11,25 +11,26 @@ class ExcelPostProcessing():
     """
     def __init__(self, input_file_path):
         self.input_file_path = input_file_path
+        self.starting_data_row = 3
         self.trade_list_validation = [
+            'Bricklayer',
             'Carpenter',
+            'Cement Mason',
+            'Drywall Finisher',
             'Electrician',
-            'Plumber',
+            'Elevator Constructor',
+            'Glazier',
+            'Insulation Worker',
             'Ironworker',
-            'Sheet Metal Worker',
-            'Pipefitter',
             'Laborer',
+            'Millwright',
             'N/A',
             'Operating Engineer',
-            'Bricklayer',
-            'Cement Mason',
-            'Roofer',
-            'Glazier',
             'Painter',
-            'Drywall Finisher',
-            'Insulation Worker',
-            'Elevator Constructor',
-            'Millwright'
+            'Pipefitter',
+            'Roofer',
+            'Sheet Metal Worker',
+            'Plumber'
         ]
         self.phase_list_validation = [
             'Civil',
@@ -51,7 +52,7 @@ class ExcelPostProcessing():
         ]
         self.scope_of_work_list_validation = [
             'Construction',
-            'Concrete Works' # Foundations, slabs, etc
+            'Concrete Works', # Foundations, slabs, etc
             'Demolition',  # Removing existing structures
             'Electrical',
             'Finishes',
@@ -61,10 +62,11 @@ class ExcelPostProcessing():
             'Landscaping',  # Outdoor work
             'N/A',
             'Painting',  # Interior and exterior painting
-            'Plumbing',
             'Paving',  # Road and pathway work
+            'Plumbing',
             'Roofing',  # Work related to roofs
             'Site Work',
+            'Structural Steel'
         ]
     
     @staticmethod
@@ -98,6 +100,7 @@ class ExcelPostProcessing():
         self.validate_columns('phase')
         self.validate_columns('trade')
         self.apply_post_processing()
+        self.create_schedule_body()
 
     def validate_columns(self, header):
         """
@@ -113,7 +116,7 @@ class ExcelPostProcessing():
         ws = workbook['Project Content']
 
         # Access the first row
-        first_row = ws['1']  # This gets the first row
+        first_row = ws[self.starting_data_row]  # This gets the first row
 
         # Ensure that the first row is not empty
         if first_row is None:
@@ -171,7 +174,7 @@ class ExcelPostProcessing():
         ws = workbook['Project Content']
 
         # Access the first row
-        first_row = ws['1']  # This gets the first row
+        first_row = ws[self.starting_data_row]  # This gets the first row
 
         # Ensure that the first row is not empty
         if first_row is None:
@@ -179,7 +182,7 @@ class ExcelPostProcessing():
             return
 
         # Style the header row
-        for cell in ws['1']:  # Assuming the first row contains headers
+        for cell in first_row:  # Assuming the first row contains headers
             cell.font = Font(name='Century Gothic', size=12, bold=True, color="FFFFFF")  # Bold and white font
             cell.fill = PatternFill(start_color="00800080", end_color="00800080", fill_type="solid")
             cell.alignment = Alignment(horizontal="center")  # Center alignment
@@ -209,7 +212,75 @@ class ExcelPostProcessing():
         workbook.save(self.input_file_path)
         print(f"Post-processing completed. Saved to {self.input_file_path}")
         workbook.close()
+    
+    def create_schedule_body(self):
+        """
+        Creates a Gantt chart in the Excel workbook based on activity start and finish dates.
 
+        This function loads the Excel workbook, reads the activity data from the 'Project Content'
+        sheet, and fills in the Gantt chart cells based on the duration of each activity.
+
+        Assumptions:
+        - Start dates are located in the 5th column (index 4).
+        - Finish dates are located in the 6th column (index 5).
+        - The Gantt chart starts from the 12th column (column L).
+        """
+        # Load the workbook and select the relevant worksheet
+        workbook = load_workbook(filename=self.input_file_path)
+        worksheet = workbook['Project Content']
+
+        # Find the last column with data
+        last_column = worksheet.max_column
+
+        start_date_col = None
+        end_date_col = None
+
+        # Iterate over the columns to find the start and finish date columns
+        for col in worksheet.iter_cols(min_row=self.starting_data_row, min_col=1, max_col=last_column):
+            if any('start' in cell.value for cell in col if cell.value):
+                start_date_col = col[0].column
+            elif any('finish' in cell.value for cell in col if cell.value):
+                end_date_col = col[0].column
+                break
+
+        # Check if start and finish date columns were found
+        if start_date_col is None or end_date_col is None:
+            print("Error: Could not find start or finish date columns.")
+            return
+
+        # Iterate through the rows to process activities
+        for row in worksheet.iter_rows(min_row=self.starting_data_row + 1, max_row=worksheet.max_row, min_col=1, max_col=last_column):
+            # Extract start and finish dates
+            activity_start = row[start_date_col - 1].value # Start date in the specified column
+            activity_finish = row[end_date_col - 1].value  # Finish date in the specified column
+
+            # Convert date strings to datetime objects
+            if isinstance(activity_start, str):
+                activity_start = datetime.strptime(activity_start, '%d-%b-%y')
+            if isinstance(activity_finish, str):
+                activity_finish = datetime.strptime(activity_finish, '%d-%b-%y')
+
+            # Check for missing dates
+            if activity_start is None or activity_finish is None:
+                print(f"Skipping row {row[0].row} due to missing start or finish date.")
+                continue  # Skip this row if dates are missing
+
+            # Calculate the start and end column indices for the Gantt chart
+            start_col = 12  # Gantt chart starts from column 12 (L)
+            # Calculate the end column index based on the duration
+            end_col = start_col + (activity_finish - activity_start).days  # Calculate end column index
+
+            # Define the fill color for the Gantt chart cells
+            fill_color = PatternFill(start_color="00FFCC00", end_color="00FFCC00", fill_type="solid")
+
+            # Fill the cells in the Gantt chart
+            for col in range(start_col, end_col + 1):
+                worksheet.cell(row=row[self.starting_data_row].row, column=col).fill = fill_color  # Fill the cell with color
+
+        # Save the workbook after updating the Gantt chart
+        workbook.save(self.input_file_path)
+        print("Gantt chart created and saved successfully.")
+        workbook.close()
 
 if __name__ == "__main__":
     post_processing = ExcelPostProcessing('/home/coffee_6ean/Linux/CriticalFlowPath/results/excel/output.xlsx')
