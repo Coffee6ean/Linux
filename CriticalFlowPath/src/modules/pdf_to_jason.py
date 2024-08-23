@@ -365,3 +365,4 @@ if __name__ == "__main__":
             print("An error occurred during PDF processing.")
     else:
         print("The specified file does not exist or is not a PDF.")
+        
