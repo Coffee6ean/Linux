@@ -187,7 +187,7 @@ class PdfToJson():
             list: A new list containing the values from formatted_header that meet the condition.
         """
         # Define the standard required attributes for each activity
-        stdrd_final_body = ["parent_id", "scope_of_work", "phase", "trade", "company"]
+        stdrd_final_body = ["parent_id", "scope_of_work", "phase", "trade", "company", "location"]
 
         # Define the standard required attributes for each activity
         stdrd_cpm_body = {
@@ -268,6 +268,7 @@ class PdfToJson():
                     "phase": "",
                     "trade": "",
                     "company": "",
+                    "location": "",
                     "activities": []  # Initialize an empty list for child activities
                 }
 
@@ -302,6 +303,7 @@ class PdfToJson():
                         "phase": "",
                         "trade": "",
                         "company": "",
+                        "location": "",
                     }
 
                     # Add the child activity to the current parent's activities list
