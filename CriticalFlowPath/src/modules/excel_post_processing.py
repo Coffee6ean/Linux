@@ -11,7 +11,7 @@ class ExcelPostProcessing():
     """
     def __init__(self, input_file_path):
         self.input_file_path = input_file_path
-        self.starting_data_row = 3
+        self.starting_data_row = 4
         self.trade_list_validation = [
             'Bricklayer',
             'Carpenter',
@@ -237,9 +237,9 @@ class ExcelPostProcessing():
 
         # Iterate over the columns to find the start and finish date columns
         for col in worksheet.iter_cols(min_row=self.starting_data_row, min_col=1, max_col=last_column):
-            if any('start' in cell.value for cell in col if cell.value):
+            if any(isinstance(cell.value, str) and 'start' in cell.value for cell in col if cell.value):
                 start_date_col = col[0].column
-            elif any('finish' in cell.value for cell in col if cell.value):
+            elif any(isinstance(cell.value, str) and 'finish' in cell.value for cell in col if cell.value):
                 end_date_col = col[0].column
                 break
 
@@ -266,7 +266,7 @@ class ExcelPostProcessing():
                 continue  # Skip this row if dates are missing
 
             # Calculate the start and end column indices for the Gantt chart
-            start_col = 12  # Gantt chart starts from column 12 (L)
+            start_col = 13  # Gantt chart starts from column 12 (L)
             # Calculate the end column index based on the duration
             end_col = start_col + (activity_finish - activity_start).days  # Calculate end column index
 
