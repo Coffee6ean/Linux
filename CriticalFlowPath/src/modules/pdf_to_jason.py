@@ -9,7 +9,7 @@ class PdfToJson():
     A class for parsing and converting PDF file to JSON file.
     """
     def __init__(self):
-        pass
+        self.parent_count = 1
     
     @staticmethod
     def main():
@@ -59,6 +59,16 @@ class PdfToJson():
             print(f"Invalid date format: {date_str}")
             return ""
 
+    def parent_layers_countdown(self, list, parent_obj_curr, parent_obj_act):
+        past_parent = parent_obj_curr
+        active_parent = parent_obj_act 
+
+        for parent_id in range(self.parent_count, 0, -1):
+            if datetime.strptime(active_parent['start'], '%d-%b-%y') <= datetime.strptime(past_parent['start'], '%d-%b-%y') and datetime.strptime(active_parent['finsh'], '%d-%b-%y') >= datetime.strptime(past_parent['finish'], '%d-%b-%y'):
+                past_parent["activities"].append(active_parent)
+            else:
+                list[0]['activities']
+                
     def pdf_reformatting(self, pdf_content, initial_anchor, final_anchor):
         """
         Reformats the content of a PDF by extracting the header and body sections based on user-defined anchor tags.
@@ -224,7 +234,7 @@ class PdfToJson():
             list: A structured list of activities, where each activity is a dictionary of its components.
         """
         structured_activities = []
-        current_parent = None
+        last_parent = None
 
         for line in raw_data:
             # Remove leading/trailing whitespace
@@ -246,8 +256,8 @@ class PdfToJson():
                 total_float = parent_match.group(7) or ''      # Total float
 
                 # Create a structured parent activity
-                parent_activity = {
-                    "parent_id": "N/A",
+                current_parent = {
+                    "parent_id": self.parent_count,  # Use the parent count as the parent ID
                     "id": activity_id,
                     "name": activity_name,
                     "duration": duration,
@@ -260,15 +270,17 @@ class PdfToJson():
                     "company": "",
                     "activities": []  # Initialize an empty list for child activities
                 }
-                structured_activities.append(parent_activity)
-                current_parent = parent_activity  # Update the current parent
+
+                structured_activities.append(current_parent)
+                last_parent = current_parent  # Update the current parent
+                self.parent_count += 1  # Increment the parent count
             else:
                 # Check if the line is a child activity
                 child_match = re.match(
                     r'^([A-Z0-9-]+)\s+(.*?)\s+(\d+\.?\d*?\s*d)\s+(\d{1,2}-\w{3}-\d{2,4})?\s*([A-Z\*]?)?\s*(\d{1,2}-\w{3}-\d{2,4})?\s*(-?\d+\.?\d*?d?)?\s*(\w+)?$', 
                     line
                 )
-                if child_match and current_parent:
+                if child_match and last_parent:
                     # Extract components for the child activity
                     child_id = child_match.group(1).strip()
                     child_name = child_match.group(2).strip()  # Name can include spaces and special characters
@@ -279,7 +291,7 @@ class PdfToJson():
 
                     # Create a structured child activity
                     child_activity = {
-                        "parent_id": current_parent['id'],
+                        "parent_id": last_parent['id'],  # Use the current parent's ID
                         "id": child_id,
                         "name": child_name,
                         "duration": child_duration,

@@ -127,7 +127,7 @@ class JsonToExcel():
                 # Write metadata as a title section
                 metadata = data['project_metadata']
                 metadata_df = pd.DataFrame(metadata.items(), columns=['Field', 'Value'])
-                metadata_df.to_excel(writer, sheet_name='Metadata', index=False)
+                metadata_df.to_excel(writer, sheet_name='Metadata', index=False, startrow=1)
 
                 # Extract header and body
                 body = data['project_content']['body']
@@ -175,7 +175,7 @@ class JsonToExcel():
                 flattened_df = pd.DataFrame(flattened_data)
 
                 # Write flattened body to a new sheet
-                flattened_df.to_excel(writer, sheet_name='Project Content', index=False)
+                flattened_df.to_excel(writer, sheet_name='Project Content', index=False, startrow=2)
 
             print(f"Successfully converted JSON to Excel and saved to {excel_file}")
         else:
