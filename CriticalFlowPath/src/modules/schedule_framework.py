@@ -16,25 +16,27 @@ class ScheduleFramework():
 
     @staticmethod
     def main():
-        input_file_path = input("Please enter the folder path to the Excel file: ")
+        input_file_path = input("Please enter the path to the Excel file or directory: ")
+        input_file_name = None
+        worksheet_name = input("Please enter the name for the new or existing worksheet: ")
         input_start_row = input("Please enter the starting row to write the schedule: ")
         input_start_col = input("Please enter the starting column to write the schedule: ")
-        gantt_schedule = ScheduleFramework(input_file_path, input_start_row, input_start_col)
-        start_date = input("Please enter the start date for the schedule: ")
-        end_date = input("Please enter the end date for the schedule: ")
-        gantt_schedule.generate_body_schedule(start_date, end_date)
+        start_date = input("Please enter the start date for the schedule (format: dd-MMM-yy): ")
+        end_date = input("Please enter the end date for the schedule (format: dd-MMM-yy): ")
+        gantt_schedule = ScheduleFramework(input_file_path, input_file_name, input_start_row, input_start_col)
+        gantt_schedule.generate_body_schedule(worksheet_name, start_date, end_date)
 
         # Merge year cells
-        year_list, year_row = gantt_schedule.same_cell_values(gantt_schedule.start_row, gantt_schedule.start_col)
+        year_list, year_row = gantt_schedule.same_cell_values(worksheet_name, gantt_schedule.start_row, gantt_schedule.start_col)
         for year in year_list:
-            gantt_schedule.merge_same_value_cells(year, year_row)  # Only pass year 
+            gantt_schedule.merge_same_value_cells(worksheet_name, year, year_row)  # Only pass year 
 
         # Merge month cells
-        month_list, month_row = gantt_schedule.same_cell_values(gantt_schedule.start_row + 1, gantt_schedule.start_col)
+        month_list, month_row = gantt_schedule.same_cell_values(worksheet_name, gantt_schedule.start_row + 1, gantt_schedule.start_col)
         for month in month_list:
-            gantt_schedule.merge_same_value_cells(month, month_row)  # Only pass year
+            gantt_schedule.merge_same_value_cells(worksheet_name, month, month_row)  # Only pass month
 
-        gantt_schedule.style_worksheet()
+        gantt_schedule.style_worksheet(worksheet_name, start_date, end_date)
 
     def same_cell_values(self, worksheet_name, starting_row_idx, starting_col_idx):
         """
@@ -266,14 +268,7 @@ class ScheduleFramework():
 if __name__ == "__main__":
     input_file_path = input("Please enter the path to the Excel file or directory: ")
     if os.path.isfile(input_file_path) and input_file_path.endswith('.xlsx'):
-        input_file_name = None
-        worksheet_name = input("Please enter the name for the new or existing worksheet: ")
-        input_start_row = input("Please enter the starting row to write the schedule: ")
-        input_start_col = input("Please enter the starting column to write the schedule: ")
-        start_date = input("Please enter the start date for the schedule (format: dd-MMM-yy): ")
-        end_date = input("Please enter the end date for the schedule (format: dd-MMM-yy): ")
-        gantt_schedule = ScheduleFramework(input_file_path, input_file_name, input_start_row, input_start_col)
-        gantt_schedule.generate_body_schedule(worksheet_name, start_date, end_date)
+        ScheduleFramework.main()
     else:
         input_file_name = input("Please enter the name to save the file as: ") + '.xlsx'
         worksheet_name = input("Please enter the name for the new or existing worksheet: ")
