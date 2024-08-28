@@ -138,7 +138,7 @@ class JsonToExcel():
                 for entry in body:
                     # Add the parent activity row
                     parent_data = {
-                        "parent_id": "N/A",  # Assuming no parent for top-level activities
+                        "parent_id": entry['parent_id'],
                         'id': entry['id'],
                         'name': entry['name'],
                         'duration': entry['duration'],
@@ -149,6 +149,7 @@ class JsonToExcel():
                         "phase": entry.get('phase', ''),
                         "trade": entry.get('trade', ''),
                         "company": entry.get('company', ''),
+                        "location": entry.get('location', ''),
                     }
                     flattened_data.append(parent_data)
 
@@ -168,6 +169,7 @@ class JsonToExcel():
                                 "phase": activity.get('phase', ''),
                                 "trade": activity.get('trade', ''),
                                 "company": activity.get('company', ''),
+                                "location": activity.get('location', ''),
                             }
                             flattened_data.append(child_data)  # Append child data after the parent
 
@@ -175,7 +177,7 @@ class JsonToExcel():
                 flattened_df = pd.DataFrame(flattened_data)
 
                 # Write flattened body to a new sheet
-                flattened_df.to_excel(writer, sheet_name='Project Content', index=False, startrow=2)
+                flattened_df.to_excel(writer, sheet_name='Project Content', index=False, startrow=3)
 
             print(f"Successfully converted JSON to Excel and saved to {excel_file}")
         else:
