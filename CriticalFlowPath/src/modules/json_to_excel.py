@@ -1,193 +1,147 @@
 import os
 import json
 import pandas as pd
-from openpyxl.workbook.workbook import Workbook
-from openpyxl.worksheet.worksheet import Worksheet
-from openpyxl.cell.cell import Cell
+from openpyxl import Workbook
 
-# Global variables
-output_file_name = None
-output_folder = None
-output_file_path = None
-list_validation = [
-    'Carpenter',
-    'Electrician',
-    'Plumber',
-    'Ironworker',
-    'Sheet Metal Worker',
-    'Pipefitter',
-    'Laborer',
-    'N/A',
-    'Operating Engineer',
-    'Bricklayer',
-    'Cement Mason',
-    'Roofer',
-    'Glazier',
-    'Painter',
-    'Drywall Finisher',
-    'Insulation Worker',
-    'Elevator Constructor',
-    'Millwright'
-]
-
-class JsonToExcel(): 
-    """
-    A class for converting JSON data to an Excel file.
-    """
-    def __init__(self):
-        pass
+class JsonToExcel: 
+    def __init__(self, input_file_path, input_file_basename, endpoint_file_path, endpoint_file_basename, xlsx_worksheet_name):
+        self.json_file_path = input_file_path
+        self.json_file_basename = input_file_basename
+        self.xlsx_file_path = endpoint_file_path
+        self.xlsx_file_basename = endpoint_file_basename
+        self.worksheet_name = xlsx_worksheet_name
 
     @staticmethod
     def main():
-        json_obj_instance = JsonToExcel()  # Create an instance of the JsonObj class
-        wb, ws = json_obj_instance.create_workbook()  # Call the method to create the workbook
-    
-        if wb and ws:
-            json_obj_instance.write_data_to_excel(output_file_path)  # Write JSON data to Excel
-            print(f"Workbook created and saved at: {output_file_path}")
+        project = JsonToExcel.generate_ins()  
+        project.write_data_to_excel()
 
-    def retrieve_json_file(self):
-        """
-        Retrieves the JSON data. It can accept a folder origin or the file path completely.
+    @staticmethod
+    def generate_ins():
+        input_file_path = input("Please enter the path to the JSON file or directory: ")
+        input_path, input_base_name = JsonToExcel.file_verification(input_file_path)
+        if input_path == -1:
+            return None  
 
-        Returns:
-            list: A list containing the JSON data.
+        endpoint_xlsx_path = input("Please enter the folder path to save the Excel file: ")
+        endpoint_xlsx_basename = input("Please enter the name to save the file as: ") + ".xlsx"
+        xlsx_worksheet_name = input("Please enter the name to create a worksheet: ")
 
-        Library: json
-        """
-        json_input_path = input("Please enter the path to the JSON file or directory: ")
+        return JsonToExcel(input_path, input_base_name, endpoint_xlsx_path, endpoint_xlsx_basename, xlsx_worksheet_name)
 
-        json_data = []
-        if os.path.isfile(json_input_path) and json_input_path.endswith('.json'):
-            print(f"Reading JSON file: {json_input_path}")
-            with open(json_input_path, 'r') as f:
-                json_data.append(json.load(f))
-        elif os.path.exists(json_input_path):
-            print(f"Looking for JSON files in: {json_input_path}")
-            for json_input_file in os.listdir(json_input_path):
-                if json_input_file.endswith("json"):
-                    json_file_path = os.path.join(json_input_path, json_input_file)
-                    with open(json_file_path, 'r') as f:
-                        json_data.append(json.load(f))
-            if not json_data:
-                print('Error. Folder has no current JSON files')
+    @staticmethod
+    def file_verification(input_file_path):
+        if os.path.isdir(input_file_path):
+            path = input_file_path
+            dir_list = os.listdir(path)
+            selection = JsonToExcel.display_directory_files(dir_list)
+            if selection == -1:
+                return -1, None  
+
+            base_name = dir_list[selection]
+            print(f'File selected: {base_name}')
+            file = os.path.join(path, base_name)
+
+            if JsonToExcel.is_json(file):
+                return path, base_name
+            else:
+                return -1, None
+        elif os.path.isfile(input_file_path):
+            if JsonToExcel.is_json(input_file_path):
+                path = os.path.dirname(input_file_path)
+                base_name = os.path.basename(input_file_path)
+                return path, base_name
+            else:
+                return -1, None
+        else: 
+            print('Error: Please verify the directory and file exist and that the file is of type .json')    
+            return -1, None
+
+    @staticmethod
+    def display_directory_files(list):
+        if len(list) == 0:
+            print('Error: No files found')
+            return -1
+
+        if len(list) > 1:
+            print(f'-- {len(list)} files found:')
+            for idx, file in enumerate(list, start=1):
+                print(f'{idx}. {file}')
+            selection_idx = input('\nPlease enter the index number to select the one to process: ')
         else:
-            print('Error. Path not found in system')
-        return json_data
+            print(f'Single file found: {list[0]}')
+            return 0  
 
-    def create_workbook(self):
-        """
-        Creates a new Excel workbook and prompts the user for the output folder.
+        return int(selection_idx) - 1
 
-        Returns:
-            tuple: The created workbook and worksheet objects.
-            (Workbook, Worksheet)
+    @staticmethod
+    def is_json(file_name):
+        if file_name.endswith('.json'):
+            return True
+        else:
+            print('Error: Selected file is not a JSON file')
+            return False
 
-        Library: openpyxl
-        """
-        global output_folder, output_file_path  # Declare global variables
+    def write_data_to_excel(self):
+        excel_file = os.path.join(self.xlsx_file_path, self.xlsx_file_basename)
+        json_file = os.path.join(self.json_file_path, self.json_file_basename)
 
-        # Prompt the user for the output folder
-        output_folder = input("Please enter the folder path to save the Excel file: ")
+        try:
+            with open(json_file, 'r') as f:
+                data = json.load(f)
+        except Exception as e:
+            print(f"Error reading JSON file: {e}")
+            return
 
-        # Check if the specified folder exists
-        if not os.path.exists(output_folder):
-            print("Error: The specified folder does not exist.")
-            return None, None
-
-        # If folder does exist, create new Workbook & Worksheet from openpyxl
-        output_file = input("Please input file name: ")
-        output_file_path = os.path.join(output_folder, f"{output_file}.xlsx")
-
-        # Create a new workbook and select the active worksheet
-        workbook = Workbook()
-        worksheet = workbook.active
-        worksheet.title = "Project Content"  # Set a title for the worksheet
-
-        return workbook, worksheet  # Return the workbook and worksheet for further use
-
-    def write_data_to_excel(self, excel_file):
-        """
-        Writes the JSON data to an Excel file.
-
-        Args:
-            excel_file (str): The path to the Excel file where the data will be written.
-
-        Library: pandas
-        """
-        # Retrieve JSON data
-        extracted_json_data = self.retrieve_json_file()
-
-        if extracted_json_data:
-            # Assuming we only need the first JSON object
-            data = extracted_json_data[0]  # If there are multiple JSON objects, handle accordingly
-
-            # Prepare to write to Excel
-            with pd.ExcelWriter(excel_file, engine='openpyxl') as writer:
-                # Write metadata as a title section
-                metadata = data['project_metadata']
+        if data:
+            with pd.ExcelWriter(excel_file, engine='openpyxl', mode='w') as writer:
+                
+                metadata = data.get('project_metadata', {})
                 metadata_df = pd.DataFrame(metadata.items(), columns=['Field', 'Value'])
                 metadata_df.to_excel(writer, sheet_name='Metadata', index=False, startrow=1)
-
-                # Extract header and body
-                body = data['project_content']['body']
-
-                # Prepare to flatten the body with activities
+                body = data.get('project_content', {}).get('body', [])
                 flattened_data = []
 
-                for entry in body:
-                    # Add the parent activity row
-                    parent_data = {
-                        "parent_id": entry['parent_id'],
-                        'id': entry['id'],
-                        'name': entry['name'],
-                        'duration': entry['duration'],
-                        'start': entry['start'],
-                        'finish': entry['finish'],
-                        'total_float': entry['total_float'],
-                        "scope_of_work": entry.get('scope_of_work', ''),
-                        "phase": entry.get('phase', ''),
-                        "trade": entry.get('trade', ''),
-                        "company": entry.get('company', ''),
-                        "location": entry.get('location', ''),
+                for parent_data in body:
+                    parent_obj_frame = {
+                        "parent_id": "N/A",  
+                        'id': parent_data.get('id', ''),
+                        'name': parent_data.get('name', ''),
+                        'duration': parent_data.get('duration', ''),
+                        'start': parent_data.get('start', ''),
+                        'finish': parent_data.get('finish', ''),
+                        'total_float': parent_data.get('total_float', ''),
+                        "scope_of_work": parent_data.get('scope_of_work', ''),
+                        "phase": parent_data.get('phase', ''),
+                        "trade": parent_data.get('trade', ''),
+                        "company": parent_data.get('company', ''),
+                        "location": parent_data.get('location', ''),
                     }
-                    flattened_data.append(parent_data)
+                    flattened_data.append(parent_obj_frame)
 
-                    # If there are activities, flatten them
-                    if entry['activities']:
-                        for activity in entry['activities']:
-                            # Add child activity row
-                            child_data = {
-                                "parent_id": entry['id'],  # Set parent_id to the current entry's id
-                                'id': activity['id'],
-                                'name': activity['name'],
-                                'duration': activity['duration'],
-                                'start': activity['start'],
-                                'finish': activity['finish'],
-                                'total_float': activity['total_float'],
-                                "scope_of_work": activity.get('scope_of_work', ''),
-                                "phase": activity.get('phase', ''),
-                                "trade": activity.get('trade', ''),
-                                "company": activity.get('company', ''),
-                                "location": activity.get('location', ''),
-                            }
-                            flattened_data.append(child_data)  # Append child data after the parent
+                    for child_data in parent_data.get('activities', []):
+                        child_obj_frame = {
+                            "parent_id": parent_data.get('id', ''),
+                            'id': child_data.get('id', ''),
+                            'name': child_data.get('name', ''),
+                            'duration': child_data.get('duration', ''),
+                            'start': child_data.get('start', ''),
+                            'finish': child_data.get('finish', ''),
+                            'total_float': child_data.get('total_float', ''),
+                            "scope_of_work": child_data.get('scope_of_work', ''),
+                            "phase": child_data.get('phase', ''),
+                            "trade": child_data.get('trade', ''),
+                            "company": child_data.get('company', ''),
+                            "location": child_data.get('location', ''),
+                        }
+                        flattened_data.append(child_obj_frame)
 
-                # Convert flattened data to DataFrame
                 flattened_df = pd.DataFrame(flattened_data)
-
-                # Write flattened body to a new sheet
-                flattened_df.to_excel(writer, sheet_name='Project Content', index=False, startrow=3)
+                flattened_df.to_excel(writer, sheet_name=self.worksheet_name, index=False, startrow=3)
 
             print(f"Successfully converted JSON to Excel and saved to {excel_file}")
         else:
             print("Error: No data to convert.")
 
-
 if __name__ == "__main__":
-    json_obj_instance = JsonToExcel()  # Create an instance of the JsonObj class
-    wb, ws = json_obj_instance.create_workbook()  # Call the method to create the workbook
-
-    if wb and ws:
-        json_obj_instance.write_data_to_excel(output_file_path)  # Write JSON data to Excel
-        print(f"Workbook created and saved at: {output_file_path}")
+    JsonToExcel.main()
