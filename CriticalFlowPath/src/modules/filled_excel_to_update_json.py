@@ -12,7 +12,7 @@ class FilledExcelToUpdateJson():
         self.excel_file_path = input_excel_file_path
         self.starting_data_row = 4
         self.final_data_col = 13
-        self.json_categories = ['scope_of_work', 'phase', 'trade', 'company', 'location']
+        self.json_categories = ["phase", "location", "trade", "company", "scope_of_work"]
     
     @staticmethod
     def main():
@@ -37,9 +37,11 @@ class FilledExcelToUpdateJson():
                     "project_content": []
                 }
 
-                for category in filled_excel.json_categories:
+                """ for category in filled_excel.json_categories:
                     test_json = filled_excel.extract_col_cells(category)      
-                    json_dic["project_content"].append(filled_excel.create_json(test_json, category))
+                    json_dic["project_content"].append(filled_excel.create_json(test_json, category)) """
+                
+                json_dic["project_content"].append(filled_excel.build_nested_dict())
 
                 filled_excel.write_json(json_dic)
 
@@ -169,6 +171,143 @@ class FilledExcelToUpdateJson():
         ordered_type_list["filled"] = json_dic["filled"]
         
         return ordered_type_list
+
+    @staticmethod
+    def create_typed_dic(json_obj, categories):
+        #flat_data = self.flattend_json_data()
+        """ resulting_dic = {
+            "header": "phase",
+            "body": {
+                "header": "location",
+                "filled": {
+                    "body": {
+                        "header": "trade",
+                        "filled": {
+                            "body": {
+                                "header": "activity_code",
+                                "filled": {
+                                    "body": {}
+                                },
+                                "empty":{}
+                            }
+                        },
+                        "empty": {}
+                    }
+                },
+                "empty": {}
+            }
+        } """
+
+        for category in categories:
+            processed_dic = {
+                "header": None,
+                "filled": {},
+                "empty": {}
+            }
+
+            leveled_json_obj = FilledExcelToUpdateJson.layers_deep(processed_dic, json_obj, category)
+            print("\nLeveled json Obj: ", leveled_json_obj)
+            
+            if leveled_json_obj[category] is not None and leveled_json_obj[category] != "":
+                processed_dic["header"] = leveled_json_obj[category]
+                processed_dic["filled"] = leveled_json_obj
+                FilledExcelToUpdateJson.create_typed_dic(processed_dic, category)
+            else:
+                processed_dic["empty"] = leveled_json_obj
+                return processed_dic
+            
+            if category == categories[-1]:
+                return leveled_json_obj
+            
+    @staticmethod
+    def create_typed_dic_2(json_obj, comp_json_dic=None, level=0):
+        categories = ["phase", "location", "trade", "company"]
+        
+        # Initialize the main dictionary at the root level
+        if comp_json_dic is None:
+            comp_json_dic = {
+                "header": None,
+                "body": {},
+                "empty": []
+            }
+
+        # Exit condition: if we've reached the last category
+        if level >= len(categories):
+            comp_json_dic["body"] = []
+            comp_json_dic["body"].append(json_obj)
+            return comp_json_dic
+
+        category = categories[level]
+        
+        if json_obj.get(category) is not None:
+            # Set the header for the current level
+            comp_json_dic["header"] = json_obj[category]
+
+            # Prepare the next level in the "body" dictionary
+            next_dic = {
+                "header": None,
+                "body": {},
+                "empty": []
+            }
+
+            # Recursive call for the next level in the hierarchy
+            comp_json_dic["body"] = FilledExcelToUpdateJson.create_typed_dic_2(json_obj, next_dic, level + 1)
+
+        else:
+            # If no value exists for this category, add to "empty"
+            comp_json_dic["empty"].append(json_obj)
+
+        return comp_json_dic
+
+    def build_nested_dict(self):
+        flat_data = self.flattend_json_data()
+        nested_dict = {}
+
+        for obj in flat_data:
+            phase = obj.get("phase")
+            location = obj.get("location")
+            trade = obj.get("trade")
+            company = obj.get("company")
+
+            if phase is not None and phase != "":
+                if phase not in nested_dict:
+                    nested_dict[phase] = {}
+                
+                if location is not None:
+                    if location not in nested_dict[phase]:
+                        nested_dict[phase][location] = {}
+                    
+                    if trade is not None:
+                        if trade not in nested_dict[phase][location]:
+                            nested_dict[phase][location][trade] = {}
+                        
+                        if company is not None:
+                            if company not in nested_dict[phase][location][trade]:
+                                nested_dict[phase][location][trade][company] = []
+                            
+                            nested_dict[phase][location][trade][company].append({
+                                "entry": obj.get("entry"),
+                                "parent_id": obj.get("parent_id"),
+                                "id": obj.get("id"),
+                                "name": obj.get("name"),
+                                "duration": obj.get("duration"),
+                                "start": obj.get("start"),
+                                "finish": obj.get("finish"),
+                                "total_float": obj.get("total_float"),
+                            })
+                            
+        return nested_dict
+    
+    @staticmethod
+    def layers_deep(json_obj, target_level):
+        if json_obj.get("header") is not None and json_obj.get("header") != "":
+            if json_obj["header"] == target_level:
+                processed_json_obj = json_obj["filled"]
+                return processed_json_obj
+            else:
+                processed_json_obj = json_obj["filled"]
+                FilledExcelToUpdateJson.layers_deep(processed_json_obj, target_level)
+        return json_obj
 
     def write_json(self, json_dic):
         json_basename = 'reordered_cpm.json'
