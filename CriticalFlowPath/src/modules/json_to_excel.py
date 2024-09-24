@@ -4,7 +4,8 @@ import pandas as pd
 from openpyxl import Workbook
 
 class JsonToExcel: 
-    def __init__(self, input_file_path, input_file_basename, endpoint_file_path, endpoint_file_basename, xlsx_worksheet_name):
+    def __init__(self, input_file_path, input_file_basename, endpoint_file_path, 
+                 endpoint_file_basename, xlsx_worksheet_name):
         self.json_file_path = input_file_path
         self.json_file_basename = input_file_basename
         self.xlsx_file_path = endpoint_file_path
