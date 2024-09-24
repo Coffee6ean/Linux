@@ -7,7 +7,8 @@ from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.workbook.workbook import Workbook
 
 class ScheduleFramework():
-    def __init__(self, input_file_path, input_file_name, input_worksheet_name, input_start_row, input_start_col, input_start_date, input_end_date):
+    def __init__(self, input_file_path, input_file_name, input_worksheet_name, 
+                 input_start_row, input_start_col, input_start_date, input_end_date):
         self.file_path = input_file_path
         self.file_name = input_file_name
         self.ws_name = input_worksheet_name
@@ -26,13 +27,19 @@ class ScheduleFramework():
                                         project.end_date)  
         start_date_col, end_date_col = project.return_dates_idx(active_worksheet)
         start_dates_list, end_dates_list = project.list_dates(active_worksheet, start_date_col, end_date_col)
-        
+
         trade_idx = project.col_idx_by_title(active_worksheet, 'trade')
+        color_idx = project.col_idx_by_title(active_worksheet, 'color')
         code_idx = project.col_idx_by_title(active_worksheet, 'activity_code')
-        color_hex_list = project.extract_cell_attr(active_worksheet, trade_idx)
+        color_hex_list = project.extract_cell_attr(active_worksheet, color_idx)
         activity_code_list = project.extract_cell_attr(active_worksheet, code_idx)
         pro_hex_list = project.process_hex_val(color_hex_list)
-        project.fill_schedule(active_workbook, active_worksheet, start_dates_list, 
+        #print("Start Dates List: ", start_dates_list)
+        #print("End Dates List: ", end_dates_list)
+        #print("Color Hex List: ", pro_hex_list)
+        #print("Activity Code List: ", activity_code_list)
+
+        project.fill_opt_schedule(active_workbook, active_worksheet, start_dates_list, 
                             end_dates_list, pro_hex_list, activity_code_list)
 
         year_list, year_row = project.same_cell_values(active_workbook, active_worksheet, 
@@ -191,19 +198,19 @@ class ScheduleFramework():
         end_date_col = None
 
         if ws.cell(row=self.wbs_start_row, column=column_index_from_string(self.wbs_start_col)).value is not None:
-            for col in ws.iter_cols(min_row=self.wbs_start_row, min_col=start_col_idx, 
-                                    max_col=ws.max_column, max_row=ws.max_row):
-                if any(isinstance(cell.value, str) and 'start' in cell.value for cell in col if cell.value):
+            for col in ws.iter_cols(min_row=self.wbs_start_row, max_row=self.wbs_start_row, 
+                                    min_col=start_col_idx, max_col=ws.max_column):
+                if any(isinstance(cell.value, str) and 'start' in cell.value.lower() for cell in col if cell.value):
                     start_date_col = col[0].column
-                elif any(isinstance(cell.value, str) and 'finish' in cell.value for cell in col if cell.value):
+                elif any(isinstance(cell.value, str) and 'finish' in cell.value.lower() for cell in col if cell.value):
                     end_date_col = col[0].column
                     break
         else:
             print("No columns found for 'start' and 'end'")
             return None, None
 
-        #print("'Start Date' column: ", start_date_col)
-        #print("'End Date' column: ", end_date_col)
+        print("'Start Date' column: ", start_date_col)
+        print("'End Date' column: ", end_date_col)
         return start_date_col, end_date_col
 
     def list_dates(self, active_ws, start_date_col, end_date_col):
@@ -293,7 +300,8 @@ class ScheduleFramework():
 
         return col_list
 
-    def fill_schedule(self, active_wb, active_ws, start_dates_list, end_dates_list, color_hex_list, activity_code_list):
+    def fill_schedule(self, active_wb, active_ws, start_dates_list, end_dates_list, 
+                      color_hex_list, activity_code_list):
         wb = active_wb
         ws = active_ws
         file = os.path.join(self.file_path, self.file_name)
@@ -308,12 +316,19 @@ class ScheduleFramework():
                 end_date = datetime.strptime(end_dates_list[row_counter], '%d-%b-%y')
 
                 if start_date <= cell_date <= end_date:
-                    cell.alignment = Alignment(horizontal=activity_code_list[row_counter]["alignment"]["horizontal"], 
+                    try:
+                        cell.alignment = Alignment(horizontal=activity_code_list[row_counter]["alignment"]["horizontal"], 
                                                vertical=activity_code_list[row_counter]["alignment"]["vertical"])
-                    cell.border = Border(top=activity_code_list[row_counter]["border"]["top"], 
+                    except:
+                        cell.alignment = Alignment(horizontal="center", vertical="center")
+                    try:    
+                        cell.border = Border(top=activity_code_list[row_counter]["border"]["top"], 
                                          left=activity_code_list[row_counter]["border"]["left"], 
                                          right=activity_code_list[row_counter]["border"]["right"], 
                                          bottom=activity_code_list[row_counter]["border"]["bottom"])
+                    except:
+                        cell.border = Border(top="thin", left="thin", right="thin", bottom="thin")
+                        
                     try:
                         cell.fill = PatternFill(start_color=color_hex_list[row_counter]["value"], 
                                                 end_color=color_hex_list[row_counter]["value"], 
@@ -324,18 +339,88 @@ class ScheduleFramework():
                         cell.fill = PatternFill(start_color='00FFFF00', 
                                                 end_color='00FFFF00', 
                                                 fill_type='solid')
-
-                    cell.font = Font(name=activity_code_list[row_counter]["font"]["name"], 
+                    try:
+                        cell.font = Font(name=activity_code_list[row_counter]["font"]["name"], 
                                      size=activity_code_list[row_counter]["font"]["size"], 
                                      bold=activity_code_list[row_counter]["font"]["bold"], 
                                      color=activity_code_list[row_counter]["font"]["color"])
+                    except:
+                        cell.font = Font(name="Calibri", size="12", bold=True, color="00FFFFFF")
+
                     cell.value = activity_code_list[row_counter]["value"]
 
                 cell_counter += 1
             row_counter += 1
 
         wb.save(filename=file)
-        print("Workbook styled and saved successfully.")
+        print("Workbook filled successfully.")
+        wb.close()
+
+    def fill_opt_schedule(self, active_wb, active_ws, start_dates_list, end_date_list, 
+                      color_hex_list, activity_code_list):
+        wb = active_wb
+        ws = active_ws
+        file = os.path.join(self.file_path, self.file_name)
+        start_ovr_date = datetime.strptime(self.start_date, '%d-%b-%Y')
+        final_ovr_date = datetime.strptime(self.end_date, '%d-%b-%Y')
+
+        for idx, item in enumerate(start_dates_list):
+            initial_date = datetime.strptime(item, '%d-%b-%y')
+            final_date = datetime.strptime(end_date_list[idx], '%d-%b-%y')
+
+            if initial_date >= start_ovr_date and final_date <= final_ovr_date:
+                start_search_col = (initial_date - start_ovr_date).days
+                finish_search_col = (final_date - start_ovr_date).days
+
+                for row in ws.iter_rows(min_row=self.start_row + 4, max_row=ws.max_row,
+                                        min_col=column_index_from_string(self.start_col)+start_search_col, 
+                                        max_col= column_index_from_string(self.start_col)+finish_search_col):
+                    paint_row = True
+                    
+                    for cell in row:
+                        if cell.value is not None:
+                            paint_row = False
+                            break
+                    
+                    if paint_row:
+                        for cell in row:
+                            try:
+                                cell.alignment = Alignment(horizontal=activity_code_list[idx]["alignment"]["horizontal"], 
+                                                vertical=activity_code_list[idx]["alignment"]["vertical"])
+                            except:
+                                cell.alignment = Alignment(horizontal="center", vertical="center")
+                            try:    
+                                cell.border = Border(top=activity_code_list[idx]["border"]["top"], 
+                                                left=activity_code_list[idx]["border"]["left"], 
+                                                right=activity_code_list[idx]["border"]["right"], 
+                                                bottom=activity_code_list[idx]["border"]["bottom"])
+                            except:
+                                cell.border = Border(top="thin", left="thin", right="thin", bottom="thin")
+                                
+                            try:
+                                cell.fill = PatternFill(start_color=color_hex_list[idx]["value"], 
+                                                        end_color=color_hex_list[idx]["value"], 
+                                                        fill_type=color_hex_list[idx]["fill"]["fill_type"])
+                            except:
+                                color = color_hex_list[idx]["value"]
+                                print(f"Color hex not found: {color}")
+                                cell.fill = PatternFill(start_color='00FFFF00', 
+                                                        end_color='00FFFF00', 
+                                                        fill_type='solid')
+                            try:
+                                cell.font = Font(name=activity_code_list[idx]["font"]["name"], 
+                                            size=activity_code_list[idx]["font"]["size"], 
+                                            bold=activity_code_list[idx]["font"]["bold"], 
+                                            color=activity_code_list[idx]["font"]["color"])
+                            except:
+                                cell.font = Font(name="Calibri", size="12", bold=True, color="00FFFFFF")
+
+                            cell.value = activity_code_list[idx]["value"]
+                                
+                        break
+
+        wb.save(filename=file)
+        print("Workbook filled successfully.")
         wb.close()
 
     def same_cell_values(self, active_wb, active_ws, starting_row_idx, starting_col_idx):
@@ -428,30 +513,4 @@ class ScheduleFramework():
 
 
 if __name__ == "__main__":
-    project = ScheduleFramework.generate_ins()
-    active_workbook, active_worksheet = project.return_excel_workspace(project.ws_name)
-    project.generate_schedule_frame(active_workbook, active_worksheet, project.start_date, 
-                                    project.end_date)  
-    start_date_col, end_date_col = project.return_dates_idx(active_worksheet)
-    start_dates_list, end_dates_list = project.list_dates(active_worksheet, start_date_col, end_date_col)
-    
-    trade_idx = project.col_idx_by_title(active_worksheet, 'trade')
-    code_idx = project.col_idx_by_title(active_worksheet, 'activity_code')
-    color_hex_list = project.extract_cell_attr(active_worksheet, trade_idx)
-    activity_code_list = project.extract_cell_attr(active_worksheet, code_idx)
-    pro_hex_list = project.process_hex_val(color_hex_list)
-    project.fill_schedule(active_workbook, active_worksheet, start_dates_list, 
-                          end_dates_list, pro_hex_list, activity_code_list)
- 
-    year_list, year_row = project.same_cell_values(active_workbook, active_worksheet, 
-                                                   project.start_row, project.start_col)
-    for year in year_list:
-        project.merge_same_value_cells(active_workbook, active_worksheet, year, year_row)  
-
-    month_list, month_row = project.same_cell_values(active_workbook, active_worksheet, 
-                                                     project.start_row + 1, project.start_col)
-    for month in month_list:
-        project.merge_same_value_cells(active_workbook, active_worksheet, month, month_row)  
-
-    project.style_worksheet(active_workbook, active_worksheet, project.start_date, 
-                            project.end_date)
+    ScheduleFramework.main()
