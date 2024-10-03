@@ -2,18 +2,20 @@ import os
 import json
 from datetime import datetime
 from openpyxl import load_workbook
+from openpyxl.utils import column_index_from_string 
 from openpyxl.worksheet.datavalidation import DataValidation
 
 class FilledExcelToUpdateJson():
     def __init__(self, input_process_cont, input_excel_path, input_excel_basename, input_worksheet_name, 
                  input_json_path, input_json_basename):
         self.process_cont = input_process_cont
-        self.file_path = input_excel_path
-        self.file_basename = input_excel_basename
+        self.excel_path = input_excel_path
+        self.excel_basename = input_excel_basename
         self.ws_name = input_worksheet_name
         self.json_path = input_json_path
         self.json_basename = input_json_basename
-        self.starting_data_row = 4
+        self.wbs_start_row = 4
+        self.wbs_start_col = 'A'
         self.final_data_col = 13
         self.json_categories = ["phase", "location", "trade", "activity_code"]
     
@@ -24,15 +26,15 @@ class FilledExcelToUpdateJson():
         if project:
             try:
                 wb, ws = project.return_excel_workspace(project.ws_name)
+                entry_frame = project.build_entry_dic(ws)
 
-                if project.process_cont.lower() == 'y':
+                if project.process_cont == 'n':
                     # Update Existing JSON
                     for category in project.json_categories:
                         project.update_json(project.extract_col_cells(ws, category), category)
                 else:
-                    # Generate New JSON
+                    # Create New JSON
                     project.generate_new_json()
-                    entry_frame = project.build_entry_dic(ws)
                     project.build_project_dic(ws, entry_frame)
 
                 # Create Restructured JSON
@@ -57,22 +59,40 @@ class FilledExcelToUpdateJson():
         
     @staticmethod
     def generate_ins():
-        input_excel_file = input("Please enter the path to the Excel file or directory (or 'q' to quit): ")
-        if input_excel_file.lower() == 'q':
+        input_process_cont = FilledExcelToUpdateJson.ynq_user_interaction("Is this a completly new project?: ")
+        if input_process_cont == 'q':
             print("Exiting the program.")
             return -1
         
+        input_excel_file = input("Please enter the path to the Excel file or directory: ")
         input_worksheet_name = input("Please enter the name for the new or existing worksheet: ")
-        input_excel_path, input_excel_basename = FilledExcelToUpdateJson.file_verification(input_excel_file, 'e', 'f')
-
-        input_process_cont = input("Is this part of the process or a new complete project? (Y/y for Yes, N/n for No): ")
+        input_excel_path, input_excel_basename = FilledExcelToUpdateJson.file_verification(
+            input_excel_file, 'e', 'f')
         input_json_file = input("Please enter the directory to save the new JSON file: ")
-        input_json_path, input_json_basename = FilledExcelToUpdateJson.file_verification(input_json_file, 'j', 's')
 
-        ins = FilledExcelToUpdateJson(input_process_cont, input_excel_path, input_excel_basename, input_worksheet_name,
-                                      input_json_path, input_json_basename)
+        if input_process_cont == 'y':
+            input_json_path, input_json_basename = FilledExcelToUpdateJson.file_verification(
+                input_json_file, 'j', 'c')
+        elif input_process_cont == 'n':
+            input_json_path, input_json_basename = FilledExcelToUpdateJson.file_verification(
+                input_json_file, 'j', 'u')
+
+        ins = FilledExcelToUpdateJson(input_process_cont, input_excel_path, input_excel_basename, 
+                                      input_worksheet_name, input_json_path, input_json_basename)
         
         return ins
+
+    @staticmethod
+    def ynq_user_interaction(prompt_message):
+        valid_responses = {'y', 'n', 'q'}  
+        
+        while True:
+            user_input = input(prompt_message).lower()  
+            
+            if user_input in valid_responses:
+                return user_input  
+            else:
+                print("Error. Invalid input, please try again. ['Y/y' for Yes, 'N/n' for No, 'Q/q' for Quit]\n")
 
     @staticmethod
     def display_directory_files(list):
@@ -82,7 +102,7 @@ class FilledExcelToUpdateJson():
             return -1
         
         if len(list)>1:
-            print(f'{len(list)} files found:')
+            print(f'-- {len(list)} files found:')
             idx = 0
             for file in list:
                 idx += 1
@@ -125,13 +145,13 @@ class FilledExcelToUpdateJson():
             path = input_file_path
             file = None
 
-            if mode == 'f':
+            if mode == 'u':
                 dir_list = os.listdir(path)
                 selection = FilledExcelToUpdateJson.display_directory_files(dir_list)
                 base_name = dir_list[selection]
                 print(f'File selected: {base_name}\n')
                 file = os.path.join(path, base_name)
-            elif mode == 's':
+            elif mode == 'c':
                 base_name = None
                 return path, base_name
             else:
@@ -156,7 +176,7 @@ class FilledExcelToUpdateJson():
             return -1
     
     def return_excel_workspace(self, worksheet_name):
-        file = os.path.join(self.file_path, self.file_basename)
+        file = os.path.join(self.excel_path, self.excel_basename)
         
         try:
             workbook = load_workbook(filename=file)
@@ -169,13 +189,22 @@ class FilledExcelToUpdateJson():
                 
                 if user_answer == 'y':
                     worksheet = workbook.create_sheet(worksheet_name)
+                    self.ws_name = worksheet_name
                     print(f"New worksheet '{worksheet_name}' created.")
                     break
                 elif user_answer == 'n':
                     ws_list = workbook.sheetnames
-                    selected_ws = FilledExcelToUpdateJson.display_directory_files(ws_list)
-                    worksheet = workbook.worksheets[selected_ws]
-                    return workbook, worksheet
+                    selected_ws_idx = FilledExcelToUpdateJson.display_directory_files(ws_list)
+                    
+                    if selected_ws_idx >= 0:  
+                        worksheet = workbook.worksheets[selected_ws_idx]
+                        self.ws_name = ws_list[selected_ws_idx]
+                        print(f"Worksheet selected: '{self.ws_name}'")
+                        return workbook, worksheet
+                    else:
+                        print("Invalid selection. Returning without changes.")
+                        return workbook, None
+                        
                 elif user_answer == 'q':
                     print("Quitting without changes.")
                     return workbook, None
@@ -211,8 +240,8 @@ class FilledExcelToUpdateJson():
     def build_project_dic(self, active_ws, entry_frame):
         file = os.path.join(self.json_path, self.json_basename)
         ws = active_ws
-        initial_col_idx = self.find_column(ws, self.json_categories[0])
-        final_col_idx = self.find_column(ws, 'finish')
+        initial_col_idx = self.find_column_idx(ws, self.json_categories[0])
+        final_col_idx = self.find_column_idx(ws, 'finish')
         entry_counter = 1
         json_dic = {
             "project_metadata": {},
@@ -224,7 +253,7 @@ class FilledExcelToUpdateJson():
         header_list = list(entry_frame.keys())[1:]
 
         for row in ws.iter_rows(min_col=initial_col_idx, max_col=final_col_idx, 
-                                min_row=self.starting_data_row + 1, max_row=ws.max_row):
+                                min_row=self.wbs_start_row + 1, max_row=ws.max_row):
             entry_frame["entry"] = entry_counter
             
             for header_counter, cell in enumerate(row):
@@ -243,20 +272,25 @@ class FilledExcelToUpdateJson():
 
     def build_entry_dic(self, active_ws):
         ws = active_ws
-        initial_col_idx = self.find_column(ws, self.json_categories[0])
-        final_col_idx = self.find_column(ws, 'finish')
+        
+        try:
+            initial_col_idx = self.find_column_idx(ws, self.json_categories[0])
+            final_col_idx = self.find_column_idx(ws, 'finish')
+        except Exception as e:
+            print(f"Error finding columns: {e}")
+            return None
+        
+        dic_frame = {
+            "entry": None 
+        }
 
         for row in ws.iter_rows(min_col=initial_col_idx, max_col=final_col_idx, 
-                                min_row=self.starting_data_row, max_row=self.starting_data_row):
-            dic_frame = {
-                "entry": None
-            }
-
-            if any(isinstance(cell.value, str) for cell in row if cell.value not in dic_frame):
-                for cell in row:
-                    if cell.value not in dic_frame and isinstance(cell.value, str):
-                        new_key = cell.value.replace(" ", "_")
-                        dic_frame[new_key.lower()] = None 
+                                min_row=self.wbs_start_row, max_row=self.wbs_start_row): 
+            for cell in row:
+                if cell.value and isinstance(cell.value, str):
+                    new_key = cell.value.replace(" ", "_").lower()
+                    if new_key not in dic_frame:
+                        dic_frame[new_key] = None
 
         return dic_frame
 
@@ -385,28 +419,32 @@ class FilledExcelToUpdateJson():
                 "empty": []
             }
         }
-        phase_col_idx = self.find_column(ws, column_header)
+        phase_col_idx = self.find_column_idx(ws, column_header)
 
-        for row in ws.iter_rows(min_col=phase_col_idx, max_col=phase_col_idx, min_row=self.starting_data_row + 1, max_row=ws.max_row):
+        for row in ws.iter_rows(min_col=phase_col_idx, max_col=phase_col_idx, min_row=self.wbs_start_row + 1, max_row=ws.max_row):
             for cell in row:
                 cell_info = {
                     "value": cell.value,
-                    "row": cell.row - self.starting_data_row
+                    "row": cell.row - self.wbs_start_row
                 }
-                if cell.value is not None and isinstance(cell.value, str):
+                if cell.value is not None and cell.value != "" and isinstance(cell.value, str):
                     json_dic["body"]["filled"].append(cell_info)
                 else:
                     json_dic["body"]["empty"].append(cell_info)
 
         return json_dic
 
-    def find_column(self, active_ws, column_header):
+    def find_column_idx(self, active_ws, column_header):
         ws = active_ws
+        start_col_idx = column_index_from_string(self.wbs_start_col)
+        normalized_header = column_header.replace(" ", "_").lower()
 
-        for col in ws.iter_cols(min_row=self.starting_data_row, min_col=1, max_col=self.final_data_col):
-            if any(isinstance(cell.value, str) and column_header in cell.value.lower() for cell in col if cell.value):
-                return col[0].column
-        return None
+        for row in ws.iter_rows(min_row=self.wbs_start_row, min_col=start_col_idx, max_col=ws.max_column):
+            for cell in row:
+                if cell.value and isinstance(cell.value, str):
+                    normalized_cell_value = cell.value.replace(" ", "_").lower()
+                    if normalized_header in normalized_cell_value:
+                        return cell.column
 
     def order_list(self, list):
         alphabtically_ordered_list = sorted(list)
