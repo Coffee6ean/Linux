@@ -1,0 +1,1303 @@
+{
+    "project_metadata": {},
+    "project_content": [
+        {
+            "Fitout": {
+                "COLO 2  Cell 1 Mech Gallery": {
+                    "Trade 1": {
+                        "MG1": [
+                            {
+                                "entry": 1,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Mech Gallery",
+                                "trade": "Trade 1",
+                                "color": "#96CEFF",
+                                "activity_code": "MG1",
+                                "activity_name": "Install Dampers and actuators at Louvers - Upper level (RED) - COLO2 Cell 1 - MG"
+                            }
+                        ],
+                        "MG2": [
+                            {
+                                "entry": 2,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Mech Gallery",
+                                "trade": "Trade 1",
+                                "color": "#96CEFF",
+                                "activity_code": "MG2",
+                                "activity_name": "Install Dampers and actuators at Louvers - Lower level (OA) - COLO2 Cell 1 - MG"
+                            }
+                        ],
+                        "MG3": [
+                            {
+                                "entry": 3,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Mech Gallery",
+                                "trade": "Trade 1",
+                                "color": "#96CEFF",
+                                "activity_code": "MG3",
+                                "activity_name": "Overhead MEP Installation - COLO2 Cell 1 - MG"
+                            }
+                        ],
+                        "MG4": [
+                            {
+                                "entry": 4,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Mech Gallery",
+                                "trade": "Trade 1",
+                                "color": "#96CEFF",
+                                "activity_code": "MG4",
+                                "activity_name": "Deliver AHU into Mech. Gallery - COLO2 Cell 1 - MG"
+                            }
+                        ],
+                        "MG5": [
+                            {
+                                "entry": 5,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Mech Gallery",
+                                "trade": "Trade 1",
+                                "color": "#96CEFF",
+                                "activity_code": "MG5",
+                                "activity_name": "Install Walls and Primer Paint - COLO2 Cell 1 - MG"
+                            }
+                        ],
+                        "MG6": [
+                            {
+                                "entry": 6,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Mech Gallery",
+                                "trade": "Trade 1",
+                                "color": "#96CEFF",
+                                "activity_code": "MG6",
+                                "activity_name": "Placing the AHU - COLO2 Cell 1 - MG"
+                            }
+                        ],
+                        "MG7": [
+                            {
+                                "entry": 7,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Mech Gallery",
+                                "trade": "Trade 1",
+                                "color": "#96CEFF",
+                                "activity_code": "MG7",
+                                "activity_name": "Layout Ceiling and install Pencile Rod - COLO2 Cell 1 - MG"
+                            }
+                        ],
+                        "MG8": [
+                            {
+                                "entry": 8,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Mech Gallery",
+                                "trade": "Trade 1",
+                                "color": "#96CEFF",
+                                "activity_code": "MG8",
+                                "activity_name": "Piping and Electrical Termination to AHUs - COLO2 Cell 1 - MG"
+                            }
+                        ],
+                        "MG9": [
+                            {
+                                "entry": 9,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Mech Gallery",
+                                "trade": "Trade 1",
+                                "color": "#96CEFF",
+                                "activity_code": "MG9",
+                                "activity_name": "Pipe Testing - COLO2 Cell 1 - MG"
+                            }
+                        ],
+                        "MG10": [
+                            {
+                                "entry": 10,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Mech Gallery",
+                                "trade": "Trade 1",
+                                "color": "#96CEFF",
+                                "activity_code": "MG10",
+                                "activity_name": "Install ceiling and Light Fittings - COLO2 Cell 1 - MG"
+                            }
+                        ],
+                        "MG11": [
+                            {
+                                "entry": 11,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Mech Gallery",
+                                "trade": "Trade 1",
+                                "color": "#96CEFF",
+                                "activity_code": "MG11",
+                                "activity_name": "Trim out MEP - COLO2 Cell 1 - MG"
+                            }
+                        ],
+                        "MG12": [
+                            {
+                                "entry": 12,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Mech Gallery",
+                                "trade": "Trade 1",
+                                "color": "#96CEFF",
+                                "activity_code": "MG12",
+                                "activity_name": "Post Wall Overhead MEP - COLO2 Cell 1 - MG"
+                            }
+                        ]
+                    }
+                },
+                "COLO 2  Cell 1 Data Hall": {
+                    "Trade 2": {
+                        "DH5": [
+                            {
+                                "entry": 13,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Data Hall",
+                                "trade": "Trade 2",
+                                "color": "#C5E5A6",
+                                "activity_code": "DH5",
+                                "activity_name": "Cable Pulling at PDU & Busway - COLO2 Cell 1 - DH"
+                            }
+                        ],
+                        "DH3": [
+                            {
+                                "entry": 14,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Data Hall",
+                                "trade": "Trade 2",
+                                "color": "#C5E5A6",
+                                "activity_code": "DH3",
+                                "activity_name": "Overhead MEP and Hangers (Above Ceiling) - COLO2 Cell 1 - DH"
+                            }
+                        ],
+                        "DH4": [
+                            {
+                                "entry": 15,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Data Hall",
+                                "trade": "Trade 2",
+                                "color": "#C5E5A6",
+                                "activity_code": "DH4",
+                                "activity_name": "HAC install and Rise - COLO2 Cell 1 - DH"
+                            }
+                        ],
+                        "DH2": [
+                            {
+                                "entry": 16,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Data Hall",
+                                "trade": "Trade 2",
+                                "color": "#C5E5A6",
+                                "activity_code": "DH2",
+                                "activity_name": "Termination at PDU & Busway- COLO2 Cell 1 - DH"
+                            }
+                        ],
+                        "DH6": [
+                            {
+                                "entry": 17,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Data Hall",
+                                "trade": "Trade 2",
+                                "color": "#C5E5A6",
+                                "activity_code": "DH6",
+                                "activity_name": "Security Screen Installation - COLO2 Cell 1 - DH"
+                            }
+                        ],
+                        "DH7": [
+                            {
+                                "entry": 18,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Data Hall",
+                                "trade": "Trade 2",
+                                "color": "#C5E5A6",
+                                "activity_code": "DH7",
+                                "activity_name": "Ceiling Grid and Tile - COLO2 Cell 1 - DH"
+                            }
+                        ],
+                        "DH8": [
+                            {
+                                "entry": 19,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Data Hall",
+                                "trade": "Trade 2",
+                                "color": "#C5E5A6",
+                                "activity_code": "DH8",
+                                "activity_name": "Install PDU's - COLO2 Cell 1 - DH"
+                            }
+                        ],
+                        "DH9": [
+                            {
+                                "entry": 20,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Data Hall",
+                                "trade": "Trade 2",
+                                "color": "#C5E5A6",
+                                "activity_code": "DH9",
+                                "activity_name": "Overhead MEP Installation (Below Ceiling) - COLO2 Cell 1 - DH"
+                            }
+                        ],
+                        "DH10": [
+                            {
+                                "entry": 21,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Data Hall",
+                                "trade": "Trade 2",
+                                "color": "#C5E5A6",
+                                "activity_code": "DH10",
+                                "activity_name": "Install Low Voltage Wiring and Fiber Optic - COLO2 Cell 1 - DH"
+                            }
+                        ],
+                        "DH11": [
+                            {
+                                "entry": 22,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Data Hall",
+                                "trade": "Trade 2",
+                                "color": "#C5E5A6",
+                                "activity_code": "DH11",
+                                "activity_name": "HAC Placing - COLO2 Cell 1 - DH"
+                            }
+                        ],
+                        "DH12": [
+                            {
+                                "entry": 23,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Data Hall",
+                                "trade": "Trade 2",
+                                "color": "#C5E5A6",
+                                "activity_code": "DH12",
+                                "activity_name": "Finishes and Signage - COLO2 Cell 1 - DH"
+                            }
+                        ]
+                    }
+                },
+                "COLO 2  Cell 1 Commissioning": {
+                    "Trade 3": {
+                        "C1": [
+                            {
+                                "entry": 24,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C1",
+                                "activity_name": "Interior - L1 UPS - COLO2 Cell 1"
+                            }
+                        ],
+                        "C2": [
+                            {
+                                "entry": 25,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C2",
+                                "activity_name": "Interior - L1 MSB - COLO2 Cell 1"
+                            }
+                        ],
+                        "C3": [
+                            {
+                                "entry": 26,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C3",
+                                "activity_name": "Interior - L1 PDUs - COLO2 Cell 1"
+                            }
+                        ],
+                        "C4": [
+                            {
+                                "entry": 27,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C4",
+                                "activity_name": "Interior - L1 AHUs - COLO2 Cell 1"
+                            }
+                        ],
+                        "C5": [
+                            {
+                                "entry": 28,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C5",
+                                "activity_name": "Interior - L1  ATSs - COLO2 Cell 1"
+                            }
+                        ],
+                        "C6": [
+                            {
+                                "entry": 29,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C6",
+                                "activity_name": "Interior - L1 Busway - COLO2 Cell 1"
+                            }
+                        ],
+                        "C7": [
+                            {
+                                "entry": 30,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C7",
+                                "activity_name": "Interior - L1 ADP - COLO2 Cell 1"
+                            }
+                        ],
+                        "C8": [
+                            {
+                                "entry": 31,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C8",
+                                "activity_name": "Interior - L2 UPS - COLO2 Cell 1"
+                            }
+                        ],
+                        "C9": [
+                            {
+                                "entry": 32,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C9",
+                                "activity_name": "Interior - L2 MSB - COLO2 Cell 1"
+                            }
+                        ],
+                        "C10": [
+                            {
+                                "entry": 33,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C10",
+                                "activity_name": "Interior - L2 PDUs - COLO2 Cell 1"
+                            }
+                        ],
+                        "C11": [
+                            {
+                                "entry": 34,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C11",
+                                "activity_name": "Interior - L2 AHUs - COLO2 Cell 1"
+                            }
+                        ],
+                        "C12": [
+                            {
+                                "entry": 35,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C12",
+                                "activity_name": "Interior - L2  ATSs - COLO2 Cell 1"
+                            }
+                        ],
+                        "C13": [
+                            {
+                                "entry": 36,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C13",
+                                "activity_name": "Interior - L2 Busway - COLO2 Cell 1"
+                            }
+                        ],
+                        "C14": [
+                            {
+                                "entry": 37,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C14",
+                                "activity_name": "Interior - L2 ADP - COLO2 Cell 1"
+                            }
+                        ],
+                        "C15": [
+                            {
+                                "entry": 38,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C15",
+                                "activity_name": "Interior - L3 UPS - COLO2 Cell 1"
+                            }
+                        ],
+                        "C16": [
+                            {
+                                "entry": 39,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C16",
+                                "activity_name": "Interior - L3 MSB - COLO2 Cell 1"
+                            }
+                        ],
+                        "C17": [
+                            {
+                                "entry": 40,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C17",
+                                "activity_name": "Interior - L3 PDUs - COLO2 Cell 1"
+                            }
+                        ],
+                        "C18": [
+                            {
+                                "entry": 41,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C18",
+                                "activity_name": "Interior - L3 AHUs - COLO2 Cell 1"
+                            }
+                        ],
+                        "C19": [
+                            {
+                                "entry": 42,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C19",
+                                "activity_name": "Interior - L3  ATSs - COLO2 Cell 1"
+                            }
+                        ],
+                        "C20": [
+                            {
+                                "entry": 43,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C20",
+                                "activity_name": "Interior - L3 Busway - COLO2 Cell 1"
+                            }
+                        ],
+                        "C21": [
+                            {
+                                "entry": 44,
+                                "phase": "Fitout",
+                                "location": "COLO 2  Cell 1 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C21",
+                                "activity_name": "Interior - L3 ADP - COLO2 Cell 1"
+                            }
+                        ]
+                    }
+                },
+                "COLO 2 Cell 1 Electrical Room": {
+                    "Trade 4": {
+                        "ER1": [
+                            {
+                                "entry": 45,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 1 Electrical Room",
+                                "trade": "Trade 4",
+                                "color": "#FFC000",
+                                "activity_code": "ER1",
+                                "activity_name": "Install Walls and Primer Paint - COLO2 Cell 1 - ER"
+                            }
+                        ],
+                        "ER2": [
+                            {
+                                "entry": 46,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 1 Electrical Room",
+                                "trade": "Trade 4",
+                                "color": "#FFC000",
+                                "activity_code": "ER2",
+                                "activity_name": "Sprinklers and Overhead MEP (Above Ceiling) - COLO2 Cell 1 - ER"
+                            }
+                        ],
+                        "ER3": [
+                            {
+                                "entry": 47,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 1 Electrical Room",
+                                "trade": "Trade 4",
+                                "color": "#FFC000",
+                                "activity_code": "ER3",
+                                "activity_name": "Install Upper Screens - COLO2 Cell 1 - ER"
+                            }
+                        ],
+                        "ER4": [
+                            {
+                                "entry": 48,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 1 Electrical Room",
+                                "trade": "Trade 4",
+                                "color": "#FFC000",
+                                "activity_code": "ER4",
+                                "activity_name": "Install Ceiling - COLO2 Cell 1 - ER"
+                            }
+                        ],
+                        "ER5": [
+                            {
+                                "entry": 49,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 1 Electrical Room",
+                                "trade": "Trade 4",
+                                "color": "#FFC000",
+                                "activity_code": "ER5",
+                                "activity_name": "Below Ceiling MEP Rough In - COLO2 Cell 1 - ER"
+                            }
+                        ],
+                        "ER6": [
+                            {
+                                "entry": 50,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 1 Electrical Room",
+                                "trade": "Trade 4",
+                                "color": "#FFC000",
+                                "activity_code": "ER6",
+                                "activity_name": "Installation of ADP & ATS - COLO2 Cell 1 - ER"
+                            }
+                        ],
+                        "ER7": [
+                            {
+                                "entry": 51,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 1 Electrical Room",
+                                "trade": "Trade 4",
+                                "color": "#FFC000",
+                                "activity_code": "ER7",
+                                "activity_name": "Installation of UPS Equipment - COLO2 Cell 1 - ER"
+                            }
+                        ],
+                        "ER8": [
+                            {
+                                "entry": 52,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 1 Electrical Room",
+                                "trade": "Trade 4",
+                                "color": "#FFC000",
+                                "activity_code": "ER8",
+                                "activity_name": "Connet to Cable tray and conduit equipment - COLO2 Cell 1 - ER"
+                            }
+                        ],
+                        "ER9": [
+                            {
+                                "entry": 53,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 1 Electrical Room",
+                                "trade": "Trade 4",
+                                "color": "#FFC000",
+                                "activity_code": "ER9",
+                                "activity_name": "Cable Pulling at Elec. Equipment - COLO2 Cell 1 - ER"
+                            }
+                        ],
+                        "ER10": [
+                            {
+                                "entry": 54,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 1 Electrical Room",
+                                "trade": "Trade 4",
+                                "color": "#FFC000",
+                                "activity_code": "ER10",
+                                "activity_name": "Door Frame Installation - COLO2 Cell 1 - ER"
+                            }
+                        ],
+                        "ER11": [
+                            {
+                                "entry": 55,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 1 Electrical Room",
+                                "trade": "Trade 4",
+                                "color": "#FFC000",
+                                "activity_code": "ER11",
+                                "activity_name": "Finishes and Signage - COLO2 Cell 1 - ER"
+                            }
+                        ],
+                        "ER12": [
+                            {
+                                "entry": 56,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 1 Electrical Room",
+                                "trade": "Trade 4",
+                                "color": "#FFC000",
+                                "activity_code": "ER12",
+                                "activity_name": "Installation of MSB - COLO2 Cell 1 - ER"
+                            }
+                        ]
+                    }
+                },
+                "COLO 2 Cell 1 Cx L4": {
+                    "Trade 5": {
+                        "L4": [
+                            {
+                                "entry": 57,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 1 Cx L4",
+                                "trade": "Trade 5",
+                                "color": "#FFFFFF",
+                                "activity_code": "L4",
+                                "activity_name": "COLO2 Cx LEV4 - COLO2"
+                            }
+                        ]
+                    }
+                },
+                "COLO 2 Cell 1 Cx L5": {
+                    "Trade 5": {
+                        "L5 ": [
+                            {
+                                "entry": 58,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 1 Cx L5",
+                                "trade": "Trade 5",
+                                "color": "#FFFFFF",
+                                "activity_code": "L5 ",
+                                "activity_name": "COLO2 Cx LEV5 / IST - COLO2"
+                            }
+                        ]
+                    }
+                },
+                "COLO 2 Cell 2 Mech Gallery": {
+                    "Trade 1": {
+                        "MG1": [
+                            {
+                                "entry": 59,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Mech Gallery",
+                                "trade": "Trade 1",
+                                "color": "#96CEFF",
+                                "activity_code": "MG1",
+                                "activity_name": "Install Dampers and actuators at Louvers - Upper level (RED) - COLO2 Cell 2 - MG"
+                            }
+                        ],
+                        "MG2": [
+                            {
+                                "entry": 60,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Mech Gallery",
+                                "trade": "Trade 1",
+                                "color": "#96CEFF",
+                                "activity_code": "MG2",
+                                "activity_name": "Install Dampers and actuators at Louvers - Lower level (OA) - COLO2 Cell 2 - MG"
+                            }
+                        ],
+                        "MG3": [
+                            {
+                                "entry": 61,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Mech Gallery",
+                                "trade": "Trade 1",
+                                "color": "#96CEFF",
+                                "activity_code": "MG3",
+                                "activity_name": "Overhead MEP Installation - COLO2 Cell 2 - MG"
+                            }
+                        ],
+                        "MG4": [
+                            {
+                                "entry": 62,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Mech Gallery",
+                                "trade": "Trade 1",
+                                "color": "#96CEFF",
+                                "activity_code": "MG4",
+                                "activity_name": "Deliver AHU into Mech. Gallery - COLO2 Cell 2 - MG"
+                            }
+                        ],
+                        "MG5": [
+                            {
+                                "entry": 63,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Mech Gallery",
+                                "trade": "Trade 1",
+                                "color": "#96CEFF",
+                                "activity_code": "MG5",
+                                "activity_name": "Install Walls and Primer Paint - COLO2 Cell 2 - MG"
+                            }
+                        ],
+                        "MG6": [
+                            {
+                                "entry": 64,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Mech Gallery",
+                                "trade": "Trade 1",
+                                "color": "#96CEFF",
+                                "activity_code": "MG6",
+                                "activity_name": "Placing the AHU - COLO2 Cell 2 - MG"
+                            }
+                        ],
+                        "MG7": [
+                            {
+                                "entry": 65,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Mech Gallery",
+                                "trade": "Trade 1",
+                                "color": "#96CEFF",
+                                "activity_code": "MG7",
+                                "activity_name": "Layout Ceiling and install Pencile Rod - COLO2 Cell 2 - MG"
+                            }
+                        ],
+                        "MG8": [
+                            {
+                                "entry": 66,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Mech Gallery",
+                                "trade": "Trade 1",
+                                "color": "#96CEFF",
+                                "activity_code": "MG8",
+                                "activity_name": "Piping and Electrical Termination to AHUs - COLO2 Cell 2 - MG"
+                            }
+                        ],
+                        "MG9": [
+                            {
+                                "entry": 67,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Mech Gallery",
+                                "trade": "Trade 1",
+                                "color": "#96CEFF",
+                                "activity_code": "MG9",
+                                "activity_name": "Pipe Testing - COLO2 Cell 2 - MG"
+                            }
+                        ],
+                        "MG10": [
+                            {
+                                "entry": 68,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Mech Gallery",
+                                "trade": "Trade 1",
+                                "color": "#96CEFF",
+                                "activity_code": "MG10",
+                                "activity_name": "Install ceiling and Light Fittings - COLO2 Cell 2 - MG"
+                            }
+                        ],
+                        "MG11": [
+                            {
+                                "entry": 69,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Mech Gallery",
+                                "trade": "Trade 1",
+                                "color": "#96CEFF",
+                                "activity_code": "MG11",
+                                "activity_name": "Trim out MEP - COLO2 Cell 2 - MG"
+                            }
+                        ],
+                        "MG12": [
+                            {
+                                "entry": 70,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Mech Gallery",
+                                "trade": "Trade 1",
+                                "color": "#96CEFF",
+                                "activity_code": "MG12",
+                                "activity_name": "Post Wall Overhead MEP - COLO2 Cell 2 - MG"
+                            }
+                        ]
+                    }
+                },
+                "COLO 2 Cell 2 Data Hall": {
+                    "Trade 2": {
+                        "DH5": [
+                            {
+                                "entry": 71,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Data Hall",
+                                "trade": "Trade 2",
+                                "color": "#C5E5A6",
+                                "activity_code": "DH5",
+                                "activity_name": "Install Walls and Primer Paint - COLO2 Cell 2 - ER"
+                            }
+                        ],
+                        "DH3": [
+                            {
+                                "entry": 72,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Data Hall",
+                                "trade": "Trade 2",
+                                "color": "#C5E5A6",
+                                "activity_code": "DH3",
+                                "activity_name": "Sprinklers and Overhead MEP (Above Ceiling) - COLO2 Cell 2 - ER"
+                            }
+                        ],
+                        "DH4": [
+                            {
+                                "entry": 73,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Data Hall",
+                                "trade": "Trade 2",
+                                "color": "#C5E5A6",
+                                "activity_code": "DH4",
+                                "activity_name": "Install Upper Screens - COLO2 Cell 2 - ER"
+                            }
+                        ],
+                        "DH2": [
+                            {
+                                "entry": 74,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Data Hall",
+                                "trade": "Trade 2",
+                                "color": "#C5E5A6",
+                                "activity_code": "DH2",
+                                "activity_name": "Install Ceiling - COLO2 Cell 2 - ER"
+                            }
+                        ],
+                        "DH6": [
+                            {
+                                "entry": 75,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Data Hall",
+                                "trade": "Trade 2",
+                                "color": "#C5E5A6",
+                                "activity_code": "DH6",
+                                "activity_name": "Below Ceiling MEP Rough In - COLO2 Cell 2 - ER"
+                            }
+                        ],
+                        "DH7": [
+                            {
+                                "entry": 76,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Data Hall",
+                                "trade": "Trade 2",
+                                "color": "#C5E5A6",
+                                "activity_code": "DH7",
+                                "activity_name": "Installation of ADP & ATS - COLO2 Cell 2 - ER"
+                            }
+                        ],
+                        "DH8": [
+                            {
+                                "entry": 77,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Data Hall",
+                                "trade": "Trade 2",
+                                "color": "#C5E5A6",
+                                "activity_code": "DH8",
+                                "activity_name": "Installation of UPS Equipment - COLO2 Cell 2 - ER"
+                            }
+                        ],
+                        "DH9": [
+                            {
+                                "entry": 78,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Data Hall",
+                                "trade": "Trade 2",
+                                "color": "#C5E5A6",
+                                "activity_code": "DH9",
+                                "activity_name": "Connet to Cable tray and conduit equipment - COLO2 Cell 2 - ER"
+                            }
+                        ],
+                        "DH10": [
+                            {
+                                "entry": 79,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Data Hall",
+                                "trade": "Trade 2",
+                                "color": "#C5E5A6",
+                                "activity_code": "DH10",
+                                "activity_name": "Cable Pulling at Elec. Equipment - COLO2 Cell 2 - ER"
+                            }
+                        ],
+                        "DH11": [
+                            {
+                                "entry": 80,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Data Hall",
+                                "trade": "Trade 2",
+                                "color": "#C5E5A6",
+                                "activity_code": "DH11",
+                                "activity_name": "Door Frame Installation - COLO2 Cell 2 - ER"
+                            }
+                        ],
+                        "DH12": [
+                            {
+                                "entry": 81,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Data Hall",
+                                "trade": "Trade 2",
+                                "color": "#C5E5A6",
+                                "activity_code": "DH12",
+                                "activity_name": "Finishes and Signage - COLO2 Cell 2 - ER"
+                            }
+                        ]
+                    }
+                },
+                "COLO 2 Cell 2 Commissioning": {
+                    "Trade 3": {
+                        "C1": [
+                            {
+                                "entry": 82,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C1",
+                                "activity_name": "Installation of MSB - COLO2 Cell 2 - ER"
+                            }
+                        ],
+                        "C2": [
+                            {
+                                "entry": 83,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C2",
+                                "activity_name": "Termination at PDU & Busway - COLO2 Cell 2 - DH"
+                            }
+                        ],
+                        "C3": [
+                            {
+                                "entry": 84,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C3",
+                                "activity_name": "Overhead MEP and Hangers (Above Ceiling) - COLO2 Cell 2 - DH"
+                            }
+                        ],
+                        "C4": [
+                            {
+                                "entry": 85,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C4",
+                                "activity_name": "HAC install and Rise - COLO2 Cell 2 - DH"
+                            }
+                        ],
+                        "C5": [
+                            {
+                                "entry": 86,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C5",
+                                "activity_name": "Cable Pulling at PDU & Busway- COLO2 Cell 2 - DH"
+                            }
+                        ],
+                        "C6": [
+                            {
+                                "entry": 87,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C6",
+                                "activity_name": "Security Screen Installation - COLO2 Cell 2 - DH"
+                            }
+                        ],
+                        "C7": [
+                            {
+                                "entry": 88,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C7",
+                                "activity_name": "Ceiling Grid and Tile - COLO2 Cell 2 - DH"
+                            }
+                        ],
+                        "C8": [
+                            {
+                                "entry": 89,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C8",
+                                "activity_name": "Install PDU's - COLO2 Cell 2 - DH"
+                            }
+                        ],
+                        "C9": [
+                            {
+                                "entry": 90,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C9",
+                                "activity_name": "Overhead MEP Installation (Below Ceiling) - COLO2 Cell 2 - DH"
+                            }
+                        ],
+                        "C10": [
+                            {
+                                "entry": 91,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C10",
+                                "activity_name": "Install Low Voltage Wiring and Fiber Optic - COLO2 Cell 2 - DH"
+                            }
+                        ],
+                        "C11": [
+                            {
+                                "entry": 92,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C11",
+                                "activity_name": "HAC Placing - COLO2 Cell 2 - DH"
+                            }
+                        ],
+                        "C12": [
+                            {
+                                "entry": 93,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C12",
+                                "activity_name": "Finishes and Signage - COLO2 Cell 2 - DH"
+                            }
+                        ],
+                        "C13": [
+                            {
+                                "entry": 94,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C13",
+                                "activity_name": "Interior - L1 UPS - COLO2 Cell 2"
+                            }
+                        ],
+                        "C14": [
+                            {
+                                "entry": 95,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C14",
+                                "activity_name": "Interior - L1 MSB - COLO2 Cell 2"
+                            }
+                        ],
+                        "C15": [
+                            {
+                                "entry": 96,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C15",
+                                "activity_name": "Interior - L1 PDUs - COLO2 Cell 2"
+                            }
+                        ],
+                        "C16": [
+                            {
+                                "entry": 97,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C16",
+                                "activity_name": "Interior - L1 AHUs - COLO2 Cell 2"
+                            }
+                        ],
+                        "C17": [
+                            {
+                                "entry": 98,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C17",
+                                "activity_name": "Interior - L1  ATSs - COLO2 Cell 2"
+                            }
+                        ],
+                        "C18": [
+                            {
+                                "entry": 99,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C18",
+                                "activity_name": "Interior - L1 Busway - COLO2 Cell 2"
+                            }
+                        ],
+                        "C19": [
+                            {
+                                "entry": 100,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C19",
+                                "activity_name": "Interior - L1 ADP - COLO2 Cell 2"
+                            }
+                        ],
+                        "C20": [
+                            {
+                                "entry": 101,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C20",
+                                "activity_name": "Interior - L2 UPS - COLO2 Cell 2"
+                            }
+                        ],
+                        "C21": [
+                            {
+                                "entry": 102,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Commissioning",
+                                "trade": "Trade 3",
+                                "color": "#F59CA6",
+                                "activity_code": "C21",
+                                "activity_name": "Interior - L2 MSB - COLO2 Cell 2"
+                            }
+                        ]
+                    }
+                },
+                "COLO 2 Cell 2 Electrical Room": {
+                    "Trade 4": {
+                        "ER1": [
+                            {
+                                "entry": 103,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Electrical Room",
+                                "trade": "Trade 4",
+                                "color": "#FFC000",
+                                "activity_code": "ER1",
+                                "activity_name": "Interior - L2 PDUs - COLO2 Cell 2"
+                            }
+                        ],
+                        "ER2": [
+                            {
+                                "entry": 104,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Electrical Room",
+                                "trade": "Trade 4",
+                                "color": "#FFC000",
+                                "activity_code": "ER2",
+                                "activity_name": "Interior - L2 AHUs - COLO2 Cell 2"
+                            }
+                        ],
+                        "ER3": [
+                            {
+                                "entry": 105,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Electrical Room",
+                                "trade": "Trade 4",
+                                "color": "#FFC000",
+                                "activity_code": "ER3",
+                                "activity_name": "Interior - L2  ATSs - COLO2 Cell 2"
+                            }
+                        ],
+                        "ER4": [
+                            {
+                                "entry": 106,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Electrical Room",
+                                "trade": "Trade 4",
+                                "color": "#FFC000",
+                                "activity_code": "ER4",
+                                "activity_name": "Interior - L2 Busway - COLO2 Cell 2"
+                            }
+                        ],
+                        "ER5": [
+                            {
+                                "entry": 107,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Electrical Room",
+                                "trade": "Trade 4",
+                                "color": "#FFC000",
+                                "activity_code": "ER5",
+                                "activity_name": "Interior - L2 ADP - COLO2 Cell 2"
+                            }
+                        ],
+                        "ER6": [
+                            {
+                                "entry": 108,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Electrical Room",
+                                "trade": "Trade 4",
+                                "color": "#FFC000",
+                                "activity_code": "ER6",
+                                "activity_name": "Interior - L3 UPS - COLO2 Cell 2"
+                            }
+                        ],
+                        "ER7": [
+                            {
+                                "entry": 109,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Electrical Room",
+                                "trade": "Trade 4",
+                                "color": "#FFC000",
+                                "activity_code": "ER7",
+                                "activity_name": "Interior - L3 MSB - COLO2 Cell 2"
+                            }
+                        ],
+                        "ER8": [
+                            {
+                                "entry": 110,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Electrical Room",
+                                "trade": "Trade 4",
+                                "color": "#FFC000",
+                                "activity_code": "ER8",
+                                "activity_name": "Interior - L3 PDUs - COLO2 Cell 2"
+                            }
+                        ],
+                        "ER9": [
+                            {
+                                "entry": 111,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Electrical Room",
+                                "trade": "Trade 4",
+                                "color": "#FFC000",
+                                "activity_code": "ER9",
+                                "activity_name": "Interior - L3 AHUs - COLO2 Cell 2"
+                            }
+                        ],
+                        "ER10": [
+                            {
+                                "entry": 112,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Electrical Room",
+                                "trade": "Trade 4",
+                                "color": "#FFC000",
+                                "activity_code": "ER10",
+                                "activity_name": "Interior - L3  ATSs - COLO2 Cell 2"
+                            }
+                        ],
+                        "ER11": [
+                            {
+                                "entry": 113,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Electrical Room",
+                                "trade": "Trade 4",
+                                "color": "#FFC000",
+                                "activity_code": "ER11",
+                                "activity_name": "Interior - L3 Busway - COLO2 Cell 2"
+                            }
+                        ],
+                        "ER12": [
+                            {
+                                "entry": 114,
+                                "phase": "Fitout",
+                                "location": "COLO 2 Cell 2 Electrical Room",
+                                "trade": "Trade 4",
+                                "color": "#FFC000",
+                                "activity_code": "ER12",
+                                "activity_name": "Interior - L3 ADP - COLO2 Cell 2"
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    ]
+}
