@@ -6,8 +6,8 @@ from openpyxl.utils import column_index_from_string
 from openpyxl.worksheet.datavalidation import DataValidation
 
 class FilledExcelToUpdateJson():
-    def __init__(self, input_process_cont, input_excel_path, input_excel_basename, input_worksheet_name, 
-                 input_json_path, input_json_basename):
+    def __init__(self, input_process_cont, input_excel_path, input_excel_basename, 
+                input_worksheet_name, input_json_path, input_json_basename):
         self.process_cont = input_process_cont
         self.excel_path = input_excel_path
         self.excel_basename = input_excel_basename
