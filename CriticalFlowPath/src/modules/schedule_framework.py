@@ -24,42 +24,39 @@ class ScheduleFramework():
     @staticmethod
     def main():
         project = ScheduleFramework.generate_ins()
-        active_workbook, active_worksheet = project.return_excel_workspace(project.ws_name)
-        start_date_col, end_date_col = project.return_dates_idx(active_worksheet)
-        start_dates_list, end_dates_list = project.list_dates(active_worksheet, start_date_col, end_date_col)
 
-        trade_idx = project.find_column_idx(active_worksheet, 'trade')
-        color_idx = project.find_column_idx(active_worksheet, 'color')
-        code_idx = project.find_column_idx(active_worksheet, 'activity code') #Check before running
-        color_hex_list = project.extract_cell_attr(active_worksheet, color_idx)
-        activity_code_list = project.extract_cell_attr(active_worksheet, code_idx)
-        pro_hex_list = project.process_hex_val(color_hex_list)
-        """ print("Start Dates List: ", start_dates_list)
-        print("Dates List len: ", len(start_dates_list))
-        print("End Dates List: ", end_dates_list)
-        print("End Dates List: ", len(end_dates_list))
-        print("Color Hex List: ", pro_hex_list)
-        print("Color Hex List len: ", len(pro_hex_list))
-        print("Activity Code List: ", activity_code_list)
-        print("Activity Code List len: ", len(activity_code_list)) """
+        if project:
+            active_workbook, active_worksheet = project.return_excel_workspace(project.ws_name)
+            start_date_col, end_date_col = project.return_dates_idx(active_worksheet)
+            start_dates_list, end_dates_list = project.list_dates(active_worksheet, start_date_col, end_date_col)
 
-        project.generate_schedule_frame(active_workbook, active_worksheet, project.start_date, 
-                                        project.end_date)  
-        project.fill_schedule_cfa_style(active_workbook, active_worksheet, start_dates_list, 
-                            end_dates_list, pro_hex_list, activity_code_list)
+            trade_idx = project.find_column_idx(active_worksheet, 'trade')
+            location_idx = project.find_column_idx(active_worksheet, 'location')
+            color_idx = project.find_column_idx(active_worksheet, 'color')
+            code_idx = project.find_column_idx(active_worksheet, 'activity code')
+            color_hex_list = project.extract_cell_attr(active_worksheet, color_idx)
+            activity_code_list = project.extract_cell_attr(active_worksheet, code_idx)
+            location_list = project.extract_cell_attr(active_worksheet, location_idx)
+            pro_hex_list = project.process_hex_val(color_hex_list)
 
-        year_list, year_row = project.same_cell_values(active_workbook, active_worksheet, 
-                                                    project.start_row, project.start_col)
-        for year in year_list:
-            project.merge_same_value_cells(active_workbook, active_worksheet, year, year_row)  
+            project.generate_schedule_frame(active_workbook, active_worksheet, 
+                                            project.start_date, project.end_date)  
+            project.fill_schedule_cfa_style(active_workbook, active_worksheet, start_dates_list, 
+                                            end_dates_list, pro_hex_list, activity_code_list, 
+                                            location_list)
 
-        month_list, month_row = project.same_cell_values(active_workbook, active_worksheet, 
-                                                        project.start_row + 1, project.start_col)
-        for month in month_list:
-            project.merge_same_value_cells(active_workbook, active_worksheet, month, month_row)  
+            year_list, year_row = project.same_cell_values(active_workbook, active_worksheet, 
+                                                        project.start_row, project.start_col)
+            for year in year_list:
+                project.merge_same_value_cells(active_workbook, active_worksheet, year, year_row)  
 
-        project.style_worksheet(active_workbook, active_worksheet, project.start_date, 
-                                project.end_date)
+            month_list, month_row = project.same_cell_values(active_workbook, active_worksheet, 
+                                                            project.start_row + 1, project.start_col)
+            for month in month_list:
+                project.merge_same_value_cells(active_workbook, active_worksheet, month, month_row)  
+
+            project.style_worksheet(active_workbook, active_worksheet, 
+                                    project.start_date, project.end_date)
 
     @staticmethod
     def generate_ins():
@@ -270,7 +267,8 @@ class ScheduleFramework():
         col_list = []
 
         if col_idx is not None:
-            for row in ws.iter_rows(min_row=self.wbs_start_row + 1, min_col=col_idx, max_col=col_idx, max_row=ws.max_row):
+            for row in ws.iter_rows(min_row=self.wbs_start_row + 1, min_col=col_idx, 
+                                    max_col=col_idx, max_row=ws.max_row):
                 for cell in row:
                     activity_cell = {
                         "alignment": {
@@ -298,11 +296,11 @@ class ScheduleFramework():
                     }
 
                     col_list.append(activity_cell)
-
+        
         return col_list
 
-    def fill_schedule_gantt_style(self, active_wb, active_ws, start_dates_list, end_dates_list, 
-                      color_hex_list, activity_code_list):
+    def fill_schedule_gantt_style(self, active_wb, active_ws, start_dates_list, 
+                                  end_dates_list, color_hex_list, activity_code_list):
         wb = active_wb
         ws = active_ws
         file = os.path.join(self.file_path, self.file_basename)
@@ -357,13 +355,16 @@ class ScheduleFramework():
         print("Workbook filled successfully.")
         wb.close()
 
-    def fill_schedule_cfa_style(self, active_wb, active_ws, start_dates_list, end_date_list, 
-                      color_hex_list, activity_code_list):
+    def fill_schedule_cfa_style(self, active_wb, active_ws, start_dates_list, 
+                                end_date_list, color_hex_list, activity_code_list,
+                                location_list):
         wb = active_wb
         ws = active_ws
         file = os.path.join(self.file_path, self.file_basename)
         start_ovr_date = datetime.strptime(self.start_date, '%d-%b-%Y')
         final_ovr_date = datetime.strptime(self.end_date, '%d-%b-%Y')
+        last_valid_location = None  
+        starting_point = self.wbs_start_row
 
         for idx, item in enumerate(start_dates_list):
             initial_date = datetime.strptime(item, '%d-%b-%y')
@@ -373,7 +374,16 @@ class ScheduleFramework():
                 start_search_col = (initial_date - start_ovr_date).days
                 finish_search_col = (final_date - start_ovr_date).days
 
-                for row in ws.iter_rows(min_row=self.wbs_start_row + 1, max_row=ws.max_row,
+                current_location = location_list[idx]["value"]
+                if current_location is not None and current_location.strip() != "":
+                    if current_location != last_valid_location:
+                        starting_point = self.wbs_start_row + idx + 1
+                        last_valid_location = current_location
+                else:
+                    starting_point = starting_point
+
+                for row in ws.iter_rows(min_row=starting_point, 
+                                        max_row=ws.max_row,
                                         min_col=column_index_from_string(self.start_col)+start_search_col, 
                                         max_col= column_index_from_string(self.start_col)+finish_search_col):
                     paint_row = True
