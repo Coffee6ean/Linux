@@ -13,7 +13,9 @@
                                 "trade": "Trade 1",
                                 "color": "#96CEFF",
                                 "activity_code": "MG1",
-                                "activity_name": "Install Dampers and actuators at Louvers - Upper level (RED) - COLO2 Cell 1 - MG"
+                                "activity_name": "Install Dampers and actuators at Louvers - Upper level (RED) - COLO2 Cell 1 - MG",
+                                "start": "7-Oct-24",
+                                "finish": "11-Oct-24"
                             }
                         ],
                         "MG2": [
@@ -24,7 +26,9 @@
                                 "trade": "Trade 1",
                                 "color": "#96CEFF",
                                 "activity_code": "MG2",
-                                "activity_name": "Install Dampers and actuators at Louvers - Lower level (OA) - COLO2 Cell 1 - MG"
+                                "activity_name": "Install Dampers and actuators at Louvers - Lower level (OA) - COLO2 Cell 1 - MG",
+                                "start": "9-Oct-24",
+                                "finish": "15-Oct-24"
                             }
                         ],
                         "MG3": [
@@ -35,7 +39,9 @@
                                 "trade": "Trade 1",
                                 "color": "#96CEFF",
                                 "activity_code": "MG3",
-                                "activity_name": "Overhead MEP Installation - COLO2 Cell 1 - MG"
+                                "activity_name": "Overhead MEP Installation - COLO2 Cell 1 - MG",
+                                "start": "16-Oct-24",
+                                "finish": "29-Oct-24"
                             }
                         ],
                         "MG4": [
@@ -46,7 +52,9 @@
                                 "trade": "Trade 1",
                                 "color": "#96CEFF",
                                 "activity_code": "MG4",
-                                "activity_name": "Deliver AHU into Mech. Gallery - COLO2 Cell 1 - MG"
+                                "activity_name": "Deliver AHU into Mech. Gallery - COLO2 Cell 1 - MG",
+                                "start": "30-Oct-24",
+                                "finish": "31-Oct-24"
                             }
                         ],
                         "MG5": [
@@ -57,7 +65,9 @@
                                 "trade": "Trade 1",
                                 "color": "#96CEFF",
                                 "activity_code": "MG5",
-                                "activity_name": "Install Walls and Primer Paint - COLO2 Cell 1 - MG"
+                                "activity_name": "Install Walls and Primer Paint - COLO2 Cell 1 - MG",
+                                "start": "1-Nov-24",
+                                "finish": "14-Nov-24"
                             }
                         ],
                         "MG6": [
@@ -68,7 +78,9 @@
                                 "trade": "Trade 1",
                                 "color": "#96CEFF",
                                 "activity_code": "MG6",
-                                "activity_name": "Placing the AHU - COLO2 Cell 1 - MG"
+                                "activity_name": "Placing the AHU - COLO2 Cell 1 - MG",
+                                "start": "22-Nov-24",
+                                "finish": "26-Nov-24"
                             }
                         ],
                         "MG7": [
@@ -79,7 +91,9 @@
                                 "trade": "Trade 1",
                                 "color": "#96CEFF",
                                 "activity_code": "MG7",
-                                "activity_name": "Layout Ceiling and install Pencile Rod - COLO2 Cell 1 - MG"
+                                "activity_name": "Layout Ceiling and install Pencile Rod - COLO2 Cell 1 - MG",
+                                "start": "15-Nov-24",
+                                "finish": "15-Nov-24"
                             }
                         ],
                         "MG8": [
@@ -90,7 +104,9 @@
                                 "trade": "Trade 1",
                                 "color": "#96CEFF",
                                 "activity_code": "MG8",
-                                "activity_name": "Piping and Electrical Termination to AHUs - COLO2 Cell 1 - MG"
+                                "activity_name": "Piping and Electrical Termination to AHUs - COLO2 Cell 1 - MG",
+                                "start": "26-Nov-24",
+                                "finish": "11-Dec-24"
                             }
                         ],
                         "MG9": [
@@ -101,7 +117,9 @@
                                 "trade": "Trade 1",
                                 "color": "#96CEFF",
                                 "activity_code": "MG9",
-                                "activity_name": "Pipe Testing - COLO2 Cell 1 - MG"
+                                "activity_name": "Pipe Testing - COLO2 Cell 1 - MG",
+                                "start": "11-Dec-24",
+                                "finish": "13-Dec-24"
                             }
                         ],
                         "MG10": [
@@ -112,7 +130,9 @@
                                 "trade": "Trade 1",
                                 "color": "#96CEFF",
                                 "activity_code": "MG10",
-                                "activity_name": "Install ceiling and Light Fittings - COLO2 Cell 1 - MG"
+                                "activity_name": "Install ceiling and Light Fittings - COLO2 Cell 1 - MG",
+                                "start": "13-Dec-24",
+                                "finish": "26-Dec-24"
                             }
                         ],
                         "MG11": [
@@ -123,7 +143,9 @@
                                 "trade": "Trade 1",
                                 "color": "#96CEFF",
                                 "activity_code": "MG11",
-                                "activity_name": "Trim out MEP - COLO2 Cell 1 - MG"
+                                "activity_name": "Trim out MEP - COLO2 Cell 1 - MG",
+                                "start": "18-Dec-24",
+                                "finish": "26-Dec-24"
                             }
                         ],
                         "MG12": [
@@ -134,7 +156,9 @@
                                 "trade": "Trade 1",
                                 "color": "#96CEFF",
                                 "activity_code": "MG12",
-                                "activity_name": "Post Wall Overhead MEP - COLO2 Cell 1 - MG"
+                                "activity_name": "Post Wall Overhead MEP - COLO2 Cell 1 - MG",
+                                "start": "15-Nov-24",
+                                "finish": "6-Dec-24"
                             }
                         ]
                     }
@@ -149,7 +173,9 @@
                                 "trade": "Trade 2",
                                 "color": "#C5E5A6",
                                 "activity_code": "DH5",
-                                "activity_name": "Cable Pulling at PDU & Busway - COLO2 Cell 1 - DH"
+                                "activity_name": "Cable Pulling at PDU & Busway - COLO2 Cell 1 - DH",
+                                "start": "30-Dec-24",
+                                "finish": "20-Jan-25"
                             }
                         ],
                         "DH3": [
@@ -160,7 +186,9 @@
                                 "trade": "Trade 2",
                                 "color": "#C5E5A6",
                                 "activity_code": "DH3",
-                                "activity_name": "Overhead MEP and Hangers (Above Ceiling) - COLO2 Cell 1 - DH"
+                                "activity_name": "Overhead MEP and Hangers (Above Ceiling) - COLO2 Cell 1 - DH",
+                                "start": "7-Oct-24",
+                                "finish": "22-Oct-24"
                             }
                         ],
                         "DH4": [
@@ -171,7 +199,9 @@
                                 "trade": "Trade 2",
                                 "color": "#C5E5A6",
                                 "activity_code": "DH4",
-                                "activity_name": "HAC install and Rise - COLO2 Cell 1 - DH"
+                                "activity_name": "HAC install and Rise - COLO2 Cell 1 - DH",
+                                "start": "19-Dec-24",
+                                "finish": "26-Dec-24"
                             }
                         ],
                         "DH2": [
@@ -182,7 +212,9 @@
                                 "trade": "Trade 2",
                                 "color": "#C5E5A6",
                                 "activity_code": "DH2",
-                                "activity_name": "Termination at PDU & Busway- COLO2 Cell 1 - DH"
+                                "activity_name": "Termination at PDU & Busway- COLO2 Cell 1 - DH",
+                                "start": "19-Dec-24",
+                                "finish": "3-Jan-25"
                             }
                         ],
                         "DH6": [
@@ -193,7 +225,9 @@
                                 "trade": "Trade 2",
                                 "color": "#C5E5A6",
                                 "activity_code": "DH6",
-                                "activity_name": "Security Screen Installation - COLO2 Cell 1 - DH"
+                                "activity_name": "Security Screen Installation - COLO2 Cell 1 - DH",
+                                "start": "15-Nov-24",
+                                "finish": "19-Nov-24"
                             }
                         ],
                         "DH7": [
@@ -204,7 +238,9 @@
                                 "trade": "Trade 2",
                                 "color": "#C5E5A6",
                                 "activity_code": "DH7",
-                                "activity_name": "Ceiling Grid and Tile - COLO2 Cell 1 - DH"
+                                "activity_name": "Ceiling Grid and Tile - COLO2 Cell 1 - DH",
+                                "start": "20-Nov-24",
+                                "finish": "26-Nov-24"
                             }
                         ],
                         "DH8": [
@@ -215,7 +251,9 @@
                                 "trade": "Trade 2",
                                 "color": "#C5E5A6",
                                 "activity_code": "DH8",
-                                "activity_name": "Install PDU's - COLO2 Cell 1 - DH"
+                                "activity_name": "Install PDU's - COLO2 Cell 1 - DH",
+                                "start": "12-Dec-24",
+                                "finish": "18-Dec-24"
                             }
                         ],
                         "DH9": [
@@ -226,7 +264,9 @@
                                 "trade": "Trade 2",
                                 "color": "#C5E5A6",
                                 "activity_code": "DH9",
-                                "activity_name": "Overhead MEP Installation (Below Ceiling) - COLO2 Cell 1 - DH"
+                                "activity_name": "Overhead MEP Installation (Below Ceiling) - COLO2 Cell 1 - DH",
+                                "start": "27-Nov-24",
+                                "finish": "11-Dec-24"
                             }
                         ],
                         "DH10": [
@@ -237,7 +277,9 @@
                                 "trade": "Trade 2",
                                 "color": "#C5E5A6",
                                 "activity_code": "DH10",
-                                "activity_name": "Install Low Voltage Wiring and Fiber Optic - COLO2 Cell 1 - DH"
+                                "activity_name": "Install Low Voltage Wiring and Fiber Optic - COLO2 Cell 1 - DH",
+                                "start": "27-Dec-24",
+                                "finish": "10-Jan-25"
                             }
                         ],
                         "DH11": [
@@ -248,7 +290,9 @@
                                 "trade": "Trade 2",
                                 "color": "#C5E5A6",
                                 "activity_code": "DH11",
-                                "activity_name": "HAC Placing - COLO2 Cell 1 - DH"
+                                "activity_name": "HAC Placing - COLO2 Cell 1 - DH",
+                                "start": "12-Dec-24",
+                                "finish": "18-Dec-24"
                             }
                         ],
                         "DH12": [
@@ -259,7 +303,9 @@
                                 "trade": "Trade 2",
                                 "color": "#C5E5A6",
                                 "activity_code": "DH12",
-                                "activity_name": "Finishes and Signage - COLO2 Cell 1 - DH"
+                                "activity_name": "Finishes and Signage - COLO2 Cell 1 - DH",
+                                "start": "14-Jan-25",
+                                "finish": "20-Jan-25"
                             }
                         ]
                     }
@@ -274,7 +320,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C1",
-                                "activity_name": "Interior - L1 UPS - COLO2 Cell 1"
+                                "activity_name": "Interior - L1 UPS - COLO2 Cell 1",
+                                "start": "2-Jan-25",
+                                "finish": "2-Jan-25"
                             }
                         ],
                         "C2": [
@@ -285,7 +333,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C2",
-                                "activity_name": "Interior - L1 MSB - COLO2 Cell 1"
+                                "activity_name": "Interior - L1 MSB - COLO2 Cell 1",
+                                "start": "3-Jan-25",
+                                "finish": "3-Jan-25"
                             }
                         ],
                         "C3": [
@@ -296,7 +346,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C3",
-                                "activity_name": "Interior - L1 PDUs - COLO2 Cell 1"
+                                "activity_name": "Interior - L1 PDUs - COLO2 Cell 1",
+                                "start": "6-Jan-25",
+                                "finish": "6-Jan-25"
                             }
                         ],
                         "C4": [
@@ -307,7 +359,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C4",
-                                "activity_name": "Interior - L1 AHUs - COLO2 Cell 1"
+                                "activity_name": "Interior - L1 AHUs - COLO2 Cell 1",
+                                "start": "8-Jan-25",
+                                "finish": "8-Jan-25"
                             }
                         ],
                         "C5": [
@@ -318,7 +372,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C5",
-                                "activity_name": "Interior - L1  ATSs - COLO2 Cell 1"
+                                "activity_name": "Interior - L1  ATSs - COLO2 Cell 1",
+                                "start": "7-Jan-25",
+                                "finish": "7-Jan-25"
                             }
                         ],
                         "C6": [
@@ -329,7 +385,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C6",
-                                "activity_name": "Interior - L1 Busway - COLO2 Cell 1"
+                                "activity_name": "Interior - L1 Busway - COLO2 Cell 1",
+                                "start": "7-Jan-25",
+                                "finish": "7-Jan-25"
                             }
                         ],
                         "C7": [
@@ -340,7 +398,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C7",
-                                "activity_name": "Interior - L1 ADP - COLO2 Cell 1"
+                                "activity_name": "Interior - L1 ADP - COLO2 Cell 1",
+                                "start": "6-Jan-25",
+                                "finish": "6-Jan-25"
                             }
                         ],
                         "C8": [
@@ -351,7 +411,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C8",
-                                "activity_name": "Interior - L2 UPS - COLO2 Cell 1"
+                                "activity_name": "Interior - L2 UPS - COLO2 Cell 1",
+                                "start": "25-Feb-25",
+                                "finish": "3-Mar-25"
                             }
                         ],
                         "C9": [
@@ -362,7 +424,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C9",
-                                "activity_name": "Interior - L2 MSB - COLO2 Cell 1"
+                                "activity_name": "Interior - L2 MSB - COLO2 Cell 1",
+                                "start": "4-Mar-25",
+                                "finish": "10-Mar-25"
                             }
                         ],
                         "C10": [
@@ -373,7 +437,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C10",
-                                "activity_name": "Interior - L2 PDUs - COLO2 Cell 1"
+                                "activity_name": "Interior - L2 PDUs - COLO2 Cell 1",
+                                "start": "11-Mar-25",
+                                "finish": "17-Mar-25"
                             }
                         ],
                         "C11": [
@@ -384,7 +450,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C11",
-                                "activity_name": "Interior - L2 AHUs - COLO2 Cell 1"
+                                "activity_name": "Interior - L2 AHUs - COLO2 Cell 1",
+                                "start": "25-Mar-25",
+                                "finish": "31-Mar-25"
                             }
                         ],
                         "C12": [
@@ -395,7 +463,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C12",
-                                "activity_name": "Interior - L2  ATSs - COLO2 Cell 1"
+                                "activity_name": "Interior - L2  ATSs - COLO2 Cell 1",
+                                "start": "18-Mar-25",
+                                "finish": "24-Mar-25"
                             }
                         ],
                         "C13": [
@@ -406,7 +476,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C13",
-                                "activity_name": "Interior - L2 Busway - COLO2 Cell 1"
+                                "activity_name": "Interior - L2 Busway - COLO2 Cell 1",
+                                "start": "18-Mar-25",
+                                "finish": "24-Mar-25"
                             }
                         ],
                         "C14": [
@@ -417,7 +489,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C14",
-                                "activity_name": "Interior - L2 ADP - COLO2 Cell 1"
+                                "activity_name": "Interior - L2 ADP - COLO2 Cell 1",
+                                "start": "11-Mar-25",
+                                "finish": "17-Mar-25"
                             }
                         ],
                         "C15": [
@@ -428,7 +502,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C15",
-                                "activity_name": "Interior - L3 UPS - COLO2 Cell 1"
+                                "activity_name": "Interior - L3 UPS - COLO2 Cell 1",
+                                "start": "25-Mar-25",
+                                "finish": "31-Mar-25"
                             }
                         ],
                         "C16": [
@@ -439,7 +515,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C16",
-                                "activity_name": "Interior - L3 MSB - COLO2 Cell 1"
+                                "activity_name": "Interior - L3 MSB - COLO2 Cell 1",
+                                "start": "1-Apr-25",
+                                "finish": "7-Apr-25"
                             }
                         ],
                         "C17": [
@@ -450,7 +528,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C17",
-                                "activity_name": "Interior - L3 PDUs - COLO2 Cell 1"
+                                "activity_name": "Interior - L3 PDUs - COLO2 Cell 1",
+                                "start": "8-Apr-25",
+                                "finish": "14-Apr-25"
                             }
                         ],
                         "C18": [
@@ -461,7 +541,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C18",
-                                "activity_name": "Interior - L3 AHUs - COLO2 Cell 1"
+                                "activity_name": "Interior - L3 AHUs - COLO2 Cell 1",
+                                "start": "22-Apr-25",
+                                "finish": "28-Apr-25"
                             }
                         ],
                         "C19": [
@@ -472,7 +554,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C19",
-                                "activity_name": "Interior - L3  ATSs - COLO2 Cell 1"
+                                "activity_name": "Interior - L3  ATSs - COLO2 Cell 1",
+                                "start": "15-Apr-25",
+                                "finish": "21-Apr-25"
                             }
                         ],
                         "C20": [
@@ -483,7 +567,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C20",
-                                "activity_name": "Interior - L3 Busway - COLO2 Cell 1"
+                                "activity_name": "Interior - L3 Busway - COLO2 Cell 1",
+                                "start": "15-Apr-25",
+                                "finish": "21-Apr-25"
                             }
                         ],
                         "C21": [
@@ -494,7 +580,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C21",
-                                "activity_name": "Interior - L3 ADP - COLO2 Cell 1"
+                                "activity_name": "Interior - L3 ADP - COLO2 Cell 1",
+                                "start": "8-Apr-25",
+                                "finish": "14-Apr-25"
                             }
                         ]
                     }
@@ -509,7 +597,9 @@
                                 "trade": "Trade 4",
                                 "color": "#FFC000",
                                 "activity_code": "ER1",
-                                "activity_name": "Install Walls and Primer Paint - COLO2 Cell 1 - ER"
+                                "activity_name": "Install Walls and Primer Paint - COLO2 Cell 1 - ER",
+                                "start": "7-Oct-24",
+                                "finish": "18-Oct-24"
                             }
                         ],
                         "ER2": [
@@ -520,7 +610,9 @@
                                 "trade": "Trade 4",
                                 "color": "#FFC000",
                                 "activity_code": "ER2",
-                                "activity_name": "Sprinklers and Overhead MEP (Above Ceiling) - COLO2 Cell 1 - ER"
+                                "activity_name": "Sprinklers and Overhead MEP (Above Ceiling) - COLO2 Cell 1 - ER",
+                                "start": "23-Oct-24",
+                                "finish": "5-Nov-24"
                             }
                         ],
                         "ER3": [
@@ -531,7 +623,9 @@
                                 "trade": "Trade 4",
                                 "color": "#FFC000",
                                 "activity_code": "ER3",
-                                "activity_name": "Install Upper Screens - COLO2 Cell 1 - ER"
+                                "activity_name": "Install Upper Screens - COLO2 Cell 1 - ER",
+                                "start": "16-Oct-24",
+                                "finish": "22-Oct-24"
                             }
                         ],
                         "ER4": [
@@ -542,7 +636,9 @@
                                 "trade": "Trade 4",
                                 "color": "#FFC000",
                                 "activity_code": "ER4",
-                                "activity_name": "Install Ceiling - COLO2 Cell 1 - ER"
+                                "activity_name": "Install Ceiling - COLO2 Cell 1 - ER",
+                                "start": "6-Nov-24",
+                                "finish": "8-Nov-24"
                             }
                         ],
                         "ER5": [
@@ -553,7 +649,9 @@
                                 "trade": "Trade 4",
                                 "color": "#FFC000",
                                 "activity_code": "ER5",
-                                "activity_name": "Below Ceiling MEP Rough In - COLO2 Cell 1 - ER"
+                                "activity_name": "Below Ceiling MEP Rough In - COLO2 Cell 1 - ER",
+                                "start": "19-Nov-24",
+                                "finish": "3-Dec-24"
                             }
                         ],
                         "ER6": [
@@ -564,7 +662,9 @@
                                 "trade": "Trade 4",
                                 "color": "#FFC000",
                                 "activity_code": "ER6",
-                                "activity_name": "Installation of ADP & ATS - COLO2 Cell 1 - ER"
+                                "activity_name": "Installation of ADP & ATS - COLO2 Cell 1 - ER",
+                                "start": "29-Nov-24",
+                                "finish": "5-Dec-24"
                             }
                         ],
                         "ER7": [
@@ -575,7 +675,9 @@
                                 "trade": "Trade 4",
                                 "color": "#FFC000",
                                 "activity_code": "ER7",
-                                "activity_name": "Installation of UPS Equipment - COLO2 Cell 1 - ER"
+                                "activity_name": "Installation of UPS Equipment - COLO2 Cell 1 - ER",
+                                "start": "4-Dec-24",
+                                "finish": "10-Dec-24"
                             }
                         ],
                         "ER8": [
@@ -586,7 +688,9 @@
                                 "trade": "Trade 4",
                                 "color": "#FFC000",
                                 "activity_code": "ER8",
-                                "activity_name": "Connet to Cable tray and conduit equipment - COLO2 Cell 1 - ER"
+                                "activity_name": "Connet to Cable tray and conduit equipment - COLO2 Cell 1 - ER",
+                                "start": "3-Dec-24",
+                                "finish": "9-Dec-24"
                             }
                         ],
                         "ER9": [
@@ -597,7 +701,9 @@
                                 "trade": "Trade 4",
                                 "color": "#FFC000",
                                 "activity_code": "ER9",
-                                "activity_name": "Cable Pulling at Elec. Equipment - COLO2 Cell 1 - ER"
+                                "activity_name": "Cable Pulling at Elec. Equipment - COLO2 Cell 1 - ER",
+                                "start": "18-Dec-24",
+                                "finish": "9-Jan-25"
                             }
                         ],
                         "ER10": [
@@ -608,7 +714,9 @@
                                 "trade": "Trade 4",
                                 "color": "#FFC000",
                                 "activity_code": "ER10",
-                                "activity_name": "Door Frame Installation - COLO2 Cell 1 - ER"
+                                "activity_name": "Door Frame Installation - COLO2 Cell 1 - ER",
+                                "start": "3-Jan-25",
+                                "finish": "9-Jan-25"
                             }
                         ],
                         "ER11": [
@@ -619,7 +727,9 @@
                                 "trade": "Trade 4",
                                 "color": "#FFC000",
                                 "activity_code": "ER11",
-                                "activity_name": "Finishes and Signage - COLO2 Cell 1 - ER"
+                                "activity_name": "Finishes and Signage - COLO2 Cell 1 - ER",
+                                "start": "10-Jan-25",
+                                "finish": "16-Jan-25"
                             }
                         ],
                         "ER12": [
@@ -630,7 +740,9 @@
                                 "trade": "Trade 4",
                                 "color": "#FFC000",
                                 "activity_code": "ER12",
-                                "activity_name": "Installation of MSB - COLO2 Cell 1 - ER"
+                                "activity_name": "Installation of MSB - COLO2 Cell 1 - ER",
+                                "start": "29-Nov-24",
+                                "finish": "5-Dec-24"
                             }
                         ]
                     }
@@ -645,7 +757,9 @@
                                 "trade": "Trade 5",
                                 "color": "#FFFFFF",
                                 "activity_code": "L4",
-                                "activity_name": "COLO2 Cx LEV4 - COLO2"
+                                "activity_name": "COLO2 Cx LEV4 - COLO2",
+                                "start": "1-May-25",
+                                "finish": "4-Jun-25"
                             }
                         ]
                     }
@@ -660,7 +774,9 @@
                                 "trade": "Trade 5",
                                 "color": "#FFFFFF",
                                 "activity_code": "L5 ",
-                                "activity_name": "COLO2 Cx LEV5 / IST - COLO2"
+                                "activity_name": "COLO2 Cx LEV5 / IST - COLO2",
+                                "start": "5-Jun-25",
+                                "finish": "6-Jun-25"
                             }
                         ]
                     }
@@ -675,7 +791,9 @@
                                 "trade": "Trade 1",
                                 "color": "#96CEFF",
                                 "activity_code": "MG1",
-                                "activity_name": "Install Dampers and actuators at Louvers - Upper level (RED) - COLO2 Cell 2 - MG"
+                                "activity_name": "Install Dampers and actuators at Louvers - Upper level (RED) - COLO2 Cell 2 - MG",
+                                "start": "14-Oct-24",
+                                "finish": "18-Oct-24"
                             }
                         ],
                         "MG2": [
@@ -686,7 +804,9 @@
                                 "trade": "Trade 1",
                                 "color": "#96CEFF",
                                 "activity_code": "MG2",
-                                "activity_name": "Install Dampers and actuators at Louvers - Lower level (OA) - COLO2 Cell 2 - MG"
+                                "activity_name": "Install Dampers and actuators at Louvers - Lower level (OA) - COLO2 Cell 2 - MG",
+                                "start": "16-Oct-24",
+                                "finish": "22-Oct-24"
                             }
                         ],
                         "MG3": [
@@ -697,7 +817,9 @@
                                 "trade": "Trade 1",
                                 "color": "#96CEFF",
                                 "activity_code": "MG3",
-                                "activity_name": "Overhead MEP Installation - COLO2 Cell 2 - MG"
+                                "activity_name": "Overhead MEP Installation - COLO2 Cell 2 - MG",
+                                "start": "30-Oct-24",
+                                "finish": "12-Nov-24"
                             }
                         ],
                         "MG4": [
@@ -708,7 +830,9 @@
                                 "trade": "Trade 1",
                                 "color": "#96CEFF",
                                 "activity_code": "MG4",
-                                "activity_name": "Deliver AHU into Mech. Gallery - COLO2 Cell 2 - MG"
+                                "activity_name": "Deliver AHU into Mech. Gallery - COLO2 Cell 2 - MG",
+                                "start": "13-Nov-24",
+                                "finish": "14-Nov-24"
                             }
                         ],
                         "MG5": [
@@ -719,7 +843,9 @@
                                 "trade": "Trade 1",
                                 "color": "#96CEFF",
                                 "activity_code": "MG5",
-                                "activity_name": "Install Walls and Primer Paint - COLO2 Cell 2 - MG"
+                                "activity_name": "Install Walls and Primer Paint - COLO2 Cell 2 - MG",
+                                "start": "15-Nov-24",
+                                "finish": "29-Nov-24"
                             }
                         ],
                         "MG6": [
@@ -730,7 +856,9 @@
                                 "trade": "Trade 1",
                                 "color": "#96CEFF",
                                 "activity_code": "MG6",
-                                "activity_name": "Placing the AHU - COLO2 Cell 2 - MG"
+                                "activity_name": "Placing the AHU - COLO2 Cell 2 - MG",
+                                "start": "9-Dec-24",
+                                "finish": "11-Dec-24"
                             }
                         ],
                         "MG7": [
@@ -741,7 +869,9 @@
                                 "trade": "Trade 1",
                                 "color": "#96CEFF",
                                 "activity_code": "MG7",
-                                "activity_name": "Layout Ceiling and install Pencile Rod - COLO2 Cell 2 - MG"
+                                "activity_name": "Layout Ceiling and install Pencile Rod - COLO2 Cell 2 - MG",
+                                "start": "2-Dec-24",
+                                "finish": "2-Dec-24"
                             }
                         ],
                         "MG8": [
@@ -752,7 +882,9 @@
                                 "trade": "Trade 1",
                                 "color": "#96CEFF",
                                 "activity_code": "MG8",
-                                "activity_name": "Piping and Electrical Termination to AHUs - COLO2 Cell 2 - MG"
+                                "activity_name": "Piping and Electrical Termination to AHUs - COLO2 Cell 2 - MG",
+                                "start": "11-Dec-24",
+                                "finish": "26-Dec-24"
                             }
                         ],
                         "MG9": [
@@ -763,7 +895,9 @@
                                 "trade": "Trade 1",
                                 "color": "#96CEFF",
                                 "activity_code": "MG9",
-                                "activity_name": "Pipe Testing - COLO2 Cell 2 - MG"
+                                "activity_name": "Pipe Testing - COLO2 Cell 2 - MG",
+                                "start": "26-Dec-24",
+                                "finish": "30-Dec-24"
                             }
                         ],
                         "MG10": [
@@ -774,7 +908,9 @@
                                 "trade": "Trade 1",
                                 "color": "#96CEFF",
                                 "activity_code": "MG10",
-                                "activity_name": "Install ceiling and Light Fittings - COLO2 Cell 2 - MG"
+                                "activity_name": "Install ceiling and Light Fittings - COLO2 Cell 2 - MG",
+                                "start": "30-Dec-24",
+                                "finish": "10-Jan-25"
                             }
                         ],
                         "MG11": [
@@ -785,7 +921,9 @@
                                 "trade": "Trade 1",
                                 "color": "#96CEFF",
                                 "activity_code": "MG11",
-                                "activity_name": "Trim out MEP - COLO2 Cell 2 - MG"
+                                "activity_name": "Trim out MEP - COLO2 Cell 2 - MG",
+                                "start": "3-Jan-25",
+                                "finish": "10-Jan-25"
                             }
                         ],
                         "MG12": [
@@ -796,7 +934,9 @@
                                 "trade": "Trade 1",
                                 "color": "#96CEFF",
                                 "activity_code": "MG12",
-                                "activity_name": "Post Wall Overhead MEP - COLO2 Cell 2 - MG"
+                                "activity_name": "Post Wall Overhead MEP - COLO2 Cell 2 - MG",
+                                "start": "2-Dec-24",
+                                "finish": "20-Dec-24"
                             }
                         ]
                     }
@@ -811,7 +951,9 @@
                                 "trade": "Trade 2",
                                 "color": "#C5E5A6",
                                 "activity_code": "DH5",
-                                "activity_name": "Install Walls and Primer Paint - COLO2 Cell 2 - ER"
+                                "activity_name": "Install Walls and Primer Paint - COLO2 Cell 2 - ER",
+                                "start": "21-Oct-24",
+                                "finish": "1-Nov-24"
                             }
                         ],
                         "DH3": [
@@ -822,7 +964,9 @@
                                 "trade": "Trade 2",
                                 "color": "#C5E5A6",
                                 "activity_code": "DH3",
-                                "activity_name": "Sprinklers and Overhead MEP (Above Ceiling) - COLO2 Cell 2 - ER"
+                                "activity_name": "Sprinklers and Overhead MEP (Above Ceiling) - COLO2 Cell 2 - ER",
+                                "start": "6-Nov-24",
+                                "finish": "19-Nov-24"
                             }
                         ],
                         "DH4": [
@@ -833,7 +977,9 @@
                                 "trade": "Trade 2",
                                 "color": "#C5E5A6",
                                 "activity_code": "DH4",
-                                "activity_name": "Install Upper Screens - COLO2 Cell 2 - ER"
+                                "activity_name": "Install Upper Screens - COLO2 Cell 2 - ER",
+                                "start": "30-Oct-24",
+                                "finish": "5-Nov-24"
                             }
                         ],
                         "DH2": [
@@ -844,7 +990,9 @@
                                 "trade": "Trade 2",
                                 "color": "#C5E5A6",
                                 "activity_code": "DH2",
-                                "activity_name": "Install Ceiling - COLO2 Cell 2 - ER"
+                                "activity_name": "Install Ceiling - COLO2 Cell 2 - ER",
+                                "start": "20-Nov-24",
+                                "finish": "22-Nov-24"
                             }
                         ],
                         "DH6": [
@@ -855,7 +1003,9 @@
                                 "trade": "Trade 2",
                                 "color": "#C5E5A6",
                                 "activity_code": "DH6",
-                                "activity_name": "Below Ceiling MEP Rough In - COLO2 Cell 2 - ER"
+                                "activity_name": "Below Ceiling MEP Rough In - COLO2 Cell 2 - ER",
+                                "start": "4-Dec-24",
+                                "finish": "17-Dec-24"
                             }
                         ],
                         "DH7": [
@@ -866,7 +1016,9 @@
                                 "trade": "Trade 2",
                                 "color": "#C5E5A6",
                                 "activity_code": "DH7",
-                                "activity_name": "Installation of ADP & ATS - COLO2 Cell 2 - ER"
+                                "activity_name": "Installation of ADP & ATS - COLO2 Cell 2 - ER",
+                                "start": "6-Dec-24",
+                                "finish": "12-Dec-24"
                             }
                         ],
                         "DH8": [
@@ -877,7 +1029,9 @@
                                 "trade": "Trade 2",
                                 "color": "#C5E5A6",
                                 "activity_code": "DH8",
-                                "activity_name": "Installation of UPS Equipment - COLO2 Cell 2 - ER"
+                                "activity_name": "Installation of UPS Equipment - COLO2 Cell 2 - ER",
+                                "start": "11-Dec-24",
+                                "finish": "17-Dec-24"
                             }
                         ],
                         "DH9": [
@@ -888,7 +1042,9 @@
                                 "trade": "Trade 2",
                                 "color": "#C5E5A6",
                                 "activity_code": "DH9",
-                                "activity_name": "Connet to Cable tray and conduit equipment - COLO2 Cell 2 - ER"
+                                "activity_name": "Connet to Cable tray and conduit equipment - COLO2 Cell 2 - ER",
+                                "start": "10-Dec-24",
+                                "finish": "16-Dec-24"
                             }
                         ],
                         "DH10": [
@@ -899,7 +1055,9 @@
                                 "trade": "Trade 2",
                                 "color": "#C5E5A6",
                                 "activity_code": "DH10",
-                                "activity_name": "Cable Pulling at Elec. Equipment - COLO2 Cell 2 - ER"
+                                "activity_name": "Cable Pulling at Elec. Equipment - COLO2 Cell 2 - ER",
+                                "start": "10-Jan-25",
+                                "finish": "30-Jan-25"
                             }
                         ],
                         "DH11": [
@@ -910,7 +1068,9 @@
                                 "trade": "Trade 2",
                                 "color": "#C5E5A6",
                                 "activity_code": "DH11",
-                                "activity_name": "Door Frame Installation - COLO2 Cell 2 - ER"
+                                "activity_name": "Door Frame Installation - COLO2 Cell 2 - ER",
+                                "start": "3-Jan-25",
+                                "finish": "9-Jan-25"
                             }
                         ],
                         "DH12": [
@@ -921,7 +1081,9 @@
                                 "trade": "Trade 2",
                                 "color": "#C5E5A6",
                                 "activity_code": "DH12",
-                                "activity_name": "Finishes and Signage - COLO2 Cell 2 - ER"
+                                "activity_name": "Finishes and Signage - COLO2 Cell 2 - ER",
+                                "start": "28-Jan-25",
+                                "finish": "3-Feb-25"
                             }
                         ]
                     }
@@ -936,7 +1098,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C1",
-                                "activity_name": "Installation of MSB - COLO2 Cell 2 - ER"
+                                "activity_name": "Installation of MSB - COLO2 Cell 2 - ER",
+                                "start": "6-Dec-24",
+                                "finish": "12-Dec-24"
                             }
                         ],
                         "C2": [
@@ -947,7 +1111,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C2",
-                                "activity_name": "Termination at PDU & Busway - COLO2 Cell 2 - DH"
+                                "activity_name": "Termination at PDU & Busway - COLO2 Cell 2 - DH",
+                                "start": "21-Jan-25",
+                                "finish": "10-Feb-25"
                             }
                         ],
                         "C3": [
@@ -958,7 +1124,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C3",
-                                "activity_name": "Overhead MEP and Hangers (Above Ceiling) - COLO2 Cell 2 - DH"
+                                "activity_name": "Overhead MEP and Hangers (Above Ceiling) - COLO2 Cell 2 - DH",
+                                "start": "23-Oct-24",
+                                "finish": "7-Nov-24"
                             }
                         ],
                         "C4": [
@@ -969,7 +1137,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C4",
-                                "activity_name": "HAC install and Rise - COLO2 Cell 2 - DH"
+                                "activity_name": "HAC install and Rise - COLO2 Cell 2 - DH",
+                                "start": "6-Jan-25",
+                                "finish": "10-Jan-25"
                             }
                         ],
                         "C5": [
@@ -980,7 +1150,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C5",
-                                "activity_name": "Cable Pulling at PDU & Busway- COLO2 Cell 2 - DH"
+                                "activity_name": "Cable Pulling at PDU & Busway- COLO2 Cell 2 - DH",
+                                "start": "6-Jan-25",
+                                "finish": "17-Jan-25"
                             }
                         ],
                         "C6": [
@@ -991,7 +1163,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C6",
-                                "activity_name": "Security Screen Installation - COLO2 Cell 2 - DH"
+                                "activity_name": "Security Screen Installation - COLO2 Cell 2 - DH",
+                                "start": "2-Dec-24",
+                                "finish": "4-Dec-24"
                             }
                         ],
                         "C7": [
@@ -1002,7 +1176,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C7",
-                                "activity_name": "Ceiling Grid and Tile - COLO2 Cell 2 - DH"
+                                "activity_name": "Ceiling Grid and Tile - COLO2 Cell 2 - DH",
+                                "start": "5-Dec-24",
+                                "finish": "11-Dec-24"
                             }
                         ],
                         "C8": [
@@ -1013,7 +1189,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C8",
-                                "activity_name": "Install PDU's - COLO2 Cell 2 - DH"
+                                "activity_name": "Install PDU's - COLO2 Cell 2 - DH",
+                                "start": "27-Dec-24",
+                                "finish": "3-Jan-25"
                             }
                         ],
                         "C9": [
@@ -1024,7 +1202,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C9",
-                                "activity_name": "Overhead MEP Installation (Below Ceiling) - COLO2 Cell 2 - DH"
+                                "activity_name": "Overhead MEP Installation (Below Ceiling) - COLO2 Cell 2 - DH",
+                                "start": "12-Dec-24",
+                                "finish": "26-Dec-24"
                             }
                         ],
                         "C10": [
@@ -1035,7 +1215,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C10",
-                                "activity_name": "Install Low Voltage Wiring and Fiber Optic - COLO2 Cell 2 - DH"
+                                "activity_name": "Install Low Voltage Wiring and Fiber Optic - COLO2 Cell 2 - DH",
+                                "start": "13-Jan-25",
+                                "finish": "24-Jan-25"
                             }
                         ],
                         "C11": [
@@ -1046,7 +1228,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C11",
-                                "activity_name": "HAC Placing - COLO2 Cell 2 - DH"
+                                "activity_name": "HAC Placing - COLO2 Cell 2 - DH",
+                                "start": "27-Dec-24",
+                                "finish": "3-Jan-25"
                             }
                         ],
                         "C12": [
@@ -1057,7 +1241,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C12",
-                                "activity_name": "Finishes and Signage - COLO2 Cell 2 - DH"
+                                "activity_name": "Finishes and Signage - COLO2 Cell 2 - DH",
+                                "start": "4-Feb-25",
+                                "finish": "10-Feb-25"
                             }
                         ],
                         "C13": [
@@ -1068,7 +1254,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C13",
-                                "activity_name": "Interior - L1 UPS - COLO2 Cell 2"
+                                "activity_name": "Interior - L1 UPS - COLO2 Cell 2",
+                                "start": "2-Jan-25",
+                                "finish": "2-Jan-25"
                             }
                         ],
                         "C14": [
@@ -1079,7 +1267,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C14",
-                                "activity_name": "Interior - L1 MSB - COLO2 Cell 2"
+                                "activity_name": "Interior - L1 MSB - COLO2 Cell 2",
+                                "start": "3-Jan-25",
+                                "finish": "3-Jan-25"
                             }
                         ],
                         "C15": [
@@ -1090,7 +1280,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C15",
-                                "activity_name": "Interior - L1 PDUs - COLO2 Cell 2"
+                                "activity_name": "Interior - L1 PDUs - COLO2 Cell 2",
+                                "start": "6-Jan-25",
+                                "finish": "6-Jan-25"
                             }
                         ],
                         "C16": [
@@ -1101,7 +1293,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C16",
-                                "activity_name": "Interior - L1 AHUs - COLO2 Cell 2"
+                                "activity_name": "Interior - L1 AHUs - COLO2 Cell 2",
+                                "start": "8-Jan-25",
+                                "finish": "8-Jan-25"
                             }
                         ],
                         "C17": [
@@ -1112,7 +1306,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C17",
-                                "activity_name": "Interior - L1  ATSs - COLO2 Cell 2"
+                                "activity_name": "Interior - L1  ATSs - COLO2 Cell 2",
+                                "start": "7-Jan-25",
+                                "finish": "7-Jan-25"
                             }
                         ],
                         "C18": [
@@ -1123,7 +1319,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C18",
-                                "activity_name": "Interior - L1 Busway - COLO2 Cell 2"
+                                "activity_name": "Interior - L1 Busway - COLO2 Cell 2",
+                                "start": "7-Jan-25",
+                                "finish": "7-Jan-25"
                             }
                         ],
                         "C19": [
@@ -1134,7 +1332,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C19",
-                                "activity_name": "Interior - L1 ADP - COLO2 Cell 2"
+                                "activity_name": "Interior - L1 ADP - COLO2 Cell 2",
+                                "start": "6-Jan-25",
+                                "finish": "6-Jan-25"
                             }
                         ],
                         "C20": [
@@ -1145,7 +1345,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C20",
-                                "activity_name": "Interior - L2 UPS - COLO2 Cell 2"
+                                "activity_name": "Interior - L2 UPS - COLO2 Cell 2",
+                                "start": "25-Feb-25",
+                                "finish": "3-Mar-25"
                             }
                         ],
                         "C21": [
@@ -1156,7 +1358,9 @@
                                 "trade": "Trade 3",
                                 "color": "#F59CA6",
                                 "activity_code": "C21",
-                                "activity_name": "Interior - L2 MSB - COLO2 Cell 2"
+                                "activity_name": "Interior - L2 MSB - COLO2 Cell 2",
+                                "start": "4-Mar-25",
+                                "finish": "10-Mar-25"
                             }
                         ]
                     }
@@ -1171,7 +1375,9 @@
                                 "trade": "Trade 4",
                                 "color": "#FFC000",
                                 "activity_code": "ER1",
-                                "activity_name": "Interior - L2 PDUs - COLO2 Cell 2"
+                                "activity_name": "Interior - L2 PDUs - COLO2 Cell 2",
+                                "start": "11-Mar-25",
+                                "finish": "17-Mar-25"
                             }
                         ],
                         "ER2": [
@@ -1182,7 +1388,9 @@
                                 "trade": "Trade 4",
                                 "color": "#FFC000",
                                 "activity_code": "ER2",
-                                "activity_name": "Interior - L2 AHUs - COLO2 Cell 2"
+                                "activity_name": "Interior - L2 AHUs - COLO2 Cell 2",
+                                "start": "25-Mar-25",
+                                "finish": "31-Mar-25"
                             }
                         ],
                         "ER3": [
@@ -1193,7 +1401,9 @@
                                 "trade": "Trade 4",
                                 "color": "#FFC000",
                                 "activity_code": "ER3",
-                                "activity_name": "Interior - L2  ATSs - COLO2 Cell 2"
+                                "activity_name": "Interior - L2  ATSs - COLO2 Cell 2",
+                                "start": "18-Mar-25",
+                                "finish": "24-Mar-25"
                             }
                         ],
                         "ER4": [
@@ -1204,7 +1414,9 @@
                                 "trade": "Trade 4",
                                 "color": "#FFC000",
                                 "activity_code": "ER4",
-                                "activity_name": "Interior - L2 Busway - COLO2 Cell 2"
+                                "activity_name": "Interior - L2 Busway - COLO2 Cell 2",
+                                "start": "18-Mar-25",
+                                "finish": "24-Mar-25"
                             }
                         ],
                         "ER5": [
@@ -1215,7 +1427,9 @@
                                 "trade": "Trade 4",
                                 "color": "#FFC000",
                                 "activity_code": "ER5",
-                                "activity_name": "Interior - L2 ADP - COLO2 Cell 2"
+                                "activity_name": "Interior - L2 ADP - COLO2 Cell 2",
+                                "start": "11-Mar-25",
+                                "finish": "17-Mar-25"
                             }
                         ],
                         "ER6": [
@@ -1226,7 +1440,9 @@
                                 "trade": "Trade 4",
                                 "color": "#FFC000",
                                 "activity_code": "ER6",
-                                "activity_name": "Interior - L3 UPS - COLO2 Cell 2"
+                                "activity_name": "Interior - L3 UPS - COLO2 Cell 2",
+                                "start": "25-Mar-25",
+                                "finish": "31-Mar-25"
                             }
                         ],
                         "ER7": [
@@ -1237,7 +1453,9 @@
                                 "trade": "Trade 4",
                                 "color": "#FFC000",
                                 "activity_code": "ER7",
-                                "activity_name": "Interior - L3 MSB - COLO2 Cell 2"
+                                "activity_name": "Interior - L3 MSB - COLO2 Cell 2",
+                                "start": "1-Apr-25",
+                                "finish": "7-Apr-25"
                             }
                         ],
                         "ER8": [
@@ -1248,7 +1466,9 @@
                                 "trade": "Trade 4",
                                 "color": "#FFC000",
                                 "activity_code": "ER8",
-                                "activity_name": "Interior - L3 PDUs - COLO2 Cell 2"
+                                "activity_name": "Interior - L3 PDUs - COLO2 Cell 2",
+                                "start": "8-Apr-25",
+                                "finish": "14-Apr-25"
                             }
                         ],
                         "ER9": [
@@ -1259,7 +1479,9 @@
                                 "trade": "Trade 4",
                                 "color": "#FFC000",
                                 "activity_code": "ER9",
-                                "activity_name": "Interior - L3 AHUs - COLO2 Cell 2"
+                                "activity_name": "Interior - L3 AHUs - COLO2 Cell 2",
+                                "start": "22-Apr-25",
+                                "finish": "28-Apr-25"
                             }
                         ],
                         "ER10": [
@@ -1270,7 +1492,9 @@
                                 "trade": "Trade 4",
                                 "color": "#FFC000",
                                 "activity_code": "ER10",
-                                "activity_name": "Interior - L3  ATSs - COLO2 Cell 2"
+                                "activity_name": "Interior - L3  ATSs - COLO2 Cell 2",
+                                "start": "15-Apr-25",
+                                "finish": "21-Apr-25"
                             }
                         ],
                         "ER11": [
@@ -1281,7 +1505,9 @@
                                 "trade": "Trade 4",
                                 "color": "#FFC000",
                                 "activity_code": "ER11",
-                                "activity_name": "Interior - L3 Busway - COLO2 Cell 2"
+                                "activity_name": "Interior - L3 Busway - COLO2 Cell 2",
+                                "start": "15-Apr-25",
+                                "finish": "21-Apr-25"
                             }
                         ],
                         "ER12": [
@@ -1292,7 +1518,9 @@
                                 "trade": "Trade 4",
                                 "color": "#FFC000",
                                 "activity_code": "ER12",
-                                "activity_name": "Interior - L3 ADP - COLO2 Cell 2"
+                                "activity_name": "Interior - L3 ADP - COLO2 Cell 2",
+                                "start": "8-Apr-25",
+                                "finish": "14-Apr-25"
                             }
                         ]
                     }
