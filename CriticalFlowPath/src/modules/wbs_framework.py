@@ -15,12 +15,19 @@ class WbsFramework:
         self.ws_name = input_worksheet_name
         self.json_path = input_json_path
         self.json_basename = input_json_basename
+        self.wbs_start_row = 4
+        self.wbs_start_col = 'A'
     
     @staticmethod
     def main():
         project = WbsFramework.generate_ins()
-        table = project.design_json_table()
-        project.generate_wbs_cfa_style(table)
+        active_wb, active_ws = project.return_excel_workspace(project.ws_name)
+
+        if active_wb and active_ws:
+            table = project.design_json_table()
+            proc_table = project.generate_wbs_cfa_style(table)
+            #print(proc_table)
+            project.write_data_to_excel(proc_table)
 
     @staticmethod
     def generate_ins():
@@ -181,6 +188,7 @@ class WbsFramework:
             data = json.load(json_file)
         
         df = self.flatten_json(data["project_content"][0])
+        #print(json.dumps(df, indent=4))
         df_keys = list(df.keys())
         struct_dic = []
 
@@ -193,6 +201,7 @@ class WbsFramework:
                 "entry": df[key].get("entry", None),
                 "activity_code": df[key].get("activity_code", ""),
                 "activity_name": df[key].get("activity_name", ""),
+                "activity_ins": key.split('|')[-1],
                 "color": df[key].get("color", ""),
                 "start": df[key].get("start", ""),
                 "finish": df[key].get("finish", "")
@@ -200,6 +209,7 @@ class WbsFramework:
 
             struct_dic.append(act_json_obj)
         
+        #print(json.dumps(struct_dic, indent=4))
         df_table = pd.DataFrame(struct_dic)
 
         return df_table
@@ -207,24 +217,60 @@ class WbsFramework:
     def generate_wbs_cfa_style(self, og_table):
         proc_table = pd.pivot_table(
             og_table,
-            index=["phase", "location", "activity_code", "color", "entry"],
-            values=["start", "finish"],
+            index=["phase", "location", "activity_code", "color"],
+            values=["activity_ins", "start", "finish"],
             aggfunc='first'
         )
-        """                                                              
-        phase              location activity_code color    finish     start
-        Interior Finishes  Zone 1   APL-A2        #FF99FF  10-Oct-24  27-Sep-24
-                                    APL-A3        #FF99FF  06-Nov-24  24-Oct-24
-                                    CLN-C2        #FF6600  06-Nov-24  24-Oct-24
-                                    CSE-71        #0070C0  26-Sep-24  13-Sep-24
-                                    DRS-51        #FDE9D9  17-Sep-24  13-Sep-24
-        ...                                                      ...        ...
-        Interior Rough Ins Zone 4   PLM-43        #99CC00  08-Oct-24  02-Oct-24
-                                    PLM-47        #99CC00  01-Oct-24  11-Sep-24
-                                    PTG-60        #CCFFFF  08-Oct-24  07-Oct-24
-                                    PTG-61        #CCFFFF  08-Oct-24  02-Oct-24
-                                    PTG-63        #CCFFFF  13-Nov-24  07-Nov-24 """
-        print(proc_table)
+        column_header_list = proc_table.columns.tolist()
+
+        if "finish" in column_header_list and column_header_list[-1] != "finish":
+            orderd_header_list = self.order_table_cols(column_header_list)
+
+        proc_table = proc_table[orderd_header_list]
+        """                                                                                 
+        phase              location activity_code color   activity_ins  finish     start
+        Interior Finishes  Zone 1   APL-A2        #FF99FF 0             10-Oct-24  27-Sep-24
+                                    APL-A3        #FF99FF 0             06-Nov-24  24-Oct-24
+                                    CLN-C2        #FF6600 0             06-Nov-24  24-Oct-24
+                                    CSE-71        #0070C0 0             26-Sep-24  13-Sep-24
+                                    DRS-51        #FDE9D9 0             17-Sep-24  13-Sep-24
+        ...                                                                   ...        ...
+        Interior Rough Ins Zone 4   PLM-43        #99CC00 0             08-Oct-24  02-Oct-24
+                                    PLM-47        #99CC00 0             01-Oct-24  11-Sep-24
+                                    PTG-60        #CCFFFF 0             08-Oct-24  07-Oct-24
+                                    PTG-61        #CCFFFF 0             08-Oct-24  02-Oct-24
+                                    PTG-63        #CCFFFF 0             13-Nov-24  07-Nov-24 
+        """
+        return proc_table
+
+    def order_table_cols(self, column_list):
+        for idx, col in enumerate(column_list):
+            if col == "finish":
+                temp = column_list[-1]
+                column_list[-1] = col
+                column_list[idx] = temp
+                break
+        
+        return column_list
+
+    def write_data_to_excel(self, proc_table):
+        if proc_table.empty:    
+            print("Error. DataFrame is empty")
+        else:
+            file = os.path.join(self.excel_path, self.excel_basename)
+
+            try:
+                with pd.ExcelWriter(file, engine="openpyxl", mode='a', if_sheet_exists='overlay') as writer:
+                    proc_table.to_excel(
+                        writer, 
+                        sheet_name=self.ws_name, 
+                        startrow=self.wbs_start_row - 1, 
+                        startcol=column_index_from_string(self.wbs_start_col) - 1
+                    )
+                
+                print(f"Successfully converted JSON to Excel and saved to {file}")
+            except Exception as e:
+                print(f"An unexpected error occurred: {e}")
 
     def flatten_json(self, json_obj):
         new_dic = {}
