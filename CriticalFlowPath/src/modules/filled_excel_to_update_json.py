@@ -26,7 +26,7 @@ class FilledExcelToUpdateJson():
         if project:
             try:
                 wb, ws = project.return_excel_workspace(project.ws_name)
-                entry_frame = project.build_entry_dic(ws)
+                entry_frame = project.build_entry_frame(ws)
 
                 if project.process_cont == 'n':
                     # Update Existing JSON
@@ -59,7 +59,7 @@ class FilledExcelToUpdateJson():
         
     @staticmethod
     def generate_ins():
-        input_process_cont = FilledExcelToUpdateJson.ynq_user_interaction("Is this a completly new project?: ")
+        input_process_cont = FilledExcelToUpdateJson.ynq_user_interaction("Is this a completly new project? ")
         if input_process_cont == 'q':
             print("Exiting the program.")
             return -1
@@ -242,6 +242,7 @@ class FilledExcelToUpdateJson():
         ws = active_ws
         initial_col_idx = self.find_column_idx(ws, self.json_categories[0])
         final_col_idx = self.find_column_idx(ws, 'finish')
+        
         entry_counter = 1
         json_dic = {
             "project_metadata": {},
@@ -250,27 +251,32 @@ class FilledExcelToUpdateJson():
                 "body": []
             }
         }
+        
         header_list = list(entry_frame.keys())[1:]
 
         for row in ws.iter_rows(min_col=initial_col_idx, max_col=final_col_idx, 
                                 min_row=self.wbs_start_row + 1, max_row=ws.max_row):
             entry_frame["entry"] = entry_counter
-            
+            null_val_counter = 0
+
             for header_counter, cell in enumerate(row):
+                if cell.value is None or cell.value == "":
+                    null_val_counter += 1
+
                 if header_counter < len(header_list): 
                     entry_frame[header_list[header_counter]] = cell.value
 
-            if any(value is None or value == "" for value in entry_frame.values()):
-                json_dic["project_content"]["body"].append(entry_frame.copy())
-            else:
-                json_dic["project_content"]["body"].append(entry_frame.copy()) 
+            if null_val_counter == len(row):
+                break
+            
+            json_dic["project_content"]["body"].append(entry_frame.copy())
 
             entry_counter += 1
-        
+
         with open(file, 'w') as json_file:
             json.dump(json_dic, json_file, indent=4)
 
-    def build_entry_dic(self, active_ws):
+    def build_entry_frame(self, active_ws):
         ws = active_ws
         
         try:
@@ -295,7 +301,7 @@ class FilledExcelToUpdateJson():
         return dic_frame
 
     def generate_new_json(self):
-        json_basename = input("Please enter the name for the new JSON file: ") + ".json"
+        json_basename = input("Please enter the name for the new JSON file (Base Style): ") + ".json"
         self.json_basename = json_basename
         file = os.path.join(self.json_path, self.json_basename)
         
@@ -372,7 +378,7 @@ class FilledExcelToUpdateJson():
         return nested_dict
     
     def write_json(self, json_dic):
-        json_basename = input("Please enter the name for the new or existing file: ") + ".json"
+        json_basename = input("Please enter the name for the new JSON file (Processed Style): ") + ".json"
         file = open(os.path.join(self.json_path, json_basename), 'w')
 
         json.dump(json_dic, file, indent=4)
