@@ -4,7 +4,7 @@ import modules
 def print_result(value):
     print()
     print()
-    print(f'//----------------- {value} -----------------//')
+    print(f'//========== {value} ==========//')
     print()
 
 def system_pdf_to_excel_gantt():
