@@ -1,5 +1,4 @@
 import os
-from datetime import datetime
 from openpyxl import load_workbook
 from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.utils import get_column_letter
