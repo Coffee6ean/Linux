@@ -2,9 +2,8 @@ import os
 import json
 import pandas as pd
 from openpyxl import load_workbook
-from openpyxl.utils import column_index_from_string, get_column_letter
+from openpyxl.utils import column_index_from_string
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
-from openpyxl.workbook.workbook import Workbook
 
 class LegendsFramework():
     def __init__(self, input_excel_path, input_excel_basename, input_worksheet_name, input_json_path, 
