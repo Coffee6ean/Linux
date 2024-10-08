@@ -2,9 +2,8 @@ import os
 import json
 import pandas as pd
 from openpyxl import load_workbook
-from openpyxl.utils import column_index_from_string, get_column_letter
-from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
-from openpyxl.workbook.workbook import Workbook
+from openpyxl.utils import column_index_from_string
+from openpyxl.styles import PatternFill
 
 class WbsFramework:
     def __init__(self, input_process_cont, input_excel_path, input_excel_basename, 
@@ -17,17 +16,33 @@ class WbsFramework:
         self.json_basename = input_json_basename
         self.wbs_start_row = 4
         self.wbs_start_col = 'A'
+        self.default_hex_font_color = "00FFFFFF"
+        self.default_hex_fill_color = "00FFFF00"
     
     @staticmethod
     def main():
         project = WbsFramework.generate_ins()
-        active_wb, active_ws = project.return_excel_workspace(project.ws_name)
+        active_workbook, active_worksheet = project.return_excel_workspace(project.ws_name)
 
-        if active_wb and active_ws:
-            table = project.design_json_table()
-            proc_table = project.generate_wbs_cfa_style(table)
-            #print(proc_table)
-            project.write_data_to_excel(proc_table)
+        if not active_workbook or not active_worksheet:
+            print("Error: Could not load the workbook or worksheet.")
+            return
+
+        while True:
+            process_choice = input("Enter 'c' to create WBS Data Table, 'u' to update an existing WBS Table, or 'q' to quit: ").lower()
+
+            if process_choice == 'c':
+                project.create_wbs_table()
+                project.process_wbs_table(active_workbook, active_worksheet)
+                break
+            elif process_choice == 'u':
+                project.process_wbs_table(active_workbook, active_worksheet)
+                break
+            elif process_choice == 'q':
+                print("Exiting the program.")
+                break
+            else:
+                print("Invalid input. Please enter 'c', 'u', or 'q'.")
 
     @staticmethod
     def generate_ins():
@@ -143,6 +158,22 @@ class WbsFramework:
             print("Error: Please verify that the directory and file exist and that the file is of type .xlsx or .json.")
             return -1
     
+    def create_wbs_table(self):
+        table = self.design_json_table()
+        proc_table = self.generate_wbs_cfa_style(table)
+        self.write_data_to_excel(proc_table)
+
+    def process_wbs_table(self, active_workbook, active_worksheet):
+        wb = active_workbook
+        ws = active_worksheet
+
+        color_idx = self.find_column_idx(ws, 'color')
+        activity_code_idx = self.find_column_idx(ws, 'activity code')
+        color_hex_list = self.extract_cell_attr(ws, color_idx)
+        pro_hex_list = self.process_hex_val(color_hex_list)
+        self.fill_color_col(wb, ws, color_idx, pro_hex_list)
+        self.fill_color_col(wb, ws, activity_code_idx, pro_hex_list)
+
     def return_excel_workspace(self, worksheet_name):
         file = os.path.join(self.excel_path, self.excel_basename)
         
@@ -271,6 +302,89 @@ class WbsFramework:
                 print(f"Successfully converted JSON to Excel and saved to {file}")
             except Exception as e:
                 print(f"An unexpected error occurred: {e}")
+
+    def find_column_idx(self, active_ws, column_header):
+        ws = active_ws
+        start_col_idx = column_index_from_string(self.wbs_start_col)
+        normalized_header = column_header.replace(" ", "_").lower()
+
+        for row in ws.iter_rows(min_row=self.wbs_start_row, min_col=start_col_idx, max_col=ws.max_column):
+            for cell in row:
+                if cell.value and isinstance(cell.value, str):
+                    normalized_cell_value = cell.value.replace(" ", "_").lower()
+                    if normalized_header in normalized_cell_value:
+                        return cell.column
+
+    def process_hex_val(self, hex_dic_list):
+        for hex_code in hex_dic_list:
+            hex_code["value"] = hex_code["value"].replace('#', "00")
+        
+        return hex_dic_list
+
+    def extract_cell_attr(self, active_ws, col_idx):
+        ws = active_ws
+        col_list = []
+
+        if col_idx is not None:
+            for row in ws.iter_rows(min_row=self.wbs_start_row + 1, min_col=col_idx, 
+                                    max_col=col_idx, max_row=ws.max_row):
+                for cell in row:
+                    activity_cell = {
+                        "alignment": {
+                            "horizontal": cell.alignment.horizontal,
+                            "vertical": cell.alignment.vertical,
+                        },
+                        "border": {
+                            "top": cell.border.top,
+                            "left": cell.border.left,
+                            "right": cell.border.right,
+                            "bottom": cell.border.bottom,
+                        },
+                        "fill": {
+                            "start_color": cell.fill.start_color.rgb if cell.fill.start_color.rgb else cell.fill.start_color,
+                            "end_color": cell.fill.end_color.rgb if cell.fill.start_color.rgb else cell.fill.start_color,
+                            "fill_type": cell.fill.fill_type,
+                        },
+                        "font": {
+                            "name": cell.font.name,
+                            "size": cell.font.size,
+                            "bold": cell.font.bold,
+                            "color": cell.font.color,
+                        },
+                        "value": cell.value,
+                    }
+
+                    col_list.append(activity_cell)
+        
+        return col_list
+
+    def fill_color_col(self, active_wb, active_ws, col_idx, col_list):
+        file = os.path.join(self.excel_path, self.excel_basename)
+        wb = active_wb
+        ws = active_ws
+        idx = 0
+
+        for row in ws.iter_rows(min_row=self.wbs_start_row + 1, 
+                                max_row=ws.max_row, 
+                                min_col=col_idx,
+                                max_col=col_idx):
+            for cell in row:
+                color = col_list[idx].get("value")
+                try:
+                    cell.fill = PatternFill(start_color=color, 
+                                            end_color=color, 
+                                            fill_type="solid")
+                except:
+                    print(f"Color hex not found: {color}")
+                    cell.fill = PatternFill(start_color=self.default_hex_fill_color, 
+                                            end_color=self.default_hex_fill_color, 
+                                            fill_type="solid")
+            
+            idx += 1
+        
+        wb.save(filename=file)
+        print("Workbook filled successfully.")
+        wb.close()
 
     def flatten_json(self, json_obj):
         new_dic = {}
