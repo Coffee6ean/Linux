@@ -1,9 +1,7 @@
 import os
 import json
-from datetime import datetime
 from openpyxl import load_workbook
 from openpyxl.utils import column_index_from_string 
-from openpyxl.worksheet.datavalidation import DataValidation
 
 class FilledExcelToUpdateJson():
     def __init__(self, input_process_cont, input_excel_path, input_excel_basename, 
