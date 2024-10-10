@@ -202,8 +202,8 @@ class WbsFramework:
         wb = load_workbook(file)
         ws = wb[self.ws_name]
 
-        color_idx = self.find_column_idx(ws, col_header)
-        self.fill_color_col(wb, ws, color_idx, color_list)
+        header_idx = self.find_column_idx(ws, col_header)
+        self.fill_color_col(wb, ws, header_idx, color_list)
 
         wb.save(file)
 
