@@ -21,7 +21,7 @@
                 "color": "#96CEFF",
                 "activity_code": "MG1",
                 "activity_name": "Install Dampers and actuators at Louvers - Upper level (RED) - COLO2 Cell 1 - MG",
-                "start": "7-Oct-24",
+                "start": "07-Oct-24",
                 "finish": "11-Oct-24"
             },
             {
@@ -32,7 +32,7 @@
                 "color": "#96CEFF",
                 "activity_code": "MG2",
                 "activity_name": "Install Dampers and actuators at Louvers - Lower level (OA) - COLO2 Cell 1 - MG",
-                "start": "9-Oct-24",
+                "start": "09-Oct-24",
                 "finish": "15-Oct-24"
             },
             {
@@ -65,7 +65,7 @@
                 "color": "#96CEFF",
                 "activity_code": "MG5",
                 "activity_name": "Install Walls and Primer Paint - COLO2 Cell 1 - MG",
-                "start": "1-Nov-24",
+                "start": "01-Nov-24",
                 "finish": "14-Nov-24"
             },
             {
@@ -143,7 +143,7 @@
                 "activity_code": "MG12",
                 "activity_name": "Post Wall Overhead MEP - COLO2 Cell 1 - MG",
                 "start": "15-Nov-24",
-                "finish": "6-Dec-24"
+                "finish": "06-Dec-24"
             },
             {
                 "entry": 13,
@@ -164,7 +164,7 @@
                 "color": "#C5E5A6",
                 "activity_code": "DH3",
                 "activity_name": "Overhead MEP and Hangers (Above Ceiling) - COLO2 Cell 1 - DH",
-                "start": "7-Oct-24",
+                "start": "07-Oct-24",
                 "finish": "22-Oct-24"
             },
             {
@@ -187,7 +187,7 @@
                 "activity_code": "DH2",
                 "activity_name": "Termination at PDU & Busway- COLO2 Cell 1 - DH",
                 "start": "19-Dec-24",
-                "finish": "3-Jan-25"
+                "finish": "03-Jan-25"
             },
             {
                 "entry": 17,
@@ -274,8 +274,8 @@
                 "color": "#F59CA6",
                 "activity_code": "C1",
                 "activity_name": "Interior - L1 UPS - COLO2 Cell 1",
-                "start": "2-Jan-25",
-                "finish": "2-Jan-25"
+                "start": "02-Jan-25",
+                "finish": "02-Jan-25"
             },
             {
                 "entry": 25,
@@ -285,8 +285,8 @@
                 "color": "#F59CA6",
                 "activity_code": "C2",
                 "activity_name": "Interior - L1 MSB - COLO2 Cell 1",
-                "start": "3-Jan-25",
-                "finish": "3-Jan-25"
+                "start": "03-Jan-25",
+                "finish": "03-Jan-25"
             },
             {
                 "entry": 26,
@@ -296,8 +296,8 @@
                 "color": "#F59CA6",
                 "activity_code": "C3",
                 "activity_name": "Interior - L1 PDUs - COLO2 Cell 1",
-                "start": "6-Jan-25",
-                "finish": "6-Jan-25"
+                "start": "06-Jan-25",
+                "finish": "06-Jan-25"
             },
             {
                 "entry": 27,
@@ -307,8 +307,8 @@
                 "color": "#F59CA6",
                 "activity_code": "C4",
                 "activity_name": "Interior - L1 AHUs - COLO2 Cell 1",
-                "start": "8-Jan-25",
-                "finish": "8-Jan-25"
+                "start": "08-Jan-25",
+                "finish": "08-Jan-25"
             },
             {
                 "entry": 28,
@@ -318,8 +318,8 @@
                 "color": "#F59CA6",
                 "activity_code": "C5",
                 "activity_name": "Interior - L1  ATSs - COLO2 Cell 1",
-                "start": "7-Jan-25",
-                "finish": "7-Jan-25"
+                "start": "07-Jan-25",
+                "finish": "07-Jan-25"
             },
             {
                 "entry": 29,
@@ -329,8 +329,8 @@
                 "color": "#F59CA6",
                 "activity_code": "C6",
                 "activity_name": "Interior - L1 Busway - COLO2 Cell 1",
-                "start": "7-Jan-25",
-                "finish": "7-Jan-25"
+                "start": "07-Jan-25",
+                "finish": "07-Jan-25"
             },
             {
                 "entry": 30,
@@ -340,8 +340,8 @@
                 "color": "#F59CA6",
                 "activity_code": "C7",
                 "activity_name": "Interior - L1 ADP - COLO2 Cell 1",
-                "start": "6-Jan-25",
-                "finish": "6-Jan-25"
+                "start": "06-Jan-25",
+                "finish": "06-Jan-25"
             },
             {
                 "entry": 31,
@@ -352,7 +352,7 @@
                 "activity_code": "C8",
                 "activity_name": "Interior - L2 UPS - COLO2 Cell 1",
                 "start": "25-Feb-25",
-                "finish": "3-Mar-25"
+                "finish": "03-Mar-25"
             },
             {
                 "entry": 32,
@@ -362,7 +362,7 @@
                 "color": "#F59CA6",
                 "activity_code": "C9",
                 "activity_name": "Interior - L2 MSB - COLO2 Cell 1",
-                "start": "4-Mar-25",
+                "start": "04-Mar-25",
                 "finish": "10-Mar-25"
             },
             {
@@ -439,8 +439,8 @@
                 "color": "#F59CA6",
                 "activity_code": "C16",
                 "activity_name": "Interior - L3 MSB - COLO2 Cell 1",
-                "start": "1-Apr-25",
-                "finish": "7-Apr-25"
+                "start": "01-Apr-25",
+                "finish": "07-Apr-25"
             },
             {
                 "entry": 40,
@@ -450,7 +450,7 @@
                 "color": "#F59CA6",
                 "activity_code": "C17",
                 "activity_name": "Interior - L3 PDUs - COLO2 Cell 1",
-                "start": "8-Apr-25",
+                "start": "08-Apr-25",
                 "finish": "14-Apr-25"
             },
             {
@@ -494,7 +494,7 @@
                 "color": "#F59CA6",
                 "activity_code": "C21",
                 "activity_name": "Interior - L3 ADP - COLO2 Cell 1",
-                "start": "8-Apr-25",
+                "start": "08-Apr-25",
                 "finish": "14-Apr-25"
             },
             {
@@ -505,7 +505,7 @@
                 "color": "#FFC000",
                 "activity_code": "ER1",
                 "activity_name": "Install Walls and Primer Paint - COLO2 Cell 1 - ER",
-                "start": "7-Oct-24",
+                "start": "07-Oct-24",
                 "finish": "18-Oct-24"
             },
             {
@@ -517,7 +517,7 @@
                 "activity_code": "ER2",
                 "activity_name": "Sprinklers and Overhead MEP (Above Ceiling) - COLO2 Cell 1 - ER",
                 "start": "23-Oct-24",
-                "finish": "5-Nov-24"
+                "finish": "05-Nov-24"
             },
             {
                 "entry": 47,
@@ -538,8 +538,8 @@
                 "color": "#FFC000",
                 "activity_code": "ER4",
                 "activity_name": "Install Ceiling - COLO2 Cell 1 - ER",
-                "start": "6-Nov-24",
-                "finish": "8-Nov-24"
+                "start": "06-Nov-24",
+                "finish": "08-Nov-24"
             },
             {
                 "entry": 49,
@@ -550,7 +550,7 @@
                 "activity_code": "ER5",
                 "activity_name": "Below Ceiling MEP Rough In - COLO2 Cell 1 - ER",
                 "start": "19-Nov-24",
-                "finish": "3-Dec-24"
+                "finish": "03-Dec-24"
             },
             {
                 "entry": 50,
@@ -561,7 +561,7 @@
                 "activity_code": "ER6",
                 "activity_name": "Installation of ADP & ATS - COLO2 Cell 1 - ER",
                 "start": "29-Nov-24",
-                "finish": "5-Dec-24"
+                "finish": "05-Dec-24"
             },
             {
                 "entry": 51,
@@ -571,7 +571,7 @@
                 "color": "#FFC000",
                 "activity_code": "ER7",
                 "activity_name": "Installation of UPS Equipment - COLO2 Cell 1 - ER",
-                "start": "4-Dec-24",
+                "start": "04-Dec-24",
                 "finish": "10-Dec-24"
             },
             {
@@ -582,8 +582,8 @@
                 "color": "#FFC000",
                 "activity_code": "ER8",
                 "activity_name": "Connet to Cable tray and conduit equipment - COLO2 Cell 1 - ER",
-                "start": "3-Dec-24",
-                "finish": "9-Dec-24"
+                "start": "03-Dec-24",
+                "finish": "09-Dec-24"
             },
             {
                 "entry": 53,
@@ -594,7 +594,7 @@
                 "activity_code": "ER9",
                 "activity_name": "Cable Pulling at Elec. Equipment - COLO2 Cell 1 - ER",
                 "start": "18-Dec-24",
-                "finish": "9-Jan-25"
+                "finish": "09-Jan-25"
             },
             {
                 "entry": 54,
@@ -604,8 +604,8 @@
                 "color": "#FFC000",
                 "activity_code": "ER10",
                 "activity_name": "Door Frame Installation - COLO2 Cell 1 - ER",
-                "start": "3-Jan-25",
-                "finish": "9-Jan-25"
+                "start": "03-Jan-25",
+                "finish": "09-Jan-25"
             },
             {
                 "entry": 55,
@@ -627,7 +627,7 @@
                 "activity_code": "ER12",
                 "activity_name": "Installation of MSB - COLO2 Cell 1 - ER",
                 "start": "29-Nov-24",
-                "finish": "5-Dec-24"
+                "finish": "05-Dec-24"
             },
             {
                 "entry": 57,
@@ -637,8 +637,8 @@
                 "color": "#FFFFFF",
                 "activity_code": "L4",
                 "activity_name": "COLO2 Cx LEV4 - COLO2",
-                "start": "1-May-25",
-                "finish": "4-Jun-25"
+                "start": "01-May-25",
+                "finish": "04-Jun-25"
             },
             {
                 "entry": 58,
@@ -648,8 +648,8 @@
                 "color": "#FFFFFF",
                 "activity_code": "L5 ",
                 "activity_name": "COLO2 Cx LEV5 / IST - COLO2",
-                "start": "5-Jun-25",
-                "finish": "6-Jun-25"
+                "start": "05-Jun-25",
+                "finish": "06-Jun-25"
             },
             {
                 "entry": 59,
@@ -714,7 +714,7 @@
                 "color": "#96CEFF",
                 "activity_code": "MG6",
                 "activity_name": "Placing the AHU - COLO2 Cell 2 - MG",
-                "start": "9-Dec-24",
+                "start": "09-Dec-24",
                 "finish": "11-Dec-24"
             },
             {
@@ -725,8 +725,8 @@
                 "color": "#96CEFF",
                 "activity_code": "MG7",
                 "activity_name": "Layout Ceiling and install Pencile Rod - COLO2 Cell 2 - MG",
-                "start": "2-Dec-24",
-                "finish": "2-Dec-24"
+                "start": "02-Dec-24",
+                "finish": "02-Dec-24"
             },
             {
                 "entry": 66,
@@ -769,7 +769,7 @@
                 "color": "#96CEFF",
                 "activity_code": "MG11",
                 "activity_name": "Trim out MEP - COLO2 Cell 2 - MG",
-                "start": "3-Jan-25",
+                "start": "03-Jan-25",
                 "finish": "10-Jan-25"
             },
             {
@@ -780,7 +780,7 @@
                 "color": "#96CEFF",
                 "activity_code": "MG12",
                 "activity_name": "Post Wall Overhead MEP - COLO2 Cell 2 - MG",
-                "start": "2-Dec-24",
+                "start": "02-Dec-24",
                 "finish": "20-Dec-24"
             },
             {
@@ -792,7 +792,7 @@
                 "activity_code": "DH5",
                 "activity_name": "Install Walls and Primer Paint - COLO2 Cell 2 - ER",
                 "start": "21-Oct-24",
-                "finish": "1-Nov-24"
+                "finish": "01-Nov-24"
             },
             {
                 "entry": 72,
@@ -802,7 +802,7 @@
                 "color": "#C5E5A6",
                 "activity_code": "DH3",
                 "activity_name": "Sprinklers and Overhead MEP (Above Ceiling) - COLO2 Cell 2 - ER",
-                "start": "6-Nov-24",
+                "start": "06-Nov-24",
                 "finish": "19-Nov-24"
             },
             {
@@ -814,7 +814,7 @@
                 "activity_code": "DH4",
                 "activity_name": "Install Upper Screens - COLO2 Cell 2 - ER",
                 "start": "30-Oct-24",
-                "finish": "5-Nov-24"
+                "finish": "05-Nov-24"
             },
             {
                 "entry": 74,
@@ -835,7 +835,7 @@
                 "color": "#C5E5A6",
                 "activity_code": "DH6",
                 "activity_name": "Below Ceiling MEP Rough In - COLO2 Cell 2 - ER",
-                "start": "4-Dec-24",
+                "start": "04-Dec-24",
                 "finish": "17-Dec-24"
             },
             {
@@ -846,7 +846,7 @@
                 "color": "#C5E5A6",
                 "activity_code": "DH7",
                 "activity_name": "Installation of ADP & ATS - COLO2 Cell 2 - ER",
-                "start": "6-Dec-24",
+                "start": "06-Dec-24",
                 "finish": "12-Dec-24"
             },
             {
@@ -890,8 +890,8 @@
                 "color": "#C5E5A6",
                 "activity_code": "DH11",
                 "activity_name": "Door Frame Installation - COLO2 Cell 2 - ER",
-                "start": "3-Jan-25",
-                "finish": "9-Jan-25"
+                "start": "03-Jan-25",
+                "finish": "09-Jan-25"
             },
             {
                 "entry": 81,
@@ -902,7 +902,7 @@
                 "activity_code": "DH12",
                 "activity_name": "Finishes and Signage - COLO2 Cell 2 - ER",
                 "start": "28-Jan-25",
-                "finish": "3-Feb-25"
+                "finish": "03-Feb-25"
             },
             {
                 "entry": 82,
@@ -912,7 +912,7 @@
                 "color": "#F59CA6",
                 "activity_code": "C1",
                 "activity_name": "Installation of MSB - COLO2 Cell 2 - ER",
-                "start": "6-Dec-24",
+                "start": "06-Dec-24",
                 "finish": "12-Dec-24"
             },
             {
@@ -935,7 +935,7 @@
                 "activity_code": "C3",
                 "activity_name": "Overhead MEP and Hangers (Above Ceiling) - COLO2 Cell 2 - DH",
                 "start": "23-Oct-24",
-                "finish": "7-Nov-24"
+                "finish": "07-Nov-24"
             },
             {
                 "entry": 85,
@@ -945,7 +945,7 @@
                 "color": "#F59CA6",
                 "activity_code": "C4",
                 "activity_name": "HAC install and Rise - COLO2 Cell 2 - DH",
-                "start": "6-Jan-25",
+                "start": "06-Jan-25",
                 "finish": "10-Jan-25"
             },
             {
@@ -956,7 +956,7 @@
                 "color": "#F59CA6",
                 "activity_code": "C5",
                 "activity_name": "Cable Pulling at PDU & Busway- COLO2 Cell 2 - DH",
-                "start": "6-Jan-25",
+                "start": "06-Jan-25",
                 "finish": "17-Jan-25"
             },
             {
@@ -967,8 +967,8 @@
                 "color": "#F59CA6",
                 "activity_code": "C6",
                 "activity_name": "Security Screen Installation - COLO2 Cell 2 - DH",
-                "start": "2-Dec-24",
-                "finish": "4-Dec-24"
+                "start": "02-Dec-24",
+                "finish": "04-Dec-24"
             },
             {
                 "entry": 88,
@@ -978,7 +978,7 @@
                 "color": "#F59CA6",
                 "activity_code": "C7",
                 "activity_name": "Ceiling Grid and Tile - COLO2 Cell 2 - DH",
-                "start": "5-Dec-24",
+                "start": "05-Dec-24",
                 "finish": "11-Dec-24"
             },
             {
@@ -990,7 +990,7 @@
                 "activity_code": "C8",
                 "activity_name": "Install PDU's - COLO2 Cell 2 - DH",
                 "start": "27-Dec-24",
-                "finish": "3-Jan-25"
+                "finish": "03-Jan-25"
             },
             {
                 "entry": 90,
@@ -1023,7 +1023,7 @@
                 "activity_code": "C11",
                 "activity_name": "HAC Placing - COLO2 Cell 2 - DH",
                 "start": "27-Dec-24",
-                "finish": "3-Jan-25"
+                "finish": "03-Jan-25"
             },
             {
                 "entry": 93,
@@ -1033,7 +1033,7 @@
                 "color": "#F59CA6",
                 "activity_code": "C12",
                 "activity_name": "Finishes and Signage - COLO2 Cell 2 - DH",
-                "start": "4-Feb-25",
+                "start": "04-Feb-25",
                 "finish": "10-Feb-25"
             },
             {
@@ -1044,8 +1044,8 @@
                 "color": "#F59CA6",
                 "activity_code": "C13",
                 "activity_name": "Interior - L1 UPS - COLO2 Cell 2",
-                "start": "2-Jan-25",
-                "finish": "2-Jan-25"
+                "start": "02-Jan-25",
+                "finish": "02-Jan-25"
             },
             {
                 "entry": 95,
@@ -1055,8 +1055,8 @@
                 "color": "#F59CA6",
                 "activity_code": "C14",
                 "activity_name": "Interior - L1 MSB - COLO2 Cell 2",
-                "start": "3-Jan-25",
-                "finish": "3-Jan-25"
+                "start": "03-Jan-25",
+                "finish": "03-Jan-25"
             },
             {
                 "entry": 96,
@@ -1066,8 +1066,8 @@
                 "color": "#F59CA6",
                 "activity_code": "C15",
                 "activity_name": "Interior - L1 PDUs - COLO2 Cell 2",
-                "start": "6-Jan-25",
-                "finish": "6-Jan-25"
+                "start": "06-Jan-25",
+                "finish": "06-Jan-25"
             },
             {
                 "entry": 97,
@@ -1077,8 +1077,8 @@
                 "color": "#F59CA6",
                 "activity_code": "C16",
                 "activity_name": "Interior - L1 AHUs - COLO2 Cell 2",
-                "start": "8-Jan-25",
-                "finish": "8-Jan-25"
+                "start": "08-Jan-25",
+                "finish": "08-Jan-25"
             },
             {
                 "entry": 98,
@@ -1088,8 +1088,8 @@
                 "color": "#F59CA6",
                 "activity_code": "C17",
                 "activity_name": "Interior - L1  ATSs - COLO2 Cell 2",
-                "start": "7-Jan-25",
-                "finish": "7-Jan-25"
+                "start": "07-Jan-25",
+                "finish": "07-Jan-25"
             },
             {
                 "entry": 99,
@@ -1099,8 +1099,8 @@
                 "color": "#F59CA6",
                 "activity_code": "C18",
                 "activity_name": "Interior - L1 Busway - COLO2 Cell 2",
-                "start": "7-Jan-25",
-                "finish": "7-Jan-25"
+                "start": "07-Jan-25",
+                "finish": "07-Jan-25"
             },
             {
                 "entry": 100,
@@ -1110,8 +1110,8 @@
                 "color": "#F59CA6",
                 "activity_code": "C19",
                 "activity_name": "Interior - L1 ADP - COLO2 Cell 2",
-                "start": "6-Jan-25",
-                "finish": "6-Jan-25"
+                "start": "06-Jan-25",
+                "finish": "06-Jan-25"
             },
             {
                 "entry": 101,
@@ -1122,7 +1122,7 @@
                 "activity_code": "C20",
                 "activity_name": "Interior - L2 UPS - COLO2 Cell 2",
                 "start": "25-Feb-25",
-                "finish": "3-Mar-25"
+                "finish": "03-Mar-25"
             },
             {
                 "entry": 102,
@@ -1132,7 +1132,7 @@
                 "color": "#F59CA6",
                 "activity_code": "C21",
                 "activity_name": "Interior - L2 MSB - COLO2 Cell 2",
-                "start": "4-Mar-25",
+                "start": "04-Mar-25",
                 "finish": "10-Mar-25"
             },
             {
@@ -1209,8 +1209,8 @@
                 "color": "#FFC000",
                 "activity_code": "ER7",
                 "activity_name": "Interior - L3 MSB - COLO2 Cell 2",
-                "start": "1-Apr-25",
-                "finish": "7-Apr-25"
+                "start": "01-Apr-25",
+                "finish": "07-Apr-25"
             },
             {
                 "entry": 110,
@@ -1220,7 +1220,7 @@
                 "color": "#FFC000",
                 "activity_code": "ER8",
                 "activity_name": "Interior - L3 PDUs - COLO2 Cell 2",
-                "start": "8-Apr-25",
+                "start": "08-Apr-25",
                 "finish": "14-Apr-25"
             },
             {
@@ -1264,7 +1264,7 @@
                 "color": "#FFC000",
                 "activity_code": "ER12",
                 "activity_name": "Interior - L3 ADP - COLO2 Cell 2",
-                "start": "8-Apr-25",
+                "start": "08-Apr-25",
                 "finish": "14-Apr-25"
             }
         ]
