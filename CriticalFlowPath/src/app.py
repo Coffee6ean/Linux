@@ -34,6 +34,8 @@ def system_cfa_update():
                                    answer_dic["start_date"], answer_dic["end_date"])
     print_result("LegendsFramework processing...")
     modules.LegendsFramework.main(auto, answer_dic["xlsx_file"], answer_dic["ws_legends"], answer_dic["json_file"])
+    print_result("ExcelPostProcessing processing...")
+    modules.ExcelPostProcessing.main(auto, answer_dic["xlsx_file"], answer_dic["ws_schedule"])
 
 def user_inputs():
     process_continuity = input("Is this a completly new project? ")
