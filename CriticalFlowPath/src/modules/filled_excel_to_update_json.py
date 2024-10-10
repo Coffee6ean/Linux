@@ -18,8 +18,13 @@ class FilledExcelToUpdateJson():
         self.json_categories = ["phase", "location", "trade", "activity_code"]
     
     @staticmethod
-    def main():
-        project = FilledExcelToUpdateJson.generate_ins()
+    def main(auto=True, process_continuity=None, input_excel_file=None, 
+             input_worksheet_name=None, input_json_file=None, input_json_name=None):
+        if auto:
+            project = FilledExcelToUpdateJson.auto_generate_ins(process_continuity, input_excel_file, 
+                                                                input_worksheet_name, input_json_file)
+        else:
+            project = FilledExcelToUpdateJson.generate_ins()
         
         if project:
             try:
@@ -32,7 +37,7 @@ class FilledExcelToUpdateJson():
                         project.update_json(project.extract_col_cells(ws, category), category)
                 else:
                     # Create New JSON
-                    project.generate_new_json()
+                    project.create_json(input_json_name)
                     project.build_project_dic(ws, entry_frame)
 
                 # Create Restructured JSON
@@ -57,25 +62,43 @@ class FilledExcelToUpdateJson():
         
     @staticmethod
     def generate_ins():
-        input_process_cont = FilledExcelToUpdateJson.ynq_user_interaction("Is this a completly new project? ")
+        input_process_cont = FilledExcelToUpdateJson.ynq_user_interaction("Continue with the program? ")
         if input_process_cont == 'q':
             print("Exiting the program.")
-            return -1
+            return -1 
         
+        is_new = FilledExcelToUpdateJson.yn_user_interaction("Is this a completly new project? ")
         input_excel_file = input("Please enter the path to the Excel file or directory: ")
         input_worksheet_name = input("Please enter the name for the new or existing worksheet: ")
         input_excel_path, input_excel_basename = FilledExcelToUpdateJson.file_verification(
-            input_excel_file, 'e', 'f')
+            input_excel_file, 'e', 'r')
         input_json_file = input("Please enter the directory to save the new JSON file: ")
 
-        if input_process_cont == 'y':
+        if is_new == 'y':
             input_json_path, input_json_basename = FilledExcelToUpdateJson.file_verification(
                 input_json_file, 'j', 'c')
-        elif input_process_cont == 'n':
+        elif is_new == 'n':
             input_json_path, input_json_basename = FilledExcelToUpdateJson.file_verification(
                 input_json_file, 'j', 'u')
 
         ins = FilledExcelToUpdateJson(input_process_cont, input_excel_path, input_excel_basename, 
+                                      input_worksheet_name, input_json_path, input_json_basename)
+        
+        return ins
+
+    @staticmethod
+    def auto_generate_ins(process_continuity, input_excel_file, input_worksheet_name, input_json_file):
+        input_excel_path, input_excel_basename = FilledExcelToUpdateJson.file_verification(
+            input_excel_file, 'e', 'r')
+        
+        if process_continuity == 'y':
+            input_json_path, input_json_basename = FilledExcelToUpdateJson.file_verification(
+                input_json_file, 'j', 'c')
+        elif process_continuity == 'n':
+            input_json_path, input_json_basename = FilledExcelToUpdateJson.file_verification(
+                input_json_file, 'j', 'u')
+
+        ins = FilledExcelToUpdateJson(process_continuity, input_excel_path, input_excel_basename, 
                                       input_worksheet_name, input_json_path, input_json_basename)
         
         return ins
@@ -91,6 +114,18 @@ class FilledExcelToUpdateJson():
                 return user_input  
             else:
                 print("Error. Invalid input, please try again. ['Y/y' for Yes, 'N/n' for No, 'Q/q' for Quit]\n")
+
+    @staticmethod
+    def yn_user_interaction(prompt_message):
+        valid_responses = {'y', 'n'}  
+        
+        while True:
+            user_input = input(prompt_message).lower()  
+            
+            if user_input in valid_responses:
+                return user_input  
+            else:
+                print("Error. Invalid input, please try again. ['Y/y' for Yes, 'N/n' for No]\n")
 
     @staticmethod
     def display_directory_files(list):
@@ -140,44 +175,49 @@ class FilledExcelToUpdateJson():
     @staticmethod
     def file_verification(input_file_path, file_type, mode):
         if os.path.isdir(input_file_path):
-            path = input_file_path
-            file = None
-
-            if mode == 'u':
-                dir_list = os.listdir(path)
-                selection = FilledExcelToUpdateJson.display_directory_files(dir_list)
-                base_name = dir_list[selection]
-                print(f'File selected: {base_name}\n')
-                file = os.path.join(path, base_name)
-            elif mode == 'c':
-                base_name = None
-                return path, base_name
+            file_path, file_basename = FilledExcelToUpdateJson.handle_dir(input_file_path, mode)
+            if mode != 'c':
+                path, basename = FilledExcelToUpdateJson.handle_file(file_path, file_basename, file_type)
             else:
-                print("Error: Invalid mode specified.")
-                return -1
-
-            if (file_type == 'e' and FilledExcelToUpdateJson.is_xlsx(file)) or \
-            (file_type == 'j' and FilledExcelToUpdateJson.is_json(file)):
-                return path, base_name
-            else:
-                return -1
+                path = file_path
+                basename = file_basename
         elif os.path.isfile(input_file_path):
-            if (file_type == 'e' and FilledExcelToUpdateJson.is_xlsx(input_file_path)) or \
-            (file_type == 'j' and FilledExcelToUpdateJson.is_json(input_file_path)):
-                path = os.path.dirname(input_file_path)
-                base_name = os.path.basename(input_file_path)
-                return path, base_name
-            else:
-                return -1
-        else: 
-            print('Error: Please verify that the directory and file exist and that the file is of type .xlsx or .json.')
-            return -1
+            file_path = os.path.dirname(input_file_path)
+            file_basename = os.path.basename(input_file_path)
+            path, basename = FilledExcelToUpdateJson.handle_file(file_path, file_basename, file_type)
+
+        return path, basename
     
+    @staticmethod
+    def handle_dir(input_path, mode):
+        if mode in ['u', 'r', 'd']:
+            dir_list = os.listdir(input_path)
+            selection = FilledExcelToUpdateJson.display_directory_files(dir_list)
+            base_name = dir_list[selection]
+            print(f'File selected: {base_name}\n')
+        elif mode == 'c':
+            base_name = None
+        else:
+            print("Error: Invalid mode specified.")
+            return -1
+        
+        return input_path, base_name
+
+    @staticmethod
+    def handle_file(file_path, file_basename, file_type):
+        file = os.path.join(file_path, file_basename)
+
+        if (file_type == 'e' and FilledExcelToUpdateJson.is_xlsx(file)) or \
+           (file_type == 'j' and FilledExcelToUpdateJson.is_json(file)):
+            return os.path.dirname(file), os.path.basename(file)
+        
+        print("Error: Please verify that the directory and file exist and that the file is of type .xlsx or .json")
+        return -1
+
     def return_excel_workspace(self, worksheet_name):
         file = os.path.join(self.excel_path, self.excel_basename)
-        
+        workbook = load_workbook(filename=file)
         try:
-            workbook = load_workbook(filename=file)
             worksheet = workbook[worksheet_name]
         except KeyError:
             print(f"Error: Worksheet '{worksheet_name}' does not exist.")
@@ -197,7 +237,7 @@ class FilledExcelToUpdateJson():
                     if selected_ws_idx >= 0:  
                         worksheet = workbook.worksheets[selected_ws_idx]
                         self.ws_name = ws_list[selected_ws_idx]
-                        print(f"Worksheet selected: '{self.ws_name}'")
+                        print(f"Worksheet selected: '{self.ws_name}'\n")
                         return workbook, worksheet
                     else:
                         print("Invalid selection. Returning without changes.")
@@ -298,8 +338,11 @@ class FilledExcelToUpdateJson():
 
         return dic_frame
 
-    def generate_new_json(self):
-        json_basename = input("Please enter the name for the new JSON file (Base Style): ") + ".json"
+    def create_json(self, input_json_name):
+        if input_json_name is not None:
+            json_basename = input_json_name + ".json"
+        else:
+            json_basename = input("Please enter the name for the new JSON file (Base Style): ") + ".json"
         self.json_basename = json_basename
         file = os.path.join(self.json_path, self.json_basename)
         
@@ -315,34 +358,6 @@ class FilledExcelToUpdateJson():
             
         except Exception as e:
             print(f"An error occurred while creating the JSON file: {e}")
-
-    def create_json(self, info_dic, category):
-        file = os.path.join(self.json_path, self.json_basename)
-        flat_data = self.flattend_json_data(file)
-        ordered_type_list = self.flatten_col_typed_data(info_dic)
-
-        json_dic = {
-            "filled": {},
-        }
-
-        for activity in flat_data:
-            entry = activity['entry']
-            if entry in ordered_type_list['filled']:
-                ordered_type_list['filled'][ordered_type_list['filled'].index(entry)] = activity
-            elif entry in ordered_type_list['empty']:
-                ordered_type_list['empty'][ordered_type_list['empty'].index(entry)] = activity
-            else:
-                print(f"Warning: Activity with entry {entry} not found in filled or empty lists.")
-
-        for activity in ordered_type_list["filled"]:
-            parent_key = activity.get(category)
-            if parent_key not in json_dic["filled"]:
-                json_dic["filled"][parent_key] = []  
-            json_dic["filled"][parent_key].append(activity)
-
-        ordered_type_list["filled"] = json_dic["filled"]
-        
-        return ordered_type_list
 
     def build_nested_dic(self, entry_frame):
         file = os.path.join(self.json_path, self.json_basename)
@@ -456,4 +471,4 @@ class FilledExcelToUpdateJson():
 
 
 if __name__ == '__main__':
-    FilledExcelToUpdateJson.main()
+    FilledExcelToUpdateJson.main(False)
