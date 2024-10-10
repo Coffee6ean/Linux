@@ -20,24 +20,41 @@ class LegendsFramework():
         self.default_hex_fill_color = "00FFFF00"
 
     @staticmethod
-    def main():
-        project = LegendsFramework.genrate_ins()
+    def main(auto=True, input_excel_file=None, input_worksheet_name=None, input_json_file=None):
+        if auto:
+            project = LegendsFramework.auto_generate_ins(input_excel_file, input_worksheet_name, input_json_file)
+        else:
+            project = LegendsFramework.genrate_ins()
+        
         active_workbook, active_worksheet = project.return_excel_workspace(project.ws_name)
 
-        struct_dic = project.fashion_json()
+        #struct_dic = project.fashion_json()
         table = project.design_json_table()
         project.generate_legends_table(active_workbook, active_worksheet, table)
 
     @staticmethod
     def genrate_ins():
         input_excel_file = input("Please enter the path to the Excel file or directory: ")
-        input_excel_path, input_excel_basename = LegendsFramework.file_verification(input_excel_file, 'e', 'f')
+        input_excel_path, input_excel_basename = LegendsFramework.file_verification(input_excel_file, 'e', 'u')
         input_worksheet_name = input("Please enter the name for the new or existing worksheet: ")
         input_start_row = input("Please enter the starting row to write the schedule: ")
         input_start_col = input("Please enter the starting column to write the schedule: ")
         input_json_file = input("Please enter the path to the Json file or directory: ")
-        input_json_path, input_json_basename = LegendsFramework.file_verification(input_json_file, 'j', 'f')
+        input_json_path, input_json_basename = LegendsFramework.file_verification(input_json_file, 'j', 'u')
         
+        ins = LegendsFramework(input_excel_path, input_excel_basename, input_worksheet_name, 
+                               input_json_path, input_json_basename, input_start_row, input_start_col)
+        
+        return ins
+
+    @staticmethod
+    def auto_generate_ins(input_excel_file, input_worksheet_name, input_json_file):
+        input_start_row = 1
+        input_start_col = 'A'
+
+        input_excel_path, input_excel_basename = LegendsFramework.file_verification(input_excel_file, 'e', 'u')
+        input_json_path, input_json_basename = LegendsFramework.file_verification(input_json_file, 'j', 'u')
+
         ins = LegendsFramework(input_excel_path, input_excel_basename, input_worksheet_name, 
                                input_json_path, input_json_basename, input_start_row, input_start_col)
         
@@ -46,38 +63,44 @@ class LegendsFramework():
     @staticmethod
     def file_verification(input_file_path, file_type, mode):
         if os.path.isdir(input_file_path):
-            path = input_file_path
-            file = None
-
-            if mode == 'f':
-                dir_list = os.listdir(path)
-                selection = LegendsFramework.display_directory_files(dir_list)
-                base_name = dir_list[selection]
-                print(f'File selected: {base_name}\n')
-                file = os.path.join(path, base_name)
-            elif mode == 's':
-                base_name = None
-                return path, base_name
+            file_path, file_basename = LegendsFramework.handle_dir(input_file_path, mode)
+            if mode != 'c':
+                path, basename = LegendsFramework.handle_file(file_path, file_basename, file_type)
             else:
-                print("Error: Invalid mode specified.")
-                return -1
-
-            if (file_type == 'e' and LegendsFramework.is_xlsx(file)) or \
-            (file_type == 'j' and LegendsFramework.is_json(file)):
-                return path, base_name
-            else:
-                return -1
+                path = file_path
+                basename = file_basename
         elif os.path.isfile(input_file_path):
-            if (file_type == 'e' and LegendsFramework.is_xlsx(input_file_path)) or \
-            (file_type == 'j' and LegendsFramework.is_json(input_file_path)):
-                path = os.path.dirname(input_file_path)
-                base_name = os.path.basename(input_file_path)
-                return path, base_name
-            else:
-                return -1
-        else: 
-            print('Error: Please verify that the directory and file exist and that the file is of type .xlsx or .json.')
+            file_path = os.path.dirname(input_file_path)
+            file_basename = os.path.basename(input_file_path)
+            path, basename = LegendsFramework.handle_file(file_path, file_basename, file_type)
+
+        return path, basename
+    
+    @staticmethod
+    def handle_dir(input_path, mode):
+        if mode in ['u', 'r', 'd']:
+            dir_list = os.listdir(input_path)
+            selection = LegendsFramework.display_directory_files(dir_list)
+            base_name = dir_list[selection]
+            print(f'File selected: {base_name}\n')
+        elif mode == 'c':
+            base_name = None
+        else:
+            print("Error: Invalid mode specified.\n")
             return -1
+        
+        return input_path, base_name
+
+    @staticmethod
+    def handle_file(file_path, file_basename, file_type):
+        file = os.path.join(file_path, file_basename)
+
+        if (file_type == 'e' and LegendsFramework.is_xlsx(file)) or \
+           (file_type == 'j' and LegendsFramework.is_json(file)):
+            return os.path.dirname(file), os.path.basename(file)
+        
+        print("Error: Please verify that the directory and file exist and that the file is of type .xlsx or .json")
+        return -1
     
     @staticmethod
     def display_directory_files(file_list):
@@ -99,7 +122,7 @@ class LegendsFramework():
                 else:
                     print(f'Error: Please enter a number between 1 and {len(file_list)}.')
             except ValueError:
-                print('Error: Invalid input. Please enter a valid number.')
+                print('Error: Invalid input. Please enter a valid number.\n')
 
     @staticmethod
     def is_json(file_name):
@@ -132,7 +155,7 @@ class LegendsFramework():
                 if user_answer == 'y':
                     worksheet = workbook.create_sheet(worksheet_name)
                     self.ws_name = worksheet_name
-                    print(f"New worksheet '{worksheet_name}' created.")
+                    print(f"New worksheet '{worksheet_name}' created.\n")
                     break
                 elif user_answer == 'n':
                     ws_list = workbook.sheetnames
@@ -144,11 +167,11 @@ class LegendsFramework():
                         print(f"Worksheet selected: '{self.ws_name}'")
                         return workbook, worksheet
                     else:
-                        print("Invalid selection. Returning without changes.")
+                        print("Invalid selection. Returning without changes.\n")
                         return workbook, None
                         
                 elif user_answer == 'q':
-                    print("Quitting without changes.")
+                    print("Quitting without changes.\n")
                     return workbook, None
                 else:
                     print("Invalid input. Please enter 'Y' for Yes, 'N' for No, or 'Q' to Quit.")
@@ -307,7 +330,7 @@ class LegendsFramework():
             hex_val = hex_val.replace('#', "00")
 
         if len(hex_val) != 8:
-            print(f"Error: Invalid hex value '{hex_val}'. Hex values must be 6 characters long.")
+            print(f"Error: Invalid hex value '{hex_val}'. Hex values must be 6 characters long.\n")
             return self.default_hex_fill_color
 
         return hex_val
@@ -414,4 +437,4 @@ class LegendsFramework():
 
 
 if __name__ == "__main__":
-    LegendsFramework.main()
+    LegendsFramework.main(False)
