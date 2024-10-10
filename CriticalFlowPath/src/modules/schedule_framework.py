@@ -21,8 +21,13 @@ class ScheduleFramework():
         self.default_hex_fill_color = "00FFFF00"
 
     @staticmethod
-    def main():
-        project = ScheduleFramework.generate_ins()
+    def main(auto=True, input_file_path=None, input_worksheet_name=None, 
+             input_start_date=None, input_end_date=None):
+        if auto:
+            project = ScheduleFramework.auto_generate_ins(input_file_path, input_worksheet_name, 
+                                                          input_start_date, input_end_date)
+        else:
+            project = ScheduleFramework.generate_ins()
 
         if project:
             active_workbook, active_worksheet = project.return_excel_workspace(project.ws_name)
@@ -70,32 +75,60 @@ class ScheduleFramework():
                                 input_start_col, input_start_date, input_end_date)
 
         return ins
+    
+    @staticmethod
+    def auto_generate_ins(input_file_path, input_worksheet_name, input_start_date, input_end_date):
+        input_start_row = 1
+        input_start_col = 'H'
+
+        input_path, input_basename = ScheduleFramework.file_verification(input_file_path, 'e', 'u')
+
+        ins = ScheduleFramework(input_path, input_basename, input_worksheet_name, input_start_row, 
+                                input_start_col, input_start_date, input_end_date)
+
+        return ins
 
     @staticmethod
-    def file_verification(input_file_path):
+    def file_verification(input_file_path, file_type, mode):
         if os.path.isdir(input_file_path):
-            path = input_file_path
-            dir_list = os.listdir(path)
-            selection = ScheduleFramework.display_directory_files(dir_list)
-
-            base_name = dir_list[selection]
-
-            print(f'File selected: {base_name}')
-            file = os.path.join(path, base_name)
-            if ScheduleFramework.is_xlsx(file):
-                return path, base_name
+            file_path, file_basename = ScheduleFramework.handle_dir(input_file_path, mode)
+            if mode != 'c':
+                path, basename = ScheduleFramework.handle_file(file_path, file_basename, file_type)
             else:
-                return -1
+                path = file_path
+                basename = file_basename
         elif os.path.isfile(input_file_path):
-            if ScheduleFramework.is_xlsx(input_file_path):
-                path = os.path.dirname(input_file_path)
-                base_name = os.path.basename(input_file_path)
-                return path, base_name
-            else:
-                return -1
-        else: 
-            print('Error. Please verify the directory and file exist and that the file is of type .xlsx')    
+            file_path = os.path.dirname(input_file_path)
+            file_basename = os.path.basename(input_file_path)
+            path, basename = ScheduleFramework.handle_file(file_path, file_basename, file_type)
+
+        return path, basename
+    
+    @staticmethod
+    def handle_dir(input_path, mode):
+        if mode in ['u', 'r', 'd']:
+            dir_list = os.listdir(input_path)
+            selection = ScheduleFramework.display_directory_files(dir_list)
+            base_name = dir_list[selection]
+            print(f'File selected: {base_name}\n')
+        elif mode == 'c':
+            base_name = None
+        else:
+            print("Error: Invalid mode specified.")
             return -1
+        
+        return input_path, base_name
+
+    @staticmethod
+    def handle_file(file_path, file_basename, file_type):
+        file = os.path.join(file_path, file_basename)
+
+        if (file_type == 'e' and ScheduleFramework.is_xlsx(file)) or \
+           (file_type == 'j' and ScheduleFramework.is_json(file)):
+            return os.path.dirname(file), os.path.basename(file)
+        
+        print("Error: Please verify that the directory and file exist and that the file is of type .xlsx or .json")
+        return -1
 
     @staticmethod
     def display_directory_files(list):
@@ -529,4 +562,4 @@ class ScheduleFramework():
 
 
 if __name__ == "__main__":
-    ScheduleFramework.main()
+    ScheduleFramework.main(False)
