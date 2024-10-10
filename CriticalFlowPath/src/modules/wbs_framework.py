@@ -20,23 +20,39 @@ class WbsFramework:
         self.default_hex_fill_color = "00FFFF00"
     
     @staticmethod
-    def main():
-        project = WbsFramework.generate_ins()
-        active_workbook, active_worksheet = project.return_excel_workspace(project.ws_name)
-
-        if not active_workbook or not active_worksheet:
-            print("Error: Could not load the workbook or worksheet.")
-            return
+    def main(auto=True, process_continuity=None, input_excel_file=None, 
+             input_worksheet_name=None, input_json_file=None):
+        if auto:
+            project = WbsFramework.auto_generate_ins(process_continuity, input_excel_file, 
+                                                     input_worksheet_name, input_json_file)
+        else:
+            project = WbsFramework.generate_ins()
 
         while True:
             process_choice = input("Enter 'c' to create WBS Data Table, 'u' to update an existing WBS Table, or 'q' to quit: ").lower()
 
             if process_choice == 'c':
                 project.create_wbs_table()
-                project.process_wbs_table(active_workbook, active_worksheet)
+                active_workbook, active_worksheet = project.return_excel_workspace(project.ws_name)
+
+                if not active_workbook or not active_worksheet:
+                    print("Error: Could not load the workbook or worksheet.")
+                    break
+                
+                color_list = project.extract_colors(active_workbook, active_worksheet, 'color')
+                project.process_wbs_column('activity code', color_list)
+                project.process_wbs_column('color', color_list)
                 break
             elif process_choice == 'u':
-                project.process_wbs_table(active_workbook, active_worksheet)
+                active_workbook, active_worksheet = project.return_excel_workspace(project.ws_name)
+
+                if not active_workbook or not active_worksheet:
+                    print("Error: Could not load the workbook or worksheet.")
+                    break
+                
+                color_list = project.extract_colors(active_workbook, active_worksheet, 'color')
+                project.process_wbs_column('activity code', color_list)
+                project.process_wbs_column('color', color_list)
                 break
             elif process_choice == 'q':
                 print("Exiting the program.")
@@ -56,11 +72,23 @@ class WbsFramework:
         input_json_file = input("Please enter the path to the Json file or directory: ")
 
         input_excel_path, input_excel_basename = WbsFramework.file_verification(
-            input_excel_file, 'e', 'c')
+            input_excel_file, 'e', 'r')
+        input_json_path, input_json_basename = WbsFramework.file_verification(
+            input_json_file, 'j', 'r')
+
+        ins = WbsFramework(input_process_cont, input_excel_path, input_excel_basename, 
+                            input_worksheet_name, input_json_path, input_json_basename)
+        
+        return ins
+
+    @staticmethod
+    def auto_generate_ins(process_continuity, input_excel_file, input_worksheet_name, input_json_file):
+        input_excel_path, input_excel_basename = WbsFramework.file_verification(
+            input_excel_file, 'e', 'r')
         input_json_path, input_json_basename = WbsFramework.file_verification(
                 input_json_file, 'j', 'r')
 
-        ins = WbsFramework(input_process_cont, input_excel_path, input_excel_basename, 
+        ins = WbsFramework(process_continuity, input_excel_path, input_excel_basename, 
                             input_worksheet_name, input_json_path, input_json_basename)
         
         return ins
@@ -125,54 +153,69 @@ class WbsFramework:
     @staticmethod
     def file_verification(input_file_path, file_type, mode):
         if os.path.isdir(input_file_path):
-            path = input_file_path
-            file = None
-
-            if mode == 'u' or mode == 'r' or mode == 'd':
-                dir_list = os.listdir(path)
-                selection = WbsFramework.display_directory_files(dir_list)
-                base_name = dir_list[selection]
-                print(f'File selected: {base_name}\n')
-                file = os.path.join(path, base_name)
-            elif mode == 'c':
-                base_name = None
-                return path, base_name
+            file_path, file_basename = WbsFramework.handle_dir(input_file_path, mode)
+            if mode != 'c':
+                path, basename = WbsFramework.handle_file(file_path, file_basename, file_type)
             else:
-                print("Error: Invalid mode specified.")
-                return -1
-
-            if (file_type == 'e' and WbsFramework.is_xlsx(file)) or \
-            (file_type == 'j' and WbsFramework.is_json(file)):
-                return path, base_name
-            else:
-                return -1
+                path = file_path
+                basename = file_basename
         elif os.path.isfile(input_file_path):
-            if (file_type == 'e' and WbsFramework.is_xlsx(input_file_path)) or \
-            (file_type == 'j' and WbsFramework.is_json(input_file_path)):
-                path = os.path.dirname(input_file_path)
-                base_name = os.path.basename(input_file_path)
-                return path, base_name
-            else:
-                return -1
-        else: 
-            print("Error: Please verify that the directory and file exist and that the file is of type .xlsx or .json.")
+            file_path = os.path.dirname(input_file_path)
+            file_basename = os.path.basename(input_file_path)
+            path, basename = WbsFramework.handle_file(file_path, file_basename, file_type)
+
+        return path, basename
+    
+    @staticmethod
+    def handle_dir(input_path, mode):
+        if mode in ['u', 'r', 'd']:
+            dir_list = os.listdir(input_path)
+            selection = WbsFramework.display_directory_files(dir_list)
+            base_name = dir_list[selection]
+            print(f'File selected: {base_name}\n')
+        elif mode == 'c':
+            base_name = None
+        else:
+            print("Error: Invalid mode specified.")
             return -1
+        
+        return input_path, base_name
+
+    @staticmethod
+    def handle_file(file_path, file_basename, file_type):
+        file = os.path.join(file_path, file_basename)
+
+        if (file_type == 'e' and WbsFramework.is_xlsx(file)) or \
+           (file_type == 'j' and WbsFramework.is_json(file)):
+            return os.path.dirname(file), os.path.basename(file)
+        
+        print("Error: Please verify that the directory and file exist and that the file is of type .xlsx or .json")
+        return -1
     
     def create_wbs_table(self):
         table = self.design_json_table()
         proc_table = self.generate_wbs_cfa_style(table)
         self.write_data_to_excel(proc_table)
 
-    def process_wbs_table(self, active_workbook, active_worksheet):
+    def process_wbs_column(self, col_header, color_list):
+        file = os.path.join(self.excel_path, self.excel_basename)
+        wb = load_workbook(file)
+        ws = wb[self.ws_name]
+
+        color_idx = self.find_column_idx(ws, col_header)
+        self.fill_color_col(wb, ws, color_idx, color_list)
+
+        wb.save(file)
+
+    def extract_colors(self, active_workbook, active_worksheet, header):
         wb = active_workbook
         ws = active_worksheet
 
-        color_idx = self.find_column_idx(ws, 'color')
-        activity_code_idx = self.find_column_idx(ws, 'activity code')
+        color_idx = self.find_column_idx(ws, header)
         color_hex_list = self.extract_cell_attr(ws, color_idx)
         pro_hex_list = self.process_hex_val(color_hex_list)
-        self.fill_color_col(wb, ws, color_idx, pro_hex_list)
-        self.fill_color_col(wb, ws, activity_code_idx, pro_hex_list)
+        
+        return pro_hex_list
 
     def return_excel_workspace(self, worksheet_name):
         file = os.path.join(self.excel_path, self.excel_basename)
@@ -189,7 +232,7 @@ class WbsFramework:
                 if user_answer == 'y':
                     worksheet = workbook.create_sheet(worksheet_name)
                     self.ws_name = worksheet_name
-                    print(f"New worksheet '{worksheet_name}' created.")
+                    print(f"New worksheet '{self.ws_name}' created.\n")
                     break
                 elif user_answer == 'n':
                     ws_list = workbook.sheetnames
@@ -198,10 +241,10 @@ class WbsFramework:
                     if selected_ws_idx >= 0:  
                         worksheet = workbook.worksheets[selected_ws_idx]
                         self.ws_name = ws_list[selected_ws_idx]
-                        print(f"Worksheet selected: '{self.ws_name}'")
+                        print(f"Worksheet selected: '{self.ws_name}'\n")
                         return workbook, worksheet
                     else:
-                        print("Invalid selection. Returning without changes.")
+                        print("Invalid selection. Returning without changes.\n")
                         return workbook, None
                         
                 elif user_answer == 'q':
@@ -219,7 +262,6 @@ class WbsFramework:
             data = json.load(json_file)
         
         df = self.flatten_json(data["project_content"][0])
-        #print(json.dumps(df, indent=4))
         df_keys = list(df.keys())
         struct_dic = []
 
@@ -240,9 +282,7 @@ class WbsFramework:
 
             struct_dic.append(act_json_obj)
         
-        #print(json.dumps(struct_dic, indent=4))
         df_table = pd.DataFrame(struct_dic)
-
         return df_table
 
     def generate_wbs_cfa_style(self, og_table):
@@ -286,7 +326,7 @@ class WbsFramework:
 
     def write_data_to_excel(self, proc_table):
         if proc_table.empty:    
-            print("Error. DataFrame is empty")
+            print("Error. DataFrame is empty\n")
         else:
             file = os.path.join(self.excel_path, self.excel_basename)
 
@@ -299,9 +339,10 @@ class WbsFramework:
                         startcol=column_index_from_string(self.wbs_start_col) - 1
                     )
                 
-                print(f"Successfully converted JSON to Excel and saved to {file}")
+                print(f"Successfully converted JSON to Excel and saved to: {file}")
+                print(f"Saved to sheet: {self.ws_name}\n")
             except Exception as e:
-                print(f"An unexpected error occurred: {e}")
+                print(f"An unexpected error occurred: {e}\n")
 
     def find_column_idx(self, active_ws, column_header):
         ws = active_ws
@@ -358,8 +399,7 @@ class WbsFramework:
         
         return col_list
 
-    def fill_color_col(self, active_wb, active_ws, col_idx, col_list):
-        file = os.path.join(self.excel_path, self.excel_basename)
+    """ def fill_color_col(self, active_wb, active_ws, col_idx, col_list):
         wb = active_wb
         ws = active_ws
         idx = 0
@@ -382,9 +422,41 @@ class WbsFramework:
             
             idx += 1
         
-        wb.save(filename=file)
-        print("Workbook filled successfully.")
-        wb.close()
+        print("Workbook styled successfully") """
+
+    def fill_color_col(self, active_wb, active_ws, col_idx, col_list):
+        wb = active_wb
+        ws = active_ws
+
+        # Check if col_list is empty
+        if not col_list:
+            print("Error: Color list is empty.")
+            return
+
+        for idx, row in enumerate(ws.iter_rows(min_row=self.wbs_start_row + 1, 
+                                                max_row=ws.max_row, 
+                                                min_col=col_idx,
+                                                max_col=col_idx)):
+            for cell in row:
+                # Ensure idx does not exceed the length of col_list
+                if idx < len(col_list):
+                    color = col_list[idx].get("value")
+                    try:
+                        cell.fill = PatternFill(start_color=color, 
+                                                end_color=color, 
+                                                fill_type="solid")
+                    except Exception as e:
+                        print(f"Color hex not found: {color}. Error: {e}")
+                        cell.fill = PatternFill(start_color=self.default_hex_fill_color, 
+                                                end_color=self.default_hex_fill_color, 
+                                                fill_type="solid")
+                else:
+                    print(f"No color available for row {idx + self.wbs_start_row + 1}. Using default color.")
+                    cell.fill = PatternFill(start_color=self.default_hex_fill_color, 
+                                            end_color=self.default_hex_fill_color, 
+                                            fill_type="solid")
+
+        print("Workbook styled successfully")
 
     def flatten_json(self, json_obj):
         new_dic = {}
@@ -412,4 +484,4 @@ class WbsFramework:
 
 
 if __name__ == "__main__":
-    WbsFramework.main()
+    WbsFramework.main(False)
