@@ -1,5 +1,7 @@
 import os
 import json
+from datetime import date
+from typing import Union
 from openpyxl import load_workbook
 from openpyxl.utils import column_index_from_string 
 
@@ -302,13 +304,17 @@ class FilledExcelToUpdateJson():
                     null_val_counter += 1
 
                 if header_counter < len(header_list): 
-                    entry_frame[header_list[header_counter]] = cell.value
+                    formatted_value = self.check_date_data_type(cell.value)
+                    if formatted_value == -1:
+                        print(f"Error processing cell value: {cell.value}. Skipping entry.")
+                        continue 
+
+                    entry_frame[header_list[header_counter]] = formatted_value
 
             if null_val_counter == len(row):
                 break
             
             json_dic["project_content"]["body"].append(entry_frame.copy())
-
             entry_counter += 1
 
         with open(file, 'w') as json_file:
@@ -337,6 +343,14 @@ class FilledExcelToUpdateJson():
                         dic_frame[new_key] = None
 
         return dic_frame
+
+    def check_date_data_type(self, date_val: Union[str, date]) -> str:
+        if isinstance(date_val, str):
+            return date_val
+        elif isinstance(date_val, date):
+            return date_val.strftime('%d-%b-%y')
+        else:
+            return -1
 
     def create_json(self, input_json_name):
         if input_json_name is not None:
