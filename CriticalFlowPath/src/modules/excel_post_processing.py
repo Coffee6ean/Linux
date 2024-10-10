@@ -1,15 +1,17 @@
 import os
 from openpyxl import load_workbook
+from openpyxl.utils import column_index_from_string
 from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 
 class ExcelPostProcessing():
-    def __init__(self, input_file_path, input_file_basename, xlsx_worksheet_name):
-        self.file_path = input_file_path
-        self.file_basename = input_file_basename
-        self.worksheet_name = xlsx_worksheet_name
-        self.starting_data_row = 4
+    def __init__(self, input_excel_path, input_excel_basename, input_worksheet_name):
+        self.excel_path = input_excel_path
+        self.excel_basename = input_excel_basename
+        self.ws_name = input_worksheet_name
+        self.wbs_start_row = 4
+        self.wbs_start_col = 'A'
         self.trade_list_validation = [
             'Bricklayer',
             'Carpenter',
@@ -68,65 +70,100 @@ class ExcelPostProcessing():
         ]
     
     @staticmethod
-    def main():
-        project = ExcelPostProcessing.generate_ins()
-        project.process_file()
+    def main(auto=True, input_file_path=None, input_worksheet_name=None):
+        if auto:
+            project = ExcelPostProcessing.auto_generate_ins(input_file_path, input_worksheet_name)
+        else:
+            project = ExcelPostProcessing.generate_ins()
+
+        active_workbook, active_worksheet = project.return_excel_workspace(project.ws_name)
+        
+        if active_workbook and active_worksheet:
+            project.process_file()
 
     @staticmethod
     def generate_ins():
         input_file_path = input("Please enter the path to the Excel file or directory: ")
-        input_path, input_base_name = ExcelPostProcessing.file_verification(input_file_path)
-        if input_path == -1:
+        input_excel_path, input_excel_basename = ExcelPostProcessing.file_verification(
+            input_file_path, 'e', 'u')
+        
+        if input_excel_path == -1:
             return None  
 
-        xlsx_worksheet_name = input("Please enter the name to create a worksheet: ")
+        input_worksheet_name = input("Please enter the name to create a worksheet: ")
 
-        return ExcelPostProcessing(input_path, input_base_name, xlsx_worksheet_name)
+        return ExcelPostProcessing(input_excel_path, input_excel_basename, input_worksheet_name)
 
     @staticmethod
-    def file_verification(input_file_path):
+    def auto_generate_ins(input_file_path, input_worksheet_name):
+        input_excel_path, input_excel_basename = ExcelPostProcessing.file_verification(
+            input_file_path, 'e', 'u')
+        
+        if input_excel_path == -1:
+            return None  
+
+        return ExcelPostProcessing(input_excel_path, input_excel_basename, input_worksheet_name)
+
+    @staticmethod
+    def file_verification(input_file_path, file_type, mode):
         if os.path.isdir(input_file_path):
-            path = input_file_path
-            dir_list = os.listdir(path)
-            selection = ExcelPostProcessing.display_directory_files(dir_list)
-
-            base_name = dir_list[selection]
-
-            print(f'File selected: {base_name}')
-            file = os.path.join(path, base_name)
-            if ExcelPostProcessing.is_xlsx(file):
-                return path, base_name
+            file_path, file_basename = ExcelPostProcessing.handle_dir(input_file_path, mode)
+            if mode != 'c':
+                path, basename = ExcelPostProcessing.handle_file(file_path, file_basename, file_type)
             else:
-                return -1
+                path = file_path
+                basename = file_basename
         elif os.path.isfile(input_file_path):
-            if ExcelPostProcessing.is_xlsx(input_file_path):
-                path = os.path.dirname(input_file_path)
-                base_name = os.path.basename(input_file_path)
-                return path, base_name
-            else:
-                return -1
-        else: 
-            print('Error. Please verify the directory and file exist and that the file is of type .xlsx')    
+            file_path = os.path.dirname(input_file_path)
+            file_basename = os.path.basename(input_file_path)
+            path, basename = ExcelPostProcessing.handle_file(file_path, file_basename, file_type)
+
+        return path, basename
+    
+    @staticmethod
+    def handle_dir(input_path, mode):
+        if mode in ['u', 'r', 'd']:
+            dir_list = os.listdir(input_path)
+            selection = ExcelPostProcessing.display_directory_files(dir_list)
+            base_name = dir_list[selection]
+            print(f'File selected: {base_name}\n')
+        elif mode == 'c':
+            base_name = None
+        else:
+            print("Error: Invalid mode specified.")
             return -1
+        
+        return input_path, base_name
+
+    @staticmethod
+    def handle_file(file_path, file_basename, file_type):
+        file = os.path.join(file_path, file_basename)
+
+        if (file_type == 'e' and ExcelPostProcessing.is_xlsx(file)) or \
+           (file_type == 'j' and ExcelPostProcessing.is_json(file)):
+            return os.path.dirname(file), os.path.basename(file)
+        
+        print("Error: Please verify that the directory and file exist and that the file is of type .xlsx or .json")
+        return -1
 
     @staticmethod
     def display_directory_files(list):
         selection_idx = 0
         if len(list)==0:
-            print('Error. No files found')
+            print("Error. No files found")
             return -1
         
         if len(list)>1:
-            print(f'-- {len(list)} files found:')
+            print(f"-- {len(list)} files found:")
             idx = 0
             for file in list:
                 idx += 1
-                print(f'{idx}. {file}')
+                print(f"{idx}. {file}")
 
-            selection_idx = input('\nPlease enter the index number to select the one to process: ') 
+            selection_idx = input("\nPlease enter the index number to select the one to process: ") 
         else:
-            print(f'Single file found: {list[0]}')
-            print('Will go ahead and process')
+            print(f"Single file found: {list[0]}")
+            print("Will go ahead and process")
 
         return int(selection_idx) - 1
 
@@ -138,19 +175,59 @@ class ExcelPostProcessing():
             print('Error. Selected file is not an Excel')
             return False
 
+    def return_excel_workspace(self, worksheet_name):
+        file = os.path.join(self.excel_path, self.excel_basename)
+        
+        try:
+            workbook = load_workbook(filename=file)
+            worksheet = workbook[worksheet_name]
+        except KeyError:
+            print(f"Error: Worksheet '{worksheet_name}' does not exist.")
+            
+            while True:
+                user_answer = input("Would you like to create a new worksheet under this name? (Y/N/Q): ").strip().lower()
+                
+                if user_answer == 'y':
+                    worksheet = workbook.create_sheet(worksheet_name)
+                    self.ws_name = worksheet_name
+                    print(f"New worksheet '{self.ws_name}' created.\n")
+                    break
+                elif user_answer == 'n':
+                    ws_list = workbook.sheetnames
+                    selected_ws_idx = ExcelPostProcessing.display_directory_files(ws_list)
+                    
+                    if selected_ws_idx >= 0:  
+                        worksheet = workbook.worksheets[selected_ws_idx]
+                        self.ws_name = ws_list[selected_ws_idx]
+                        print(f"Worksheet selected: '{self.ws_name}'\n")
+                        return workbook, worksheet
+                    else:
+                        print("Invalid selection. Returning without changes.\n")
+                        return workbook, None
+                        
+                elif user_answer == 'q':
+                    print("Quitting without changes.")
+                    return workbook, None
+                else:
+                    print("Invalid input. Please enter 'Y' for Yes, 'N' for No, or 'Q' to Quit.")
+        
+        return workbook, worksheet
+
     def process_file(self):
-        print(f"Processing Excel file: {self.file_basename}")
-        self.validate_columns('scope_of_work')
+        print(f"Processing Excel file: {self.excel_basename}")
+        """ self.validate_columns('scope_of_work')
         self.validate_columns('phase')
         self.validate_columns('trade')
-        self.apply_post_processing()
+        self.apply_post_processing() """
+
+        self.apply_post_sectioning('location')
 
     def validate_columns(self, header):
-        file = os.path.join(self.file_path, self.file_basename)
+        file = os.path.join(self.excel_path, self.excel_basename)
         workbook = load_workbook(filename=file)
         ws = workbook[self.worksheet_name]
 
-        first_row = ws[self.starting_data_row]  
+        first_row = ws[self.wbs_start_row ]  
         
         if first_row is None:
             print("Error: The first row is empty.")
@@ -198,7 +275,7 @@ class ExcelPostProcessing():
         workbook = load_workbook(filename=file)
         ws = workbook[self.worksheet_name]
 
-        first_row = ws[self.starting_data_row]
+        first_row = ws[self.wbs_start_row ]
         
         if first_row is None:
             print("Error: The first row is empty.")
@@ -234,6 +311,64 @@ class ExcelPostProcessing():
         print(f"Post-processing completed. Saved to {file}")
         workbook.close()
 
+    def apply_post_sectioning(self, section_header):
+        file = os.path.join(self.excel_path, self.excel_basename)
+        workbook = load_workbook(filename=file)
+        ws = workbook[self.ws_name]
+
+        header_idx = self.find_column_idx(ws, section_header)
+        finish_idx = self.find_column_idx(ws, 'finish')
+
+        section_list = self.list_cell_values(ws, header_idx)
+        last_valid_section = section_list[0]
+
+        for row_idx, row in enumerate(ws.iter_rows(min_col=finish_idx + 1, max_col=ws.max_column, min_row=self.wbs_start_row + 1, max_row=ws.max_row)):
+            current_section = section_list[row_idx]
+
+            if current_section and current_section != last_valid_section:
+                self.style_row_border(ws, row)
+                last_valid_section = current_section
+
+        workbook.save(filename=file)
+        print("Post sectioning applied successfully.")
+
+    def style_row_border(self, active_ws, row):
+        new_top_border = Side(border_style='dashed', color='000000')
+
+        for cell in row:
+            current_border = cell.border if cell.border else Border()
+            new_border = Border(
+                top=new_top_border, 
+                left=current_border.left,  
+                right=current_border.right,  
+                bottom=current_border.bottom  
+            )
+
+            cell.border = new_border
+
+    def list_cell_values(self, active_ws, col_idx):
+        ws = active_ws
+        col_list = []
+
+        if col_idx is not None:
+            for row in ws.iter_rows(min_row=self.wbs_start_row + 1, min_col=col_idx, 
+                                    max_col=col_idx, max_row=ws.max_row):
+                for cell in row:
+                    col_list.append(cell.value)
+        
+        return col_list 
+
+    def find_column_idx(self, active_ws, column_header):
+        ws = active_ws
+        start_col_idx = column_index_from_string(self.wbs_start_col)
+        normalized_header = column_header.replace(" ", "_").lower()
+
+        for row in ws.iter_rows(min_row=self.wbs_start_row, min_col=start_col_idx, max_col=ws.max_column):
+            for cell in row:
+                if cell.value and isinstance(cell.value, str):
+                    normalized_cell_value = cell.value.replace(" ", "_").lower()
+                    if normalized_header in normalized_cell_value:
+                        return cell.column
 
 if __name__ == "__main__":
-    ExcelPostProcessing.main()
+    ExcelPostProcessing.main(False)
