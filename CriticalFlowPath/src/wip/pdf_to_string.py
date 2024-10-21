@@ -93,42 +93,25 @@ class PdfToString():
         pdf = self.file_verification()
         if pdf:
             images = convert_from_path(pdf)
-            os.makedirs(output_directory, exist_ok=True)  # Create the output directory if it doesn't exist
+            os.makedirs(output_directory, exist_ok=True)
 
             for i, image in enumerate(images):
-                # Apply image processing techniques
-                processed_image = self.process_image(image)
+                #processed_image = self.process_image(image)
 
-                # Save the processed image
                 image_path = os.path.join(output_directory, f'page_{i + 1}.jpg')
-                processed_image.save(image_path, 'JPEG')
+                image.save(image_path, 'JPEG')
 
             print(f"Images saved to: {output_directory}")
         else:
             print("Error: Invalid PDF file.")
     
     def process_image(self, image):
-        """
-        Processes the image to enhance OCR accuracy.
-
-        Args:
-            image (PIL.Image): The image to process.
-
-        Returns:
-            PIL.Image: The processed image.
-        """
-        # Convert to grayscale
         image = image.convert('L')
-
-        # Apply a filter to reduce noise
         image = image.filter(ImageFilter.MedianFilter(size=3))
 
-        # Enhance contrast
         enhancer = ImageEnhance.Contrast(image)
-        image = enhancer.enhance(2)  # Increase contrast
-
-        # Binarization (optional, depending on the quality of the original image)
-        threshold = 128  # Set a threshold for binarization
+        image = enhancer.enhance(2)
+        threshold = 128
         image = image.point(lambda p: 255 if p > threshold else 0)
 
         return image
@@ -149,7 +132,7 @@ if __name__ == "__main__":
     new_pdf_str = PdfToString(file_path_input)
     #new_pdf_str.read_pdf_file()
     new_pdf_str.pdf_to_img(temp_imgs_path)
-    new_pdf_str.read_pdf_img(temp_imgs_path)
+    #new_pdf_str.read_pdf_img(temp_imgs_path)
 
     print(f'Process completed successfully. Would you like to clear the contents of the temporary images directory: {temp_imgs_path}')
     clear_directory = input('Enter "Y/y" to clear the directory or "N/n" to keep the contents: ')
