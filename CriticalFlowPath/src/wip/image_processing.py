@@ -17,7 +17,7 @@ class ImageProcessing:
     def main():
         project = ImageProcessing.generate_ins()
         project.select_wbs_region(project.input_path, "wbs_table")
-        project.slice_tasks(os.path.join(project.output_path, "wbs_table"), "wbs_tasks")
+        project.color_slice_tasks(os.path.join(project.output_path, "wbs_table"), "wbs_tasks")
 
     @staticmethod
     def generate_ins():
@@ -57,6 +57,98 @@ class ImageProcessing:
                 break
 
         return images
+
+    @staticmethod
+    def visualize_horizontal_lines(cropped_img_dir, min_line_width=100):
+        image = cv.imread(cropped_img_dir)
+
+        if image is None:
+            print(f"Error: Could not read image {cropped_img_dir}.")
+            return
+
+        # Convert to grayscale
+        gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+        
+        # Threshold to isolate dark (black) areas; adapt threshold value to your images if needed
+        _, binary = cv.threshold(gray, 50, 255, cv.THRESH_BINARY_INV)
+
+        # Detect horizontal lines using morphological operations
+        horizontal_kernel = cv.getStructuringElement(cv.MORPH_RECT, (50, 1))  # Larger kernel for better detection
+        horizontal_lines = cv.morphologyEx(binary, cv.MORPH_OPEN, horizontal_kernel)
+
+        # Find contours representing the lines
+        contours, _ = cv.findContours(horizontal_lines, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+
+        # Filter contours based on minimum width
+        filtered_contours = []
+        for contour in contours:
+            x, y, w, h = cv.boundingRect(contour)
+            if w >= min_line_width:  # Only keep contours with width >= min_line_width
+                filtered_contours.append(contour)
+
+        # Visualize the filtered contours on the image
+        debug_image = image.copy()
+        cv.drawContours(debug_image, filtered_contours, -1, (0, 255, 0), 2)  # Green contours for filtered lines
+
+        # Display the image with filtered contours
+        cv.imshow("Filtered Contours (Largest Horizontal Black Lines)", debug_image)
+        cv.waitKey(0)  # Wait indefinitely until a key is pressed
+        cv.destroyAllWindows()  # Close the window after key press
+
+        print(f"Filtered contours visualized for: {cropped_img_dir}")
+
+    @staticmethod
+    def slice_based_on_color_change(cropped_img_dir, output_dir, color_change_threshold=50):
+        image = cv.imread(cropped_img_dir)
+
+        if image is None:
+            print(f"Error: Could not read image {cropped_img_dir}.")
+            return
+
+        # Convert image to Lab color space (perceptually uniform)
+        lab_image = cv.cvtColor(image, cv.COLOR_BGR2Lab)
+
+        # Get image dimensions
+        height, width, _ = lab_image.shape
+
+        # List to store slice boundaries
+        slice_boundaries = []
+
+        # Loop through rows and calculate color differences between consecutive rows
+        for y in range(1, height):
+            row1 = lab_image[y - 1, :, :]
+            row2 = lab_image[y, :, :]
+
+            # Calculate the mean color for each row
+            mean_row1 = cv.mean(row1)[:3]
+            mean_row2 = cv.mean(row2)[:3]
+
+            # Calculate the Euclidean distance between the mean colors of the rows
+            color_difference = np.sqrt(sum((mean_row2[i] - mean_row1[i]) ** 2 for i in range(3)))
+
+            # If the color difference exceeds the threshold, mark it as a slice boundary
+            if color_difference > color_change_threshold:
+                slice_boundaries.append(y)
+
+        # Slice the image at detected color change boundaries
+        task_slices = []
+        previous_boundary = 0
+
+        for boundary in slice_boundaries:
+            task_slice = image[previous_boundary:boundary, :]  # Slice from previous boundary to current boundary
+            task_slices.append(task_slice)
+            previous_boundary = boundary
+
+        # Add the last slice (from the last boundary to the bottom of the image)
+        if previous_boundary < height:
+            task_slices.append(image[previous_boundary:, :])
+
+        # Save each slice with a unique name
+        for idx, task_slice in enumerate(task_slices):
+            save_path = os.path.join(output_dir, f"task_slice_{idx}.png")
+            cv.imwrite(save_path, task_slice)
+
+        #print(f"Image {cropped_img_dir} sliced into {len(task_slices)} pieces based on color change.")
 
     @staticmethod
     def package_file(input_dir, package_name=None):
@@ -189,7 +281,7 @@ class ImageProcessing:
         
         self.repackage_files_in_dir(output_dir)
 
-    def detect_horizontal_lines(self, input_dir):
+    def detect_horizontal_lines(self, input_dir, min_line_width=100):
         sorted_packages = ImageProcessing.bubble_sort_str_list(input_dir)
         images = []
 
@@ -206,7 +298,7 @@ class ImageProcessing:
                 continue
             
             gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-            _, binary = cv.threshold(gray, 128, 255, cv.THRESH_BINARY_INV)
+            _, binary = cv.threshold(gray, 50, 255, cv.THRESH_BINARY_INV)
 
             # Use morphological operations to detect horizontal lines
             horizontal_kernel = cv.getStructuringElement(cv.MORPH_RECT, (40, 1))
@@ -214,13 +306,20 @@ class ImageProcessing:
 
             # Find contours representing the lines
             contours, _ = cv.findContours(horizontal_lines, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+
+            # Filter contours based on minimum width
+            filtered_contours = []
+            for contour in contours:
+                x, y, w, h = cv.boundingRect(contour)
+                if w >= min_line_width:  # Only keep contours with width >= min_line_width
+                    filtered_contours.append(contour)
             
             # Store contours associated with the current image
-            all_contours.append((img_dir, contours))
+            all_contours.append((img_dir, filtered_contours))
 
         return all_contours  # Return a list of tuples (image_name, contours)
 
-    def slice_tasks(self, input_dir, new_directory):
+    def line_slice_tasks(self, input_dir, new_directory):
         # Detect horizontal lines in the images
         detected_contours = self.detect_horizontal_lines(input_dir)
 
@@ -261,6 +360,22 @@ class ImageProcessing:
 
             # Save the slices
             self.save_task_slices(task_slices, output_dir, img_dir)
+
+    def color_slice_tasks(self, input_dir, new_directory):
+        sorted_packages = ImageProcessing.bubble_sort_str_list(input_dir)
+        images = []
+
+        for package in sorted_packages:
+            package_dir = os.path.join(input_dir, package)
+            jpg_files = ImageProcessing.get_type_files(package_dir, "jpg")
+            if jpg_files:
+                images.append(jpg_files[0])
+
+        for image in images:
+            output_dir = os.path.join(os.path.dirname(image), new_directory)
+            os.makedirs(output_dir, exist_ok=True)
+
+            self.slice_based_on_color_change(image, output_dir)
 
     def save_task_slices(self, task_slices, input_dir, image_name):
         # Ensure the save folder exists
@@ -417,3 +532,5 @@ class ImageProcessing:
 
 if __name__ == "__main__":
     ImageProcessing.main()
+    #ImageProcessing.visualize_horizontal_lines("/home/coffee_6ean/Linux/CriticalFlowPath/src/local_results/output_images/wbs_table/package_page_0/packaged_cropped_img_0.jpg")
+    #ImageProcessing.slice_based_on_color_change("/home/coffee_6ean/Linux/CriticalFlowPath/src/local_results/output_images/wbs_table/package_page_0/packaged_cropped_img_0.jpg")
