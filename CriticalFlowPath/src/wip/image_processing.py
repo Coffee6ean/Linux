@@ -11,13 +11,13 @@ class ImageProcessing:
     def __init__(self, input_images_path, output_images_path):
         self.input_path = input_images_path    
         self.output_path = output_images_path
+        self.wbs_directory = None
 
     @staticmethod
     def main():
         project = ImageProcessing.generate_ins()
         project.select_wbs_region(project.input_path, "wbs_table")
-        #project.detect_horizontal_lines(os.path.join(project.input_path, "wbs_table"))
-        #project.slice_tasks()
+        project.slice_tasks(os.path.join(project.output_path, "wbs_table"), "wbs_tasks")
 
     @staticmethod
     def generate_ins():
@@ -27,7 +27,7 @@ class ImageProcessing:
         return ImageProcessing(input_images_path, output_images_path)
 
     @staticmethod
-    def bubble_sort(img_list):
+    def bubble_sort_str_list(img_list):
         images = os.listdir(img_list)  # List all images in the directory
 
         n = len(images)
@@ -84,8 +84,30 @@ class ImageProcessing:
         else:
             print(f"{input_dir} is not a valid file.")
 
+    @staticmethod
+    def get_type_files(input_dir, file_type):
+        file_list = []
+
+        if os.path.isfile(input_dir):
+            if input_dir.endswith(file_type):
+                file_list.append(os.path.abspath(input_dir))
+            else:
+                print(f"Error: The file '{input_dir}' does not match the specified type '{file_type}'.")
+
+        elif os.path.isdir(input_dir):
+            files = os.listdir(input_dir)
+            for file in files:
+                if file.endswith(file_type):
+                    file_path = os.path.join(input_dir, file)
+                    file_list.append(os.path.abspath(file_path))
+
+        else:
+            print(f"Error: '{input_dir}' is neither a valid file nor a directory.")
+
+        return file_list
+
     def repackage_files_in_dir(self, input_dir):
-        sorted_files = ImageProcessing.bubble_sort(input_dir)
+        sorted_files = ImageProcessing.bubble_sort_str_list(input_dir)
 
         for i, file in enumerate(sorted_files):
             file_path = os.path.join(input_dir, file)
@@ -111,7 +133,7 @@ class ImageProcessing:
             print(f"Error: {input_dir} is neither a valid file nor a directory.")
 
     def _crop_single_image(self, img_dir, new_directory, roi_msg):
-        sorted_list = ImageProcessing.bubble_sort(img_dir)
+        sorted_list = ImageProcessing.bubble_sort_str_list(img_dir)
         image = sorted_list[0]
         
         if image is None:
@@ -131,7 +153,7 @@ class ImageProcessing:
         cv.imwrite(output_path, cropped_image)
 
     def _crop_multiple_images(self, img_dir, new_directory, roi_msg):
-        sorted_images = ImageProcessing.bubble_sort(img_dir)
+        sorted_images = ImageProcessing.bubble_sort_str_list(img_dir)
 
         if not sorted_images:
             print(f"Error: No images found in directory {img_dir}.")
@@ -166,6 +188,99 @@ class ImageProcessing:
             cv.imwrite(output_path, cropped_image)
         
         self.repackage_files_in_dir(output_dir)
+
+    def detect_horizontal_lines(self, input_dir):
+        sorted_packages = ImageProcessing.bubble_sort_str_list(input_dir)
+        images = []
+
+        for package in sorted_packages:
+            package_dir = os.path.join(input_dir, package)
+            images.append(ImageProcessing.get_type_files(package_dir, "jpg")[0])
+        
+        all_contours = []  
+
+        for img_dir in images:
+            image = cv.imread(img_dir)
+            
+            if image is None:
+                continue
+            
+            gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+            _, binary = cv.threshold(gray, 128, 255, cv.THRESH_BINARY_INV)
+
+            # Use morphological operations to detect horizontal lines
+            horizontal_kernel = cv.getStructuringElement(cv.MORPH_RECT, (40, 1))
+            horizontal_lines = cv.morphologyEx(binary, cv.MORPH_OPEN, horizontal_kernel)
+
+            # Find contours representing the lines
+            contours, _ = cv.findContours(horizontal_lines, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+            
+            # Store contours associated with the current image
+            all_contours.append((img_dir, contours))
+
+        return all_contours  # Return a list of tuples (image_name, contours)
+
+    def slice_tasks(self, input_dir, new_directory):
+        # Detect horizontal lines in the images
+        detected_contours = self.detect_horizontal_lines(input_dir)
+
+        for img_dir, contours in detected_contours:
+            # Read the image again for slicing
+            image = cv.imread(img_dir)
+
+            # Ensure the output directory exists
+            output_dir = os.path.join(os.path.dirname(img_dir), new_directory)
+            if not os.path.exists(output_dir):
+                os.mkdir(output_dir)
+            
+            if image is None:
+                print(f"Warning: Could not read image {img_dir}. Skipping.")
+                continue  # Skip if the image is not found or corrupted
+
+            # Sort contours by their Y-coordinate to slice the regions in order
+            contours = sorted(contours, key=lambda c: cv.boundingRect(c)[1])
+
+            task_slices = []
+            height, width = image.shape[:2]
+
+            # Process the regions between the lines
+            prev_y = 0  # Start from the top of the image
+            for contour in contours:
+                x, y, w, h = cv.boundingRect(contour)
+
+                # Slice the region between the previous line and the current line
+                task_slice = image[prev_y:y, :]  # Slice the rows between the previous Y and current Y
+                task_slices.append(task_slice)
+
+                prev_y = y + h  # Update prev_y to the bottom of the current contour
+
+            # Handle the area below the last line, if any
+            if prev_y < height:
+                task_slice = image[prev_y:height, :]
+                task_slices.append(task_slice)
+
+            # Save the slices
+            self.save_task_slices(task_slices, output_dir, img_dir)
+
+    def save_task_slices(self, task_slices, input_dir, image_name):
+        # Ensure the save folder exists
+        os.makedirs(input_dir, exist_ok=True)
+
+        # Save each task slice with a unique name
+        for idx, task_slice in enumerate(task_slices):
+            if task_slice is None or task_slice.size == 0:  # Check if the slice is valid
+                print(f"Warning: Skipping empty or invalid task slice {idx}.")
+                continue  # Skip if the slice is empty or invalid
+
+            base_name, ext = os.path.splitext(image_name)
+            save_path = os.path.join(input_dir, f"task_{idx}.png")
+            
+            # Now try saving the slice
+            success = cv.imwrite(save_path, task_slice)
+            if not success:
+                print(f"Error: Failed to save task slice {idx} to {save_path}.")
+            else:
+                print(f"Task slice {idx} saved successfully at {save_path}.")
 
     def sharpen_image(self):
         # Load the image 
