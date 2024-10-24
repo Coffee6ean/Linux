@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 import pytesseract
 from collections import Counter
-from PIL import Image, ImageFilter, ImageEnhance
+from PIL import Image
 
 class ImageProcessing:
     def __init__(self, input_images_path, output_images_path):
@@ -16,8 +16,11 @@ class ImageProcessing:
     @staticmethod
     def main():
         project = ImageProcessing.generate_ins()
-        project.select_wbs_region(project.input_path, "wbs_table")
-        project.color_slice_tasks(os.path.join(project.output_path, "wbs_table"), "wbs_tasks")
+        #project.select_wbs_region(project.input_path, "wbs_table")
+        #project.color_slice_tasks(os.path.join(project.output_path, "wbs_table"), "wbs_tasks")
+        #project.sharpen_project_images(os.path.join(project.output_path, "wbs_table"), "wbs_tasks")
+        #project.write_wbs_file(os.path.join(project.output_path, "wbs_table"), "wbs_tasks", "wbs_files")
+        project.clean_project_text(project.output_path, project.output_path, "clean_test")
 
     @staticmethod
     def generate_ins():
@@ -27,8 +30,8 @@ class ImageProcessing:
         return ImageProcessing(input_images_path, output_images_path)
 
     @staticmethod
-    def bubble_sort_str_list(img_list):
-        images = os.listdir(img_list)  # List all images in the directory
+    def bubble_sort_str_list(img_dir):
+        images = os.listdir(img_dir)  # List all images in the directory
 
         n = len(images)
         
@@ -59,11 +62,11 @@ class ImageProcessing:
         return images
 
     @staticmethod
-    def visualize_horizontal_lines(cropped_img_dir, min_line_width=100):
-        image = cv.imread(cropped_img_dir)
+    def visualize_horizontal_lines(img_dir, min_line_width=100):
+        image = cv.imread(img_dir)
 
         if image is None:
-            print(f"Error: Could not read image {cropped_img_dir}.")
+            print(f"Error: Could not read image {img_dir}.")
             return
 
         # Convert to grayscale
@@ -95,14 +98,14 @@ class ImageProcessing:
         cv.waitKey(0)  # Wait indefinitely until a key is pressed
         cv.destroyAllWindows()  # Close the window after key press
 
-        print(f"Filtered contours visualized for: {cropped_img_dir}")
+        print(f"Filtered contours visualized for: {img_dir}")
 
     @staticmethod
-    def slice_based_on_color_change(cropped_img_dir, output_dir, color_change_threshold=50):
-        image = cv.imread(cropped_img_dir)
+    def slice_based_on_color_change(img_dir, output_dir, color_change_threshold=50):
+        image = cv.imread(img_dir)
 
         if image is None:
-            print(f"Error: Could not read image {cropped_img_dir}.")
+            print(f"Error: Could not read image {img_dir}.")
             return
 
         # Convert image to Lab color space (perceptually uniform)
@@ -148,7 +151,42 @@ class ImageProcessing:
             save_path = os.path.join(output_dir, f"task_slice_{idx}.png")
             cv.imwrite(save_path, task_slice)
 
-        #print(f"Image {cropped_img_dir} sliced into {len(task_slices)} pieces based on color change.")
+        #print(f"Image {img_dir} sliced into {len(task_slices)} pieces based on color change.")
+
+    @staticmethod
+    def sharpen_image(img_dir):
+        image = cv.imread(img_dir)
+
+        if image is None:
+            print(f"Error: Could not read image {img_dir}.")
+            return
+
+        kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]])
+        sharpened_image = cv.filter2D(image, -1, kernel)
+
+        try:
+            cv.imwrite(img_dir, sharpened_image)
+            print(f"Sharpened image saved successfully to {img_dir}")
+        except Exception as e:
+            print(f"Error: Could not save image to {img_dir}. Exception: {e}")
+
+    @staticmethod
+    def extract_text_from_image(img_dir, output_path, output_basename, mode='a'):
+        try:
+            image = Image.open(img_dir)
+            text = pytesseract.image_to_string(image)
+
+            # Ensure the output path exists (but not the file itself)
+            os.makedirs(output_path, exist_ok=True)
+
+            # Full path for the output text file (append ".txt" to the basename)
+            output_file = os.path.join(output_path, f"{output_basename}.txt")
+
+            # Write the extracted text to the file
+            with open(output_file, mode) as file:
+                file.write(text + "\n")  # Append a newline after each text block
+        except Exception as e:
+            print(f"Error: Unable to write to file at {output_file}. Exception: {e}")
 
     @staticmethod
     def package_file(input_dir, package_name=None):
@@ -377,6 +415,58 @@ class ImageProcessing:
 
             self.slice_based_on_color_change(image, output_dir)
 
+    def sharpen_project_images(self, input_dir, directory):
+        sorted_packages = ImageProcessing.bubble_sort_str_list(input_dir)
+
+        for package in sorted_packages:
+            tasks_dir = os.path.join(input_dir, package)
+            images_dir = os.path.join(tasks_dir, directory)
+
+            project_images = ImageProcessing.bubble_sort_str_list(images_dir)
+
+            for image in project_images:
+                image_dir = os.path.join(images_dir, image)
+                ImageProcessing.sharpen_image(image_dir)
+
+        print("Project images succesfully sharpened")
+
+    def write_wbs_file(self, input_dir, directory, new_directory, mode='a'):
+        sorted_packages = ImageProcessing.bubble_sort_str_list(input_dir)
+
+        for package in sorted_packages:
+            tasks_dir = os.path.join(input_dir, package)
+            images_dir = os.path.join(tasks_dir, directory)
+
+            project_images = ImageProcessing.bubble_sort_str_list(images_dir)
+
+            for image in project_images:
+                image_dir = os.path.join(images_dir, image)
+
+                # Extract text from the image and append it to the output text file
+                ImageProcessing.extract_text_from_image(image_dir, self.output_path, "test", mode)
+
+        print("Project text file succesfully created")
+
+    def clean_project_text(self, input_dir, output_path, output_basename, mode='w'):
+        if not os.path.exists(input_dir):
+            print(f"Error: Input file {input_dir} does not exist.")
+            return
+        
+        file_dir = ImageProcessing.get_type_files(input_dir, 'txt')[0]
+        
+        with open(file_dir, 'r') as file_reader:
+            input_text = file_reader.read()
+
+        clean_text = re.sub('\n+', ' ', input_text)
+        normalized_text = re.sub('\s{2,}', '\n', clean_text)
+
+        output_dir = os.path.join(output_path, f"{output_basename}.txt")
+
+        with open(output_dir, mode) as file_writer:
+            file_writer.write(normalized_text)
+
+        print("Project text file succesfully cleaned & normalized")
+
     def save_task_slices(self, task_slices, input_dir, image_name):
         # Ensure the save folder exists
         os.makedirs(input_dir, exist_ok=True)
@@ -396,33 +486,6 @@ class ImageProcessing:
                 print(f"Error: Failed to save task slice {idx} to {save_path}.")
             else:
                 print(f"Task slice {idx} saved successfully at {save_path}.")
-
-    def sharpen_image(self):
-        # Load the image 
-        image = cv.imread("/home/coffee_6ean/Linux/CriticalFlowPath/src/local_results/proc_images/cropped/cropped_img_0.jpg") 
-        
-        # Create the sharpening kernel 
-        kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]]) 
-        
-        # Sharpen the image 
-        sharpened_image = cv.filter2D(image, -1, kernel) 
-        
-        #Save the image 
-        output_file_name = f"sharpened_img_{1}.jpg"
-        output_path = "/home/coffee_6ean/Linux/CriticalFlowPath/src/local_results/proc_images/sharpened"
-        output_dir = os.path.join(output_path, output_file_name)
-        
-        cv.imwrite(output_dir, sharpened_image)
-
-    def image_to_text(self, img_dir, file_name):
-        image = Image.open(img_dir)
-        text = pytesseract.image_to_string(image)
-        
-        output_path = "/home/coffee_6ean/Linux/CriticalFlowPath/src/local_results"
-        output_basename = file_name
-        output = os.path.join(output_path, output_basename)
-        f1 = open(output, 'w')
-        f1.write(text)
 
     def load_color_data(self, csv_file):
         # Load the CSV into a pandas DataFrame
@@ -532,5 +595,3 @@ class ImageProcessing:
 
 if __name__ == "__main__":
     ImageProcessing.main()
-    #ImageProcessing.visualize_horizontal_lines("/home/coffee_6ean/Linux/CriticalFlowPath/src/local_results/output_images/wbs_table/package_page_0/packaged_cropped_img_0.jpg")
-    #ImageProcessing.slice_based_on_color_change("/home/coffee_6ean/Linux/CriticalFlowPath/src/local_results/output_images/wbs_table/package_page_0/packaged_cropped_img_0.jpg")
