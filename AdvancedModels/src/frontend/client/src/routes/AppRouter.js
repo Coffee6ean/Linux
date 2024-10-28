@@ -1,10 +1,10 @@
 import React from 'react';
-import {BrowserRouter, Routes, Route} from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 
 // Website Pages
 import LandingPage from '../pages/LandingPage';
 import HomePage from '../pages/HomePage';
-import ProjectPage from '../pages/ProjectPage';
+import ProjectPage from '../pages/project/ProjectPage';
 import MapPage from '../pages/MapPage';
 
 function AppRouter() {
@@ -21,3 +21,4 @@ function AppRouter() {
 }
 
 export default AppRouter;
+ 

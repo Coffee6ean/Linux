@@ -500,25 +500,6 @@
                     "team_id": 1,
                     "created_at": "2023-05-09 18:00:00",
                     "updated_at": "2023-05-09 18:00:00"
-                },
-                {
-                    "id": 10,
-                    "username": "jsmith3",
-                    "password": "password123",
-                    "email": "jsmith3@example.com",
-                    "first_name": "Jane",
-                    "sur_name": "Smith",
-                    "last_name": "Smith",
-                    "birth_date": "1990-03-20",
-                    "about": "Project manager with 5 years of experience.",
-                    "pronouns": "she/her",
-                    "website": "https://www.janesmith.com",
-                    "linked_in": "https://www.linkedin.com/in/janesmith",
-                    "role": "Project Manager",
-                    "profession": "Project Management",
-                    "team_id": 2,
-                    "created_at": "2023-05-10 19:00:00",
-                    "updated_at": "2023-05-10 19:00:00"
                 }
             ]
         },

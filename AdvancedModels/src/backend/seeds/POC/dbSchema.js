@@ -85,6 +85,7 @@ if (require.main === module) {
   //seed();
   
   //const newRecord = { ...data };
+  /*
   create('users', {
     "id": 11,
     "username": "devTester1",
@@ -104,16 +105,16 @@ if (require.main === module) {
     "created_at": Date.now(),
     "updated_at": Date.now()
   });
-
   read('projects', 4);
-  read('users', 0);
+  read('users', 10);
   read('users', 11);
-
+  */
+  /*
   update('users', 11, {
     "website": 'www.example_domain.com',
     "linked_in": 'www.linkedin.com/in/dev-tester/',
     "updated_at": Date.now()
   });
-
+  */
   remove('users', 11);
 }

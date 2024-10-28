@@ -1,0 +1,73 @@
+{
+    "projects": [
+        {
+            "id": 1,
+            "title": "Highway Expansion Project",
+            "details": "Expansion of a major highway to improve traffic flow",
+            "client": "Department of Transportation",
+            "tasks": [
+                {
+                    "id": 1,
+                    "description": "Survey and Planning",
+                    "assignedTo": "Engineering Team A",
+                    "deadline": "2024-06-30",
+                    "status": "In Progress"
+                },
+                {
+                    "id": 2,
+                    "description": "Pavement Construction",
+                    "assignedTo": "Construction Crew B",
+                    "deadline": null,
+                    "status": "Pending"
+                }
+            ],
+            "category": "Infrastructure"
+        },
+        {
+            "id": 2,
+            "title": "Commercial Complex Development",
+            "details": "Construction of a mixed-use commercial complex",
+            "client": "Real Estate Development Company",
+            "tasks": [
+                {
+                    "id": 1,
+                    "description": "Site Preparation",
+                    "assignedTo": "Construction Team A",
+                    "deadline": null,
+                    "status": "Done"
+                },
+                {
+                    "id": 2,
+                    "description": "Site Utilities",
+                    "assignedTo": "Construction Team B",
+                    "deadline": null,
+                    "status": "Pending"
+                }
+            ],
+            "category": ""
+        },
+        {
+            "id": 3,
+            "title": "Office Building Renovation",
+            "details": "Renovation of a 10-story office building in downtown",
+            "client": "ABC Real Estate Group",
+            "tasks": [
+                {
+                    "id": 1,
+                    "description": "Demolition",
+                    "assignedTo": "Demolition Crew",
+                    "deadline": "2024-04-30",
+                    "status": "In Progress"
+                },
+                {
+                    "id": 2,
+                    "description": "Interior Design Planning",
+                    "assignedTo": "Design Team A",
+                    "deadline": null,
+                    "status": "Pending"
+                }
+            ],
+            "category": "Commercial"
+        }
+    ]
+}

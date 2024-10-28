@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Container, FormLabel, TextField } from "@mui/material";
 import { Typography, Button } from "@mui/material";
 import { RadioGroup, Radio, FormControlLabel } from '@mui/material';
@@ -25,6 +26,7 @@ const formTheme = createTheme({
 
 function ProjectForm () {
     const appTheme = useTheme();
+    const navigate = useNavigate();
     const [title, setTitle] = useState('');
     const [details, setDetails] = useState('');
     const [titleError, setTitleError] = useState(false);
@@ -36,16 +38,21 @@ function ProjectForm () {
         setTitleError(false);
         setDetailsError(false);
 
-        if(title == '') {
+        if(title === '') {
             setTitleError(true);
         }
 
-        if(details == '') {
+        if(details === '') {
             setDetailsError(true);
         }
 
         if(title && details) {
             console.log(title, details, category);
+            fetch('http://localhost:8000/projects', {
+                method: 'POST',
+                headers: { 'Content-type': 'application/json' },
+                body: JSON.stringify({ title, details, category })
+            }).then(() => navigate("/home"));
         }
     };
 
