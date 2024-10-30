@@ -1,7 +1,8 @@
 import os
 import re
 import json
-from datetime import datetime
+from typing import Union
+from datetime import datetime, date
 from openpyxl import load_workbook
 from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.utils import get_column_letter, column_index_from_string
@@ -229,10 +230,10 @@ class DataIngestion:
             json_activity["entry"] = entry_counter
             for cell in row:
                 parent_header = next((val for val in header_coordinates_list if get_column_letter(cell.column) in val), None)
-                if cell.value and isinstance(cell.value, str):        
+                if cell.value:        
                     position = header_coordinates_list.index(parent_header)
                     key = header_key_list[position]
-                    json_activity[key] = cell.value
+                    json_activity[key] = self.check_date_data_type(cell.value)
                 else:
                     position = header_coordinates_list.index(parent_header)
                     key = header_key_list[position]
@@ -256,6 +257,14 @@ class DataIngestion:
         column = column_match.group(0)
 
         return column, row 
+
+    def check_date_data_type(self, date_val: Union[str, date]) -> str:
+        if isinstance(date_val, str):
+            return date_val
+        elif isinstance(date_val, date):
+            return date_val.strftime('%d-%b-%y %H:%M:%S')
+        else:
+            return -1
 
     def write_json(self, json_data):
         file = os.path.join(self.output_path, f"{self.output_basename}.json")
