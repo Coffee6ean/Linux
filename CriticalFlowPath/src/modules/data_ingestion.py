@@ -222,10 +222,11 @@ class DataIngestion:
         first_header_col = column_index_from_string(first_header_col_letter)
         last_header_col = column_index_from_string(last_header_col_letter)
 
+        entry_counter = 1
         for row in ws.iter_rows(min_row=first_header_row + 1, max_row=ws.max_row, 
                                 min_col=first_header_col, max_col=last_header_col):
             json_activity = {key: None for key in header_dict.keys()}
-
+            json_activity["entry"] = entry_counter
             for cell in row:
                 parent_header = next((val for val in header_coordinates_list if get_column_letter(cell.column) in val), None)
                 if cell.value and isinstance(cell.value, str):        
@@ -238,6 +239,7 @@ class DataIngestion:
                     json_activity[key] = ""
 
             body_dict.append(json_activity)
+            entry_counter += 1
 
         return json_obj
 
