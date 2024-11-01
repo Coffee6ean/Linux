@@ -1,6 +1,7 @@
 import os
 import re
 import json
+import pandas as pd
 from typing import Union
 from datetime import datetime, date
 from openpyxl import load_workbook
@@ -9,13 +10,13 @@ from openpyxl.utils import get_column_letter, column_index_from_string
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 
 class DataIngestion:
-    def __init__(self, input_file_path, input_file_basename, output_json_path, input_file_id, input_file_code, 
-                 input_file_title, input_file_subtitle, input_file_issue_date, input_file_created_at, 
-                 input_file_updated_at, xlsx_start_row = 1, xlsx_start_col = 'A'):
+    def __init__(self, input_file_path, input_file_basename, output_json_path, 
+                 input_file_id, input_file_code, input_file_title, input_file_subtitle, input_file_issue_date, 
+                 input_file_created_at, input_file_updated_at, xlsx_start_row = 1, xlsx_start_col = 'A'):
         self.input_path = input_file_path
         self.input_basename = input_file_basename
-        self.output_path = output_json_path
-        self.output_basename = DataIngestion.normalize_entry(input_file_title)
+        self.output_json_path = output_json_path
+        self.output_json_basename = DataIngestion.normalize_entry(input_file_title)
         self.file_id = input_file_id
         self.file_code = input_file_code
         self.file_title = input_file_title
@@ -34,14 +35,15 @@ class DataIngestion:
         if file_type == 'xlsx':
             worksheet = input("Please enter the name for the new or existing worksheet: ")
             project.handle_xlsx(worksheet)
+            project.create_wbs_table_to_fill()
 
     @staticmethod
     def generate_ins():
         input_file = input("Please enter the path to the file or directory: ")
         input_file_path = os.path.dirname(input_file)
         input_file_basename = os.path.basename(input_file)
-        output_file_path = input("Please enter the directory to save the new JSON file: ")
-        input_file_id = len([file for file in os.listdir(output_file_path) if file.endswith('json')])
+        output_json_path = input("Please enter the directory to save the new JSON file: ")
+        input_file_id = len([file for file in os.listdir(output_json_path) if file.endswith('json')])
         input_file_code = input("Enter Document CODE: ")
         input_file_title = input("Enter Document Title: ")
         input_file_subtitle = input("Enter Document Subtitle: ")
@@ -49,9 +51,9 @@ class DataIngestion:
         input_file_created_at = datetime.strftime(datetime.now(), "%d/%m/%Y %H:%M:%S")
         input_file_updated_at = input_file_created_at
 
-        return DataIngestion(input_file_path, input_file_basename, output_file_path, input_file_id, input_file_code, 
-                             input_file_title, input_file_subtitle, input_file_issue_date, input_file_created_at, 
-                             input_file_updated_at)
+        return DataIngestion(input_file_path, input_file_basename, output_json_path, 
+                             input_file_id, input_file_code, input_file_title, input_file_subtitle, 
+                             input_file_issue_date, input_file_created_at, input_file_updated_at)
 
     @staticmethod
     def is_type_file(input_basename):
@@ -193,15 +195,7 @@ class DataIngestion:
         for coordinates, data in file_headers:
             header_dict = json_obj_frame["project_content"]["header"]
 
-            if data in header_dict:
-                header_dict[data] = coordinates
-            else:
-                leftover_headers = [key for key in header_dict.keys() if key.startswith("activity_")]
-
-                for leftover in leftover_headers:
-                    suffix_header = leftover.replace("activity_", "")
-                    if suffix_header in data:
-                        header_dict[f"activity_{suffix_header}"] = coordinates
+            header_dict[data] = coordinates
 
         return json_obj_frame
 
@@ -266,14 +260,155 @@ class DataIngestion:
         else:
             return -1
 
-    def write_json(self, json_data):
-        file = os.path.join(self.output_path, f"{self.output_basename}.json")
+    def write_json(self, json_obj):
+        file = os.path.join(self.output_json_path, f"{self.output_json_basename}.json")
+
+        json_obj_with_locations = self.identify_location(json_obj)
 
         with open(file, 'w') as file_writer:
-            json.dump(json_data, file_writer)
+            json.dump(json_obj_with_locations, file_writer)
 
-        print(f"JSON data successfully created and saved to {self.output_basename}.")
+        print(f"JSON data successfully created and saved to {self.output_json_basename}.")
+
+    def create_wbs_table_to_fill(self):
+        proc_table = self.generate_wbs_to_fill()
+        self.write_data_to_excel(proc_table)
+
+    def generate_wbs_to_fill(self):
+        json_file = os.path.join(self.output_json_path, f"{self.output_json_basename}.json")
+        with open(json_file, 'r') as json_reader:
+            json_obj = json.load(json_reader)
+
+        df = pd.DataFrame(json_obj["project_content"]["body"])
+        
+        df[['phase', 'location', 'sub_location','trade', 'color']] = df[['phase', 'location', 'sub_location', 'trade', 'color']].fillna('')
+
+        proc_table = pd.pivot_table(
+            df,
+            index=["activity_id", "activity_name"],
+            values=["activity_code", "phase", "location", "sub_location", "trade", "color", "start", "finish"],
+            aggfunc='first',
+            fill_value=''
+        )
+
+        column_header_list = proc_table.columns.tolist()
+
+        if "finish" in column_header_list and column_header_list[-1] != "finish":
+            orderd_header_list = self.order_table_cols(column_header_list)
+
+        proc_table = proc_table[orderd_header_list]
+
+        print(proc_table)
+
+        return proc_table
+
+    def order_table_cols(self, column_list):
+        for idx, col in enumerate(column_list):
+            if col == "finish":
+                temp = column_list[-1]
+                column_list[-1] = col
+                column_list[idx] = temp
+                break
+        
+        return column_list
+
+    def write_data_to_excel(self, proc_table):
+        if proc_table.empty:    
+            print("Error. DataFrame is empty\n")
+        else:
+            file = os.path.join(self.input_path, self.input_basename)
+            ws_name = "CFA - Fill Table"
+
+            try:
+                with pd.ExcelWriter(file, engine="openpyxl", mode='a', if_sheet_exists='replace') as writer:
+                    proc_table.to_excel(
+                        writer, 
+                        sheet_name = ws_name, 
+                        startrow = self.xlsx_start_row - 1, 
+                        startcol = column_index_from_string(self.xlsx_start_col) - 1
+                    )
+                
+                print(f"Successfully converted JSON to Excel and saved to: {file}")
+                print(f"Saved to sheet: {ws_name}\n")
+            except Exception as e:
+                print(f"An unexpected error occurred: {e}\n")
+
+    def identify_phase(self, json_obj):
+        pass
+
+    def identify_location(self, json_obj):
+        body_dict = json_obj["project_content"]["body"]
+        activity_names = [activity["activity_name"] for activity in body_dict]
+
+        location_list = ["colo", "cell", "level", "zone", "area"]
+        conventional_task_chars = re.compile("(?<=\W)[-_<>/|}{~:](?=\W)")
+        prepositions_locations = re.compile("( for )|( in )|( at )|( on )|( inside )")
+
+        for idx, name in enumerate(activity_names):
+            normalized_name = name.lower().strip()
+            has_special_chars_match = re.search(conventional_task_chars, normalized_name)
+            has_prep_match = re.search(prepositions_locations, normalized_name)
+
+            if has_special_chars_match:
+                has_special_chars = has_special_chars_match.group(0)
+                location_found = False
+                components_found = normalized_name.split(has_special_chars)
+                for component in components_found:
+                    for location in location_list:
+                        if location in component:
+                            #print(component)
+                            zone = component
+                            self.check_for_subzone(zone, idx, body_dict)
+                            location_found = True
+                            break
+                    
+                    if location_found:
+                        break
+            elif has_prep_match:
+                has_prep = has_prep_match.group(0)
+                component = normalized_name.split(has_prep)[-1]
+                for location in location_list:
+                    if location in component:
+                        zone = component
+                        #print(component)
+                        self.check_for_subzone(zone, idx, body_dict)
+                        break
+            else:
+                body_dict[idx]["location"] = ""
+    
+        return json_obj
+
+    def check_for_subzone(self, zone_name, element_idx, json_obj_body):
+        location_keywords = ["colo", "cell", "level", "zone", "area"]
+        conventional_subzone_chars = re.compile("[-<>/|}{~:\s]")
+        normalized_name = zone_name.lower().strip()
+
+        matched_locations = [location for location in location_keywords if location in normalized_name]
+
+        if len(matched_locations) > 1:
+            for location_type in matched_locations:
+                match_style_one = re.search(f'{location_type}\s\d+', normalized_name)
+                match_style_two = re.search(f'{location_type}\d+', normalized_name)
+
+                if match_style_one:
+                    formatted_match = re.sub(conventional_subzone_chars, '_', match_style_one.group(0)).upper()
+                    if not json_obj_body[element_idx].get("location"):
+                        json_obj_body[element_idx]["location"] = formatted_match
+                    else:
+                        json_obj_body[element_idx]["sub_location"] = formatted_match
+                elif match_style_two:
+                    formatted_match = re.sub(conventional_subzone_chars, '_', match_style_two.group(0)).upper()
+                    if not json_obj_body[element_idx].get("location"):
+                        json_obj_body[element_idx]["location"] = formatted_match
+                    else:
+                        json_obj_body[element_idx]["sub_location"] = formatted_match
+
+        else:
+            formatted_match = re.sub(conventional_subzone_chars, '', normalized_name).upper()
+            json_obj_body[element_idx]["location"] = formatted_match
+            json_obj_body[element_idx]["sub_location"] = ""
 
 
 if __name__ == "__main__":
     DataIngestion.main()
+    
