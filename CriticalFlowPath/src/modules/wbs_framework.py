@@ -298,20 +298,7 @@ class WbsFramework:
             orderd_header_list = self.order_table_cols(column_header_list)
 
         proc_table = proc_table[orderd_header_list]
-        """                                                                                 
-        phase              location activity_code color   activity_ins  finish     start
-        Interior Finishes  Zone 1   APL-A2        #FF99FF 0             10-Oct-24  27-Sep-24
-                                    APL-A3        #FF99FF 0             06-Nov-24  24-Oct-24
-                                    CLN-C2        #FF6600 0             06-Nov-24  24-Oct-24
-                                    CSE-71        #0070C0 0             26-Sep-24  13-Sep-24
-                                    DRS-51        #FDE9D9 0             17-Sep-24  13-Sep-24
-        ...                                                                   ...        ...
-        Interior Rough Ins Zone 4   PLM-43        #99CC00 0             08-Oct-24  02-Oct-24
-                                    PLM-47        #99CC00 0             01-Oct-24  11-Sep-24
-                                    PTG-60        #CCFFFF 0             08-Oct-24  07-Oct-24
-                                    PTG-61        #CCFFFF 0             08-Oct-24  02-Oct-24
-                                    PTG-63        #CCFFFF 0             13-Nov-24  07-Nov-24 
-        """
+
         return proc_table
 
     def order_table_cols(self, column_list):
@@ -398,31 +385,6 @@ class WbsFramework:
                     col_list.append(activity_cell)
         
         return col_list
-
-    """ def fill_color_col(self, active_wb, active_ws, col_idx, col_list):
-        wb = active_wb
-        ws = active_ws
-        idx = 0
-
-        for row in ws.iter_rows(min_row=self.wbs_start_row + 1, 
-                                max_row=ws.max_row, 
-                                min_col=col_idx,
-                                max_col=col_idx):
-            for cell in row:
-                color = col_list[idx].get("value")
-                try:
-                    cell.fill = PatternFill(start_color=color, 
-                                            end_color=color, 
-                                            fill_type="solid")
-                except:
-                    print(f"Color hex not found: {color}")
-                    cell.fill = PatternFill(start_color=self.default_hex_fill_color, 
-                                            end_color=self.default_hex_fill_color, 
-                                            fill_type="solid")
-            
-            idx += 1
-        
-        print("Workbook styled successfully") """
 
     def fill_color_col(self, active_wb, active_ws, col_idx, col_list):
         wb = active_wb
