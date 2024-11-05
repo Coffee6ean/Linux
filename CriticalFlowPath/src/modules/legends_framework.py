@@ -20,9 +20,11 @@ class LegendsFramework():
         self.default_hex_fill_color = "00FFFF00"
 
     @staticmethod
-    def main(auto=True, input_excel_file=None, input_worksheet_name=None, input_json_file=None):
+    def main(auto=True, input_excel_file=None, input_worksheet_name=None, 
+             input_json_file=None, input_json_title=None):
         if auto:
-            project = LegendsFramework.auto_generate_ins(input_excel_file, input_worksheet_name, input_json_file)
+            project = LegendsFramework.auto_generate_ins(input_excel_file, input_worksheet_name, 
+                                                         input_json_file, input_json_title)
         else:
             project = LegendsFramework.genrate_ins()
         
@@ -48,12 +50,12 @@ class LegendsFramework():
         return ins
 
     @staticmethod
-    def auto_generate_ins(input_excel_file, input_worksheet_name, input_json_file):
+    def auto_generate_ins(input_excel_file, input_worksheet_name, input_json_file, input_json_title):
         input_start_row = 1
         input_start_col = 'A'
 
         input_excel_path, input_excel_basename = LegendsFramework.file_verification(input_excel_file, 'e', 'u')
-        input_json_path, input_json_basename = LegendsFramework.file_verification(input_json_file, 'j', 'u')
+        input_json_path, input_json_basename = LegendsFramework.file_verification(input_json_file, 'j', 'u', input_json_title)
 
         ins = LegendsFramework(input_excel_path, input_excel_basename, input_worksheet_name, 
                                input_json_path, input_json_basename, input_start_row, input_start_col)
@@ -61,18 +63,22 @@ class LegendsFramework():
         return ins
 
     @staticmethod
-    def file_verification(input_file_path, file_type, mode):
-        if os.path.isdir(input_file_path):
-            file_path, file_basename = LegendsFramework.handle_dir(input_file_path, mode)
-            if mode != 'c':
+    def file_verification(input_file_path, file_type, mode, input_json_title=None):
+        if input_json_title and os.path.isdir(input_file_path):
+            file_basename = f"processed_{input_json_title}.json"
+            path, basename = LegendsFramework.handle_file(input_file_path, file_basename, file_type)
+        else:
+            if os.path.isdir(input_file_path):
+                file_path, file_basename = LegendsFramework.handle_dir(input_file_path, mode)
+                if mode != 'c':
+                    path, basename = LegendsFramework.handle_file(file_path, file_basename, file_type)
+                else:
+                    path = file_path
+                    basename = file_basename
+            elif os.path.isfile(input_file_path):
+                file_path = os.path.dirname(input_file_path)
+                file_basename = os.path.basename(input_file_path)
                 path, basename = LegendsFramework.handle_file(file_path, file_basename, file_type)
-            else:
-                path = file_path
-                basename = file_basename
-        elif os.path.isfile(input_file_path):
-            file_path = os.path.dirname(input_file_path)
-            file_basename = os.path.basename(input_file_path)
-            path, basename = LegendsFramework.handle_file(file_path, file_basename, file_type)
 
         return path, basename
     
