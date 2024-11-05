@@ -7,13 +7,15 @@ from openpyxl.utils import column_index_from_string
 
 class FilledExcelToUpdateJson():
     def __init__(self, input_process_cont, input_excel_path, input_excel_basename, 
-                input_worksheet_name, input_json_path, input_json_basename):
+                input_worksheet_name, input_json_path, input_json_basename, 
+                input_json_title):
         self.process_cont = input_process_cont
         self.excel_path = input_excel_path
         self.excel_basename = input_excel_basename
         self.ws_name = input_worksheet_name
         self.json_path = input_json_path
         self.json_basename = input_json_basename
+        self.json_title = input_json_title
         self.wbs_start_row = 4
         self.wbs_start_col = 'A'
         self.final_data_col = 13
@@ -21,10 +23,11 @@ class FilledExcelToUpdateJson():
     
     @staticmethod
     def main(auto=True, process_continuity=None, input_excel_file=None, 
-             input_worksheet_name=None, input_json_file=None, input_json_name=None):
+             input_worksheet_name=None, input_json_file=None, input_json_title=None):
         if auto:
             project = FilledExcelToUpdateJson.auto_generate_ins(process_continuity, input_excel_file, 
-                                                                input_worksheet_name, input_json_file)
+                                                                input_worksheet_name, input_json_file, 
+                                                                input_json_title)
         else:
             project = FilledExcelToUpdateJson.generate_ins()
         
@@ -39,7 +42,7 @@ class FilledExcelToUpdateJson():
                         project.update_json(project.extract_col_cells(ws, category), category)
                 else:
                     # Create New JSON
-                    project.create_json(input_json_name)
+                    project.create_json()
                     project.build_project_dic(ws, entry_frame)
 
                 # Create Restructured JSON
@@ -89,7 +92,8 @@ class FilledExcelToUpdateJson():
         return ins
 
     @staticmethod
-    def auto_generate_ins(process_continuity, input_excel_file, input_worksheet_name, input_json_file):
+    def auto_generate_ins(process_continuity, input_excel_file, input_worksheet_name,
+                           input_json_file, input_json_title):
         input_excel_path, input_excel_basename = FilledExcelToUpdateJson.file_verification(
             input_excel_file, 'e', 'r')
         
@@ -101,7 +105,8 @@ class FilledExcelToUpdateJson():
                 input_json_file, 'j', 'u')
 
         ins = FilledExcelToUpdateJson(process_continuity, input_excel_path, input_excel_basename, 
-                                      input_worksheet_name, input_json_path, input_json_basename)
+                                      input_worksheet_name, input_json_path, input_json_basename,
+                                      input_json_title)
         
         return ins
 
@@ -352,11 +357,12 @@ class FilledExcelToUpdateJson():
         else:
             return -1
 
-    def create_json(self, input_json_name):
-        if input_json_name is not None:
-            json_basename = input_json_name + ".json"
+    def create_json(self):
+        if self.json_title is not None:
+            json_basename = self.json_title + ".json"
         else:
             json_basename = input("Please enter the name for the new JSON file (Base Style): ") + ".json"
+
         self.json_basename = json_basename
         file = os.path.join(self.json_path, self.json_basename)
         
@@ -405,7 +411,11 @@ class FilledExcelToUpdateJson():
         return nested_dict
     
     def write_json(self, json_dic):
-        json_basename = input("Please enter the name for the new JSON file (Processed Style): ") + ".json"
+        if self.json_title is not None:
+            json_basename = f"processed_{self.json_basename}"
+        else:
+            json_basename = input("Please enter the name for the new JSON file (Processed Style): ") + ".json"
+
         file = open(os.path.join(self.json_path, json_basename), 'w')
 
         json.dump(json_dic, file, indent=4)
