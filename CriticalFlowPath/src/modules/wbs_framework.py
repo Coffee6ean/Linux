@@ -21,10 +21,11 @@ class WbsFramework:
     
     @staticmethod
     def main(auto=True, process_continuity=None, input_excel_file=None, 
-             input_worksheet_name=None, input_json_file=None):
+             input_worksheet_name=None, input_json_file=None, input_json_title=None):
         if auto:
             project = WbsFramework.auto_generate_ins(process_continuity, input_excel_file, 
-                                                     input_worksheet_name, input_json_file)
+                                                     input_worksheet_name, input_json_file,
+                                                     input_json_title)
         else:
             project = WbsFramework.generate_ins()
 
@@ -82,11 +83,12 @@ class WbsFramework:
         return ins
 
     @staticmethod
-    def auto_generate_ins(process_continuity, input_excel_file, input_worksheet_name, input_json_file):
+    def auto_generate_ins(process_continuity, input_excel_file, input_worksheet_name, 
+                          input_json_file, input_json_title):
         input_excel_path, input_excel_basename = WbsFramework.file_verification(
             input_excel_file, 'e', 'r')
         input_json_path, input_json_basename = WbsFramework.file_verification(
-                input_json_file, 'j', 'r')
+                input_json_file, 'j', 'r', input_json_title)
 
         ins = WbsFramework(process_continuity, input_excel_path, input_excel_basename, 
                             input_worksheet_name, input_json_path, input_json_basename)
@@ -151,18 +153,22 @@ class WbsFramework:
                 os.remove(file_path)
 
     @staticmethod
-    def file_verification(input_file_path, file_type, mode):
-        if os.path.isdir(input_file_path):
-            file_path, file_basename = WbsFramework.handle_dir(input_file_path, mode)
-            if mode != 'c':
+    def file_verification(input_file_path, file_type, mode, input_json_title=None):
+        if input_json_title and os.path.isdir(input_file_path):
+            file_basename = f"processed_{input_json_title}.json"
+            path, basename = WbsFramework.handle_file(input_file_path, file_basename, file_type)
+        else:
+            if os.path.isdir(input_file_path):
+                file_path, file_basename = WbsFramework.handle_dir(input_file_path, mode)
+                if mode != 'c':
+                    path, basename = WbsFramework.handle_file(file_path, file_basename, file_type)
+                else:
+                    path = file_path
+                    basename = file_basename
+            elif os.path.isfile(input_file_path):
+                file_path = os.path.dirname(input_file_path)
+                file_basename = os.path.basename(input_file_path)
                 path, basename = WbsFramework.handle_file(file_path, file_basename, file_type)
-            else:
-                path = file_path
-                basename = file_basename
-        elif os.path.isfile(input_file_path):
-            file_path = os.path.dirname(input_file_path)
-            file_basename = os.path.basename(input_file_path)
-            path, basename = WbsFramework.handle_file(file_path, file_basename, file_type)
 
         return path, basename
     
@@ -288,16 +294,18 @@ class WbsFramework:
     def generate_wbs_cfa_style(self, og_table):
         proc_table = pd.pivot_table(
             og_table,
-            index=["phase", "location", "activity_code", "color"],
-            values=["activity_ins", "start", "finish"],
+            index=["phase", "location", "activity_code"],
+            values=["color", "start", "finish"],
             aggfunc='first'
         )
         column_header_list = proc_table.columns.tolist()
 
         if "finish" in column_header_list and column_header_list[-1] != "finish":
-            orderd_header_list = self.order_table_cols(column_header_list)
+            ordered_header_list = self.order_table_cols(column_header_list)
+        else:
+            ordered_header_list = column_header_list
 
-        proc_table = proc_table[orderd_header_list]
+        proc_table = proc_table[ordered_header_list]
 
         return proc_table
 
@@ -318,7 +326,7 @@ class WbsFramework:
             file = os.path.join(self.excel_path, self.excel_basename)
 
             try:
-                with pd.ExcelWriter(file, engine="openpyxl", mode='a', if_sheet_exists='overlay') as writer:
+                with pd.ExcelWriter(file, engine="openpyxl", mode='a', if_sheet_exists='replace') as writer:
                     proc_table.to_excel(
                         writer, 
                         sheet_name=self.ws_name, 
