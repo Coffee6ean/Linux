@@ -2,7 +2,7 @@ import os
 import json
 from datetime import datetime, timedelta
 from openpyxl import load_workbook
-from openpyxl.utils import column_index_from_string 
+from openpyxl.utils import get_column_letter, column_index_from_string 
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 
 class ScheduleFramework():
@@ -31,6 +31,9 @@ class ScheduleFramework():
 
         if project:
             active_workbook, active_worksheet = project.return_excel_workspace(project.ws_name)
+            if project.start_col == "" or project.start_col is None:
+                project.start_col = get_column_letter(project.find_column_idx(active_worksheet, 'finish') + 1)
+
             start_date_col, end_date_col = project.return_dates_idx(active_worksheet)
             start_dates_list, end_dates_list = project.list_dates(active_worksheet, start_date_col, end_date_col)
 
@@ -79,7 +82,7 @@ class ScheduleFramework():
     @staticmethod
     def auto_generate_ins(input_file_path, input_worksheet_name, input_start_date, input_end_date):
         input_start_row = 1
-        input_start_col = 'H'
+        input_start_col = ""
 
         input_path, input_basename = ScheduleFramework.file_verification(input_file_path, 'e', 'u')
 
