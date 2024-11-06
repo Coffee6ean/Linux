@@ -52,19 +52,6 @@ class ScheduleFramework():
                                             end_dates_list, pro_hex_list, activity_code_list, 
                                             location_list)
 
-            year_list, year_row = project.same_cell_values(active_workbook, active_worksheet, 
-                                                        project.start_row, project.start_col)
-            for year in year_list:
-                project.merge_same_value_cells(active_workbook, active_worksheet, year, year_row)  
-
-            month_list, month_row = project.same_cell_values(active_workbook, active_worksheet, 
-                                                            project.start_row + 1, project.start_col)
-            for month in month_list:
-                project.merge_same_value_cells(active_workbook, active_worksheet, month, month_row)  
-
-            project.style_worksheet(active_workbook, active_worksheet, 
-                                    project.start_date, project.end_date)
-
     @staticmethod
     def generate_ins():
         input_file_path = input("Please enter the path to the Excel file or directory: ")
@@ -474,94 +461,6 @@ class ScheduleFramework():
         wb.save(filename=file)
         print("Workbook filled successfully.")
         wb.close()
-
-    def same_cell_values(self, active_wb, active_ws, starting_row_idx, starting_col_idx):
-        workbook = active_wb
-        worksheet = active_ws
-        iterable_row = worksheet[starting_row_idx]
-        last_value = iterable_row[column_index_from_string(starting_col_idx)].value  
-        same_cell_list = []  
-        overall_list = []  
-
-        for cell in iterable_row[column_index_from_string(starting_col_idx):]:  
-            if cell.value is None:
-                break  
-            elif cell.value == last_value:  
-                same_cell_list.append(cell.column)  
-            else:
-                if same_cell_list:  
-                    overall_list.append(same_cell_list)
-                same_cell_list = [cell.column]  
-                last_value = cell.value  
-
-        if same_cell_list:
-            overall_list.append(same_cell_list)
-
-        workbook.close()  
-        return overall_list, starting_row_idx  
-
-    def merge_same_value_cells(self, active_wb, active_ws, column_indices, starting_row_idx):
-        workbook = active_wb
-        worksheet = active_ws
-        file = os.path.join(self.file_path, self.file_basename)
-        
-        if not column_indices:
-            print("No columns to merge.")
-            return
-
-        first_col = column_indices[0]
-        last_col = column_indices[-1]
-
-        worksheet.merge_cells(start_row=starting_row_idx, start_column=first_col, 
-                              end_row=starting_row_idx, end_column=last_col)
-        workbook.save(filename=file)
-        workbook.close()
-
-    def style_worksheet(self, active_wb, active_ws, start_date, end_date):
-        workbook = active_wb
-        worksheet = active_ws
-        file = os.path.join(self.file_path, self.file_basename)
-    
-        start_datetime_obj = datetime.strptime(start_date, '%d-%b-%Y')
-        end_datetime_obj = datetime.strptime(end_date, '%d-%b-%Y')
-        duration = (end_datetime_obj - start_datetime_obj).days + 1  
-        thin_border = Border(left=Side(style='thin'))
-    
-        for cell in worksheet.iter_rows(min_row=self.start_row, max_row=self.start_row, 
-                                        min_col=column_index_from_string(self.start_col), max_col=column_index_from_string(self.start_col) + duration - 1):
-            for cell in cell:  
-                cell.font = Font(name='Century Gothic', size=12, bold=True, color="FFFFFF")  
-                cell.alignment = Alignment(horizontal='center', vertical='center')
-                cell.fill = PatternFill(start_color='00800080', end_color='00800080', fill_type='solid')
-    
-        for cell in worksheet.iter_rows(min_row=self.start_row + 1, max_row=self.start_row + 1, 
-                                        min_col=column_index_from_string(self.start_col), max_col=column_index_from_string(self.start_col) + duration - 1):
-            for cell in cell:  
-                cell.font = Font(name='Century Gothic', size=12, bold=True, color="00333333")
-                cell.alignment = Alignment(horizontal='center', vertical='center')
-                cell.fill = PatternFill(start_color='00CC99FF', end_color='00CC99FF', fill_type='solid')
-    
-        for cell in worksheet.iter_rows(min_row=self.start_row + 2, max_row=self.start_row + 2, 
-                                        min_col=column_index_from_string(self.start_col), max_col=column_index_from_string(self.start_col) + duration - 1):
-            for cell in cell:  
-                cell.font = Font(name='Century Gothic', size=12, bold=True, color="00000000")
-                cell.alignment = Alignment(horizontal='center', vertical='center')
-                cell.fill = PatternFill(start_color='00C0C0C0', end_color='00C0C0C0', fill_type='solid')
-        
-        for row in worksheet.iter_rows(min_row=self.start_row + 3, min_col=column_index_from_string(self.start_col)):  
-            for cell in row:
-                cell.alignment = Alignment(horizontal='center', vertical='center')
-    
-        for col in range(column_index_from_string(self.start_col), column_index_from_string(self.start_col) + duration):
-            last_month_cell = worksheet.cell(row=self.start_row + 1, column=col)  
-            if last_month_cell.value is not None:  
-                for row in range(self.start_row + 2, worksheet.max_row + 1):  
-                    cell = worksheet.cell(row=row, column=col)
-                    cell.border = thin_border
-    
-        workbook.save(filename=file)
-        print("Workbook styled and saved successfully.")
-        workbook.close()
 
 
 if __name__ == "__main__":
