@@ -1,5 +1,6 @@
 import os
 import json
+import pandas as pd
 from datetime import datetime
 from openpyxl import load_workbook
 from openpyxl.utils import column_index_from_string
@@ -89,8 +90,12 @@ class ExcelPostProcessing():
         active_workbook, active_worksheet = project.return_excel_workspace(project.ws_name)
         
         if active_workbook and active_worksheet:
-            start_col = project.process_file(active_workbook, active_worksheet)
-            project.style_file(active_workbook, active_worksheet, start_col)
+            normalized_list = project.setup_file(active_workbook, active_worksheet, "location")
+            overlap_results = project.overlapping_dates()
+            start_col_idx, end_col_idx = project.process_file(active_workbook, active_worksheet, overlap_results)
+            project.create_wbs_table(normalized_list, overlap_results)
+            project.delete_columns(start_col_idx, end_col_idx + 2)
+            project.style_file(start_col_idx)
 
     @staticmethod
     def generate_ins():
@@ -248,29 +253,44 @@ class ExcelPostProcessing():
         
         return workbook, worksheet
 
-    def process_file(self, active_workbook, active_worksheet):
-        file = os.path.join(self.excel_path, self.excel_basename)
+    def setup_file(self, active_workbook, active_worksheet, section_header):
         wb = active_workbook
+        ws = active_worksheet
 
-        print(f"Processing Excel file: {self.excel_basename}")
-        start_col = self.find_column_idx(active_worksheet, "location") + 1
-        end_col = self.find_column_idx(active_worksheet, "finish")
+        header_idx = self.find_column_idx(ws, section_header)
+        section_list = self.list_cell_values(ws, header_idx)
 
-        """ self.validate_columns('scope_of_work')
-        self.validate_columns('phase')
-        self.validate_columns('trade')
-        self.apply_post_processing() """
+        normalized_list = [location for location in section_list if isinstance(location, str)]
 
-        self.delete_rows_per_location(active_worksheet)
-        self.delete_columns(active_worksheet, start_col, end_col)
+        return normalized_list
 
-        wb.save(filename=file)
-        return start_col
-
-    def style_file(self, active_workbook, active_worksheet, start_col, start_row=1):
+    def process_file(self, active_workbook, active_worksheet, overlap_results):
         file = os.path.join(self.excel_path, self.excel_basename)
         wb = active_workbook
         ws = active_worksheet
+
+        print(f"Processing Excel file: {self.excel_basename}")
+        
+        wbs_start_col = column_index_from_string(self.wbs_start_col)
+        start_col_idx = self.find_column_idx(ws, "location") + 1
+        end_col_idx = self.find_column_idx(ws, "finish")
+
+        self.unmerge_columns(ws, wbs_start_col, end_col_idx)
+        self.delete_columns(start_col_idx, end_col_idx - 2)
+        self.delete_excess_rows(ws, "location", overlap_results)
+        self.insert_columns(ws, start_col_idx, 4)
+        wb.save(filename=file)
+        
+        return start_col_idx, end_col_idx
+    
+    def create_wbs_table(self, normalized_list, overlap_results):
+        proc_df = self.restructure_dataframe(normalized_list, overlap_results)
+        self.write_data_to_excel(proc_df)
+
+    def style_file(self, start_col, start_row=1):
+        file = os.path.join(self.excel_path, self.excel_basename)
+        wb = load_workbook(filename=file)
+        ws = wb[self.ws_name]
 
         year_list, year_row = self.same_cell_values(ws, start_col, start_row)
         for year in year_list:
@@ -281,6 +301,8 @@ class ExcelPostProcessing():
             self.merge_same_value_cells(wb, ws, month, month_row)  
 
         self.style_worksheet(ws, self.start_date, self.end_date, start_col, start_row)
+        self.apply_post_styling(wb, ws)
+        self.apply_post_sectioning(ws, "location", start_col)
         
         wb.save(filename=file)
 
@@ -332,12 +354,12 @@ class ExcelPostProcessing():
         print(f"Data validation applied to columns matching '{header}' successfully.")
         workbook.close()
 
-    def apply_post_processing(self):
-        file = os.path.join(self.file_path, self.file_basename)
-        workbook = load_workbook(filename=file)
-        ws = workbook[self.worksheet_name]
+    def apply_post_styling(self, active_workbook, active_worksheet):
+        file = os.path.join(self.excel_path, self.excel_basename)
+        wb = active_workbook
+        ws = active_worksheet
 
-        first_row = ws[self.wbs_start_row ]
+        first_row = ws[self.wbs_start_row]
         
         if first_row is None:
             print("Error: The first row is empty.")
@@ -369,29 +391,26 @@ class ExcelPostProcessing():
                     thin = Side(border_style="thin", color="000000")
                     cell.border = Border(bottom=thin)
 
-        workbook.save(file)
-        print(f"Post-processing completed. Saved to {file}")
-        workbook.close()
+        wb.save(filename=file)
+        print(f"Post-styling successfully completed")
 
-    def apply_post_sectioning(self, section_header):
-        file = os.path.join(self.excel_path, self.excel_basename)
-        workbook = load_workbook(filename=file)
-        ws = workbook[self.ws_name]
-
+    def apply_post_sectioning(self, active_worksheet, section_header, start_col):
+        ws = active_worksheet
         header_idx = self.find_column_idx(ws, section_header)
-        finish_idx = self.find_column_idx(ws, 'finish')
 
         section_list = self.list_cell_values(ws, header_idx)
         last_valid_section = section_list[0]
 
-        for row_idx, row in enumerate(ws.iter_rows(min_col=finish_idx + 1, max_col=ws.max_column, min_row=self.wbs_start_row + 1, max_row=ws.max_row)):
+        for row_idx, row in enumerate(ws.iter_rows(min_col=start_col, 
+                                                   max_col=ws.max_column, 
+                                                   min_row=self.wbs_start_row + 1, 
+                                                   max_row=ws.max_row)):
             current_section = section_list[row_idx]
 
             if current_section and current_section != last_valid_section:
                 self.style_row_border(row)
                 last_valid_section = current_section
 
-        workbook.save(filename=file)
         print("Post sectioning applied successfully.")
 
     def style_row_border(self, row):
@@ -408,8 +427,8 @@ class ExcelPostProcessing():
 
             cell.border = new_border
 
-    def list_cell_values(self, active_ws, col_idx):
-        ws = active_ws
+    def list_cell_values(self, active_worksheet, col_idx):
+        ws = active_worksheet
         col_list = []
 
         if col_idx is not None:
@@ -432,42 +451,68 @@ class ExcelPostProcessing():
                     if normalized_header in normalized_cell_value:
                         return cell.column
 
-    def delete_columns(self, active_worksheet, start_column_idx, end_column_idx):
+    def unmerge_columns(self, active_worksheet, start_column_idx, end_column_idx):
         ws = active_worksheet
+
+        for merged_cell in list(ws.merged_cells.ranges):
+            if (merged_cell.bounds[0] >= start_column_idx and 
+                merged_cell.bounds[2] <= end_column_idx):
+                ws.unmerge_cells(str(merged_cell))
+        
         start_col_letter = get_column_letter(start_column_idx)
         end_col_letter = get_column_letter(end_column_idx)
+
+        print(f"Column unmerging applied successfully: [{start_col_letter}, {end_col_letter}]")
+
+    def delete_columns(self, start_column_idx, end_column_idx):
+        file = os.path.join(self.excel_path, self.excel_basename)
+        wb = load_workbook(filename=file)
+        ws = wb[self.ws_name]
+
         ws.delete_cols(start_column_idx, end_column_idx)
-        
-        print(f"Post column deletion applied successfully: [{start_col_letter}, {end_col_letter}]")
 
-    def delete_rows_per_location(self, active_worksheet):
+        start_col_letter = get_column_letter(start_column_idx)
+        end_col_letter = get_column_letter(end_column_idx)
+
+        wb.save(filename=file)
+        print(f"Columns deleted successfully: [{start_col_letter}, {end_col_letter}]")
+
+    def insert_columns(self, active_worksheet, start_column_idx, num_cols):
         ws = active_worksheet
-        json_file = os.path.join(self.json_path, self.json_basename)
 
-        with open(json_file, 'r') as json_reader:
-            json_obj = json.load(json_reader)
+        for _ in range(num_cols):
+            ws.insert_cols(start_column_idx)
 
-        sorted_results, overlap_results = self.overlapping_dates(json_obj)
+        print(f"Columns ({num_cols}) added successfully")
 
-        overlap_processed = [result + 1 if result == 0 else result for result in overlap_results]
+    def write_data_to_excel(self, proc_table):
+        if proc_table.empty:    
+            print("Error. DataFrame is empty\n")
+        else:
+            file = os.path.join(self.excel_path, self.excel_basename)
 
-        existing_locations = []
-        for i in range(len(overlap_processed)):
-            existing_locations.append((list(set([activity["location"] for activity in sorted_results[i]]))[0], 
-                                       overlap_processed[i]))
+            try:
+                with pd.ExcelWriter(file, engine="openpyxl", mode='a', if_sheet_exists='overlay') as writer:
+                    proc_table.to_excel(
+                        writer, 
+                        sheet_name=self.ws_name, 
+                        startrow=self.wbs_start_row - 1, 
+                        startcol=column_index_from_string(self.wbs_start_col) - 1
+                    )
+                
+                print(f"Successfully converted JSON to Excel and saved to: {file}")
+                print(f"Saved to sheet: {self.ws_name}\n")
+            except Exception as e:
+                print(f"An unexpected error occurred: {e}\n")
 
-        self.delete_excess_rows(ws, "location", existing_locations)
-
-        print("Excess rows removed successfully.")
-
-    def delete_excess_rows(self, active_worksheet, column_header, existing_locations):
+    def delete_excess_rows(self, active_worksheet, column_header, overlap_results):
         ws = active_worksheet
         header_col = self.find_column_idx(active_worksheet, column_header)
-        all_current_locations = [location[0] for location in existing_locations]
+        all_current_locations = list(overlap_results.keys())
 
         rows_to_delete = []
         init_count = 0
-        idx = 0
+        max_rows = 0
         for row in ws.iter_rows(min_row=self.wbs_start_row + 1,
                                         max_row=ws.max_row,
                                         min_col=header_col,
@@ -476,20 +521,25 @@ class ExcelPostProcessing():
                 if cell.value is not None:  
                     init_count = 0
                     if cell.value in all_current_locations:
-                        idx = all_current_locations.index(cell.value)
-                        rows = existing_locations[idx][1]
+                        max_rows = overlap_results[cell.value]
 
-                if init_count > rows:
+                if init_count > max_rows:
                     rows_to_delete.append(cell.row)
                 
             init_count += 1
 
+        #print(rows_to_delete)
         for row in sorted(set(rows_to_delete), reverse=True):
             ws.delete_rows(row)
+        print("Excess rows removed successfully.")
 
-    def overlapping_dates(self, json_obj):
+    def overlapping_dates(self, alloted_space = 2):
+        json_file = os.path.join(self.json_path, self.json_basename)
+
+        with open(json_file, 'r') as json_reader:
+            json_obj = json.load(json_reader)
+
         body_dict = json_obj["project_content"][0]
-        
         flatten_dict = self.flatten_json(body_dict)
 
         first_key = list(flatten_dict.keys())[0]
@@ -497,41 +547,48 @@ class ExcelPostProcessing():
         location_based_lists = []
         nested_list = []
 
-        for key, activity in flatten_dict.items():
-            if flatten_dict[key]["location"] == location_ref:
+        for _, activity in flatten_dict.items():
+            if activity["location"] == location_ref:
                 nested_list.append(activity)
             else:
                 location_based_lists.append(nested_list)
                 location_ref = activity["location"]
                 nested_list = [activity]
 
+        if nested_list:
+            location_based_lists.append(nested_list)
+
         overlap_results = []
-        sorted_results = []
-        for location_list in location_based_lists:    
+        for location_list in location_based_lists:
             sorted_list = self.bubble_sort_dates(location_list)
+            location_ref = sorted_list[0]["location"]
             start_ref = datetime.strptime(sorted_list[0]["start"], "%d-%b-%y")
             finish_ref = datetime.strptime(sorted_list[0]["finish"], "%d-%b-%y")
 
             overlap = 0
-            result_overlap = 0
+            max_overlap = 0
+
             for activity in sorted_list[1:]:
                 start = datetime.strptime(activity["start"], "%d-%b-%y")
                 finish = datetime.strptime(activity["finish"], "%d-%b-%y")
 
-                if start >= start_ref or finish <= finish_ref:
+                if start <= finish_ref:
                     overlap += 1
-
-                if result_overlap < overlap:
-                    result_overlap = overlap
+                    finish_ref = max(finish_ref, finish)
+                else:
+                    max_overlap = max(max_overlap, overlap)
                     overlap = 0
 
-                start_ref = start
-                finish_ref = finish
+                start_ref, finish_ref = start, finish
 
-            overlap_results.append(result_overlap)
-            sorted_results.append(sorted_list)
+            max_overlap = max(max_overlap, overlap)
+            
+            overlap_results.append((location_ref, max_overlap))
 
-        return sorted_results, overlap_results
+        #normalized_results = [(result[0], result[1] + 1) if result[1] <= 1 else result for result in overlap_results]
+
+        max_rows_dict = {location: max_row + alloted_space for location, max_row in overlap_results}
+        return max_rows_dict
 
     def flatten_json(self, json_obj):
         new_dic = {}
@@ -577,6 +634,85 @@ class ExcelPostProcessing():
         
         sorted_list = unsorted_list
         return sorted_list
+
+    def restructure_dataframe(self, ordered_list, max_rows_dict):
+        j_file = os.path.join(self.json_path, self.json_basename)
+
+        with open(j_file, 'r') as json_file:
+            data = json.load(json_file)
+        
+        df = self.flatten_json(data["project_content"][0])
+        df_keys = list(df.keys())
+        struct_dic = []
+
+        for key in df_keys:
+            phase_key = key.split('|')[0]
+            location_key = key.split('|')[1]
+            act_json_obj = {
+                "phase": phase_key,
+                "location": location_key,
+                "entry": df[key].get("entry", None),
+                "activity_code": df[key].get("activity_code", ""),
+                "activity_name": df[key].get("activity_name", ""),
+                "activity_ins": key.split('|')[-1],
+                "color": df[key].get("color", ""),
+                "start": df[key].get("start", ""),
+                "finish": df[key].get("finish", "")
+            }
+
+            struct_dic.append(act_json_obj)
+
+        df_table = pd.DataFrame(struct_dic)
+
+        df_table['location'] = pd.Categorical(df_table['location'], categories=ordered_list, ordered=True)
+        df_sorted = df_table.sort_values(by='location')
+        df_sorted.reset_index(drop=True, inplace=True)
+
+        df_resized = self.resize_dataframe(df_sorted, ordered_list, max_rows_dict)
+        df_processed = self.generate_wbs_cfa_style(df_resized)
+        
+        return df_processed
+    
+    def resize_dataframe(self, df, desired_order, max_rows_dict):
+        filtered_rows = []
+
+        for location in desired_order:
+            location_rows = df[df['location'] == location]
+            limited_rows = location_rows.head(max_rows_dict[location] + 1)
+            filtered_rows.append(limited_rows)
+
+        result_df = pd.concat(filtered_rows)
+        result_df.reset_index(drop=True, inplace=True)
+
+        return result_df
+    
+    def generate_wbs_cfa_style(self, og_table):
+        proc_table = pd.pivot_table(
+            og_table,
+            index=["phase", "location", "activity_code"],
+            values=["color", "start", "finish"],
+            aggfunc='first'
+        )
+        column_header_list = proc_table.columns.tolist()
+
+        if "finish" in column_header_list and column_header_list[-1] != "finish":
+            ordered_header_list = self.order_table_cols(column_header_list)
+        else:
+            ordered_header_list = column_header_list
+
+        proc_table = proc_table[ordered_header_list]
+
+        return proc_table
+
+    def order_table_cols(self, column_list):
+        for idx, col in enumerate(column_list):
+            if col == "finish":
+                temp = column_list[-1]
+                column_list[-1] = col
+                column_list[idx] = temp
+                break
+        
+        return column_list
 
     def same_cell_values(self, active_ws, starting_col_idx, starting_row_idx):
         ws = active_ws
