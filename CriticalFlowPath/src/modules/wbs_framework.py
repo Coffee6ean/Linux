@@ -2,7 +2,7 @@ import os
 import json
 import pandas as pd
 from openpyxl import load_workbook
-from openpyxl.utils import column_index_from_string
+from openpyxl.utils import column_index_from_string, get_column_letter
 from openpyxl.styles import PatternFill
 
 class WbsFramework:
@@ -209,7 +209,7 @@ class WbsFramework:
         ws = wb[self.ws_name]
 
         header_idx = self.find_column_idx(ws, col_header)
-        self.fill_color_col(wb, ws, header_idx, color_list)
+        self.fill_color_col(ws, header_idx, color_list)
 
         wb.save(file)
 
@@ -394,11 +394,9 @@ class WbsFramework:
         
         return col_list
 
-    def fill_color_col(self, active_wb, active_ws, col_idx, col_list):
-        wb = active_wb
+    def fill_color_col(self, active_ws, col_idx, col_list):
         ws = active_ws
 
-        # Check if col_list is empty
         if not col_list:
             print("Error: Color list is empty.")
             return
@@ -408,7 +406,6 @@ class WbsFramework:
                                                 min_col=col_idx,
                                                 max_col=col_idx)):
             for cell in row:
-                # Ensure idx does not exceed the length of col_list
                 if idx < len(col_list):
                     color = col_list[idx].get("value")
                     try:
@@ -426,7 +423,8 @@ class WbsFramework:
                                             end_color=self.default_hex_fill_color, 
                                             fill_type="solid")
 
-        print("Workbook styled successfully")
+        column_letter = get_column_letter(col_idx)
+        print(f"Column ({column_letter}) styled successfully")
 
     def flatten_json(self, json_obj):
         new_dic = {}
