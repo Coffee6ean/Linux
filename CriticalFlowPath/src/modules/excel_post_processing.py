@@ -90,12 +90,8 @@ class ExcelPostProcessing():
         active_workbook, active_worksheet = project.return_excel_workspace(project.ws_name)
         
         if active_workbook and active_worksheet:
-            normalized_list = project.setup_file(active_workbook, active_worksheet, "location")
-            overlap_results = project.overlapping_dates()
-            start_col_idx, end_col_idx = project.process_file(active_workbook, active_worksheet, overlap_results)
-            project.create_wbs_table(normalized_list, overlap_results)
-            project.delete_columns(start_col_idx, end_col_idx + 2)
-            project.style_file(start_col_idx)
+            normalized_list, overlap_results = project.update_schedule_frame(active_workbook, active_worksheet)
+            project.update_wbs_table(normalized_list, overlap_results)
 
     @staticmethod
     def generate_ins():
@@ -253,58 +249,75 @@ class ExcelPostProcessing():
         
         return workbook, worksheet
 
-    def setup_file(self, active_workbook, active_worksheet, section_header):
-        wb = active_workbook
+    def update_wbs_table(self, normalized_list, overlap_results):
+        file = os.path.join(self.excel_path, self.excel_basename)
+
+        proc_df = self.restructure_dataframe(normalized_list, overlap_results)
+        self.write_data_to_excel(proc_df)
+
+        wb = load_workbook(file)
+        ws = wb[self.ws_name]
+        start_col_idx = self.find_column_idx(ws, "location", self.wbs_start_row) + 1
+        end_col_idx = self.return_first_column_idx(ws, 1, 1)
+
+        self.delete_columns(ws, start_col_idx, end_col_idx)
+        self.style_file(ws, start_col_idx)
+
+        wb.save(filename=file)
+        print("WBS Table successfully updated")
+        wb.close()
+
+    def update_schedule_frame(self, active_workbook, active_worksheet):
+        file = os.path.join(self.excel_path, self.excel_basename)
+
+        normalized_list = self.setup_file(active_worksheet, "location")
+        overlap_results = self.overlapping_dates()
+        self.process_file(active_worksheet, overlap_results)
+
+        active_workbook.save(filename=file)
+        print("Schedule Frame successfully updated")
+        active_workbook.close()
+
+        return normalized_list, overlap_results
+
+    def setup_file(self, active_worksheet, section_header):
         ws = active_worksheet
 
-        header_idx = self.find_column_idx(ws, section_header)
+        header_idx = self.find_column_idx(ws, section_header, self.wbs_start_row)
         section_list = self.list_cell_values(ws, header_idx)
 
         normalized_list = [location for location in section_list if isinstance(location, str)]
 
         return normalized_list
 
-    def process_file(self, active_workbook, active_worksheet, overlap_results):
-        file = os.path.join(self.excel_path, self.excel_basename)
-        wb = active_workbook
+    def process_file(self, active_worksheet, overlap_results):
         ws = active_worksheet
 
         print(f"Processing Excel file: {self.excel_basename}")
         
         wbs_start_col = column_index_from_string(self.wbs_start_col)
-        start_col_idx = self.find_column_idx(ws, "location") + 1
-        end_col_idx = self.find_column_idx(ws, "finish")
+        start_col_idx = self.find_column_idx(ws, "location", self.wbs_start_row) + 1
+        end_col_idx = self.return_first_column_idx(ws, 1, 1)
 
         self.unmerge_columns(ws, wbs_start_col, end_col_idx)
-        self.delete_columns(start_col_idx, end_col_idx - 2)
+        self.delete_columns(ws, start_col_idx, end_col_idx)
+        self.insert_columns(ws, start_col_idx, 5)
         self.delete_excess_rows(ws, "location", overlap_results)
-        self.insert_columns(ws, start_col_idx, 4)
-        wb.save(filename=file)
-        
-        return start_col_idx, end_col_idx
     
-    def create_wbs_table(self, normalized_list, overlap_results):
-        proc_df = self.restructure_dataframe(normalized_list, overlap_results)
-        self.write_data_to_excel(proc_df)
-
-    def style_file(self, start_col, start_row=1):
-        file = os.path.join(self.excel_path, self.excel_basename)
-        wb = load_workbook(filename=file)
-        ws = wb[self.ws_name]
+    def style_file(self, active_worksheet, start_col, start_row=1):
+        ws = active_worksheet
 
         year_list, year_row = self.same_cell_values(ws, start_col, start_row)
         for year in year_list:
-            self.merge_same_value_cells(wb, ws, year, year_row)  
+            self.merge_same_value_cells(ws, year, year_row)  
 
         month_list, month_row = self.same_cell_values(ws, start_col, start_row + 1)
         for month in month_list:
-            self.merge_same_value_cells(wb, ws, month, month_row)  
+            self.merge_same_value_cells(ws, month, month_row)  
 
         self.style_worksheet(ws, self.start_date, self.end_date, start_col, start_row)
-        self.apply_post_styling(wb, ws)
+        self.apply_post_styling(ws)
         self.apply_post_sectioning(ws, "location", start_col)
-        
-        wb.save(filename=file)
 
     def validate_columns(self, header):
         file = os.path.join(self.excel_path, self.excel_basename)
@@ -354,11 +367,8 @@ class ExcelPostProcessing():
         print(f"Data validation applied to columns matching '{header}' successfully.")
         workbook.close()
 
-    def apply_post_styling(self, active_workbook, active_worksheet):
-        file = os.path.join(self.excel_path, self.excel_basename)
-        wb = active_workbook
+    def apply_post_styling(self, active_worksheet):
         ws = active_worksheet
-
         first_row = ws[self.wbs_start_row]
         
         if first_row is None:
@@ -391,12 +401,11 @@ class ExcelPostProcessing():
                     thin = Side(border_style="thin", color="000000")
                     cell.border = Border(bottom=thin)
 
-        wb.save(filename=file)
         print(f"Post-styling successfully completed")
 
     def apply_post_sectioning(self, active_worksheet, section_header, start_col):
         ws = active_worksheet
-        header_idx = self.find_column_idx(ws, section_header)
+        header_idx = self.find_column_idx(ws, section_header, self.wbs_start_row)
 
         section_list = self.list_cell_values(ws, header_idx)
         last_valid_section = section_list[0]
@@ -439,17 +448,28 @@ class ExcelPostProcessing():
         
         return col_list 
 
-    def find_column_idx(self, active_ws, column_header):
+    def find_column_idx(self, active_ws, column_header, start_row):
         ws = active_ws
         start_col_idx = column_index_from_string(self.wbs_start_col)
         normalized_header = column_header.replace(" ", "_").lower()
 
-        for row in ws.iter_rows(min_row=self.wbs_start_row, min_col=start_col_idx, max_col=ws.max_column):
+        for row in ws.iter_rows(min_row=start_row, min_col=start_col_idx, max_col=ws.max_column):
             for cell in row:
                 if cell.value and isinstance(cell.value, str):
                     normalized_cell_value = cell.value.replace(" ", "_").lower()
                     if normalized_header in normalized_cell_value:
                         return cell.column
+
+    def return_first_column_idx(self, active_worksheet, start_row_idx, start_col_idx):
+        ws = active_worksheet
+
+        for row in ws.iter_rows(min_row=start_row_idx, min_col=start_col_idx, max_col=ws.max_column):
+            for cell in row:
+                if isinstance(cell.value, str) and cell.value:
+                    return cell.column
+        
+        print(f"Error. No valid value encountered in specified row [{start_row_idx}, {start_row_idx}]")
+        return -1
 
     def unmerge_columns(self, active_worksheet, start_column_idx, end_column_idx):
         ws = active_worksheet
@@ -464,17 +484,15 @@ class ExcelPostProcessing():
 
         print(f"Column unmerging applied successfully: [{start_col_letter}, {end_col_letter}]")
 
-    def delete_columns(self, start_column_idx, end_column_idx):
-        file = os.path.join(self.excel_path, self.excel_basename)
-        wb = load_workbook(filename=file)
-        ws = wb[self.ws_name]
+    def delete_columns(self, active_worksheet, start_column_idx, end_column_idx):
+        ws = active_worksheet
 
-        ws.delete_cols(start_column_idx, end_column_idx)
+        amount_to_delete = end_column_idx - start_column_idx
+        ws.delete_cols(start_column_idx, amount_to_delete)
 
         start_col_letter = get_column_letter(start_column_idx)
         end_col_letter = get_column_letter(end_column_idx)
 
-        wb.save(filename=file)
         print(f"Columns deleted successfully: [{start_col_letter}, {end_col_letter}]")
 
     def insert_columns(self, active_worksheet, start_column_idx, num_cols):
@@ -507,7 +525,7 @@ class ExcelPostProcessing():
 
     def delete_excess_rows(self, active_worksheet, column_header, overlap_results):
         ws = active_worksheet
-        header_col = self.find_column_idx(active_worksheet, column_header)
+        header_col = self.find_column_idx(active_worksheet, column_header, self.wbs_start_row)
         all_current_locations = list(overlap_results.keys())
 
         rows_to_delete = []
@@ -528,9 +546,9 @@ class ExcelPostProcessing():
                 
             init_count += 1
 
-        #print(rows_to_delete)
         for row in sorted(set(rows_to_delete), reverse=True):
             ws.delete_rows(row)
+        
         print("Excess rows removed successfully.")
 
     def overlapping_dates(self, alloted_space = 2):
@@ -572,7 +590,7 @@ class ExcelPostProcessing():
                 start = datetime.strptime(activity["start"], "%d-%b-%y")
                 finish = datetime.strptime(activity["finish"], "%d-%b-%y")
 
-                if start <= finish_ref:
+                if start >= start_ref and finish <= finish_ref:
                     overlap += 1
                     finish_ref = max(finish_ref, finish)
                 else:
@@ -670,12 +688,12 @@ class ExcelPostProcessing():
 
         df_resized = self.resize_dataframe(df_sorted, ordered_list, max_rows_dict)
         df_processed = self.generate_wbs_cfa_style(df_resized)
-        
+
         return df_processed
     
     def resize_dataframe(self, df, desired_order, max_rows_dict):
         filtered_rows = []
-
+        
         for location in desired_order:
             location_rows = df[df['location'] == location]
             limited_rows = location_rows.head(max_rows_dict[location] + 1)
@@ -686,10 +704,10 @@ class ExcelPostProcessing():
 
         return result_df
     
-    def generate_wbs_cfa_style(self, og_table):
+    def generate_wbs_cfa_style(self, df_table):
         proc_table = pd.pivot_table(
-            og_table,
-            index=["phase", "location", "activity_code"],
+            df_table,
+            index=["phase", "location", "entry", "activity_code"],
             values=["color", "start", "finish"],
             aggfunc='first'
         )
@@ -714,15 +732,15 @@ class ExcelPostProcessing():
         
         return column_list
 
-    def same_cell_values(self, active_ws, starting_col_idx, starting_row_idx):
-        ws = active_ws
+    def same_cell_values(self, active_worksheet, starting_col_idx, starting_row_idx):
+        ws = active_worksheet
 
         iterable_row = ws[starting_row_idx]
         last_value = iterable_row[starting_col_idx].value  
         same_cell_list = []  
         overall_list = []  
 
-        for cell in iterable_row[starting_col_idx:]:  
+        for cell in iterable_row[starting_col_idx - 1:]:  
             if cell.value is None:
                 break  
             elif cell.value == last_value:  
@@ -738,9 +756,7 @@ class ExcelPostProcessing():
 
         return overall_list, starting_row_idx  
 
-    def merge_same_value_cells(self, active_workbook, active_worksheet, column_indices, starting_row_idx):
-        file = os.path.join(self.excel_path, self.excel_basename)
-        wb = active_workbook
+    def merge_same_value_cells(self, active_worksheet, column_indices, starting_row_idx):
         ws = active_worksheet
         
         if not column_indices:
@@ -752,8 +768,6 @@ class ExcelPostProcessing():
 
         ws.merge_cells(start_row=starting_row_idx, start_column=first_col, 
                               end_row=starting_row_idx, end_column=last_col)
-        
-        wb.save(filename=file)
 
     def style_worksheet(self, active_worksheet, start_date, end_date, start_col, start_row):
         ws = active_worksheet
@@ -761,7 +775,6 @@ class ExcelPostProcessing():
         start_datetime_obj = datetime.strptime(start_date, '%d-%b-%Y')
         end_datetime_obj = datetime.strptime(end_date, '%d-%b-%Y')
         duration = (end_datetime_obj - start_datetime_obj).days + 1  
-        thin_border = Border(left=Side(style='thin'))
     
         for cell in ws.iter_rows(min_row=start_row, max_row=start_row, 
                                         min_col=start_col, max_col=start_col + duration - 1):
@@ -791,9 +804,16 @@ class ExcelPostProcessing():
         for col in range(start_col, start_col + duration):
             last_month_cell = ws.cell(row=start_row + 1, column=col)  
             if last_month_cell.value is not None:  
-                for row in range(start_row + 2, ws.max_row + 1):  
+                for row in range(start_row + 1, ws.max_row + 1):  
                     cell = ws.cell(row=row, column=col)
-                    cell.border = thin_border
+
+                    current_border = cell.border if cell.border else Border()
+                    cell.border = Border(
+                        top=current_border.top, 
+                        left=Side(border_style="dashed"),  
+                        right=current_border.right,  
+                        bottom=current_border.bottom  
+                    )
     
         print("Workbook styled and saved successfully.")
 
