@@ -8,8 +8,8 @@ from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 class ScheduleFramework():
     def __init__(self, input_file_path, input_file_name, input_worksheet_name, 
                  input_start_row, input_start_col, input_start_date, input_end_date):
-        self.file_path = input_file_path
-        self.file_basename = input_file_name
+        self.excel_path = input_file_path
+        self.excel_basename = input_file_name
         self.ws_name = input_worksheet_name
         self.start_date = input_start_date
         self.end_date = input_end_date
@@ -31,26 +31,11 @@ class ScheduleFramework():
 
         if project:
             active_workbook, active_worksheet = project.return_excel_workspace(project.ws_name)
-            if project.start_col == "" or project.start_col is None:
-                project.start_col = get_column_letter(project.find_column_idx(active_worksheet, 'finish') + 1)
 
-            start_date_col, end_date_col = project.return_dates_idx(active_worksheet)
-            start_dates_list, end_dates_list = project.list_dates(active_worksheet, start_date_col, end_date_col)
-
-            trade_idx = project.find_column_idx(active_worksheet, 'trade')
-            location_idx = project.find_column_idx(active_worksheet, 'location')
-            color_idx = project.find_column_idx(active_worksheet, 'color')
-            code_idx = project.find_column_idx(active_worksheet, 'activity code')
-            color_hex_list = project.extract_cell_attr(active_worksheet, color_idx)
-            activity_code_list = project.extract_cell_attr(active_worksheet, code_idx)
-            location_list = project.extract_cell_attr(active_worksheet, location_idx)
-            pro_hex_list = project.process_hex_val(color_hex_list)
-
-            project.generate_schedule_frame(active_workbook, active_worksheet, 
-                                            project.start_date, project.end_date)  
-            project.fill_schedule_cfa_style(active_workbook, active_worksheet, start_dates_list, 
-                                            end_dates_list, pro_hex_list, activity_code_list, 
-                                            location_list)
+            if active_workbook and active_worksheet:
+                project.create_schedule_frame(active_workbook, active_worksheet)
+            else:
+                print("Error. Could not open Excel file as Workbook & Worksheet")
 
     @staticmethod
     def generate_ins():
@@ -150,7 +135,7 @@ class ScheduleFramework():
             return False
 
     def return_excel_workspace(self, worksheet_name):
-        file = os.path.join(self.file_path, self.file_basename)
+        file = os.path.join(self.excel_path, self.excel_basename)
         
         try:
             workbook = load_workbook(filename=file)
@@ -178,10 +163,55 @@ class ScheduleFramework():
         
         return workbook, worksheet
 
-    def generate_schedule_frame(self, active_wb, active_ws, start_date, end_date):
-        workbook = active_wb
-        worksheet = active_ws
-        file = os.path.join(self.file_path, self.file_basename)
+    def create_schedule_frame(self, active_workbook, active_worksheet):
+        file = os.path.join(self.excel_path, self.excel_basename)
+
+        if self.start_col == "" or self.start_col is None:
+            self.start_col = get_column_letter(self.find_column_idx(active_worksheet, 'finish') + 1)
+
+        results_dict = self.setup_file(active_worksheet)
+
+        self.generate_schedule_frame(active_worksheet, self.start_date, self.end_date)  
+        self.fill_schedule_cfa_style(active_workbook, active_worksheet, 
+                                        results_dict["start_list"], results_dict["finish_list"], 
+                                        results_dict["color_list"], results_dict["code_list"], 
+                                        results_dict["location_list"])
+        
+        active_workbook.save(filename=file)
+        print("CFA Schedule successfully created")
+        active_workbook.close()
+
+    def setup_file(self, active_worksheet):
+        ws = active_worksheet
+
+        start_date_col, finish_date_col = self.return_dates_idx(ws)
+        start_dates_list, finish_dates_list = self.list_dates(ws, start_date_col, finish_date_col)
+
+        phase_idx = self.find_column_idx(ws, 'phase')
+        location_idx = self.find_column_idx(ws, 'location')
+        trade_idx = self.find_column_idx(ws, 'trade')
+        color_idx = self.find_column_idx(ws, 'color')
+        code_idx = self.find_column_idx(ws, 'activity code')
+
+        color_hex_list = self.extract_cell_attr(ws, color_idx)
+        activity_code_list = self.extract_cell_attr(ws, code_idx)
+        phase_list = self.extract_cell_attr(ws, phase_idx)
+        location_list = self.extract_cell_attr(ws, location_idx)
+        pro_hex_list = self.process_hex_val(color_hex_list)
+
+        results_dict = {
+            "phase_list": phase_list,
+            "location_list": location_list,
+            "code_list": activity_code_list,
+            "color_list": pro_hex_list,
+            "start_list": start_dates_list,
+            "finish_list": finish_dates_list
+        }
+
+        return results_dict
+
+    def generate_schedule_frame(self, active_worksheet, start_date, end_date):
+        worksheet = active_worksheet
 
         start_datetime_obj = datetime.strptime(start_date, '%d-%b-%Y')
         end_datetime_obj = datetime.strptime(end_date, '%d-%b-%Y')
@@ -211,10 +241,8 @@ class ScheduleFramework():
             worksheet.cell(row=self.start_row, 
                            column=column_index_from_string(self.start_col) + day, 
                            value=date.strftime('%Y'))
-    
-        workbook.save(filename=file)
+
         print("Gantt chart generated successfully.")
-        workbook.close()
 
     def return_dates_idx(self, active_ws):
         ws = active_ws
@@ -325,7 +353,7 @@ class ScheduleFramework():
                                   end_dates_list, color_hex_list, activity_code_list):
         wb = active_wb
         ws = active_ws
-        file = os.path.join(self.file_path, self.file_basename)
+        file = os.path.join(self.excel_path, self.excel_basename)
 
         row_counter = 0
         for row in ws.iter_rows(min_row=self.start_row + 4, max_row=ws.max_row, 
@@ -377,12 +405,13 @@ class ScheduleFramework():
         print("Workbook filled successfully.")
         wb.close()
 
-    def fill_schedule_cfa_style(self, active_wb, active_ws, start_dates_list, 
-                                end_date_list, color_hex_list, activity_code_list,
+    def fill_schedule_cfa_style(self, active_workbook, active_worksheet, 
+                                start_dates_list, end_date_list, 
+                                color_hex_list, activity_code_list,
                                 location_list):
-        wb = active_wb
-        ws = active_ws
-        file = os.path.join(self.file_path, self.file_basename)
+        wb = active_workbook
+        ws = active_worksheet
+        
         start_ovr_date = datetime.strptime(self.start_date, '%d-%b-%Y')
         final_ovr_date = datetime.strptime(self.end_date, '%d-%b-%Y')
         last_valid_location = None  
@@ -458,9 +487,7 @@ class ScheduleFramework():
                             
                         break
 
-        wb.save(filename=file)
         print("Workbook filled successfully.")
-        wb.close()
 
 
 if __name__ == "__main__":
