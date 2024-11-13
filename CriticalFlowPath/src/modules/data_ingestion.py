@@ -292,11 +292,13 @@ class DataIngestion:
         )
 
         column_header_list = proc_table.columns.tolist()
-
+        
         if "finish" in column_header_list and column_header_list[-1] != "finish":
-            orderd_header_list = self.order_table_cols(column_header_list)
+            ordered_header_list = self.order_table_cols(column_header_list)
+        else:
+            ordered_header_list = column_header_list
 
-        proc_table = proc_table[orderd_header_list]
+        proc_table = proc_table[ordered_header_list]
 
         print(proc_table)
 
