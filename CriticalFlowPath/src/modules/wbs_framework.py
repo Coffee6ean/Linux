@@ -199,8 +199,8 @@ class WbsFramework:
         return -1
     
     def create_wbs_table(self):
-        table = self.design_json_table()
-        proc_table = self.generate_wbs_cfa_style(table)
+        table, custom_order = self.design_json_table()
+        proc_table = self.generate_wbs_cfa_style(table, custom_order)
         self.write_data_to_excel(proc_table)
 
     def process_wbs_column(self, col_header, color_list):
@@ -287,16 +287,38 @@ class WbsFramework:
             }
 
             struct_dic.append(act_json_obj)
-        
-        df_table = pd.DataFrame(struct_dic)
-        return df_table
 
-    def generate_wbs_cfa_style(self, og_table):
+        custom_order = self.bring_category_to_top(struct_dic, "phase", "milestone")
+        df_table = pd.DataFrame(struct_dic)
+
+        return df_table, custom_order
+    
+    def bring_category_to_top(self, unordered_list, category, order_con):
+        categorized_list = []
+        normalized_category = category.lower().strip()
+        normalized_value = order_con.lower().strip()
+
+        sorted_list = sorted(set(item[normalized_category] for item in unordered_list if item.get(normalized_category) is not None))
+
+        for item in sorted_list:
+            if normalized_value in item.lower().strip():
+                position = sorted_list.index(item)
+                sorted_list.pop(position)
+                categorized_list.append(item)
+
+        custom_ordered_list = categorized_list + sorted_list
+        
+        return custom_ordered_list
+
+    def generate_wbs_cfa_style(self, og_table, categories_list):
+        og_table['phase'] = pd.Categorical(og_table['phase'], categories=categories_list, ordered=True)
+
         proc_table = pd.pivot_table(
             og_table,
-            index=["phase", "location", "activity_code"],
+            index=["phase", "location", "entry", "activity_code"],
             values=["color", "start", "finish"],
-            aggfunc='first'
+            aggfunc='first',
+            observed=True
         )
         column_header_list = proc_table.columns.tolist()
 
@@ -318,7 +340,7 @@ class WbsFramework:
                 break
         
         return column_list
-
+    
     def write_data_to_excel(self, proc_table):
         if proc_table.empty:    
             print("Error. DataFrame is empty\n")
