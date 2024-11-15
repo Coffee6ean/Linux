@@ -309,12 +309,12 @@ class FilledExcelToUpdateJson():
                     null_val_counter += 1
 
                 if header_counter < len(header_list): 
-                    formatted_value = self.check_date_data_type(cell.value)
-                    if formatted_value == -1:
-                        print(f"Error processing cell value: {cell.value}. Skipping entry.")
+                    normalized_value = self.normalize_data_value(cell.value)
+                    if normalized_value == -1:
+                        print(f"Error processing cell: {cell.coordinate}. Skipping entry.")
                         continue 
 
-                    entry_frame[header_list[header_counter]] = formatted_value
+                    entry_frame[header_list[header_counter]] = normalized_value
 
             if null_val_counter == len(row):
                 break
@@ -349,9 +349,9 @@ class FilledExcelToUpdateJson():
 
         return dic_frame
 
-    def check_date_data_type(self, date_val: Union[str, date]) -> str:
+    def normalize_data_value(self, date_val: Union[str, date]) -> str:
         if isinstance(date_val, str):
-            return date_val
+            return date_val.strip()
         elif isinstance(date_val, date):
             return date_val.strftime('%d-%b-%y')
         else:
