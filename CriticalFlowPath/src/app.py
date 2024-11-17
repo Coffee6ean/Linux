@@ -30,8 +30,8 @@ def system_cfa_update():
     modules.WbsFramework.main(auto, answer_dic["proc_cont"], answer_dic["xlsx_file"], 
                               answer_dic["ws_schedule"], answer_dic["json_file"], answer_dic["json_title"])
     print_result("ScheduleFramework processing...")
-    modules.ScheduleFramework.main(auto, answer_dic["xlsx_file"], answer_dic["ws_schedule"], 
-                                   answer_dic["start_date"], answer_dic["end_date"])
+    modules.ScheduleFramework.main(auto, answer_dic["xlsx_file"], answer_dic["json_file"], answer_dic["ws_schedule"], 
+                                   answer_dic["start_date"], answer_dic["end_date"], answer_dic["json_title"])
     print_result("LegendsFramework processing...")
     modules.LegendsFramework.main(auto, answer_dic["xlsx_file"], answer_dic["ws_legends"], 
                                   answer_dic["json_file"], answer_dic["json_title"])
