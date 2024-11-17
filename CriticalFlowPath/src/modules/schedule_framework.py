@@ -1,15 +1,21 @@
 import os
+import re
 import json
+import pandas as pd
 from datetime import datetime, timedelta
 from openpyxl import load_workbook
+from openpyxl.comments import Comment
 from openpyxl.utils import get_column_letter, column_index_from_string 
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 
 class ScheduleFramework():
-    def __init__(self, input_file_path, input_file_name, input_worksheet_name, 
-                 input_start_row, input_start_col, input_start_date, input_end_date):
-        self.excel_path = input_file_path
-        self.excel_basename = input_file_name
+    def __init__(self, input_excel_path, input_excel_basename, input_json_path, 
+                 input_json_basename, input_worksheet_name, input_start_row, 
+                 input_start_col, input_start_date, input_end_date):
+        self.excel_path = input_excel_path
+        self.excel_basename = input_excel_basename
+        self.json_path = input_json_path
+        self.json_basename = input_json_basename
         self.ws_name = input_worksheet_name
         self.start_date = input_start_date
         self.end_date = input_end_date
@@ -17,15 +23,16 @@ class ScheduleFramework():
         self.start_col = str(input_start_col)
         self.wbs_start_row = 4
         self.wbs_start_col = 'A'
-        self.default_hex_font_color = "00FFFFFF"
+        self.dark_default_hex_font = "00000000"
+        self.light_default_hex_font = "00FFFFFF"
         self.default_hex_fill_color = "00FFFF00"
 
     @staticmethod
-    def main(auto=True, input_file_path=None, input_worksheet_name=None, 
-             input_start_date=None, input_end_date=None):
+    def main(auto=True, input_excel_file=None, input_json_file=None, input_worksheet_name=None, 
+             input_start_date=None, input_end_date=None, input_json_title=None):
         if auto:
-            project = ScheduleFramework.auto_generate_ins(input_file_path, input_worksheet_name, 
-                                                          input_start_date, input_end_date)
+            project = ScheduleFramework.auto_generate_ins(input_excel_file, input_json_file, input_worksheet_name, 
+                                                          input_start_date, input_end_date, input_json_title)
         else:
             project = ScheduleFramework.generate_ins()
 
@@ -33,49 +40,64 @@ class ScheduleFramework():
             active_workbook, active_worksheet = project.return_excel_workspace(project.ws_name)
 
             if active_workbook and active_worksheet:
-                project.create_schedule_frame(active_workbook, active_worksheet)
+                project.create_schedule(active_workbook, active_worksheet)
             else:
                 print("Error. Could not open Excel file as Workbook & Worksheet")
 
     @staticmethod
     def generate_ins():
-        input_file_path = input("Please enter the path to the Excel file or directory: ")
-        input_path, input_basename = ScheduleFramework.file_verification(input_file_path)
+        input_excel_file = input("Please enter the path to the Excel file or directory: ")
+        input_excel_path, input_excel_basename = ScheduleFramework.file_verification(
+            input_excel_file, 'e', 'r')
         input_worksheet_name = input("Please enter the name for the new or existing worksheet: ")
         input_start_row = input("Please enter the starting row to write the schedule: ")
         input_start_col = input("Please enter the starting column to write the schedule: ")
+        input_json_file = input("Please enter the path to the Json file or directory: ")
+        input_json_path, input_json_basename = ScheduleFramework.file_verification(
+            input_json_file, 'j', 'r')
         input_start_date = input("Please enter the start date for the schedule (format: dd-MMM-yyyy): ")
         input_end_date = input("Please enter the end date for the schedule (format: dd-MMM-yyyy): ")
-        ins = ScheduleFramework(input_path, input_basename, input_worksheet_name, input_start_row, 
+
+        ins = ScheduleFramework(input_excel_path, input_excel_basename, input_json_path, 
+                                input_json_basename, input_worksheet_name, input_start_row, 
                                 input_start_col, input_start_date, input_end_date)
 
         return ins
     
     @staticmethod
-    def auto_generate_ins(input_file_path, input_worksheet_name, input_start_date, input_end_date):
+    def auto_generate_ins(input_excel_file, input_json_file, input_worksheet_name, 
+                          input_start_date, input_end_date, input_json_title):
         input_start_row = 1
         input_start_col = ""
 
-        input_path, input_basename = ScheduleFramework.file_verification(input_file_path, 'e', 'u')
+        input_excel_path, input_excel_basename = ScheduleFramework.file_verification(
+            input_excel_file, 'e', 'u')
+        input_json_path, input_json_basename = ScheduleFramework.file_verification(
+            input_json_file, 'j', 'r', input_json_title)
 
-        ins = ScheduleFramework(input_path, input_basename, input_worksheet_name, input_start_row, 
+        ins = ScheduleFramework(input_excel_path, input_excel_basename, input_json_path, 
+                                input_json_basename, input_worksheet_name, input_start_row, 
                                 input_start_col, input_start_date, input_end_date)
 
         return ins
 
     @staticmethod
-    def file_verification(input_file_path, file_type, mode):
-        if os.path.isdir(input_file_path):
-            file_path, file_basename = ScheduleFramework.handle_dir(input_file_path, mode)
-            if mode != 'c':
+    def file_verification(input_file_path, file_type, mode, input_json_title=None):
+        if input_json_title and os.path.isdir(input_file_path):
+            file_basename = f"processed_{input_json_title}.json"
+            path, basename = ScheduleFramework.handle_file(input_file_path, file_basename, file_type)
+        else:
+            if os.path.isdir(input_file_path):
+                file_path, file_basename = ScheduleFramework.handle_dir(input_file_path, mode)
+                if mode != 'c':
+                    path, basename = ScheduleFramework.handle_file(file_path, file_basename, file_type)
+                else:
+                    path = file_path
+                    basename = file_basename
+            elif os.path.isfile(input_file_path):
+                file_path = os.path.dirname(input_file_path)
+                file_basename = os.path.basename(input_file_path)
                 path, basename = ScheduleFramework.handle_file(file_path, file_basename, file_type)
-            else:
-                path = file_path
-                basename = file_basename
-        elif os.path.isfile(input_file_path):
-            file_path = os.path.dirname(input_file_path)
-            file_basename = os.path.basename(input_file_path)
-            path, basename = ScheduleFramework.handle_file(file_path, file_basename, file_type)
 
         return path, basename
     
@@ -127,12 +149,33 @@ class ScheduleFramework():
         return int(selection_idx) - 1
 
     @staticmethod
+    def is_json(file_name):
+        if file_name.endswith(".json"):
+            return True
+        else:
+            print("Error: Selected file is not a JSON file")
+            return False
+
+    @staticmethod
     def is_xlsx(file_name):
         if file_name.endswith('.xlsx'):
             return True
         else:
             print('Error. Selected file is not an Excel')
             return False
+
+    @staticmethod
+    def hex2rgb(hex_color):
+        trimmed_hex = hex_color.lstrip('#')
+        calc_rgb = tuple(int(trimmed_hex[i:i+2], 16) for i in (0, 2, 4))
+
+        return calc_rgb
+
+    @staticmethod
+    def calculateLuminance(R, G, B):
+        lum = 0.2126*(R/255.0)**2.2 + 0.7152*(G/255.0)**2.2 + 0.0722*(B/255.0)**2.2
+
+        return lum
 
     def return_excel_workspace(self, worksheet_name):
         file = os.path.join(self.excel_path, self.excel_basename)
@@ -163,19 +206,22 @@ class ScheduleFramework():
         
         return workbook, worksheet
 
-    def create_schedule_frame(self, active_workbook, active_worksheet):
+    def create_schedule(self, active_workbook, active_worksheet):
         file = os.path.join(self.excel_path, self.excel_basename)
 
         if self.start_col == "" or self.start_col is None:
             self.start_col = get_column_letter(self.find_column_idx(active_worksheet, 'finish') + 1)
 
-        results_dict = self.setup_file(active_worksheet)
-
+        #results_dict = self.setup_file(active_worksheet)
+        json_dict, custom_ordered_list = self.setup_project()
+        sorted_dict = self.bubble_sort_entries(json_dict)
         self.generate_schedule_frame(active_worksheet, self.start_date, self.end_date)  
-        self.fill_schedule_cfa_style(active_workbook, active_worksheet, 
+        """ self.fill_schedule_cfa_style(active_worksheet, 
                                         results_dict["start_list"], results_dict["finish_list"], 
                                         results_dict["color_list"], results_dict["code_list"], 
-                                        results_dict["location_list"])
+                                        results_dict["location_list"]) """
+
+        self.fill_schedule_cfa_style_2(active_worksheet, sorted_dict, custom_ordered_list)
         
         active_workbook.save(filename=file)
         print("CFA Schedule successfully created")
@@ -193,11 +239,11 @@ class ScheduleFramework():
         color_idx = self.find_column_idx(ws, 'color')
         code_idx = self.find_column_idx(ws, 'activity code')
 
-        color_hex_list = self.extract_cell_attr(ws, color_idx)
-        activity_code_list = self.extract_cell_attr(ws, code_idx)
         phase_list = self.extract_cell_attr(ws, phase_idx)
         location_list = self.extract_cell_attr(ws, location_idx)
+        color_hex_list = self.extract_cell_attr(ws, color_idx)
         pro_hex_list = self.process_hex_val(color_hex_list)
+        activity_code_list = self.extract_cell_attr(ws, code_idx)
 
         results_dict = {
             "phase_list": phase_list,
@@ -208,7 +254,143 @@ class ScheduleFramework():
             "finish_list": finish_dates_list
         }
 
+        """ print(phase_list)
+        print(location_list)
+        print(pro_hex_list)
+        print(activity_code_list) """
+
         return results_dict
+
+    def setup_project(self):
+        flat_json_dict = self.read_json_dict()
+        table, custom_order = self.design_json_table(flat_json_dict)
+        proc_table = self.generate_wbs_cfa_style(table, custom_order)
+
+        return flat_json_dict, proc_table['entry']
+
+    def read_json_dict(self):
+        json_file = os.path.join(self.json_path, self.json_basename)
+
+        with open(json_file, 'r') as json_reader:
+            json_obj = json.load(json_reader)
+        
+        df = self.flatten_json(json_obj["project_content"][0])
+        df_keys = list(df.keys())
+        struct_dic = []
+
+        for key in df_keys:
+            phase_key = key.split('|')[0]
+            location_key = key.split('|')[1]
+            act_json_obj = {
+                "phase": phase_key,
+                "location": location_key,
+                "trade": df[key].get("trade", None),
+                "entry": df[key].get("entry", None),
+                "activity_code": df[key].get("activity_code", ""),
+                "activity_name": df[key].get("activity_name", ""),
+                "activity_ins": key.split('|')[-1],
+                "color": df[key].get("color", ""),
+                "start": df[key].get("start", ""),
+                "finish": df[key].get("finish", "")
+            }
+
+            struct_dic.append(act_json_obj)
+
+        return struct_dic
+
+    def design_json_table(self, flat_json_dict):
+        custom_order = self.bring_category_to_top(flat_json_dict, "phase", "milestone")
+        df_table = pd.DataFrame(flat_json_dict)
+
+        return df_table, custom_order
+
+    def generate_wbs_cfa_style(self, og_table, categories_list):
+        og_table['phase'] = pd.Categorical(og_table['phase'], categories=categories_list, ordered=True)
+
+        proc_table = pd.pivot_table(
+            og_table,
+            index=["phase", "location", "entry", "activity_code"],
+            values=["color", "start", "finish"],
+            aggfunc='first',
+            observed=True
+        )
+        column_header_list = proc_table.columns.tolist()
+
+        if "finish" in column_header_list and column_header_list[-1] != "finish":
+            ordered_header_list = self.order_table_cols(column_header_list)
+        else:
+            ordered_header_list = column_header_list
+
+        proc_table = proc_table[ordered_header_list]
+
+        df_reset = proc_table.reset_index()
+
+        return df_reset
+    
+    def order_table_cols(self, column_list):
+        for idx, col in enumerate(column_list):
+            if col == "finish":
+                temp = column_list[-1]
+                column_list[-1] = col
+                column_list[idx] = temp
+                break
+        
+        return column_list
+
+    def bring_category_to_top(self, unordered_list, category, order_con):
+        categorized_list = []
+        normalized_category = category.lower().strip()
+        normalized_value = order_con.lower().strip()
+
+        sorted_list = sorted(set(item[normalized_category] for item in unordered_list if item.get(normalized_category) is not None))
+
+        for item in sorted_list:
+            if normalized_value in item.lower().strip():
+                position = sorted_list.index(item)
+                sorted_list.pop(position)
+                categorized_list.append(item)
+
+        custom_ordered_list = categorized_list + sorted_list
+        
+        return custom_ordered_list
+
+    def flatten_json(self, json_obj):
+        new_dic = {}
+
+        def flatten(elem, flattened_key=""):
+            if type(elem) is dict:
+                keys_in_dic = list(elem.keys())
+
+                if "entry" in keys_in_dic:
+                    new_dic[flattened_key[:-1]] = elem
+                else:
+                    for current_key in elem:
+                        flatten(elem[current_key], flattened_key + current_key + '|')
+            elif type(elem) is list:
+                i = 0
+                for item in elem:
+                    flatten(item, flattened_key + str(i) + '|')
+                    i += 1
+            else:
+                new_dic[flattened_key[:-1]] = elem
+
+        flatten(json_obj)
+
+        return new_dic
+
+    def bubble_sort_entries(self, unsorted_list):
+        n = len(unsorted_list)
+
+        for i in range(n):
+            for j in range(0, n-i-1):
+                entry = unsorted_list[j]["entry"]
+                entry_n1 = unsorted_list[j+1]["entry"]
+
+                if entry > entry_n1:
+                    unsorted_list[j], unsorted_list[j+1] = unsorted_list[j+1], unsorted_list[j]
+        
+        sorted_list = unsorted_list
+        return sorted_list
 
     def generate_schedule_frame(self, active_worksheet, start_date, end_date):
         worksheet = active_worksheet
@@ -394,7 +576,7 @@ class ScheduleFramework():
                                      bold=activity_code_list[row_counter]["font"]["bold"], 
                                      color=activity_code_list[row_counter]["font"]["color"])
                     except:
-                        cell.font = Font(name="Calibri", size="12", bold=True, color=self.default_hex_font_color)
+                        cell.font = Font(name="Calibri", size="12", bold=True, color=self.dark_default_hex_font)
 
                     cell.value = activity_code_list[row_counter]["value"]
 
@@ -405,45 +587,40 @@ class ScheduleFramework():
         print("Workbook filled successfully.")
         wb.close()
 
-    def fill_schedule_cfa_style(self, active_workbook, active_worksheet, 
+    def fill_schedule_cfa_style(self, active_worksheet, 
                                 start_dates_list, end_date_list, 
                                 color_hex_list, activity_code_list,
                                 location_list):
-        wb = active_workbook
         ws = active_worksheet
         
-        start_ovr_date = datetime.strptime(self.start_date, '%d-%b-%Y')
-        final_ovr_date = datetime.strptime(self.end_date, '%d-%b-%Y')
-        last_valid_location = None  
+        start_ovr_date = datetime.strptime(self.start_date, "%d-%b-%Y")
+        final_ovr_date = datetime.strptime(self.end_date, "%d-%b-%Y")
         starting_point = self.wbs_start_row
 
         for idx, item in enumerate(start_dates_list):
-            initial_date = datetime.strptime(item, '%d-%b-%y')
-            final_date = datetime.strptime(end_date_list[idx], '%d-%b-%y')
+            initial_date = datetime.strptime(item, "%d-%b-%y")
+            final_date = datetime.strptime(end_date_list[idx], "%d-%b-%y")
 
             if initial_date >= start_ovr_date and final_date <= final_ovr_date:
                 start_search_col = (initial_date - start_ovr_date).days
                 finish_search_col = (final_date - start_ovr_date).days
-
                 current_location = location_list[idx]["value"]
+
                 if current_location is not None and current_location.strip() != "":
-                    if current_location != last_valid_location:
-                        starting_point = self.wbs_start_row + idx + 1
-                        last_valid_location = current_location
+                    starting_point = self.wbs_start_row + idx + 1
                 else:
                     starting_point = starting_point
 
                 for row in ws.iter_rows(min_row=starting_point, 
                                         max_row=ws.max_row,
                                         min_col=column_index_from_string(self.start_col)+start_search_col, 
-                                        max_col= column_index_from_string(self.start_col)+finish_search_col):
+                                        max_col=column_index_from_string(self.start_col)+finish_search_col):
                     paint_row = True
-                    
-                    for cell in row:
-                        if cell.value is not None:
-                            paint_row = False
-                            break
-                    
+
+                    if not all([cell.value is not None or cell.value != "" for cell in row]):
+                        paint_row = False
+                        break
+
                     if paint_row:
                         for cell in row:
                             try:
@@ -481,13 +658,115 @@ class ScheduleFramework():
                                             bold=activity_code_list[idx]["font"]["bold"], 
                                             color=activity_code_list[idx]["font"]["color"])
                             except:
-                                cell.font = Font(name="Calibri", size="12", bold=True, color=self.default_hex_font_color)
+                                cell.font = Font(name="Calibri", size="12", bold=True, color=self.dark_default_hex_font)
 
                             cell.value = activity_code_list[idx]["value"]
                             
                         break
+            
+        print("Workbook filled successfully.")
+
+    def fill_schedule_cfa_style_2(self, active_worksheet, json_dict, custom_ordered_list):
+        ws = active_worksheet
+        
+        start_ovr_date = datetime.strptime(self.start_date, "%d-%b-%Y")
+        final_ovr_date = datetime.strptime(self.end_date, "%d-%b-%Y")
+        starting_point = self.wbs_start_row + 1
+        ref_location = self.determine_custom_order(ws, 'location')
+        next_location = 0
+
+        for idx, value in enumerate(custom_ordered_list):
+            current_item = json_dict[value - 1]
+
+            initial_date = datetime.strptime(current_item["start"], "%d-%b-%y")
+            final_date = datetime.strptime(current_item["finish"], "%d-%b-%y")
+            
+            if initial_date >= start_ovr_date and final_date <= final_ovr_date:
+                start_search_col = (initial_date - start_ovr_date).days
+                finish_search_col = (final_date - start_ovr_date).days
+                current_location = current_item["location"]
+
+                if current_location != ref_location[next_location]:
+                    starting_point = self.wbs_start_row + idx + 1
+                    next_location += 1
+
+                for row in ws.iter_rows(min_row=starting_point, 
+                                        max_row=ws.max_row,
+                                        min_col=column_index_from_string(self.start_col)+start_search_col, 
+                                        max_col=column_index_from_string(self.start_col)+finish_search_col):
+                    paint_row = True
+
+                    if not all([cell.value is not None or cell.value != "" for cell in row]):
+                        paint_row = False
+                        break
+
+                    if paint_row:
+                        for cell in row:
+                            self._paint_cell(cell, current_item)
+                            self._add_comment(cell, current_item)
+                            
+                    break
 
         print("Workbook filled successfully.")
+
+    def _paint_cell(self, cell, current_item):
+        try:
+            cell.alignment = Alignment(horizontal="center", vertical="center")
+            cell.border = Border(
+                top=Side(border_style="thin", color="00000000"), 
+                left=Side(border_style="thin", color="00000000"), 
+                right=Side(border_style="thin", color="00000000"), 
+                bottom=Side(border_style="thin", color="00000000"))
+            
+            color = current_item.get("color")
+            if color:
+                cell.fill = PatternFill(start_color=re.sub('#', "00", current_item.get("color")), 
+                                    end_color=re.sub('#', "00", current_item.get("color")), 
+                                    fill_type='solid')
+            else:
+                print(f"Color hex not found for: {current_item['entry']}")
+                cell.fill = PatternFill(start_color=self.default_hex_fill_color, 
+                                    end_color=self.default_hex_fill_color, 
+                                    fill_type='solid')
+            
+            rgb = ScheduleFramework.hex2rgb(color)
+            lum_rgb = ScheduleFramework.calculateLuminance(rgb[0], rgb[1], rgb[2])
+            if lum_rgb > 0.5:
+                cell.font = Font(name="Calibri", size="12", bold=True, color=self.dark_default_hex_font)
+            else:
+                cell.font = Font(name="Calibri", size="12", bold=True, color=self.light_default_hex_font)
+
+            cell.value = current_item.get("activity_code") if current_item.get("activity_code") else "NaN"
+            
+        except Exception as e:
+            print(f"Error. While painting cell: {e}")
+
+    def _add_comment(self, cell, current_item):
+        msg = f"""
+            Phase: {current_item['phase']} 
+            Location: {current_item['location']}
+            Trade: {current_item['trade']}
+            Activity Name: {current_item['activity_name']}
+
+            Start Date: {current_item['start']}
+            End Date: {current_item['finish']}
+        """
+
+        comment = Comment(msg, "AMP")
+        comment.width = 300
+        comment.height = 250
+
+        cell.comment = comment
+
+    def determine_custom_order(self, active_worksheet, category):
+        ws = active_worksheet
+
+        column_idx = self.find_column_idx(ws, category)
+        column_values = self.extract_cell_attr(ws, column_idx)
+
+        normalized_list = [item["value"] for item in column_values if item["value"] is not None]
+
+        return normalized_list
 
 
 if __name__ == "__main__":
