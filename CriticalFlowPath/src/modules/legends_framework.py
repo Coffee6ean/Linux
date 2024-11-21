@@ -18,6 +18,8 @@ class LegendsFramework():
         self.wbs_start_row = 4
         self.wbs_start_col = 'A'
         self.default_hex_fill_color = "00FFFF00"
+        self.dark_default_hex_font = "00000000"
+        self.light_default_hex_font = "00FFFFFF"
 
     @staticmethod
     def main(auto=True, input_excel_file=None, input_worksheet_name=None, 
@@ -145,7 +147,20 @@ class LegendsFramework():
         else:
             print('Error. Selected file is not an Excel')
             return False
-        
+
+    @staticmethod
+    def hex2rgb(hex_color):
+        trimmed_hex = hex_color.lstrip('#')
+        calc_rgb = tuple(int(trimmed_hex[i:i+2], 16) for i in (0, 2, 4))
+
+        return calc_rgb
+
+    @staticmethod
+    def calculateLuminance(R, G, B):
+        lum = 0.2126*(R/255.0)**2.2 + 0.7152*(G/255.0)**2.2 + 0.0722*(B/255.0)**2.2
+
+        return lum
+
     def return_excel_workspace(self, worksheet_name):
         file = os.path.join(self.excel_path, self.excel_basename)
         
@@ -349,17 +364,24 @@ class LegendsFramework():
                             value=val)
             cell.alignment = Alignment(horizontal="center", 
                                         vertical="center")
-            cell.fill = PatternFill(start_color=color_hex, 
-                                    end_color=color_hex, 
-                                    fill_type="solid")
-            cell.font = Font(name="Calibri", 
-                            size="12", 
-                            bold=True, 
-                            color="00000000")
+            
             cell.border = Border(left=Side(border_style="thin", color="00000000"),
                                 right=Side(border_style="thin", color="00000000"),
                                 top=Side(border_style="thin", color="00000000"),
                                 bottom=Side(border_style="thin", color="00000000"))
+
+            cell.fill = PatternFill(start_color=color_hex, 
+                                    end_color=color_hex, 
+                                    fill_type="solid")
+            
+            rgb = LegendsFramework.hex2rgb(color_hex)
+            lum_rgb = LegendsFramework.calculateLuminance(rgb[0], rgb[1], rgb[2])
+
+            if lum_rgb > 0.5:
+                cell.font = Font(name="Calibri", size="12", bold=True, color=self.dark_default_hex_font)
+            else:
+                cell.font = Font(name="Calibri", size="12", bold=True, color=self.light_default_hex_font)
+
         except KeyError as e:
             print(f"Error styling cell at row {current_row}, column {current_col}: {e}")
 
