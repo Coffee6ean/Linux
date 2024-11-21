@@ -212,16 +212,10 @@ class ScheduleFramework():
         if self.start_col == "" or self.start_col is None:
             self.start_col = get_column_letter(self.find_column_idx(active_worksheet, 'finish') + 1)
 
-        #results_dict = self.setup_file(active_worksheet)
         json_dict, custom_ordered_list = self.setup_project()
         sorted_dict = self.bubble_sort_entries(json_dict)
         self.generate_schedule_frame(active_worksheet, self.start_date, self.end_date)  
-        """ self.fill_schedule_cfa_style(active_worksheet, 
-                                        results_dict["start_list"], results_dict["finish_list"], 
-                                        results_dict["color_list"], results_dict["code_list"], 
-                                        results_dict["location_list"]) """
-
-        self.fill_schedule_cfa_style_2(active_worksheet, sorted_dict, custom_ordered_list)
+        self.fill_schedule_cfa_style(active_worksheet, sorted_dict, custom_ordered_list)
         
         active_workbook.save(filename=file)
         print("CFA Schedule successfully created")
@@ -587,125 +581,57 @@ class ScheduleFramework():
         print("Workbook filled successfully.")
         wb.close()
 
-    def fill_schedule_cfa_style(self, active_worksheet, 
-                                start_dates_list, end_date_list, 
-                                color_hex_list, activity_code_list,
-                                location_list):
+    def fill_schedule_cfa_style(self, active_worksheet, json_dict, custom_ordered_list):
         ws = active_worksheet
-        
-        start_ovr_date = datetime.strptime(self.start_date, "%d-%b-%Y")
-        final_ovr_date = datetime.strptime(self.end_date, "%d-%b-%Y")
-        starting_point = self.wbs_start_row
 
-        for idx, item in enumerate(start_dates_list):
-            initial_date = datetime.strptime(item, "%d-%b-%y")
-            final_date = datetime.strptime(end_date_list[idx], "%d-%b-%y")
-
-            if initial_date >= start_ovr_date and final_date <= final_ovr_date:
-                start_search_col = (initial_date - start_ovr_date).days
-                finish_search_col = (final_date - start_ovr_date).days
-                current_location = location_list[idx]["value"]
-
-                if current_location is not None and current_location.strip() != "":
-                    starting_point = self.wbs_start_row + idx + 1
-                else:
-                    starting_point = starting_point
-
-                for row in ws.iter_rows(min_row=starting_point, 
-                                        max_row=ws.max_row,
-                                        min_col=column_index_from_string(self.start_col)+start_search_col, 
-                                        max_col=column_index_from_string(self.start_col)+finish_search_col):
-                    paint_row = True
-
-                    if not all([cell.value is not None or cell.value != "" for cell in row]):
-                        paint_row = False
-                        break
-
-                    if paint_row:
-                        for cell in row:
-                            try:
-                                cell.alignment = Alignment(horizontal=activity_code_list[idx]["alignment"]["horizontal"], 
-                                                vertical=activity_code_list[idx]["alignment"]["vertical"])
-                            except:
-                                cell.alignment = Alignment(horizontal="center", vertical="center")
-
-                            try:    
-                                cell.border = Border(top=activity_code_list[idx]["border"]["top"], 
-                                                left=activity_code_list[idx]["border"]["left"], 
-                                                right=activity_code_list[idx]["border"]["right"], 
-                                                bottom=activity_code_list[idx]["border"]["bottom"])
-                            except:
-                                cell.border = Border(
-                                    top=Side(border_style="thin", color="00000000"), 
-                                    left=Side(border_style="thin", color="00000000"), 
-                                    right=Side(border_style="thin", color="00000000"), 
-                                    bottom=Side(border_style="thin", color="00000000"))
-                                
-                            try:
-                                cell.fill = PatternFill(start_color=color_hex_list[idx]["value"], 
-                                                        end_color=color_hex_list[idx]["value"], 
-                                                        fill_type=color_hex_list[idx]["fill"]["fill_type"])
-                            except:
-                                color = color_hex_list[idx]["value"]
-                                print(f"Color hex not found: {color}")
-                                cell.fill = PatternFill(start_color=self.default_hex_fill_color, 
-                                                        end_color=self.default_hex_fill_color, 
-                                                        fill_type='solid')
-                                
-                            try:
-                                cell.font = Font(name=activity_code_list[idx]["font"]["name"], 
-                                            size=activity_code_list[idx]["font"]["size"], 
-                                            bold=activity_code_list[idx]["font"]["bold"], 
-                                            color=activity_code_list[idx]["font"]["color"])
-                            except:
-                                cell.font = Font(name="Calibri", size="12", bold=True, color=self.dark_default_hex_font)
-
-                            cell.value = activity_code_list[idx]["value"]
-                            
-                        break
-            
-        print("Workbook filled successfully.")
-
-    def fill_schedule_cfa_style_2(self, active_worksheet, json_dict, custom_ordered_list):
-        ws = active_worksheet
-        
+        # Define date range for schedule
         start_ovr_date = datetime.strptime(self.start_date, "%d-%b-%Y")
         final_ovr_date = datetime.strptime(self.end_date, "%d-%b-%Y")
         starting_point = self.wbs_start_row + 1
-        ref_location = self.determine_custom_order(ws, 'location')
-        next_location = 0
 
+        # Initialize tracking variables
+        ref_location = None
+        occupied_rows = {}  # Dictionary to track occupied rows for each column
+
+        # Loop through activities
         for idx, value in enumerate(custom_ordered_list):
             current_item = json_dict[value - 1]
-
+            current_location = current_item["location"]
             initial_date = datetime.strptime(current_item["start"], "%d-%b-%y")
             final_date = datetime.strptime(current_item["finish"], "%d-%b-%y")
-            
-            if initial_date >= start_ovr_date and final_date <= final_ovr_date:
-                start_search_col = (initial_date - start_ovr_date).days
-                finish_search_col = (final_date - start_ovr_date).days
-                current_location = current_item["location"]
 
-                if current_location != ref_location[next_location]:
-                    starting_point = self.wbs_start_row + idx + 1
-                    next_location += 1
+            # Skip activities outside the date range
+            if not (start_ovr_date <= initial_date <= final_ovr_date and start_ovr_date <= final_date <= final_ovr_date):
+                continue
 
-                for row in ws.iter_rows(min_row=starting_point, 
-                                        max_row=ws.max_row,
-                                        min_col=column_index_from_string(self.start_col)+start_search_col, 
-                                        max_col=column_index_from_string(self.start_col)+finish_search_col):
-                    paint_row = True
+            # Determine columns for the date range
+            start_search_col = column_index_from_string(self.start_col) + (initial_date - start_ovr_date).days
+            finish_search_col = column_index_from_string(self.start_col) + (final_date - start_ovr_date).days
 
-                    if not all([cell.value is not None or cell.value != "" for cell in row]):
-                        paint_row = False
-                        break
+            # Reset starting point if location changes
+            if current_location != ref_location:
+                starting_point = self.wbs_start_row + idx + 1
+                ref_location = current_location
+                occupied_rows = {}  # Reset occupied rows for the new location
 
-                    if paint_row:
-                        for cell in row:
-                            self._paint_cell(cell, current_item)
-                            self._add_comment(cell, current_item)
-                            
-                    break
+            # Find the next available row for the date range
+            target_row = starting_point
+            for col in range(start_search_col, finish_search_col + 1):
+                if col not in occupied_rows:
+                    occupied_rows[col] = target_row
+                else:
+                    target_row = max(target_row, occupied_rows[col] + 1)
+                    occupied_rows[col] = target_row
+
+            # Paint the cells and add comments
+            count = 0
+            for col in range(start_search_col, finish_search_col + 1):
+                cell = ws.cell(row=target_row, column=col)
+                self._paint_cell(cell, current_item)
+                if count < 1:
+                    self._add_comment(cell, current_item)
+
+                count += 1
 
         print("Workbook filled successfully.")
 
@@ -743,10 +669,10 @@ class ScheduleFramework():
 
     def _add_comment(self, cell, current_item):
         msg = f"""
+            Activity Name: {current_item['activity_name']}
             Phase: {current_item['phase']} 
             Location: {current_item['location']}
-            Trade: {current_item['trade']}
-            Activity Name: {current_item['activity_name']}
+            Trade: {current_item['trade']} 
 
             Start Date: {current_item['start']}
             End Date: {current_item['finish']}
@@ -754,7 +680,7 @@ class ScheduleFramework():
 
         comment = Comment(msg, "AMP")
         comment.width = 300
-        comment.height = 250
+        comment.height = 200
 
         cell.comment = comment
 
