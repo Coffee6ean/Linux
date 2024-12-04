@@ -2,20 +2,20 @@ import os
 import re
 import json
 import pandas as pd
-from typing import Union
+import xml.etree.ElementTree as ET
 from datetime import datetime, date
+from dateutil import parser
 from openpyxl import load_workbook
-from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.utils import get_column_letter, column_index_from_string
-from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 
 class DataIngestion:
-    def __init__(self, input_file_path, input_file_basename, output_json_path, 
+    def __init__(self, input_file_path, input_file_basename, input_worksheet_name, input_json_path, 
                  input_file_id, input_file_code, input_file_title, input_file_subtitle, input_file_issue_date, 
                  input_file_created_at, input_file_updated_at, xlsx_start_row = 1, xlsx_start_col = 'A'):
         self.input_path = input_file_path
         self.input_basename = input_file_basename
-        self.output_json_path = output_json_path
+        self.ws_name = input_worksheet_name
+        self.output_json_path = input_json_path
         self.output_json_basename = DataIngestion.normalize_entry(input_file_title)
         self.file_id = input_file_id
         self.file_code = input_file_code
@@ -26,34 +26,75 @@ class DataIngestion:
         self.file_updated_at = input_file_updated_at
         self.xlsx_start_row = xlsx_start_row
         self.xlsx_start_col = xlsx_start_col
+        self.json_categories = ["phase", "location", "area", "trade", "activity_code"]
 
     @staticmethod
-    def main():
-        project = DataIngestion.generate_ins()
+    def main(auto=True, process_continuity=None, input_file=None, input_worksheet_name=None,
+             input_json_file=None, input_json_title=None):
+        if auto:
+            project = DataIngestion.auto_generate_ins(process_continuity, input_file, input_worksheet_name,
+                                                      input_json_file, input_json_title)
+        else:
+            project = DataIngestion.generate_ins()
+
         file_type = project.is_type_file(project.input_basename)
 
-        if file_type == 'xlsx':
-            worksheet = input("Please enter the name for the new or existing worksheet: ")
-            project.handle_xlsx(worksheet)
-            project.create_wbs_table_to_fill()
+        if file_type == "xlsx":
+            if project.ws_name is None:
+                worksheet = input("Please enter the name for the new or existing worksheet: ")
+            else:
+                worksheet = project.ws_name
+
+            reworked_json, nested_json = project.handle_xlsx(worksheet)
+            project.write_json(reworked_json)
+            project.write_json(nested_json, True)
+        elif file_type == "xml":
+            excel_dir = input("Please enter the directory to save the new Excel file: ")
+            excel_path, excel_basename = DataIngestion.file_verification(excel_dir, 'e', 'c')
+            reworked_json = project.handle_xml()
+            project.create_wbs_table_to_fill(reworked_json, excel_path, excel_basename)
 
     @staticmethod
     def generate_ins():
-        input_file = input("Please enter the path to the file or directory: ")
+        input_file = input("Please enter the path to the file or directory: ").strip()
         input_file_path = os.path.dirname(input_file)
+        input_worksheet_name = None
         input_file_basename = os.path.basename(input_file)
-        output_json_path = input("Please enter the directory to save the new JSON file: ")
-        input_file_id = len([file for file in os.listdir(output_json_path) if file.endswith('json')])
-        input_file_code = input("Enter Document CODE: ")
-        input_file_title = input("Enter Document Title: ")
-        input_file_subtitle = input("Enter Document Subtitle: ")
-        input_file_issue_date = input("Enter Issue Date (format: dd-MMM-yyyy)): ")
+        input_json_path = DataIngestion.return_valid_path()
+        input_file_id = len([file for file in os.listdir(input_json_path) if file.endswith('json')])
+        input_file_code = input("Enter Document CODE: ").strip()
+        input_file_title = input("Enter Document Title: ").strip()
+        input_file_subtitle = input("Enter Document Subtitle: ").strip()
+        input_file_issue_date = DataIngestion.return_valid_date()
         input_file_created_at = datetime.strftime(datetime.now(), "%d/%m/%Y %H:%M:%S")
         input_file_updated_at = input_file_created_at
 
-        return DataIngestion(input_file_path, input_file_basename, output_json_path, 
+        return DataIngestion(input_file_path, input_file_basename, input_worksheet_name, input_json_path, 
                              input_file_id, input_file_code, input_file_title, input_file_subtitle, 
                              input_file_issue_date, input_file_created_at, input_file_updated_at)
+
+    @staticmethod
+    def auto_generate_ins(process_continuity, input_file, input_worksheet_name, 
+                          input_json_file, input_json_title):
+        
+        if process_continuity == 'y':
+            input_file_path, input_file_basename = DataIngestion.file_verification(
+                input_file, 'excel', 'r')
+            input_json_path, _ = DataIngestion.file_verification(
+                    input_json_file, 'json', 'c')
+            input_file_id = len([file for file in os.listdir(input_json_path) if file.endswith('json')])
+            input_file_code = f"{input_json_title.strip()}_{input_file_id}"
+            input_file_title = input_json_title.strip()
+            input_file_subtitle = input_json_title.strip()
+            input_file_issue_date = DataIngestion.return_valid_date()
+            input_file_created_at = datetime.strftime(datetime.now(), "%d/%m/%Y %H:%M:%S")
+            input_file_updated_at = input_file_created_at
+
+            ins = DataIngestion(input_file_path, input_file_basename, input_worksheet_name, input_json_path, 
+                                input_file_id, input_file_code, input_file_title, input_file_subtitle, 
+                                input_file_issue_date, input_file_created_at, input_file_updated_at)
+            
+            return ins
 
     @staticmethod
     def is_type_file(input_basename):
@@ -70,6 +111,74 @@ class DataIngestion:
 
         print("Unknown file type.")
         return None
+    
+    @staticmethod
+    def file_verification(input_file_path, file_type, mode):
+        if os.path.isdir(input_file_path):
+            file_path, file_basename = DataIngestion.handle_dir(input_file_path, mode)
+            if mode != 'c':
+                path, basename = DataIngestion.handle_file(file_path, file_basename, file_type)
+            else:
+                path = file_path
+                basename = file_basename
+        elif os.path.isfile(input_file_path):
+            file_path = os.path.dirname(input_file_path)
+            file_basename = os.path.basename(input_file_path)
+            path, basename = DataIngestion.handle_file(file_path, file_basename, file_type)
+
+        return path, basename
+    
+    @staticmethod
+    def handle_dir(input_path, mode):
+        if mode in ['u', 'r', 'd']:
+            dir_list = os.listdir(input_path)
+            selection = DataIngestion.display_directory_files(dir_list)
+            base_name = dir_list[selection]
+            print(f'File selected: {base_name}\n')
+        elif mode == 'c':
+            base_name = None
+        else:
+            print("Error: Invalid mode specified.")
+            return -1
+        
+        return input_path, base_name
+
+    @staticmethod
+    def handle_file(file_path, file_basename, file_type):
+        file = os.path.join(file_path, file_basename)
+
+        valid_file_types = {
+            "csv": "c",
+            "excel": DataIngestion.is_xlsx(file),
+            "json": DataIngestion.is_json(file),
+            "pdf": "p",
+        }
+
+        if (valid_file_types[file_type]):
+            return os.path.dirname(file), os.path.basename(file)
+        
+        print("Error: Please verify that the directory and file exist and that the file is of type .xlsx or .json")
+        return -1
+
+    @staticmethod
+    def return_valid_path():
+        while(True):   
+            value = input("Please enter the directory to save the new JSON file: ").strip()
+            try:
+                if os.path.isdir(value):
+                    return value
+            except Exception as e:
+                print(f"Error. {e}\n")
+
+    @staticmethod
+    def return_valid_date():
+        while(True):   
+            value = input("Enter Issue Date (format: dd-MMM-yyyy): ").strip()
+            try:
+                if datetime.strptime(value, "%d-%b-%Y"):
+                    return value
+            except Exception as e:
+                print(f"Error. {e}\n")
 
     @staticmethod
     def display_directory_files(list):
@@ -93,6 +202,22 @@ class DataIngestion:
         return int(selection_idx) - 1
 
     @staticmethod
+    def is_json(file_name):
+        if file_name.endswith('.json'):
+            return True
+        else:
+            print('Error: Selected file is not a JSON file')
+            return False
+
+    @staticmethod
+    def is_xlsx(file_name):
+        if file_name.endswith('.xlsx'):
+            return True
+        else:
+            print('Error. Selected file is not an Excel')
+            return False
+
+    @staticmethod
     def normalize_entry(entry_str):
         remove_bewteen_parenthesis = re.sub('(?<=\()(.*?)(?=\))', '', entry_str)
         special_chars = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
@@ -100,12 +225,6 @@ class DataIngestion:
         normalized_str = re.sub(' ', '_', remove_special_chars)
 
         return normalized_str
-
-    def update_file(self):
-        update_time = datetime.strftime(datetime.now(), "%d/%m/%Y %H:%M:%S")
-        self.update_file = update_time
-        
-        return self.update_file
 
     def return_excel_workspace(self, worksheet_name):
         file = os.path.join(self.input_path, self.input_basename)
@@ -152,8 +271,38 @@ class DataIngestion:
         json_header = self.json_fill_header(file_headers)
         json_obj = self.json_fill_body(ws, json_header)
         json_obj["project_metadata"]["updated_at"] = self.update_file()
+        reworked_json = self.fill_missing_dates(json_obj)
+        earliest_start, latest_finish = self.project_dates(reworked_json)
+        reworked_json["project_metadata"]["project_start"] = earliest_start
+        reworked_json["project_metadata"]["project_finish"] = latest_finish
 
-        self.write_json(json_obj)
+        # WIP
+        #json_obj_with_locations = self.identify_location(reworked_json)
+
+        nested_json = self.build_nested_dic(reworked_json)
+
+        return reworked_json, nested_json
+    
+    def handle_xml(self):
+        file = os.path.join(self.input_path, self.input_basename)
+
+        tree = ET.parse(file)
+        root = tree.getroot()
+        ns = {'ms': 'http://schemas.microsoft.com/project'}
+
+        xml_tasks = []
+        for task in root.findall("./ms:Tasks/ms:Task", ns):
+            xml_tasks.append(task)
+
+        json_dict_list = []
+        if xml_tasks:
+            for task in xml_tasks:
+                task_data = {child.tag.split('}')[-1]: child.text.strip() for child in task}
+                json_dict_list.append(task_data)
+        else:
+            print("No <Task> elements found")
+
+        return json_dict_list   
 
     def _xlsx_return_header(self, active_worksheet):
         ws = active_worksheet
@@ -178,6 +327,8 @@ class DataIngestion:
                 "file_title": self.file_title,
                 "file_subtitle": self.file_subtitle,
                 "issue_date": self.file_issue_date,
+                "project_start": None,
+                "project_finish": None,
                 "created_at": self.file_created_at,
                 "updated_at": self.file_created_at
             },
@@ -212,7 +363,9 @@ class DataIngestion:
         header_coordinates_list = [dict_tuple[1] for dict_tuple in normalized_header]
         header_key_list = [dict_tuple[0] for dict_tuple in normalized_header]
 
-        first_header_col_letter, first_header_row = self.get_column_coordinates(header_dict, normalized_header[0][0])
+        first_header_col_letter, first_header_row = self.get_column_coordinates(
+            header_dict, normalized_header[0][0]
+        )
         last_header_col_letter, _ = self.get_column_coordinates(header_dict, normalized_header[-1][0])
         first_header_col = column_index_from_string(first_header_col_letter)
         last_header_col = column_index_from_string(last_header_col_letter)
@@ -227,7 +380,7 @@ class DataIngestion:
                 if cell.value:        
                     position = header_coordinates_list.index(parent_header)
                     key = header_key_list[position]
-                    json_activity[key] = self.check_date_data_type(cell.value)
+                    json_activity[key] = self.normalize_data_value(key, cell.value)
                 else:
                     position = header_coordinates_list.index(parent_header)
                     key = header_key_list[position]
@@ -235,6 +388,64 @@ class DataIngestion:
 
             body_dict.append(json_activity)
             entry_counter += 1
+
+        return json_obj
+
+    def update_file(self):
+        update_time = datetime.strftime(datetime.now(), "%d/%m/%Y %H:%M:%S")
+        self.update_file = update_time
+        
+        return self.update_file
+
+    def project_dates(self, json_obj):
+        body_dict = json_obj["project_content"]["body"]
+        start_list = [date["start"] for date in body_dict]
+        finish_list = [date["finish"] for date in body_dict]
+
+        earliest_start = self.bubble_sort_dates(start_list)[0]        
+        latest_finish = self.bubble_sort_dates(finish_list)[-1]        
+
+        return earliest_start, latest_finish
+
+    def bubble_sort_dates(self, unsorted_list):
+        n = len(unsorted_list)
+
+        for i in range(n):
+            for j in range(n-i-1):
+                value_j = unsorted_list[j]
+                value_j1 = unsorted_list[j+1]
+
+                try:
+                    if isinstance(value_j, str) and isinstance(value_j1, str):
+                        value_j = datetime.strptime(value_j, "%d-%b-%Y").date()
+                        value_j1 = datetime.strptime(value_j1, "%d-%b-%Y").date()
+
+                    elif isinstance(value_j1, datetime):
+                        value_j = value_j.date()
+                        value_j1 = value_j1.date()
+
+                except Exception as e:
+                    print(f"Error: {e}")
+                else:
+                    if value_j > value_j1:
+                        unsorted_list[j], unsorted_list[j+1] = unsorted_list[j+1], unsorted_list[j]
+
+        return unsorted_list
+
+    def fill_missing_dates(self, json_obj):
+        body_dict = json_obj["project_content"]["body"]
+
+        start_date_list = [item["start"] for item in body_dict]
+        finish_date_list = [item["finish"] for item in body_dict]
+
+        for idx, start_date in enumerate(start_date_list):
+            finish_date = finish_date_list[idx]
+
+            if start_date is None or start_date == "":
+                body_dict[idx]["start"] = finish_date
+
+            if finish_date is None or finish_date == "":
+                body_dict[idx]["finish"] = start_date
 
         return json_obj
 
@@ -251,58 +462,109 @@ class DataIngestion:
         column = column_match.group(0)
 
         return column, row 
+        
+    def normalize_data_value(self, header_column, cell_value):
+        if isinstance(cell_value, str):
+            if header_column == 'start' or header_column == 'finish':
+                result = self.format_date_string(cell_value)
+            else:
+                result = cell_value.strip()
 
-    def check_date_data_type(self, date_val: Union[str, date]) -> str:
-        if isinstance(date_val, str):
-            return date_val
-        elif isinstance(date_val, date):
-            return date_val.strftime('%d-%b-%y %H:%M:%S')
+            return result
+        elif isinstance(cell_value, date):
+            return cell_value.strftime('%d-%b-%Y')
+        elif isinstance(cell_value, int) or isinstance(cell_value, float):
+            if cell_value == 0:
+                cell_value = "0"
+            return str(cell_value)
         else:
-            return -1
+            return None
 
-    def write_json(self, json_obj):
-        file = os.path.join(self.output_json_path, f"{self.output_json_basename}.json")
+    def format_date_string(self, date_string, output_format="%d-%b-%Y"):
+        try:
+            special_chars = re.compile('[@_!#$%^&*()<>?\|}{~:]')
 
-        json_obj_with_locations = self.identify_location(json_obj)
+            if re.search(special_chars, date_string):
+                cleaned_date_string = re.sub(special_chars, '', date_string)
+            else:
+                cleaned_date_string = re.sub("[a-zA-Z]$", '', date_string)
+            
+
+            parsed_date = parser.parse(cleaned_date_string.strip())
+            formatted_date = parsed_date.strftime(output_format)
+
+            return formatted_date
+        except ValueError as e:
+            print(f"Error parsing date: {e}")
+            return None
+
+    def write_json(self, json_obj, processed_json=False):
+        if processed_json:
+            file_name = f"processed_{self.output_json_basename}.json"
+            file = os.path.join(self.output_json_path, file_name)
+        else:
+            file_name = f"{self.output_json_basename}.json"
+            file = os.path.join(self.output_json_path, file_name)
 
         with open(file, 'w') as file_writer:
-            json.dump(json_obj_with_locations, file_writer)
+            json.dump(json_obj, file_writer)
 
-        print(f"JSON data successfully created and saved to {self.output_json_basename}.")
+        print(f"JSON data successfully created and saved to {file_name}.")
 
-    def create_wbs_table_to_fill(self):
-        proc_table = self.generate_wbs_to_fill()
-        self.write_data_to_excel(proc_table)
+    def build_nested_dic(self, json_obj):
+        metadata_dict = json_obj["project_metadata"]
+        header_dict = json_obj["project_content"]["header"]
+        body_dict = json_obj["project_content"]["body"]
 
-    def generate_wbs_to_fill(self):
-        json_file = os.path.join(self.output_json_path, f"{self.output_json_basename}.json")
-        with open(json_file, 'r') as json_reader:
-            json_obj = json.load(json_reader)
+        nested_dict = {
+            "project_metadata": metadata_dict,
+            "project_content": {
+                "header": header_dict,
+                "body": {}
+            }
+        }
 
-        df = pd.DataFrame(json_obj["project_content"]["body"])
+        def dict_management(obj, key_list, recursive_dict):
+            if not key_list:
+                return recursive_dict
+
+            current_key = key_list.pop(0)
+            obj_key = obj.get(current_key)
+
+            if obj_key is not None and obj_key != "":
+                if len(key_list) < 1:
+                    if obj_key not in recursive_dict:
+                        recursive_dict[obj_key] = []
+                    recursive_dict[obj_key].append(obj)
+                else:
+                    if obj_key not in recursive_dict:
+                        recursive_dict[obj_key] = {}
+                    dict_management(obj, key_list, recursive_dict[obj_key])
+            else:
+                if "M_DATA" not in recursive_dict:
+                    recursive_dict["M_DATA"] = []
+                recursive_dict["M_DATA"].append(obj)
+
+            return recursive_dict
+
+
+        for obj in body_dict:
+            keys = [category for category in self.json_categories if obj.get(category) is not None]
+            nested_dict["project_content"]["body"] = dict_management(
+                obj, keys, nested_dict["project_content"]["body"]
+            )
         
-        df[['phase', 'location', 'sub_location','trade', 'color']] = df[['phase', 'location', 'sub_location', 'trade', 'color']].fillna('')
+        return nested_dict
 
-        proc_table = pd.pivot_table(
-            df,
-            index=["activity_id", "activity_name"],
-            values=["activity_code", "phase", "location", "sub_location", "trade", "color", "start", "finish"],
-            aggfunc='first',
-            fill_value=''
-        )
+    def create_wbs_table_to_fill(self, data:list, excel_path, excel_basename):
+        proc_table = self.generate_wbs_to_fill(data)
+        self.write_data_to_excel(proc_table, excel_path, excel_basename)
 
-        column_header_list = proc_table.columns.tolist()
-        
-        if "finish" in column_header_list and column_header_list[-1] != "finish":
-            ordered_header_list = self.order_table_cols(column_header_list)
-        else:
-            ordered_header_list = column_header_list
+    def generate_wbs_to_fill(self, json_obj):
+        df = pd.DataFrame(json_obj) 
+        df.fillna("", inplace=True)
 
-        proc_table = proc_table[ordered_header_list]
-
-        print(proc_table)
-
-        return proc_table
+        return df
 
     def order_table_cols(self, column_list):
         for idx, col in enumerate(column_list):
@@ -314,15 +576,19 @@ class DataIngestion:
         
         return column_list
 
-    def write_data_to_excel(self, proc_table):
+    def write_data_to_excel(self, proc_table, excel_path, excel_basename):
         if proc_table.empty:    
             print("Error. DataFrame is empty\n")
         else:
-            file = os.path.join(self.input_path, self.input_basename)
+            excel_basename = self.input_basename.split('.')[0] + '.xlsx'
+            file = os.path.join(excel_path, excel_basename)
             ws_name = "CFA - Fill Table"
 
+            if not os.path.exists(excel_path):
+                os.mkdir(excel_path)
+
             try:
-                with pd.ExcelWriter(file, engine="openpyxl", mode='a', if_sheet_exists='replace') as writer:
+                with pd.ExcelWriter(file, engine="openpyxl", mode='w') as writer:
                     proc_table.to_excel(
                         writer, 
                         sheet_name = ws_name, 
@@ -412,5 +678,4 @@ class DataIngestion:
 
 
 if __name__ == "__main__":
-    DataIngestion.main()
-    
+    DataIngestion.main(False)
