@@ -1,8 +1,9 @@
 import os
+import re
 import json
 import pandas as pd
 from openpyxl import load_workbook
-from openpyxl.utils import column_index_from_string
+from openpyxl.utils import column_index_from_string, get_column_letter
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 
 class LegendsFramework():
@@ -32,7 +33,6 @@ class LegendsFramework():
         
         active_workbook, active_worksheet = project.return_excel_workspace(project.ws_name)
 
-        #struct_dic = project.fashion_json()
         table = project.design_json_table()
         project.generate_legends_table(active_workbook, active_worksheet, table)
 
@@ -67,7 +67,7 @@ class LegendsFramework():
     @staticmethod
     def file_verification(input_file_path, file_type, mode, input_json_title=None):
         if input_json_title and os.path.isdir(input_file_path):
-            file_basename = f"processed_{input_json_title}.json"
+            file_basename = f"processed_{LegendsFramework.normalize_entry(input_json_title)}.json"
             path, basename = LegendsFramework.handle_file(input_file_path, file_basename, file_type)
         else:
             if os.path.isdir(input_file_path):
@@ -161,6 +161,15 @@ class LegendsFramework():
 
         return lum
 
+    @staticmethod
+    def normalize_entry(entry_str):
+        remove_bewteen_parenthesis = re.sub('(?<=\()(.*?)(?=\))', '', entry_str)
+        special_chars = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
+        remove_special_chars = re.sub(special_chars, '', remove_bewteen_parenthesis.lower())
+        normalized_str = re.sub(' ', '_', remove_special_chars)
+
+        return normalized_str
+
     def return_excel_workspace(self, worksheet_name):
         file = os.path.join(self.excel_path, self.excel_basename)
         
@@ -198,36 +207,6 @@ class LegendsFramework():
                     print("Invalid input. Please enter 'Y' for Yes, 'N' for No, or 'Q' to Quit.")
         
         return workbook, worksheet
-    
-    def fashion_json(self):
-        j_file = os.path.join(self.json_path, self.json_basename)
-
-        with open(j_file, 'r') as json_file:
-            data = json.load(json_file)
-        
-        df = self.flatten_json(data["project_content"][0])
-        df_keys = list(df.keys())
-        struct_dic = {}
-
-        for key in df_keys:
-            phase_key = key.split('|')[0]
-            trade_key = key.split('|')[2]
-            act_json_obj = {
-                "entry": df[key].get("entry", None),
-                "activity_code": df[key].get("activity_code", ""),
-                "activity_name": df[key].get("activity_name", ""),
-                "color": df[key].get("color", "")
-            }
-
-            if phase_key not in struct_dic:
-                struct_dic[phase_key] = {}
-            
-            if trade_key not in struct_dic[phase_key]:
-                struct_dic[phase_key][trade_key] = []
-
-            struct_dic[phase_key][trade_key].append(act_json_obj)
-        
-        return struct_dic
 
     def design_json_table(self):
         j_file = os.path.join(self.json_path, self.json_basename)
@@ -235,7 +214,7 @@ class LegendsFramework():
         with open(j_file, 'r') as json_file:
             data = json.load(json_file)
         
-        df = self.flatten_json(data["project_content"][0])
+        df = self.flatten_json(data["project_content"]["body"])
         df_keys = list(df.keys())
         struct_dic = []
 
@@ -257,188 +236,6 @@ class LegendsFramework():
 
         return df_table
     
-    def generate_legends_table(self, active_wb, active_ws, og_table):
-        wb = active_wb
-        ws = active_ws
-        file = os.path.join(self.excel_path, self.excel_basename)
-        
-        proc_table = pd.pivot_table(
-            og_table,
-            index=["phase", "trade", "activity_code", "color"],
-            values="activity_name",
-            aggfunc='first'
-        )
-        """                                      
-        phase   trade   activity_code    activity_name
-        Phase 1 Trade 1 1A               Activity 1
-                        1B               Activity 2
-                        1C               Activity 3
-                        1D               Activity 4
-                        1E               Activity 5
-                Trade 2 2A               Activity 1
-                        2B               Activity 2
-                        2C               Activity 3
-                        2D               Activity 4
-                        2E               Activity 5
-        Phase 2 Trade 1 1A               Activity 1
-                        1B               Activity 2 """
-        current_row = self.start_row
-        current_col = column_index_from_string(self.start_col)
-        current_phase = None
-        current_trade = None
-        counter = 0
-
-        for (phase, trade, activity_code, color) in proc_table.index:
-            if counter == 0:
-                if phase != current_phase:
-                    current_row = self.start_row
-                    self.style_cell(ws, current_row, current_col, phase, "00800080")
-                    ws.merge_cells(start_row=current_row, 
-                                   start_column=current_col, 
-                                   end_row=current_row, 
-                                   end_column=current_col + 1)
-                    current_phase = phase
-                    current_row += 1 
-
-                if trade != current_trade:
-                    current_row += 1 
-                    self.style_cell(ws, current_row, current_col, trade, self.process_hex_val(color))
-                    ws.merge_cells(start_row=current_row, 
-                                   start_column=current_col, 
-                                   end_row=current_row, 
-                                   end_column=current_col + 1)
-                    current_trade = trade  
-                    current_row += 1 
-
-                self.style_cell(ws, current_row, current_col, activity_code, self.process_hex_val(color))                
-                self.style_cell(ws, current_row, current_col + 1, proc_table.loc[(phase, trade, activity_code, color)].values[0] , "00FFFFFF")
-
-                current_row += 1  
-            else:
-                if phase != current_phase:
-                    current_col += 3
-                    current_row = self.start_row
-                    self.style_cell(ws, current_row, current_col, phase, "00800080")
-                    ws.merge_cells(start_row=current_row, 
-                                   start_column=current_col, 
-                                   end_row=current_row, 
-                                   end_column=current_col + 1)
-                    current_phase = phase
-                    current_row += 1 
-
-                if trade != current_trade:
-                    current_row += 1 
-                    self.style_cell(ws, current_row, current_col, trade, self.process_hex_val(color))
-                    ws.merge_cells(start_row=current_row, 
-                                   start_column=current_col, 
-                                   end_row=current_row, 
-                                   end_column=current_col + 1)
-                    current_trade = trade  
-                    current_row += 1
-
-                self.style_cell(ws, current_row, current_col, activity_code, self.process_hex_val(color))
-                self.style_cell(ws, current_row, current_col + 1, proc_table.loc[(phase, trade, activity_code, color)].values[0] , "00FFFFFF")
-
-                current_row += 1      
-
-            counter +=1        
-
-        wb.save(filename=file)
-        print("Legends table generated successfully.")
-
-    def process_hex_val(self, hex_val):
-        if '#' in hex_val:
-            hex_val = hex_val.replace('#', "00")
-
-        if len(hex_val) != 8:
-            print(f"Error: Invalid hex value '{hex_val}'. Hex values must be 6 characters long.\n")
-            return self.default_hex_fill_color
-
-        return hex_val
-
-    def style_cell(self, active_ws, current_row, current_col, val, color_hex):
-        ws = active_ws
-        try:
-            cell = ws.cell(row=current_row, 
-                            column=current_col, 
-                            value=val)
-            cell.alignment = Alignment(horizontal="center", 
-                                        vertical="center")
-            
-            cell.border = Border(left=Side(border_style="thin", color="00000000"),
-                                right=Side(border_style="thin", color="00000000"),
-                                top=Side(border_style="thin", color="00000000"),
-                                bottom=Side(border_style="thin", color="00000000"))
-
-            cell.fill = PatternFill(start_color=color_hex, 
-                                    end_color=color_hex, 
-                                    fill_type="solid")
-            
-            rgb = LegendsFramework.hex2rgb(color_hex)
-            lum_rgb = LegendsFramework.calculateLuminance(rgb[0], rgb[1], rgb[2])
-
-            if lum_rgb > 0.5:
-                cell.font = Font(name="Calibri", size="12", bold=True, color=self.dark_default_hex_font)
-            else:
-                cell.font = Font(name="Calibri", size="12", bold=True, color=self.light_default_hex_font)
-
-        except KeyError as e:
-            print(f"Error styling cell at row {current_row}, column {current_col}: {e}")
-
-    def generate_legends_frame(self, table):
-        excel_file = os.path.join(self.excel_path, self.excel_basename)
-
-        if isinstance(table, pd.DataFrame) and not table.empty:
-            with pd.ExcelWriter(excel_file, engine='openpyxl', mode='a', if_sheet_exists="overlay") as writer:
-                table.to_excel(writer, sheet_name=self.ws_name, index=False,
-                            startrow=self.start_row - 1,
-                            startcol=column_index_from_string(self.start_col) - 1)
-
-            print(f"Successfully converted JSON to Excel and saved to {excel_file}")
-        else:
-            print("The provided table is not a valid DataFrame or is empty.")
-
-    def generate_data_frame(self, struct_dic):
-        temp_list = []
-        final_list = []
-
-        for key, val in struct_dic.items():
-            current_phase = key
-            legend_table_header = {
-                "phase": key,
-                "trades": []
-            }
-
-            for trade in val:
-                act_list = struct_dic[current_phase][trade]
-                legend_table_body = [{
-                    "trade": trade,
-                    "activity_code": activity["activity_code"],
-                    "activity_name": activity["activity_name"],
-                } for activity in act_list]
-
-                legend_table_header["trades"].append(legend_table_body)
-            
-            temp_list.append(legend_table_header)
-            
-            
-        df = pd.DataFrame(temp_list)
-        pvt_df = df.pivot_table(columns="phase", values="trades", aggfunc='first')
-        print(pvt_df)
-
-    def write_data_to_excel(self, flatten_dic, sheet_name):
-        e_file = os.path.join(self.excel_path, self.excel_basename)
-        flatten_df = pd.DataFrame(flatten_dic)
-        print(flatten_df)
-
-        try:
-            with pd.ExcelWriter(e_file, engine='openpyxl', mode='w') as writer:
-                flatten_df.to_excel(writer, sheet_name=sheet_name, index=False, startrow=3)
-
-            print(f"Data successfully written to {sheet_name} in {self.filled_excel_path}.")
-        except Exception as e:
-            print(f"An unexpected error occurred: {e}")
-
     def flatten_json(self, json_obj):
         new_dic = {}
 
@@ -463,6 +260,183 @@ class LegendsFramework():
 
         return new_dic
 
+    def generate_legends_table(self, active_wb, active_ws, og_table):
+        wb = active_wb
+        ws = active_ws
+        file = os.path.join(self.excel_path, self.excel_basename)
+        
+        proc_table = pd.pivot_table(
+            og_table,
+            index=["phase", "trade", "activity_code", "color"],
+            values="activity_name",
+            aggfunc='first'
+        )
+
+        column_width_dict = self.define_column_width(proc_table)
+        current_row = self.start_row
+        current_col = column_index_from_string(self.start_col)
+        current_phase = None
+        current_trade = None
+        counter = 0
+
+        for (phase, trade, activity_code, color) in proc_table.index:
+            if counter == 0:
+                if phase != current_phase:
+                    current_row = self.start_row
+                    self._style_cell(ws, 
+                                    current_row, 
+                                    current_col, 
+                                    phase, 
+                                    "00800080", 
+                                    "center",
+                                    column_width_dict[phase])
+                    ws.merge_cells(start_row=current_row, 
+                                   start_column=current_col, 
+                                   end_row=current_row, 
+                                   end_column=current_col + 1)
+                    current_phase = phase
+                    current_row += 1 
+
+                if trade != current_trade:
+                    current_row += 1 
+                    self._style_cell(ws, 
+                                    current_row, 
+                                    current_col, 
+                                    trade, 
+                                    self.process_hex_val(color), 
+                                    "center",
+                                    column_width_dict[phase])
+                    ws.merge_cells(start_row=current_row, 
+                                   start_column=current_col, 
+                                   end_row=current_row, 
+                                   end_column=current_col + 1)
+                    current_trade = trade  
+                    current_row += 1 
+
+                self._style_cell(ws, 
+                                current_row, 
+                                current_col, 
+                                activity_code, 
+                                self.process_hex_val(color), 
+                                "center",
+                                column_width_dict[phase])                
+                self._style_cell(ws, 
+                                current_row, 
+                                current_col + 1, 
+                                proc_table.loc[(phase, trade, activity_code, color)].values[0], 
+                                "00FFFFFF",
+                                "left",
+                                column_width_dict[phase])
+
+                current_row += 1  
+            else:
+                if phase != current_phase:
+                    current_col += 3
+                    current_row = self.start_row
+                    self._style_cell(ws, 
+                                    current_row, 
+                                    current_col, 
+                                    phase, 
+                                    "00800080", 
+                                    "center",
+                                    column_width_dict[phase])
+                    ws.merge_cells(start_row=current_row, 
+                                   start_column=current_col, 
+                                   end_row=current_row, 
+                                   end_column=current_col + 1)
+                    current_phase = phase
+                    current_row += 1 
+
+                if trade != current_trade:
+                    current_row += 1 
+                    self._style_cell(ws, 
+                                    current_row, 
+                                    current_col, 
+                                    trade, 
+                                    self.process_hex_val(color),
+                                    "center",
+                                    column_width_dict[phase])
+                    ws.merge_cells(start_row=current_row, 
+                                   start_column=current_col, 
+                                   end_row=current_row, 
+                                   end_column=current_col + 1)
+                    current_trade = trade  
+                    current_row += 1
+
+                self._style_cell(ws, 
+                                current_row, 
+                                current_col, 
+                                activity_code, 
+                                self.process_hex_val(color),
+                                "center",
+                                column_width_dict[phase])
+                self._style_cell(ws, 
+                                current_row, 
+                                current_col + 1, 
+                                proc_table.loc[(phase, trade, activity_code, color)].values[0], 
+                                "00FFFFFF",
+                                "left",
+                                column_width_dict[phase])
+
+                current_row += 1      
+
+            counter +=1        
+
+        wb.save(filename=file)
+        print("Legends table generated successfully.")
+
+    def define_column_width(self, proc_table):
+        phase_widths = {}
+
+        for phase, group in proc_table.groupby(level="phase"):
+            max_length = max(len(str(activity)) for activity in group["activity_name"].dropna())
+            adjusted_width = max_length + 2
+            phase_widths[phase] = adjusted_width
+
+        return phase_widths
+
+    def process_hex_val(self, hex_val):
+        if '#' in hex_val:
+            hex_val = hex_val.replace('#', "00")
+
+        if len(hex_val) != 8:
+            print(f"Error: Invalid hex value '{hex_val}'. Hex values must be 6 characters long.\n")
+            return self.default_hex_fill_color
+
+        return hex_val
+
+    def _style_cell(self, active_ws, current_row, current_col, val, color_hex, horz_alignment, cell_width=50):
+        ws = active_ws
+        try:
+            cell = ws.cell(row=current_row, 
+                            column=current_col, 
+                            value=val)
+            cell.alignment = Alignment(horizontal=horz_alignment, 
+                                        vertical="center")
+            
+            cell.border = Border(left=Side(border_style="thin", color="00000000"),
+                                right=Side(border_style="thin", color="00000000"),
+                                top=Side(border_style="thin", color="00000000"),
+                                bottom=Side(border_style="thin", color="00000000"))
+
+            cell.fill = PatternFill(start_color=color_hex, 
+                                    end_color=color_hex, 
+                                    fill_type="solid")
+            
+            rgb = LegendsFramework.hex2rgb(color_hex)
+            lum_rgb = LegendsFramework.calculateLuminance(rgb[0], rgb[1], rgb[2])
+
+            if lum_rgb > 0.5:
+                cell.font = Font(name="Calibri", size="12", bold=True, color=self.dark_default_hex_font)
+            else:
+                cell.font = Font(name="Calibri", size="12", bold=True, color=self.light_default_hex_font)
+
+            ws.column_dimensions[get_column_letter(cell.column)].width = cell_width
+        except KeyError as e:
+            print(f"Error styling cell at row {current_row}, column {current_col}: {e}")
+    
+    def _set_column_width(self):
+        pass
 
 if __name__ == "__main__":
     LegendsFramework.main(False)
