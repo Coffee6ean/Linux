@@ -16,7 +16,7 @@ class DataIngestion:
         self.input_basename = input_file_basename
         self.ws_name = input_worksheet_name
         self.output_json_path = input_json_path
-        self.output_json_basename = DataIngestion.normalize_entry(input_file_title)
+        self.output_json_basename = DataIngestion.normalize_string(input_file_title)
         self.file_id = input_file_id
         self.file_code = input_file_code
         self.file_title = input_file_title
@@ -27,6 +27,15 @@ class DataIngestion:
         self.xlsx_start_row = xlsx_start_row
         self.xlsx_start_col = xlsx_start_col
         self.json_categories = ["phase", "location", "area", "trade", "activity_code"]
+        self.allowed_headers = {
+            "activity_code": ["code", "task_code"],
+            "activity_status": ["status", "task_status"]
+        }
+
+        #Instance Results
+        self.initial_project_type:str = None
+        self.final_project_type:any = None
+        self.final_project_dict:dict = None
 
     @staticmethod
     def main(auto=True, process_continuity=None, input_file=None, input_worksheet_name=None,
@@ -37,6 +46,7 @@ class DataIngestion:
         else:
             project = DataIngestion.generate_ins()
 
+        project_final = {}
         file_type = project.is_type_file(project.input_basename)
 
         if file_type == "xlsx":
@@ -48,11 +58,21 @@ class DataIngestion:
             reworked_json, nested_json = project.handle_xlsx(worksheet)
             project.write_json(reworked_json)
             project.write_json(nested_json, True)
+            final_result = nested_json
         elif file_type == "xml":
             excel_dir = input("Please enter the directory to save the new Excel file: ")
             excel_path, excel_basename = DataIngestion.file_verification(excel_dir, 'e', 'c')
             reworked_json = project.handle_xml()
-            project.create_wbs_table_to_fill(reworked_json, excel_path, excel_basename)
+            final_result = project.create_wbs_table_to_fill(reworked_json, excel_path, excel_basename)
+        
+        project_final = {
+            "init_file_type": file_type,
+            "final_file_type": type(final_result),
+            "final_project_dict": nested_json,
+        }
+
+        DataIngestion.document_project(project, project_final)
+        return project
 
     @staticmethod
     def generate_ins():
@@ -69,9 +89,11 @@ class DataIngestion:
         input_file_created_at = datetime.strftime(datetime.now(), "%d/%m/%Y %H:%M:%S")
         input_file_updated_at = input_file_created_at
 
-        return DataIngestion(input_file_path, input_file_basename, input_worksheet_name, input_json_path, 
+        ins =  DataIngestion(input_file_path, input_file_basename, input_worksheet_name, input_json_path, 
                              input_file_id, input_file_code, input_file_title, input_file_subtitle, 
                              input_file_issue_date, input_file_created_at, input_file_updated_at)
+        
+        return ins
 
     @staticmethod
     def auto_generate_ins(process_continuity, input_file, input_worksheet_name, 
@@ -218,13 +240,19 @@ class DataIngestion:
             return False
 
     @staticmethod
-    def normalize_entry(entry_str):
+    def normalize_string(entry_str:str) -> str:
         remove_bewteen_parenthesis = re.sub('(?<=\()(.*?)(?=\))', '', entry_str)
         special_chars = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
-        remove_special_chars = re.sub(special_chars, '', remove_bewteen_parenthesis.lower())
+        remove_special_chars = re.sub(special_chars, '', remove_bewteen_parenthesis.lower()).strip()
         normalized_str = re.sub(' ', '_', remove_special_chars)
 
         return normalized_str
+
+    @staticmethod
+    def document_project(project_ins, project_final:dict) -> None:
+        project_ins.initial_project_type = project_final.get("init_file_type")
+        project_ins.final_project_type = project_final.get("final_file_type")
+        project_ins.final_project_dict = project_final.get("final_project_dict")
 
     def return_excel_workspace(self, worksheet_name):
         file = os.path.join(self.input_path, self.input_basename)
@@ -314,10 +342,22 @@ class DataIngestion:
                                 min_col=start_col, max_col= ws.max_column):
             for cell in row:
                 if cell.value is not None:
-                    header_tuple = (cell.coordinate, self.normalize_entry(cell.value))
+                    normalized_str = self.normalize_string(cell.value)
+                    header_tuple = (cell.coordinate, self._verify_header(normalized_str))
                     header_list.append(header_tuple)
 
         return header_list
+    
+    def _verify_header(self, entry_str:str) -> str:
+        flat_allowed_headers = {value: key for key, values in self.allowed_headers.items() for value in values}
+
+        if entry_str in flat_allowed_headers:
+            result = flat_allowed_headers[entry_str]
+        else:
+            print(f"Warning. Header '{entry_str}' not found in declared dictionary")
+            result = entry_str
+
+        return result
 
     def json_fill_header(self, file_headers):
         json_obj_frame = {
@@ -397,6 +437,24 @@ class DataIngestion:
         
         return self.update_file
 
+    def fill_missing_dates(self, json_obj):
+        body_dict = json_obj["project_content"]["body"]
+
+        for item in body_dict:
+            start = item.get("start")
+            finish = item.get("finish")
+
+            if start == "" and finish == "":
+                print(f"Both 'start' and 'finish' are missing for entry: {item['entry']}")
+            elif start == "":
+                item["start"] = finish
+            elif finish == "":
+                item["finish"] = start
+        
+        json_obj["project_content"]["body"] = body_dict
+
+        return json_obj
+
     def project_dates(self, json_obj):
         body_dict = json_obj["project_content"]["body"]
         start_list = [date["start"] for date in body_dict]
@@ -431,23 +489,6 @@ class DataIngestion:
                         unsorted_list[j], unsorted_list[j+1] = unsorted_list[j+1], unsorted_list[j]
 
         return unsorted_list
-
-    def fill_missing_dates(self, json_obj):
-        body_dict = json_obj["project_content"]["body"]
-
-        start_date_list = [item["start"] for item in body_dict]
-        finish_date_list = [item["finish"] for item in body_dict]
-
-        for idx, start_date in enumerate(start_date_list):
-            finish_date = finish_date_list[idx]
-
-            if start_date is None or start_date == "":
-                body_dict[idx]["start"] = finish_date
-
-            if finish_date is None or finish_date == "":
-                body_dict[idx]["finish"] = start_date
-
-        return json_obj
 
     def get_column_coordinates(self, header_dict, header_key):
         coordinates = header_dict[header_key]
@@ -559,6 +600,8 @@ class DataIngestion:
     def create_wbs_table_to_fill(self, data:list, excel_path, excel_basename):
         proc_table = self.generate_wbs_to_fill(data)
         self.write_data_to_excel(proc_table, excel_path, excel_basename)
+
+        return proc_table
 
     def generate_wbs_to_fill(self, json_obj):
         df = pd.DataFrame(json_obj) 
@@ -678,4 +721,8 @@ class DataIngestion:
 
 
 if __name__ == "__main__":
-    DataIngestion.main(False)
+    project = DataIngestion.main(False)
+
+    #print(project.initial_project_type)
+    #print(project.final_project_type)
+    #print(project.final_project_dict)
