@@ -10,17 +10,18 @@ from openpyxl.utils import get_column_letter, column_index_from_string
 
 class DataIngestion:
     def __init__(self, input_file_path, input_file_basename, input_worksheet_name, input_json_path, 
-                 input_file_id, input_file_code, input_file_title, input_file_subtitle, input_file_issue_date, 
-                 input_file_created_at, input_file_updated_at, xlsx_start_row = 1, xlsx_start_col = 'A'):
+                 input_file_id, input_project_code, input_project_title, input_project_subtitle, input_project_client, 
+                 input_file_issue_date, input_file_created_at, input_file_updated_at, xlsx_start_row = 1, xlsx_start_col = 'A'):
         self.input_path = input_file_path
         self.input_basename = input_file_basename
         self.ws_name = input_worksheet_name
         self.output_json_path = input_json_path
-        self.output_json_basename = DataIngestion.normalize_string(input_file_title)
+        self.output_json_basename = DataIngestion.normalize_string(input_project_title)
         self.file_id = input_file_id
-        self.file_code = input_file_code
-        self.file_title = input_file_title
-        self.file_subtitle = input_file_subtitle
+        self.project_code = input_project_code
+        self.project_title = input_project_title
+        self.project_subtitle = input_project_subtitle
+        self.project_client = input_project_client
         self.file_issue_date = input_file_issue_date
         self.file_created_at = input_file_created_at
         self.file_updated_at = input_file_updated_at
@@ -28,8 +29,15 @@ class DataIngestion:
         self.xlsx_start_col = xlsx_start_col
         self.json_categories = ["phase", "location", "area", "trade", "activity_code"]
         self.allowed_headers = {
-            "activity_code": ["code", "task_code"],
-            "activity_status": ["status", "task_status"]
+            "phase": ["phase"],
+            "location": ["location"],
+            "trade": ["trade"],
+            "color": ["color"],
+            "activity_code": ["activity_code", "code", "task_code", "act_code"],
+            "activity_name": ["activity_name", "act_name"],
+            "activity_status": ["activity_status", "status", "task_status"],
+            "start": ["start", "start_date", "start_dates"],
+            "finish": ["finish", "finish_date", "finish_dates", "end", "end_date"]
         }
 
         #Instance Results
@@ -82,16 +90,17 @@ class DataIngestion:
         input_file_basename = os.path.basename(input_file)
         input_json_path = DataIngestion.return_valid_path()
         input_file_id = len([file for file in os.listdir(input_json_path) if file.endswith('json')])
-        input_file_code = input("Enter Document CODE: ").strip()
-        input_file_title = input("Enter Document Title: ").strip()
-        input_file_subtitle = input("Enter Document Subtitle: ").strip()
+        input_project_code = input("Enter Project CODE: ").strip()
+        input_project_title = input("Enter Project Title: ").strip()
+        input_project_subtitle = input("Enter Project Subtitle: ").strip()
+        input_project_client = input("Enter Project Client: ").strip()
         input_file_issue_date = DataIngestion.return_valid_date()
         input_file_created_at = datetime.strftime(datetime.now(), "%d/%m/%Y %H:%M:%S")
         input_file_updated_at = input_file_created_at
 
         ins =  DataIngestion(input_file_path, input_file_basename, input_worksheet_name, input_json_path, 
-                             input_file_id, input_file_code, input_file_title, input_file_subtitle, 
-                             input_file_issue_date, input_file_created_at, input_file_updated_at)
+                             input_file_id, input_project_code, input_project_title, input_project_subtitle, 
+                             input_project_client, input_file_issue_date, input_file_created_at, input_file_updated_at)
         
         return ins
 
@@ -105,16 +114,17 @@ class DataIngestion:
             input_json_path, _ = DataIngestion.file_verification(
                     input_json_file, 'json', 'c')
             input_file_id = len([file for file in os.listdir(input_json_path) if file.endswith('json')])
-            input_file_code = f"{input_json_title.strip()}_{input_file_id}"
-            input_file_title = input_json_title.strip()
-            input_file_subtitle = input_json_title.strip()
+            input_project_code = f"{input_json_title.strip()}_{input_file_id}"
+            input_project_title = input_json_title.strip()
+            input_project_subtitle = input_json_title.strip()
+            input_project_client = input_json_title.strip()
             input_file_issue_date = DataIngestion.return_valid_date()
             input_file_created_at = datetime.strftime(datetime.now(), "%d/%m/%Y %H:%M:%S")
             input_file_updated_at = input_file_created_at
 
             ins = DataIngestion(input_file_path, input_file_basename, input_worksheet_name, input_json_path, 
-                                input_file_id, input_file_code, input_file_title, input_file_subtitle, 
-                                input_file_issue_date, input_file_created_at, input_file_updated_at)
+                                input_file_id, input_project_code, input_project_title, input_project_subtitle, 
+                                input_project_client, input_file_issue_date, input_file_created_at, input_file_updated_at)
             
             return ins
 
@@ -362,10 +372,11 @@ class DataIngestion:
     def json_fill_header(self, file_headers):
         json_obj_frame = {
             "project_metadata": {
-                "file_id": self.file_id,
-                "file_code": self.file_code,
-                "file_title": self.file_title,
-                "file_subtitle": self.file_subtitle,
+                "project_id": self.file_id,
+                "project_code": self.project_code,
+                "project_title": self.project_title,
+                "project_subtitle": self.project_subtitle,
+                "project_client": self.project_client,
                 "issue_date": self.file_issue_date,
                 "project_start": None,
                 "project_finish": None,
@@ -457,6 +468,7 @@ class DataIngestion:
 
     def project_dates(self, json_obj):
         body_dict = json_obj["project_content"]["body"]
+        
         start_list = [date["start"] for date in body_dict]
         finish_list = [date["finish"] for date in body_dict]
 
@@ -487,7 +499,7 @@ class DataIngestion:
                 else:
                     if value_j > value_j1:
                         unsorted_list[j], unsorted_list[j+1] = unsorted_list[j+1], unsorted_list[j]
-
+        
         return unsorted_list
 
     def get_column_coordinates(self, header_dict, header_key):
