@@ -1,0 +1,3684 @@
+{
+    "project_metadata": {
+        "project_id": 24,
+        "project_code": "LEX",
+        "project_title": "Lexington",
+        "project_subtitle": "Senior Apartments",
+        "project_client": "Breeden",
+        "issue_date": "19-Dec-2024",
+        "project_start": "04-Jul-2024",
+        "project_finish": "07-Oct-2025",
+        "created_at": "19/12/2024 17:35:07",
+        "updated_at": "19/12/2024 17:35:07"
+    },
+    "project_content": {
+        "header": {
+            "entry": null,
+            "phase": "A1",
+            "location": "B1",
+            "trade": "C1",
+            "color": "D1",
+            "parent_id": null,
+            "activity_code": "E1",
+            "activity_id": null,
+            "activity_name": "F1",
+            "activity_status": null,
+            "activity_ins": null,
+            "start": "G1",
+            "finish": "H1",
+            "total_float": null
+        },
+        "body": {
+            "Framing": {
+                "1st Floor": {
+                    "American Contractors": {
+                        "AF": [
+                            {
+                                "entry": 1,
+                                "phase": "Framing",
+                                "location": "1st Floor",
+                                "trade": "American Contractors",
+                                "color": "#CBF9F0",
+                                "parent_id": null,
+                                "activity_code": "AF",
+                                "activity_id": null,
+                                "activity_name": "Frame",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "30-Dec-2024",
+                                "finish": "10-Jan-2025",
+                                "total_float": null
+                            }
+                        ]
+                    }
+                },
+                "2nd Floor": {
+                    "American Contractors": {
+                        "AT": [
+                            {
+                                "entry": 2,
+                                "phase": "Framing",
+                                "location": "2nd Floor",
+                                "trade": "American Contractors",
+                                "color": "#CBF9F0",
+                                "parent_id": null,
+                                "activity_code": "AT",
+                                "activity_id": null,
+                                "activity_name": "Trusses",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "13-Jan-2025",
+                                "finish": "22-Jan-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "AD": [
+                            {
+                                "entry": 3,
+                                "phase": "Framing",
+                                "location": "2nd Floor",
+                                "trade": "American Contractors",
+                                "color": "#CBF9F0",
+                                "parent_id": null,
+                                "activity_code": "AD",
+                                "activity_id": null,
+                                "activity_name": "Deck",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "22-Jan-2025",
+                                "finish": "28-Jan-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "AF": [
+                            {
+                                "entry": 4,
+                                "phase": "Framing",
+                                "location": "2nd Floor",
+                                "trade": "American Contractors",
+                                "color": "#CBF9F0",
+                                "parent_id": null,
+                                "activity_code": "AF",
+                                "activity_id": null,
+                                "activity_name": "Frame",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "29-Jan-2025",
+                                "finish": "11-Feb-2025",
+                                "total_float": null
+                            }
+                        ]
+                    }
+                },
+                "3rd Floor": {
+                    "American Contractors": {
+                        "AT": [
+                            {
+                                "entry": 5,
+                                "phase": "Framing",
+                                "location": "3rd Floor",
+                                "trade": "American Contractors",
+                                "color": "#CBF9F0",
+                                "parent_id": null,
+                                "activity_code": "AT",
+                                "activity_id": null,
+                                "activity_name": "Trusses",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "05-Feb-2025",
+                                "finish": "14-Feb-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "AD": [
+                            {
+                                "entry": 6,
+                                "phase": "Framing",
+                                "location": "3rd Floor",
+                                "trade": "American Contractors",
+                                "color": "#CBF9F0",
+                                "parent_id": null,
+                                "activity_code": "AD",
+                                "activity_id": null,
+                                "activity_name": "Deck",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "14-Feb-2025",
+                                "finish": "20-Feb-2025",
+                                "total_float": null
+                            }
+                        ]
+                    }
+                },
+                "Attic": {
+                    "American Contractors": {
+                        "AT": [
+                            {
+                                "entry": 7,
+                                "phase": "Framing",
+                                "location": "Attic",
+                                "trade": "American Contractors",
+                                "color": "#CBF9F0",
+                                "parent_id": null,
+                                "activity_code": "AT",
+                                "activity_id": null,
+                                "activity_name": "Trusses",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "04-Dec-2024",
+                                "finish": "06-Dec-2024",
+                                "total_float": null
+                            }
+                        ],
+                        "AD": [
+                            {
+                                "entry": 8,
+                                "phase": "Framing",
+                                "location": "Attic",
+                                "trade": "American Contractors",
+                                "color": "#CBF9F0",
+                                "parent_id": null,
+                                "activity_code": "AD",
+                                "activity_id": null,
+                                "activity_name": "Deck",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "09-Dec-2024",
+                                "finish": "10-Dec-2024",
+                                "total_float": null
+                            }
+                        ],
+                        "AC": [
+                            {
+                                "entry": 9,
+                                "phase": "Framing",
+                                "location": "Attic",
+                                "trade": "American Contractors",
+                                "color": "#CBF9F0",
+                                "parent_id": null,
+                                "activity_code": "AC",
+                                "activity_id": null,
+                                "activity_name": "Frame Corridor",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "11-Dec-2024",
+                                "finish": "17-Dec-2024",
+                                "total_float": null
+                            }
+                        ]
+                    }
+                },
+                "Roof": {
+                    "American Contractors": {
+                        "AT": [
+                            {
+                                "entry": 10,
+                                "phase": "Framing",
+                                "location": "Roof",
+                                "trade": "American Contractors",
+                                "color": "#CBF9F0",
+                                "parent_id": null,
+                                "activity_code": "AT",
+                                "activity_id": null,
+                                "activity_name": "Trusses",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "18-Dec-2024",
+                                "finish": "02-Jan-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "AS": [
+                            {
+                                "entry": 11,
+                                "phase": "Framing",
+                                "location": "Roof",
+                                "trade": "American Contractors",
+                                "color": "#CBF9F0",
+                                "parent_id": null,
+                                "activity_code": "AS",
+                                "activity_id": null,
+                                "activity_name": "Sheath",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "01-Jan-2025",
+                                "finish": "07-Jan-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "AR": [
+                            {
+                                "entry": 13,
+                                "phase": "Framing",
+                                "location": "Roof",
+                                "trade": "American Contractors",
+                                "color": "#CBF9F0",
+                                "parent_id": null,
+                                "activity_code": "AR",
+                                "activity_id": null,
+                                "activity_name": "Dry-In",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "08-Jan-2025",
+                                "finish": "28-Jan-2025",
+                                "total_float": null
+                            }
+                        ]
+                    }
+                },
+                "Framing": {
+                    "American Contractors": {
+                        "AC": [
+                            {
+                                "entry": 12,
+                                "phase": "Framing",
+                                "location": "Framing",
+                                "trade": "American Contractors",
+                                "color": "#CBF9F0",
+                                "parent_id": null,
+                                "activity_code": "AC",
+                                "activity_id": null,
+                                "activity_name": "Frame Elevator, Trash Chute and Stair Tower Roofs",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "08-Jan-2025",
+                                "finish": "21-Jan-2025",
+                                "total_float": null
+                            }
+                        ]
+                    }
+                }
+            },
+            "Fenstrations and Skin": {
+                "1st Floor": {
+                    "84 Lumber": {
+                        "8S": [
+                            {
+                                "entry": 14,
+                                "phase": "Fenstrations and Skin",
+                                "location": "1st Floor",
+                                "trade": "84 Lumber",
+                                "color": "#9BC2E7",
+                                "parent_id": null,
+                                "activity_code": "8S",
+                                "activity_id": null,
+                                "activity_name": "Sheathing & Windows",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "21-Feb-2025",
+                                "finish": "10-Apr-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Solid Construction": {
+                        "DS": [
+                            {
+                                "entry": 17,
+                                "phase": "Fenstrations and Skin",
+                                "location": "1st Floor",
+                                "trade": "Solid Construction",
+                                "color": "#FFC8AD",
+                                "parent_id": null,
+                                "activity_code": "DS",
+                                "activity_id": null,
+                                "activity_name": "Siding - All Elevations",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "08-May-2025",
+                                "finish": "18-Jun-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "DG": [
+                            {
+                                "entry": 21,
+                                "phase": "Fenstrations and Skin",
+                                "location": "1st Floor",
+                                "trade": "Solid Construction",
+                                "color": "#FFC8AD",
+                                "parent_id": null,
+                                "activity_code": "DG",
+                                "activity_id": null,
+                                "activity_name": "Soffit Siding",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "10-Jul-2025",
+                                "finish": "16-Jul-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Morris Steel": {
+                        "MF": [
+                            {
+                                "entry": 22,
+                                "phase": "Fenstrations and Skin",
+                                "location": "1st Floor",
+                                "trade": "Morris Steel",
+                                "color": "#C6C8D1",
+                                "parent_id": null,
+                                "activity_code": "MF",
+                                "activity_id": null,
+                                "activity_name": "Storefront",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "17-Jul-2025",
+                                "finish": "23-Jul-2025",
+                                "total_float": null
+                            }
+                        ]
+                    }
+                },
+                "2nd Floor": {
+                    "84 Lumber": {
+                        "8S": [
+                            {
+                                "entry": 15,
+                                "phase": "Fenstrations and Skin",
+                                "location": "2nd Floor",
+                                "trade": "84 Lumber",
+                                "color": "#9BC2E7",
+                                "parent_id": null,
+                                "activity_code": "8S",
+                                "activity_id": null,
+                                "activity_name": "Sheathing & Windows",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "21-Feb-2025",
+                                "finish": "10-Apr-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Solid Construction": {
+                        "DS": [
+                            {
+                                "entry": 18,
+                                "phase": "Fenstrations and Skin",
+                                "location": "2nd Floor",
+                                "trade": "Solid Construction",
+                                "color": "#FFC8AD",
+                                "parent_id": null,
+                                "activity_code": "DS",
+                                "activity_id": null,
+                                "activity_name": "Siding - All Elevations",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "08-May-2025",
+                                "finish": "18-Jun-2025",
+                                "total_float": null
+                            }
+                        ]
+                    }
+                },
+                "3rd Floor": {
+                    "84 Lumber": {
+                        "8S": [
+                            {
+                                "entry": 16,
+                                "phase": "Fenstrations and Skin",
+                                "location": "3rd Floor",
+                                "trade": "84 Lumber",
+                                "color": "#9BC2E7",
+                                "parent_id": null,
+                                "activity_code": "8S",
+                                "activity_id": null,
+                                "activity_name": "Sheathing & Windows",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "21-Feb-2025",
+                                "finish": "10-Apr-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Solid Construction": {
+                        "DS": [
+                            {
+                                "entry": 19,
+                                "phase": "Fenstrations and Skin",
+                                "location": "3rd Floor",
+                                "trade": "Solid Construction",
+                                "color": "#FFC8AD",
+                                "parent_id": null,
+                                "activity_code": "DS",
+                                "activity_id": null,
+                                "activity_name": "Siding - All Elevations",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "19-Jun-2025",
+                                "finish": "09-Jul-2025",
+                                "total_float": null
+                            }
+                        ]
+                    }
+                },
+                "Atic?": {
+                    "Green Air Mechanical": {
+                        "GG": [
+                            {
+                                "entry": 20,
+                                "phase": "Fenstrations and Skin",
+                                "location": "Atic?",
+                                "trade": "Green Air Mechanical",
+                                "color": "#9F9D19",
+                                "parent_id": null,
+                                "activity_code": "GG",
+                                "activity_id": null,
+                                "activity_name": "Gutter & Vents",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "10-Jul-2025",
+                                "finish": "23-Jul-2025",
+                                "total_float": null
+                            }
+                        ]
+                    }
+                },
+                "1st Floor?": {
+                    "Morris Steel": {
+                        "MC": [
+                            {
+                                "entry": 23,
+                                "phase": "Fenstrations and Skin",
+                                "location": "1st Floor?",
+                                "trade": "Morris Steel",
+                                "color": "#C6C8D1",
+                                "parent_id": null,
+                                "activity_code": "MC",
+                                "activity_id": null,
+                                "activity_name": "Canopy",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "24-Jul-2025",
+                                "finish": "30-Jul-2025",
+                                "total_float": null
+                            }
+                        ]
+                    }
+                }
+            },
+            "Masonry Facades": {
+                "North": {
+                    "Brick Solutions": {
+                        "ME": [
+                            {
+                                "entry": 24,
+                                "phase": "Masonry Facades",
+                                "location": "North",
+                                "trade": "Brick Solutions",
+                                "color": "#019EFF",
+                                "parent_id": null,
+                                "activity_code": "ME",
+                                "activity_id": null,
+                                "activity_name": "Masonry Elevation",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "07-Mar-2025",
+                                "finish": "20-Mar-2025",
+                                "total_float": null
+                            }
+                        ]
+                    }
+                },
+                "East": {
+                    "Brick Solutions": {
+                        "ME": [
+                            {
+                                "entry": 25,
+                                "phase": "Masonry Facades",
+                                "location": "East",
+                                "trade": "Brick Solutions",
+                                "color": "#019EFF",
+                                "parent_id": null,
+                                "activity_code": "ME",
+                                "activity_id": null,
+                                "activity_name": "Masonry Elevation",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "21-Mar-2025",
+                                "finish": "03-Apr-2025",
+                                "total_float": null
+                            }
+                        ]
+                    }
+                },
+                "South A": {
+                    "Brick Solutions": {
+                        "ME": [
+                            {
+                                "entry": 26,
+                                "phase": "Masonry Facades",
+                                "location": "South A",
+                                "trade": "Brick Solutions",
+                                "color": "#019EFF",
+                                "parent_id": null,
+                                "activity_code": "ME",
+                                "activity_id": null,
+                                "activity_name": "Masonry Elevation",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "21-Mar-2025",
+                                "finish": "25-Mar-2025",
+                                "total_float": null
+                            }
+                        ]
+                    }
+                },
+                "West Courtyard": {
+                    "Brick Solutions": {
+                        "ME": [
+                            {
+                                "entry": 27,
+                                "phase": "Masonry Facades",
+                                "location": "West Courtyard",
+                                "trade": "Brick Solutions",
+                                "color": "#019EFF",
+                                "parent_id": null,
+                                "activity_code": "ME",
+                                "activity_id": null,
+                                "activity_name": "Masonry Elevation",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "04-Apr-2025",
+                                "finish": "15-Apr-2025",
+                                "total_float": null
+                            }
+                        ]
+                    }
+                },
+                "North Courtyard": {
+                    "Brick Solutions": {
+                        "ME": [
+                            {
+                                "entry": 28,
+                                "phase": "Masonry Facades",
+                                "location": "North Courtyard",
+                                "trade": "Brick Solutions",
+                                "color": "#019EFF",
+                                "parent_id": null,
+                                "activity_code": "ME",
+                                "activity_id": null,
+                                "activity_name": "Masonry Elevation",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "16-Apr-2025",
+                                "finish": "25-Apr-2025",
+                                "total_float": null
+                            }
+                        ]
+                    }
+                },
+                "East Courtyard": {
+                    "Brick Solutions": {
+                        "ME": [
+                            {
+                                "entry": 29,
+                                "phase": "Masonry Facades",
+                                "location": "East Courtyard",
+                                "trade": "Brick Solutions",
+                                "color": "#019EFF",
+                                "parent_id": null,
+                                "activity_code": "ME",
+                                "activity_id": null,
+                                "activity_name": "Masonry Elevation",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "28-Apr-2025",
+                                "finish": "07-May-2025",
+                                "total_float": null
+                            }
+                        ]
+                    }
+                },
+                "South B": {
+                    "Brick Solutions": {
+                        "ME": [
+                            {
+                                "entry": 30,
+                                "phase": "Masonry Facades",
+                                "location": "South B",
+                                "trade": "Brick Solutions",
+                                "color": "#019EFF",
+                                "parent_id": null,
+                                "activity_code": "ME",
+                                "activity_id": null,
+                                "activity_name": "Masonry Elevation",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "08-May-2025",
+                                "finish": "12-May-2025",
+                                "total_float": null
+                            }
+                        ]
+                    }
+                },
+                "West": {
+                    "Brick Solutions": {
+                        "ME": [
+                            {
+                                "entry": 31,
+                                "phase": "Masonry Facades",
+                                "location": "West",
+                                "trade": "Brick Solutions",
+                                "color": "#019EFF",
+                                "parent_id": null,
+                                "activity_code": "ME",
+                                "activity_id": null,
+                                "activity_name": "Masonry Elevation",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "13-May-2025",
+                                "finish": "26-May-2025",
+                                "total_float": null
+                            }
+                        ]
+                    }
+                }
+            },
+            "Vertical": {
+                "MEP R/Is": {
+                    "Davishar": {
+                        "PW": [
+                            {
+                                "entry": 32,
+                                "phase": "Vertical",
+                                "location": "MEP R/Is",
+                                "trade": "Davishar",
+                                "color": "#C6E0B4",
+                                "parent_id": null,
+                                "activity_code": "PW",
+                                "activity_id": null,
+                                "activity_name": "Set Water Service & Equipment",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "29-Jan-2025",
+                                "finish": "04-Feb-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "PS": [
+                            {
+                                "entry": 39,
+                                "phase": "Vertical",
+                                "location": "MEP R/Is",
+                                "trade": "Davishar",
+                                "color": "#C6E0B4",
+                                "parent_id": null,
+                                "activity_code": "PS",
+                                "activity_id": null,
+                                "activity_name": "Plumbing Stacks & Roof Vents",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "19-Feb-2025",
+                                "finish": "11-Mar-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Otis": {
+                        "OM": [
+                            {
+                                "entry": 33,
+                                "phase": "Vertical",
+                                "location": "MEP R/Is",
+                                "trade": "Otis",
+                                "color": "#B78593",
+                                "parent_id": null,
+                                "activity_code": "OM",
+                                "activity_id": null,
+                                "activity_name": "Set Elevator Machines 1 & 2 (Protect)",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "04-Jul-2024",
+                                "finish": "05-Jul-2024",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Current Electric": {
+                        "EG": [
+                            {
+                                "entry": 34,
+                                "phase": "Vertical",
+                                "location": "MEP R/Is",
+                                "trade": "Current Electric",
+                                "color": "#FFF3B2",
+                                "parent_id": null,
+                                "activity_code": "EG",
+                                "activity_id": null,
+                                "activity_name": "Set Electrical Gear",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "05-Feb-2025",
+                                "finish": "18-Feb-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "EF": [
+                            {
+                                "entry": 35,
+                                "phase": "Vertical",
+                                "location": "MEP R/Is",
+                                "trade": "Current Electric",
+                                "color": "#FFF3B2",
+                                "parent_id": null,
+                                "activity_code": "EF",
+                                "activity_id": null,
+                                "activity_name": "Electrical Feeders",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "19-Feb-2025",
+                                "finish": "04-Mar-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Green Air Mechanical": {
+                        "GD": [
+                            {
+                                "entry": 36,
+                                "phase": "Vertical",
+                                "location": "MEP R/Is",
+                                "trade": "Green Air Mechanical",
+                                "color": "#9F9D19",
+                                "parent_id": null,
+                                "activity_code": "GD",
+                                "activity_id": null,
+                                "activity_name": "HVAC Duct Risers",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "29-Jan-2025",
+                                "finish": "18-Feb-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Morris Steel": {
+                        "MS": [
+                            {
+                                "entry": 37,
+                                "phase": "Vertical",
+                                "location": "MEP R/Is",
+                                "trade": "Morris Steel",
+                                "color": "#C6C8D1",
+                                "parent_id": null,
+                                "activity_code": "MS",
+                                "activity_id": null,
+                                "activity_name": "Set Trash Chute",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "29-Jan-2025",
+                                "finish": "04-Feb-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Ranger": {
+                        "SR": [
+                            {
+                                "entry": 38,
+                                "phase": "Vertical",
+                                "location": "MEP R/Is",
+                                "trade": "Ranger",
+                                "color": "#CD0000",
+                                "parent_id": null,
+                                "activity_code": "SR",
+                                "activity_id": null,
+                                "activity_name": "Sprinkler Risers",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "05-Feb-2025",
+                                "finish": "25-Feb-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Breeden": {
+                        "WI": [
+                            {
+                                "entry": 40,
+                                "phase": "Vertical",
+                                "location": "MEP R/Is",
+                                "trade": "Breeden",
+                                "color": "#346093",
+                                "parent_id": null,
+                                "activity_code": "WI",
+                                "activity_id": null,
+                                "activity_name": "Shaft Wall Inspections",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "19-Feb-2025",
+                                "finish": "04-Mar-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Solid Construction": {
+                        "DR": [
+                            {
+                                "entry": 41,
+                                "phase": "Vertical",
+                                "location": "MEP R/Is",
+                                "trade": "Solid Construction",
+                                "color": "#FFC8AD",
+                                "parent_id": null,
+                                "activity_code": "DR",
+                                "activity_id": null,
+                                "activity_name": "Set Roof Top Equipment",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "12-Mar-2025",
+                                "finish": "18-Mar-2025",
+                                "total_float": null
+                            }
+                        ]
+                    }
+                },
+                "Transportation": {
+                    "Otis": {
+                        "O2": [
+                            {
+                                "entry": 42,
+                                "phase": "Vertical",
+                                "location": "Transportation",
+                                "trade": "Otis",
+                                "color": "#B78593",
+                                "parent_id": null,
+                                "activity_code": "O2",
+                                "activity_id": null,
+                                "activity_name": "Elevator 1",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "05-Mar-2025",
+                                "finish": "08-Apr-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "O1": [
+                            {
+                                "entry": 43,
+                                "phase": "Vertical",
+                                "location": "Transportation",
+                                "trade": "Otis",
+                                "color": "#B78593",
+                                "parent_id": null,
+                                "activity_code": "O1",
+                                "activity_id": null,
+                                "activity_name": "Elevator 2",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "09-Apr-2025",
+                                "finish": "13-May-2025",
+                                "total_float": null
+                            }
+                        ]
+                    }
+                },
+                "1st Floor": {
+                    "Otis": {
+                        "OF": [
+                            {
+                                "entry": 185,
+                                "phase": "Vertical",
+                                "location": "1st Floor",
+                                "trade": "Otis",
+                                "color": "#B78593",
+                                "parent_id": null,
+                                "activity_code": "OF",
+                                "activity_id": null,
+                                "activity_name": "Finishes Corridor & Elevator Lobby",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "07-May-2025",
+                                "finish": "15-Jul-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Heritage Woodworks": {
+                        "HA": [
+                            {
+                                "entry": 190,
+                                "phase": "Vertical",
+                                "location": "1st Floor",
+                                "trade": "Heritage Woodworks",
+                                "color": "#941651",
+                                "parent_id": null,
+                                "activity_code": "HA",
+                                "activity_id": null,
+                                "activity_name": "Amenity Finishes",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "14-May-2025",
+                                "finish": "22-Jul-2025",
+                                "total_float": null
+                            }
+                        ]
+                    }
+                },
+                "2nd Floor": {
+                    "Otis": {
+                        "OF": [
+                            {
+                                "entry": 186,
+                                "phase": "Vertical",
+                                "location": "2nd Floor",
+                                "trade": "Otis",
+                                "color": "#B78593",
+                                "parent_id": null,
+                                "activity_code": "OF",
+                                "activity_id": null,
+                                "activity_name": "Finishes Corridor & Elevator Lobby",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "14-May-2025",
+                                "finish": "22-Jul-2025",
+                                "total_float": null
+                            }
+                        ]
+                    }
+                },
+                "3rd Floor": {
+                    "Otis": {
+                        "OF": [
+                            {
+                                "entry": 187,
+                                "phase": "Vertical",
+                                "location": "3rd Floor",
+                                "trade": "Otis",
+                                "color": "#B78593",
+                                "parent_id": null,
+                                "activity_code": "OF",
+                                "activity_id": null,
+                                "activity_name": "Finishes Corridor & Elevator Lobby",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "21-May-2025",
+                                "finish": "29-Jul-2025",
+                                "total_float": null
+                            }
+                        ]
+                    }
+                },
+                "Stairs": {
+                    "TBD": {
+                        "TS": [
+                            {
+                                "entry": 188,
+                                "phase": "Vertical",
+                                "location": "Stairs",
+                                "trade": "TBD",
+                                "color": "#404040",
+                                "parent_id": null,
+                                "activity_code": "TS",
+                                "activity_id": null,
+                                "activity_name": "Stair 1",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "30-Jul-2025",
+                                "finish": "12-Aug-2025",
+                                "total_float": null
+                            },
+                            {
+                                "entry": 189,
+                                "phase": "Vertical",
+                                "location": "Stairs",
+                                "trade": "TBD",
+                                "color": "#404040",
+                                "parent_id": null,
+                                "activity_code": "TS",
+                                "activity_id": null,
+                                "activity_name": "Stair 2",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "30-Jul-2025",
+                                "finish": "12-Aug-2025",
+                                "total_float": null
+                            }
+                        ]
+                    }
+                }
+            },
+            "Interiors": {
+                "1st Floor": {
+                    "Quality Building Products": {
+                        "QP": [
+                            {
+                                "entry": 44,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Quality Building Products",
+                                "color": "#CD8105",
+                                "parent_id": null,
+                                "activity_code": "QP",
+                                "activity_id": null,
+                                "activity_name": "Pre-insul & Gyp for Plumbing & Ins",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "19-Feb-2025",
+                                "finish": "25-Feb-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "QC": [
+                            {
+                                "entry": 53,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Quality Building Products",
+                                "color": "#CD8105",
+                                "parent_id": null,
+                                "activity_code": "QC",
+                                "activity_id": null,
+                                "activity_name": "Insulate Ceilings",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "31-Mar-2025",
+                                "finish": "02-Apr-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Green Air Mechanical": {
+                        "GC": [
+                            {
+                                "entry": 45,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Green Air Mechanical",
+                                "color": "#9F9D19",
+                                "parent_id": null,
+                                "activity_code": "GC",
+                                "activity_id": null,
+                                "activity_name": "Above Ceiling HVAC R/I",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "26-Feb-2025",
+                                "finish": "04-Mar-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "GA": [
+                            {
+                                "entry": 61,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Green Air Mechanical",
+                                "color": "#9F9D19",
+                                "parent_id": null,
+                                "activity_code": "GA",
+                                "activity_id": null,
+                                "activity_name": "Set AHU",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "25-Apr-2025",
+                                "finish": "25-Apr-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "GS": [
+                            {
+                                "entry": 68,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Green Air Mechanical",
+                                "color": "#9F9D19",
+                                "parent_id": null,
+                                "activity_code": "GS",
+                                "activity_id": null,
+                                "activity_name": "Start-up HVAC",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "05-May-2025",
+                                "finish": "06-May-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "GT": [
+                            {
+                                "entry": 78,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Green Air Mechanical",
+                                "color": "#9F9D19",
+                                "parent_id": null,
+                                "activity_code": "GT",
+                                "activity_id": null,
+                                "activity_name": "G/R/Ds HVAC Trim",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "16-Jun-2025",
+                                "finish": "18-Jun-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Davishar": {
+                        "PU": [
+                            {
+                                "entry": 46,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Davishar",
+                                "color": "#C6E0B4",
+                                "parent_id": null,
+                                "activity_code": "PU",
+                                "activity_id": null,
+                                "activity_name": "Plumbing Unit R/I Domestic, Sanitary, Set Tubs",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "05-Mar-2025",
+                                "finish": "11-Mar-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "PH": [
+                            {
+                                "entry": 62,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Davishar",
+                                "color": "#C6E0B4",
+                                "parent_id": null,
+                                "activity_code": "PH",
+                                "activity_id": null,
+                                "activity_name": "Set HWH and Plumb (Set Submeter)",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "28-Apr-2025",
+                                "finish": "28-Apr-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "PT": [
+                            {
+                                "entry": 79,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Davishar",
+                                "color": "#C6E0B4",
+                                "parent_id": null,
+                                "activity_code": "PT",
+                                "activity_id": null,
+                                "activity_name": "Trim Plumbing (Disposals/DWs)",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "16-Jun-2025",
+                                "finish": "18-Jun-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Ranger": {
+                        "SS": [
+                            {
+                                "entry": 47,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Ranger",
+                                "color": "#CD0000",
+                                "parent_id": null,
+                                "activity_code": "SS",
+                                "activity_id": null,
+                                "activity_name": "OH Sprinkler R/I and Hydro Ins",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "12-Mar-2025",
+                                "finish": "18-Mar-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "SH": [
+                            {
+                                "entry": 65,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Ranger",
+                                "color": "#CD0000",
+                                "parent_id": null,
+                                "activity_code": "SH",
+                                "activity_id": null,
+                                "activity_name": "Sprinkler Head Escutheons",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "25-Apr-2025",
+                                "finish": "29-Apr-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Current Electric": {
+                        "EW": [
+                            {
+                                "entry": 48,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Current Electric",
+                                "color": "#FFF3B2",
+                                "parent_id": null,
+                                "activity_code": "EW",
+                                "activity_id": null,
+                                "activity_name": "Electrical Wall R/I",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "19-Mar-2025",
+                                "finish": "25-Mar-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "EL": [
+                            {
+                                "entry": 49,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Current Electric",
+                                "color": "#FFF3B2",
+                                "parent_id": null,
+                                "activity_code": "EL",
+                                "activity_id": null,
+                                "activity_name": "Electrical Lighting OH R/I",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "19-Mar-2025",
+                                "finish": "25-Mar-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "ER": [
+                            {
+                                "entry": 50,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Current Electric",
+                                "color": "#FFF3B2",
+                                "parent_id": null,
+                                "activity_code": "ER",
+                                "activity_id": null,
+                                "activity_name": "Low Voltage Wall R/I (Tele/Cable/IT)",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "19-Mar-2025",
+                                "finish": "25-Mar-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "EB": [
+                            {
+                                "entry": 63,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Current Electric",
+                                "color": "#FFF3B2",
+                                "parent_id": null,
+                                "activity_code": "EB",
+                                "activity_id": null,
+                                "activity_name": "Electrical Panel Brkrs and Equipment Terminations",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "25-Apr-2025",
+                                "finish": "29-Apr-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "EP": [
+                            {
+                                "entry": 64,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Current Electric",
+                                "color": "#FFF3B2",
+                                "parent_id": null,
+                                "activity_code": "EP",
+                                "activity_id": null,
+                                "activity_name": "Low Voltage Panel",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "25-Apr-2025",
+                                "finish": "28-Apr-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "ES": [
+                            {
+                                "entry": 66,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Current Electric",
+                                "color": "#FFF3B2",
+                                "parent_id": null,
+                                "activity_code": "ES",
+                                "activity_id": null,
+                                "activity_name": "Switch and Plug",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "30-Apr-2025",
+                                "finish": "02-May-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "EWT": [
+                            {
+                                "entry": 67,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Current Electric",
+                                "color": "#FFF3B2",
+                                "parent_id": null,
+                                "activity_code": "EWT",
+                                "activity_id": null,
+                                "activity_name": "Wire Thermostats",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "30-Apr-2025",
+                                "finish": "02-May-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "ET": [
+                            {
+                                "entry": 76,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Current Electric",
+                                "color": "#FFF3B2",
+                                "parent_id": null,
+                                "activity_code": "ET",
+                                "activity_id": null,
+                                "activity_name": "Electrical Trim (Plates & Lights)",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "09-Jun-2025",
+                                "finish": "13-Jun-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "EV": [
+                            {
+                                "entry": 77,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Current Electric",
+                                "color": "#FFF3B2",
+                                "parent_id": null,
+                                "activity_code": "EV",
+                                "activity_id": null,
+                                "activity_name": "Trim Low Voltage",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "09-Jun-2025",
+                                "finish": "11-Jun-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Breeden": {
+                        "CI": [
+                            {
+                                "entry": 51,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Breeden",
+                                "color": "#346093",
+                                "parent_id": null,
+                                "activity_code": "CI",
+                                "activity_id": null,
+                                "activity_name": "R/I Trade Close-in Inspections",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "26-Mar-2025",
+                                "finish": "27-Mar-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "II": [
+                            {
+                                "entry": 54,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Breeden",
+                                "color": "#346093",
+                                "parent_id": null,
+                                "activity_code": "II",
+                                "activity_id": null,
+                                "activity_name": "Insulation Inspection",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "03-Apr-2025",
+                                "finish": "03-Apr-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "SI": [
+                            {
+                                "entry": 88,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Breeden",
+                                "color": "#346093",
+                                "parent_id": null,
+                                "activity_code": "SI",
+                                "activity_id": null,
+                                "activity_name": "Trade Final Ins (Sprinkler, Plumbing, HVAC, Electric, LV)",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "24-Jul-2025",
+                                "finish": "30-Jul-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "CP": [
+                            {
+                                "entry": 90,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Breeden",
+                                "color": "#346093",
+                                "parent_id": null,
+                                "activity_code": "CP",
+                                "activity_id": null,
+                                "activity_name": "Contractor Punchlist",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "31-Jul-2025",
+                                "finish": "06-Aug-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "American Contractors": {
+                        "AP": [
+                            {
+                                "entry": 55,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "American Contractors",
+                                "color": "#CBF9F0",
+                                "parent_id": null,
+                                "activity_code": "AP",
+                                "activity_id": null,
+                                "activity_name": "Framing & R/I Punchlist - Set Unit Entry FMs",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "04-Apr-2025",
+                                "finish": "09-Apr-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "AH": [
+                            {
+                                "entry": 70,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "American Contractors",
+                                "color": "#CBF9F0",
+                                "parent_id": null,
+                                "activity_code": "AH",
+                                "activity_id": null,
+                                "activity_name": "Install Pre-hung Doors",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "14-May-2025",
+                                "finish": "15-May-2025",
+                                "total_float": null
+                            },
+                            {
+                                "entry": 81,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "American Contractors",
+                                "color": "#CBF9F0",
+                                "parent_id": null,
+                                "activity_code": "AH",
+                                "activity_id": null,
+                                "activity_name": "Door Hardware",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "19-Jun-2025",
+                                "finish": "23-Jun-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "AR": [
+                            {
+                                "entry": 71,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "American Contractors",
+                                "color": "#CBF9F0",
+                                "parent_id": null,
+                                "activity_code": "AR",
+                                "activity_id": null,
+                                "activity_name": "Running Trim and Stools",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "16-May-2025",
+                                "finish": "20-May-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "AV": [
+                            {
+                                "entry": 85,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "American Contractors",
+                                "color": "#CBF9F0",
+                                "parent_id": null,
+                                "activity_code": "AV",
+                                "activity_id": null,
+                                "activity_name": "Closet Shelving",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "07-Jul-2025",
+                                "finish": "07-Oct-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Blue Sky": {
+                        "BS": [
+                            {
+                                "entry": 56,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Blue Sky",
+                                "color": "#8EA9DB",
+                                "parent_id": null,
+                                "activity_code": "BS",
+                                "activity_id": null,
+                                "activity_name": "Stock Drywall",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "04-Apr-2025",
+                                "finish": "08-Apr-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "BH": [
+                            {
+                                "entry": 57,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Blue Sky",
+                                "color": "#8EA9DB",
+                                "parent_id": null,
+                                "activity_code": "BH",
+                                "activity_id": null,
+                                "activity_name": "Hang Drywall",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "09-Apr-2025",
+                                "finish": "15-Apr-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "BP": [
+                            {
+                                "entry": 59,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Blue Sky",
+                                "color": "#8EA9DB",
+                                "parent_id": null,
+                                "activity_code": "BP",
+                                "activity_id": null,
+                                "activity_name": "Prime Paint",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "18-Apr-2025",
+                                "finish": "23-Apr-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "BU": [
+                            {
+                                "entry": 60,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Blue Sky",
+                                "color": "#8EA9DB",
+                                "parent_id": null,
+                                "activity_code": "BU",
+                                "activity_id": null,
+                                "activity_name": "Point Up Drywall",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "22-Apr-2025",
+                                "finish": "24-Apr-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "BF": [
+                            {
+                                "entry": 82,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Blue Sky",
+                                "color": "#8EA9DB",
+                                "parent_id": null,
+                                "activity_code": "BF",
+                                "activity_id": null,
+                                "activity_name": "Final Paint",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "24-Jun-2025",
+                                "finish": "30-Jun-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "BD": [
+                            {
+                                "entry": 83,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Blue Sky",
+                                "color": "#8EA9DB",
+                                "parent_id": null,
+                                "activity_code": "BD",
+                                "activity_id": null,
+                                "activity_name": "Drywall Point Up",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "01-Jul-2025",
+                                "finish": "02-Jul-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "BT": [
+                            {
+                                "entry": 89,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Blue Sky",
+                                "color": "#8EA9DB",
+                                "parent_id": null,
+                                "activity_code": "BT",
+                                "activity_id": null,
+                                "activity_name": "Paint Touch-up & Caulk",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "24-Jul-2025",
+                                "finish": "25-Jul-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "ECPF": {
+                        "GY": [
+                            {
+                                "entry": 58,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "ECPF",
+                                "color": "#F659A9",
+                                "parent_id": null,
+                                "activity_code": "GY",
+                                "activity_id": null,
+                                "activity_name": "Gypcrete",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "16-Apr-2025",
+                                "finish": "17-Apr-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Heritage Woodworks": {
+                        "HV": [
+                            {
+                                "entry": 69,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Heritage Woodworks",
+                                "color": "#941651",
+                                "parent_id": null,
+                                "activity_code": "HV",
+                                "activity_id": null,
+                                "activity_name": "Set Cabinets & Vanities",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "07-May-2025",
+                                "finish": "13-May-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "HC": [
+                            {
+                                "entry": 72,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Heritage Woodworks",
+                                "color": "#941651",
+                                "parent_id": null,
+                                "activity_code": "HC",
+                                "activity_id": null,
+                                "activity_name": "Set Countertops",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "21-May-2025",
+                                "finish": "27-May-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Walkers": {
+                        "WC": [
+                            {
+                                "entry": 73,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Walkers",
+                                "color": "#6870DE",
+                                "parent_id": null,
+                                "activity_code": "WC",
+                                "activity_id": null,
+                                "activity_name": "Ceramic Tile (Floors & Walls)",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "21-May-2025",
+                                "finish": "27-May-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "WB": [
+                            {
+                                "entry": 74,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Walkers",
+                                "color": "#6870DE",
+                                "parent_id": null,
+                                "activity_code": "WB",
+                                "activity_id": null,
+                                "activity_name": "Ceramic Backsplash",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "28-May-2025",
+                                "finish": "02-Jun-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "WL": [
+                            {
+                                "entry": 75,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Walkers",
+                                "color": "#6870DE",
+                                "parent_id": null,
+                                "activity_code": "WL",
+                                "activity_id": null,
+                                "activity_name": "LVT Flooring",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "03-Jun-2025",
+                                "finish": "06-Jun-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "WP": [
+                            {
+                                "entry": 87,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Walkers",
+                                "color": "#6870DE",
+                                "parent_id": null,
+                                "activity_code": "WP",
+                                "activity_id": null,
+                                "activity_name": "Pad and Carpet (Protect)",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "17-Jul-2025",
+                                "finish": "23-Jul-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "TBD": {
+                        "TA": [
+                            {
+                                "entry": 80,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "TBD",
+                                "color": "#404040",
+                                "parent_id": null,
+                                "activity_code": "TA",
+                                "activity_id": null,
+                                "activity_name": "Install Appliances",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "19-Jun-2025",
+                                "finish": "23-Jun-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Morris Steel": {
+                        "MM": [
+                            {
+                                "entry": 84,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Morris Steel",
+                                "color": "#C6C8D1",
+                                "parent_id": null,
+                                "activity_code": "MM",
+                                "activity_id": null,
+                                "activity_name": "Mirrors and Toilet Accessories",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "03-Jul-2025",
+                                "finish": "04-Jul-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Clean": {
+                        "RC": [
+                            {
+                                "entry": 86,
+                                "phase": "Interiors",
+                                "location": "1st Floor",
+                                "trade": "Clean",
+                                "color": "#B8A6E3",
+                                "parent_id": null,
+                                "activity_code": "RC",
+                                "activity_id": null,
+                                "activity_name": "Rough-Clean",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "11-Jul-2025",
+                                "finish": "16-Jul-2025",
+                                "total_float": null
+                            }
+                        ]
+                    }
+                },
+                "2nd Floor": {
+                    "Quality Building Products": {
+                        "QP": [
+                            {
+                                "entry": 91,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Quality Building Products",
+                                "color": "#CD8105",
+                                "parent_id": null,
+                                "activity_code": "QP",
+                                "activity_id": null,
+                                "activity_name": "Pre-insul & Gyp for Plumbing & Ins",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "26-Feb-2025",
+                                "finish": "04-Mar-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "QC": [
+                            {
+                                "entry": 100,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Quality Building Products",
+                                "color": "#CD8105",
+                                "parent_id": null,
+                                "activity_code": "QC",
+                                "activity_id": null,
+                                "activity_name": "Insulate Ceilings",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "07-Apr-2025",
+                                "finish": "09-Apr-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Green Air Mechanical": {
+                        "GC": [
+                            {
+                                "entry": 92,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Green Air Mechanical",
+                                "color": "#9F9D19",
+                                "parent_id": null,
+                                "activity_code": "GC",
+                                "activity_id": null,
+                                "activity_name": "Above Ceiling HVAC R/I",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "05-Mar-2025",
+                                "finish": "11-Mar-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "GA": [
+                            {
+                                "entry": 108,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Green Air Mechanical",
+                                "color": "#9F9D19",
+                                "parent_id": null,
+                                "activity_code": "GA",
+                                "activity_id": null,
+                                "activity_name": "Set AHU",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "02-May-2025",
+                                "finish": "02-May-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "GS": [
+                            {
+                                "entry": 115,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Green Air Mechanical",
+                                "color": "#9F9D19",
+                                "parent_id": null,
+                                "activity_code": "GS",
+                                "activity_id": null,
+                                "activity_name": "Start-up HVAC",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "12-May-2025",
+                                "finish": "13-May-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "GT": [
+                            {
+                                "entry": 125,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Green Air Mechanical",
+                                "color": "#9F9D19",
+                                "parent_id": null,
+                                "activity_code": "GT",
+                                "activity_id": null,
+                                "activity_name": "G/R/Ds HVAC Trim",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "23-Jun-2025",
+                                "finish": "25-Jun-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Davishar": {
+                        "PU": [
+                            {
+                                "entry": 93,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Davishar",
+                                "color": "#C6E0B4",
+                                "parent_id": null,
+                                "activity_code": "PU",
+                                "activity_id": null,
+                                "activity_name": "Plumbing Unit R/I Domestic, Sanitary, Set Tubs",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "12-Mar-2025",
+                                "finish": "18-Mar-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "PH": [
+                            {
+                                "entry": 109,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Davishar",
+                                "color": "#C6E0B4",
+                                "parent_id": null,
+                                "activity_code": "PH",
+                                "activity_id": null,
+                                "activity_name": "Set HWH and Plumb (Set Submeter)",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "05-May-2025",
+                                "finish": "05-May-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "PT": [
+                            {
+                                "entry": 126,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Davishar",
+                                "color": "#C6E0B4",
+                                "parent_id": null,
+                                "activity_code": "PT",
+                                "activity_id": null,
+                                "activity_name": "Trim Plumbing (Disposals/DWs)",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "23-Jun-2025",
+                                "finish": "25-Jun-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Ranger": {
+                        "SS": [
+                            {
+                                "entry": 94,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Ranger",
+                                "color": "#CD0000",
+                                "parent_id": null,
+                                "activity_code": "SS",
+                                "activity_id": null,
+                                "activity_name": "OH Sprinkler R/I and Hydro Ins",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "19-Mar-2025",
+                                "finish": "25-Mar-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "SH": [
+                            {
+                                "entry": 112,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Ranger",
+                                "color": "#CD0000",
+                                "parent_id": null,
+                                "activity_code": "SH",
+                                "activity_id": null,
+                                "activity_name": "Sprinkler Head Escutheons",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "02-May-2025",
+                                "finish": "06-May-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Current Electric": {
+                        "EW": [
+                            {
+                                "entry": 95,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Current Electric",
+                                "color": "#FFF3B2",
+                                "parent_id": null,
+                                "activity_code": "EW",
+                                "activity_id": null,
+                                "activity_name": "Electrical Wall R/I",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "26-Mar-2025",
+                                "finish": "01-Apr-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "EL": [
+                            {
+                                "entry": 96,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Current Electric",
+                                "color": "#FFF3B2",
+                                "parent_id": null,
+                                "activity_code": "EL",
+                                "activity_id": null,
+                                "activity_name": "Electrical Lighting OH R/I",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "26-Mar-2025",
+                                "finish": "01-Apr-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "ER": [
+                            {
+                                "entry": 97,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Current Electric",
+                                "color": "#FFF3B2",
+                                "parent_id": null,
+                                "activity_code": "ER",
+                                "activity_id": null,
+                                "activity_name": "Low Voltage Wall R/I (Tele/Cable/IT)",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "26-Mar-2025",
+                                "finish": "01-Apr-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "EB": [
+                            {
+                                "entry": 110,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Current Electric",
+                                "color": "#FFF3B2",
+                                "parent_id": null,
+                                "activity_code": "EB",
+                                "activity_id": null,
+                                "activity_name": "Electrical Panel Brkrs and Equipment Terminations",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "02-May-2025",
+                                "finish": "06-May-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "EP": [
+                            {
+                                "entry": 111,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Current Electric",
+                                "color": "#FFF3B2",
+                                "parent_id": null,
+                                "activity_code": "EP",
+                                "activity_id": null,
+                                "activity_name": "Low Voltage Panel",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "02-May-2025",
+                                "finish": "05-May-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "ES": [
+                            {
+                                "entry": 113,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Current Electric",
+                                "color": "#FFF3B2",
+                                "parent_id": null,
+                                "activity_code": "ES",
+                                "activity_id": null,
+                                "activity_name": "Switch and Plug",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "07-May-2025",
+                                "finish": "09-May-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "EWT": [
+                            {
+                                "entry": 114,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Current Electric",
+                                "color": "#FFF3B2",
+                                "parent_id": null,
+                                "activity_code": "EWT",
+                                "activity_id": null,
+                                "activity_name": "Wire Thermostats",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "07-May-2025",
+                                "finish": "09-May-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "ET": [
+                            {
+                                "entry": 123,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Current Electric",
+                                "color": "#FFF3B2",
+                                "parent_id": null,
+                                "activity_code": "ET",
+                                "activity_id": null,
+                                "activity_name": "Electrical Trim (Plates & Lights)",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "16-Jun-2025",
+                                "finish": "20-Jun-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "EV": [
+                            {
+                                "entry": 124,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Current Electric",
+                                "color": "#FFF3B2",
+                                "parent_id": null,
+                                "activity_code": "EV",
+                                "activity_id": null,
+                                "activity_name": "Trim Low Voltage",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "16-Jun-2025",
+                                "finish": "18-Jun-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Breeden": {
+                        "CI": [
+                            {
+                                "entry": 98,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Breeden",
+                                "color": "#346093",
+                                "parent_id": null,
+                                "activity_code": "CI",
+                                "activity_id": null,
+                                "activity_name": "R/I Trade Close-in Inspections",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "02-Apr-2025",
+                                "finish": "03-Apr-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "II": [
+                            {
+                                "entry": 101,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Breeden",
+                                "color": "#346093",
+                                "parent_id": null,
+                                "activity_code": "II",
+                                "activity_id": null,
+                                "activity_name": "Insulation Inspection",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "10-Apr-2025",
+                                "finish": "10-Apr-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "SI": [
+                            {
+                                "entry": 135,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Breeden",
+                                "color": "#346093",
+                                "parent_id": null,
+                                "activity_code": "SI",
+                                "activity_id": null,
+                                "activity_name": "Trade Final Ins (Sprinkler, Plumbing, HVAC, Electric, LV)",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "31-Jul-2025",
+                                "finish": "06-Aug-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "CP": [
+                            {
+                                "entry": 137,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Breeden",
+                                "color": "#346093",
+                                "parent_id": null,
+                                "activity_code": "CP",
+                                "activity_id": null,
+                                "activity_name": "Contractor Punchlist",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "07-Aug-2025",
+                                "finish": "13-Aug-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "American Contractors": {
+                        "AP": [
+                            {
+                                "entry": 102,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "American Contractors",
+                                "color": "#CBF9F0",
+                                "parent_id": null,
+                                "activity_code": "AP",
+                                "activity_id": null,
+                                "activity_name": "Framing & R/I Punchlist - Set Unit Entry FMs",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "11-Apr-2025",
+                                "finish": "16-Apr-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "AH": [
+                            {
+                                "entry": 117,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "American Contractors",
+                                "color": "#CBF9F0",
+                                "parent_id": null,
+                                "activity_code": "AH",
+                                "activity_id": null,
+                                "activity_name": "Install Pre-hung Doors",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "21-May-2025",
+                                "finish": "22-May-2025",
+                                "total_float": null
+                            },
+                            {
+                                "entry": 128,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "American Contractors",
+                                "color": "#CBF9F0",
+                                "parent_id": null,
+                                "activity_code": "AH",
+                                "activity_id": null,
+                                "activity_name": "Door Hardware",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "26-Jun-2025",
+                                "finish": "30-Jun-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "AR": [
+                            {
+                                "entry": 118,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "American Contractors",
+                                "color": "#CBF9F0",
+                                "parent_id": null,
+                                "activity_code": "AR",
+                                "activity_id": null,
+                                "activity_name": "Running Trim and Stools",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "23-May-2025",
+                                "finish": "27-May-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "AV": [
+                            {
+                                "entry": 132,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "American Contractors",
+                                "color": "#CBF9F0",
+                                "parent_id": null,
+                                "activity_code": "AV",
+                                "activity_id": null,
+                                "activity_name": "Closet Shelving",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "14-Jul-2025",
+                                "finish": "17-Jul-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Blue Sky": {
+                        "BS": [
+                            {
+                                "entry": 103,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Blue Sky",
+                                "color": "#8EA9DB",
+                                "parent_id": null,
+                                "activity_code": "BS",
+                                "activity_id": null,
+                                "activity_name": "Stock Drywall",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "11-Apr-2025",
+                                "finish": "15-Apr-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "BH": [
+                            {
+                                "entry": 104,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Blue Sky",
+                                "color": "#8EA9DB",
+                                "parent_id": null,
+                                "activity_code": "BH",
+                                "activity_id": null,
+                                "activity_name": "Hang Drywall",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "16-Apr-2025",
+                                "finish": "22-Apr-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "BP": [
+                            {
+                                "entry": 106,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Blue Sky",
+                                "color": "#8EA9DB",
+                                "parent_id": null,
+                                "activity_code": "BP",
+                                "activity_id": null,
+                                "activity_name": "Prime Paint",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "25-Apr-2025",
+                                "finish": "30-Apr-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "BU": [
+                            {
+                                "entry": 107,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Blue Sky",
+                                "color": "#8EA9DB",
+                                "parent_id": null,
+                                "activity_code": "BU",
+                                "activity_id": null,
+                                "activity_name": "Point Up Drywall",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "29-Apr-2025",
+                                "finish": "01-May-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "BF": [
+                            {
+                                "entry": 129,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Blue Sky",
+                                "color": "#8EA9DB",
+                                "parent_id": null,
+                                "activity_code": "BF",
+                                "activity_id": null,
+                                "activity_name": "Final Paint",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "01-Jul-2025",
+                                "finish": "07-Jul-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "BD": [
+                            {
+                                "entry": 130,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Blue Sky",
+                                "color": "#8EA9DB",
+                                "parent_id": null,
+                                "activity_code": "BD",
+                                "activity_id": null,
+                                "activity_name": "Drywall Point Up",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "08-Jul-2025",
+                                "finish": "09-Jul-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "BT": [
+                            {
+                                "entry": 136,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Blue Sky",
+                                "color": "#8EA9DB",
+                                "parent_id": null,
+                                "activity_code": "BT",
+                                "activity_id": null,
+                                "activity_name": "Paint Touch-up & Caulk",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "31-Jul-2025",
+                                "finish": "01-Aug-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "ECPF": {
+                        "GY": [
+                            {
+                                "entry": 105,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "ECPF",
+                                "color": "#F659A9",
+                                "parent_id": null,
+                                "activity_code": "GY",
+                                "activity_id": null,
+                                "activity_name": "Gypcrete",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "23-Apr-2025",
+                                "finish": "24-Apr-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Heritage Woodworks": {
+                        "HV": [
+                            {
+                                "entry": 116,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Heritage Woodworks",
+                                "color": "#941651",
+                                "parent_id": null,
+                                "activity_code": "HV",
+                                "activity_id": null,
+                                "activity_name": "Set Cabinets & Vanities",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "14-May-2025",
+                                "finish": "20-May-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "HC": [
+                            {
+                                "entry": 119,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Heritage Woodworks",
+                                "color": "#941651",
+                                "parent_id": null,
+                                "activity_code": "HC",
+                                "activity_id": null,
+                                "activity_name": "Set Countertops",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "28-May-2025",
+                                "finish": "03-Jun-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Walkers": {
+                        "WC": [
+                            {
+                                "entry": 120,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Walkers",
+                                "color": "#6870DE",
+                                "parent_id": null,
+                                "activity_code": "WC",
+                                "activity_id": null,
+                                "activity_name": "Ceramic Tile (Floors & Walls)",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "28-May-2025",
+                                "finish": "03-Jun-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "WB": [
+                            {
+                                "entry": 121,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Walkers",
+                                "color": "#6870DE",
+                                "parent_id": null,
+                                "activity_code": "WB",
+                                "activity_id": null,
+                                "activity_name": "Ceramic Backsplash",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "04-Jun-2025",
+                                "finish": "09-Jun-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "WL": [
+                            {
+                                "entry": 122,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Walkers",
+                                "color": "#6870DE",
+                                "parent_id": null,
+                                "activity_code": "WL",
+                                "activity_id": null,
+                                "activity_name": "LVT Flooring",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "10-Jun-2025",
+                                "finish": "13-Jun-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "WP": [
+                            {
+                                "entry": 134,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Walkers",
+                                "color": "#6870DE",
+                                "parent_id": null,
+                                "activity_code": "WP",
+                                "activity_id": null,
+                                "activity_name": "Pad and Carpet (Protect)",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "24-Jul-2025",
+                                "finish": "30-Jul-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "TBD": {
+                        "TA": [
+                            {
+                                "entry": 127,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "TBD",
+                                "color": "#404040",
+                                "parent_id": null,
+                                "activity_code": "TA",
+                                "activity_id": null,
+                                "activity_name": "Install Appliances",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "26-Jun-2025",
+                                "finish": "30-Jun-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Morris Steel": {
+                        "MM": [
+                            {
+                                "entry": 131,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Morris Steel",
+                                "color": "#C6C8D1",
+                                "parent_id": null,
+                                "activity_code": "MM",
+                                "activity_id": null,
+                                "activity_name": "Mirrors and Toilet Accessories",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "10-Jul-2025",
+                                "finish": "11-Jul-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Clean": {
+                        "RC": [
+                            {
+                                "entry": 133,
+                                "phase": "Interiors",
+                                "location": "2nd Floor",
+                                "trade": "Clean",
+                                "color": "#B8A6E3",
+                                "parent_id": null,
+                                "activity_code": "RC",
+                                "activity_id": null,
+                                "activity_name": "Rough-Clean",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "18-Jul-2025",
+                                "finish": "23-Jul-2025",
+                                "total_float": null
+                            }
+                        ]
+                    }
+                },
+                "3rd Floor": {
+                    "Quality Building Products": {
+                        "QP": [
+                            {
+                                "entry": 138,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Quality Building Products",
+                                "color": "#CD8105",
+                                "parent_id": null,
+                                "activity_code": "QP",
+                                "activity_id": null,
+                                "activity_name": "Pre-insul & Gyp for Plumbing & Ins",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "05-Mar-2025",
+                                "finish": "11-Mar-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "QC": [
+                            {
+                                "entry": 147,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Quality Building Products",
+                                "color": "#CD8105",
+                                "parent_id": null,
+                                "activity_code": "QC",
+                                "activity_id": null,
+                                "activity_name": "Insulate Ceilings",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "14-Apr-2025",
+                                "finish": "16-Apr-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Green Air Mechanical": {
+                        "GC": [
+                            {
+                                "entry": 139,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Green Air Mechanical",
+                                "color": "#9F9D19",
+                                "parent_id": null,
+                                "activity_code": "GC",
+                                "activity_id": null,
+                                "activity_name": "Above Ceiling HVAC R/I",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "12-Mar-2025",
+                                "finish": "18-Mar-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "GA": [
+                            {
+                                "entry": 155,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Green Air Mechanical",
+                                "color": "#9F9D19",
+                                "parent_id": null,
+                                "activity_code": "GA",
+                                "activity_id": null,
+                                "activity_name": "Set AHU",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "09-May-2025",
+                                "finish": "09-May-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "GS": [
+                            {
+                                "entry": 162,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Green Air Mechanical",
+                                "color": "#9F9D19",
+                                "parent_id": null,
+                                "activity_code": "GS",
+                                "activity_id": null,
+                                "activity_name": "Start-up HVAC",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "19-May-2025",
+                                "finish": "20-May-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "GT": [
+                            {
+                                "entry": 172,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Green Air Mechanical",
+                                "color": "#9F9D19",
+                                "parent_id": null,
+                                "activity_code": "GT",
+                                "activity_id": null,
+                                "activity_name": "G/R/Ds HVAC Trim",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "30-Jun-2025",
+                                "finish": "02-Jul-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Davishar": {
+                        "PU": [
+                            {
+                                "entry": 140,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Davishar",
+                                "color": "#C6E0B4",
+                                "parent_id": null,
+                                "activity_code": "PU",
+                                "activity_id": null,
+                                "activity_name": "Plumbing Unit R/I Domestic, Sanitary, Set Tubs",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "19-Mar-2025",
+                                "finish": "25-Mar-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "PH": [
+                            {
+                                "entry": 156,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Davishar",
+                                "color": "#C6E0B4",
+                                "parent_id": null,
+                                "activity_code": "PH",
+                                "activity_id": null,
+                                "activity_name": "Set HWH and Plumb (Set Submeter)",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "12-May-2025",
+                                "finish": "12-May-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "PT": [
+                            {
+                                "entry": 173,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Davishar",
+                                "color": "#C6E0B4",
+                                "parent_id": null,
+                                "activity_code": "PT",
+                                "activity_id": null,
+                                "activity_name": "Trim Plumbing (Disposals/DWs)",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "30-Jun-2025",
+                                "finish": "02-Jul-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Ranger": {
+                        "SS": [
+                            {
+                                "entry": 141,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Ranger",
+                                "color": "#CD0000",
+                                "parent_id": null,
+                                "activity_code": "SS",
+                                "activity_id": null,
+                                "activity_name": "OH Sprinkler R/I and Hydro Ins",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "26-Mar-2025",
+                                "finish": "01-Apr-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "SH": [
+                            {
+                                "entry": 159,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Ranger",
+                                "color": "#CD0000",
+                                "parent_id": null,
+                                "activity_code": "SH",
+                                "activity_id": null,
+                                "activity_name": "Sprinkler Head Escutheons",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "09-May-2025",
+                                "finish": "13-May-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Current Electric": {
+                        "EW": [
+                            {
+                                "entry": 142,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Current Electric",
+                                "color": "#FFF3B2",
+                                "parent_id": null,
+                                "activity_code": "EW",
+                                "activity_id": null,
+                                "activity_name": "Electrical Wall R/I",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "02-Apr-2025",
+                                "finish": "08-Apr-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "EL": [
+                            {
+                                "entry": 143,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Current Electric",
+                                "color": "#FFF3B2",
+                                "parent_id": null,
+                                "activity_code": "EL",
+                                "activity_id": null,
+                                "activity_name": "Electrical Lighting OH R/I",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "02-Apr-2025",
+                                "finish": "08-Apr-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "ER": [
+                            {
+                                "entry": 144,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Current Electric",
+                                "color": "#FFF3B2",
+                                "parent_id": null,
+                                "activity_code": "ER",
+                                "activity_id": null,
+                                "activity_name": "Low Voltage Wall R/I (Tele/Cable/IT)",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "02-Apr-2025",
+                                "finish": "08-Apr-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "EB": [
+                            {
+                                "entry": 157,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Current Electric",
+                                "color": "#FFF3B2",
+                                "parent_id": null,
+                                "activity_code": "EB",
+                                "activity_id": null,
+                                "activity_name": "Electrical Panel Brkrs and Equipment Terminations",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "09-May-2025",
+                                "finish": "13-May-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "EP": [
+                            {
+                                "entry": 158,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Current Electric",
+                                "color": "#FFF3B2",
+                                "parent_id": null,
+                                "activity_code": "EP",
+                                "activity_id": null,
+                                "activity_name": "Low Voltage Panel",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "09-May-2025",
+                                "finish": "12-May-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "ES": [
+                            {
+                                "entry": 160,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Current Electric",
+                                "color": "#FFF3B2",
+                                "parent_id": null,
+                                "activity_code": "ES",
+                                "activity_id": null,
+                                "activity_name": "Switch and Plug",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "14-May-2025",
+                                "finish": "16-May-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "EWT": [
+                            {
+                                "entry": 161,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Current Electric",
+                                "color": "#FFF3B2",
+                                "parent_id": null,
+                                "activity_code": "EWT",
+                                "activity_id": null,
+                                "activity_name": "Wire Thermostats",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "14-May-2025",
+                                "finish": "16-May-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "ET": [
+                            {
+                                "entry": 170,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Current Electric",
+                                "color": "#FFF3B2",
+                                "parent_id": null,
+                                "activity_code": "ET",
+                                "activity_id": null,
+                                "activity_name": "Electrical Trim (Plates & Lights)",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "23-Jun-2025",
+                                "finish": "27-Jun-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "EV": [
+                            {
+                                "entry": 171,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Current Electric",
+                                "color": "#FFF3B2",
+                                "parent_id": null,
+                                "activity_code": "EV",
+                                "activity_id": null,
+                                "activity_name": "Trim Low Voltage",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "23-Jun-2025",
+                                "finish": "25-Jun-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Breeden": {
+                        "CI": [
+                            {
+                                "entry": 145,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Breeden",
+                                "color": "#346093",
+                                "parent_id": null,
+                                "activity_code": "CI",
+                                "activity_id": null,
+                                "activity_name": "R/I Trade Close-in Inspections",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "09-Apr-2025",
+                                "finish": "10-Apr-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "II": [
+                            {
+                                "entry": 148,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Breeden",
+                                "color": "#346093",
+                                "parent_id": null,
+                                "activity_code": "II",
+                                "activity_id": null,
+                                "activity_name": "Insulation Inspection",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "17-Apr-2025",
+                                "finish": "17-Apr-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "SI": [
+                            {
+                                "entry": 182,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Breeden",
+                                "color": "#346093",
+                                "parent_id": null,
+                                "activity_code": "SI",
+                                "activity_id": null,
+                                "activity_name": "Trade Final Ins (Sprinkler, Plumbing, HVAC, Electric, LV)",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "07-Aug-2025",
+                                "finish": "13-Aug-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "CP": [
+                            {
+                                "entry": 184,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Breeden",
+                                "color": "#346093",
+                                "parent_id": null,
+                                "activity_code": "CP",
+                                "activity_id": null,
+                                "activity_name": "Contractor Punchlist",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "14-Aug-2025",
+                                "finish": "20-Aug-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "American Contractors": {
+                        "AP": [
+                            {
+                                "entry": 149,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "American Contractors",
+                                "color": "#CBF9F0",
+                                "parent_id": null,
+                                "activity_code": "AP",
+                                "activity_id": null,
+                                "activity_name": "Framing & R/I Punchlist - Set Unit Entry FMs",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "18-Apr-2025",
+                                "finish": "23-Apr-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "AH": [
+                            {
+                                "entry": 164,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "American Contractors",
+                                "color": "#CBF9F0",
+                                "parent_id": null,
+                                "activity_code": "AH",
+                                "activity_id": null,
+                                "activity_name": "Install Pre-hung Doors",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "28-May-2025",
+                                "finish": "29-May-2025",
+                                "total_float": null
+                            },
+                            {
+                                "entry": 175,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "American Contractors",
+                                "color": "#CBF9F0",
+                                "parent_id": null,
+                                "activity_code": "AH",
+                                "activity_id": null,
+                                "activity_name": "Door Hardware",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "03-Jul-2025",
+                                "finish": "07-Jul-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "AR": [
+                            {
+                                "entry": 165,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "American Contractors",
+                                "color": "#CBF9F0",
+                                "parent_id": null,
+                                "activity_code": "AR",
+                                "activity_id": null,
+                                "activity_name": "Running Trim and Stools",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "30-May-2025",
+                                "finish": "03-Jun-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "AV": [
+                            {
+                                "entry": 179,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "American Contractors",
+                                "color": "#CBF9F0",
+                                "parent_id": null,
+                                "activity_code": "AV",
+                                "activity_id": null,
+                                "activity_name": "Closet Shelving",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "21-Jul-2025",
+                                "finish": "24-Jul-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Blue Sky": {
+                        "BS": [
+                            {
+                                "entry": 150,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Blue Sky",
+                                "color": "#8EA9DB",
+                                "parent_id": null,
+                                "activity_code": "BS",
+                                "activity_id": null,
+                                "activity_name": "Stock Drywall",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "18-Apr-2025",
+                                "finish": "22-Apr-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "BH": [
+                            {
+                                "entry": 151,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Blue Sky",
+                                "color": "#8EA9DB",
+                                "parent_id": null,
+                                "activity_code": "BH",
+                                "activity_id": null,
+                                "activity_name": "Hang Drywall",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "23-Apr-2025",
+                                "finish": "29-Apr-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "BP": [
+                            {
+                                "entry": 153,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Blue Sky",
+                                "color": "#8EA9DB",
+                                "parent_id": null,
+                                "activity_code": "BP",
+                                "activity_id": null,
+                                "activity_name": "Prime Paint",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "02-May-2025",
+                                "finish": "07-May-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "BU": [
+                            {
+                                "entry": 154,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Blue Sky",
+                                "color": "#8EA9DB",
+                                "parent_id": null,
+                                "activity_code": "BU",
+                                "activity_id": null,
+                                "activity_name": "Point Up Drywall",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "06-May-2025",
+                                "finish": "08-May-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "BF": [
+                            {
+                                "entry": 176,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Blue Sky",
+                                "color": "#8EA9DB",
+                                "parent_id": null,
+                                "activity_code": "BF",
+                                "activity_id": null,
+                                "activity_name": "Final Paint",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "08-Jul-2025",
+                                "finish": "14-Jul-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "BD": [
+                            {
+                                "entry": 177,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Blue Sky",
+                                "color": "#8EA9DB",
+                                "parent_id": null,
+                                "activity_code": "BD",
+                                "activity_id": null,
+                                "activity_name": "Drywall Point Up",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "15-Jul-2025",
+                                "finish": "16-Jul-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "BT": [
+                            {
+                                "entry": 183,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Blue Sky",
+                                "color": "#8EA9DB",
+                                "parent_id": null,
+                                "activity_code": "BT",
+                                "activity_id": null,
+                                "activity_name": "Paint Touch-up & Caulk",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "07-Aug-2025",
+                                "finish": "08-Aug-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "ECPF": {
+                        "GY": [
+                            {
+                                "entry": 152,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "ECPF",
+                                "color": "#F659A9",
+                                "parent_id": null,
+                                "activity_code": "GY",
+                                "activity_id": null,
+                                "activity_name": "Gypcrete",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "30-Apr-2025",
+                                "finish": "01-May-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Heritage Woodworks": {
+                        "HV": [
+                            {
+                                "entry": 163,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Heritage Woodworks",
+                                "color": "#941651",
+                                "parent_id": null,
+                                "activity_code": "HV",
+                                "activity_id": null,
+                                "activity_name": "Set Cabinets & Vanities",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "21-May-2025",
+                                "finish": "27-May-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "HC": [
+                            {
+                                "entry": 166,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Heritage Woodworks",
+                                "color": "#941651",
+                                "parent_id": null,
+                                "activity_code": "HC",
+                                "activity_id": null,
+                                "activity_name": "Set Countertops",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "04-Jun-2025",
+                                "finish": "10-Jun-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Walkers": {
+                        "WC": [
+                            {
+                                "entry": 167,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Walkers",
+                                "color": "#6870DE",
+                                "parent_id": null,
+                                "activity_code": "WC",
+                                "activity_id": null,
+                                "activity_name": "Ceramic Tile (Floors & Walls)",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "04-Jun-2025",
+                                "finish": "10-Jun-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "WB": [
+                            {
+                                "entry": 168,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Walkers",
+                                "color": "#6870DE",
+                                "parent_id": null,
+                                "activity_code": "WB",
+                                "activity_id": null,
+                                "activity_name": "Ceramic Backsplash",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "11-Jun-2025",
+                                "finish": "16-Jun-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "WL": [
+                            {
+                                "entry": 169,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Walkers",
+                                "color": "#6870DE",
+                                "parent_id": null,
+                                "activity_code": "WL",
+                                "activity_id": null,
+                                "activity_name": "LVT Flooring",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "17-Jun-2025",
+                                "finish": "20-Jun-2025",
+                                "total_float": null
+                            }
+                        ],
+                        "WP": [
+                            {
+                                "entry": 181,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Walkers",
+                                "color": "#6870DE",
+                                "parent_id": null,
+                                "activity_code": "WP",
+                                "activity_id": null,
+                                "activity_name": "Pad and Carpet (Protect)",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "31-Jul-2025",
+                                "finish": "06-Aug-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "TBD": {
+                        "TA": [
+                            {
+                                "entry": 174,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "TBD",
+                                "color": "#404040",
+                                "parent_id": null,
+                                "activity_code": "TA",
+                                "activity_id": null,
+                                "activity_name": "Install Appliances",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "03-Jul-2025",
+                                "finish": "07-Jul-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Morris Steel": {
+                        "MM": [
+                            {
+                                "entry": 178,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Morris Steel",
+                                "color": "#C6C8D1",
+                                "parent_id": null,
+                                "activity_code": "MM",
+                                "activity_id": null,
+                                "activity_name": "Mirrors and Toilet Accessories",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "17-Jul-2025",
+                                "finish": "18-Jul-2025",
+                                "total_float": null
+                            }
+                        ]
+                    },
+                    "Clean": {
+                        "RC": [
+                            {
+                                "entry": 180,
+                                "phase": "Interiors",
+                                "location": "3rd Floor",
+                                "trade": "Clean",
+                                "color": "#B8A6E3",
+                                "parent_id": null,
+                                "activity_code": "RC",
+                                "activity_id": null,
+                                "activity_name": "Rough-Clean",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "25-Jul-2025",
+                                "finish": "30-Jul-2025",
+                                "total_float": null
+                            }
+                        ]
+                    }
+                }
+            },
+            "Exteriors": {
+                "1st Floor": {
+                    "Quality Building Products": {
+                        "QE": [
+                            {
+                                "entry": 52,
+                                "phase": "Exteriors",
+                                "location": "1st Floor",
+                                "trade": "Quality Building Products",
+                                "color": "#CD8105",
+                                "parent_id": null,
+                                "activity_code": "QE",
+                                "activity_id": null,
+                                "activity_name": "Insulate Exterior Walls",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "28-Mar-2025",
+                                "finish": "31-Mar-2025",
+                                "total_float": null
+                            }
+                        ]
+                    }
+                },
+                "2nd Floor": {
+                    "Quality Building Products": {
+                        "QE": [
+                            {
+                                "entry": 99,
+                                "phase": "Exteriors",
+                                "location": "2nd Floor",
+                                "trade": "Quality Building Products",
+                                "color": "#CD8105",
+                                "parent_id": null,
+                                "activity_code": "QE",
+                                "activity_id": null,
+                                "activity_name": "Insulate Exterior Walls",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "04-Apr-2025",
+                                "finish": "07-Apr-2025",
+                                "total_float": null
+                            }
+                        ]
+                    }
+                },
+                "3rd Floor": {
+                    "Quality Building Products": {
+                        "QE": [
+                            {
+                                "entry": 146,
+                                "phase": "Exteriors",
+                                "location": "3rd Floor",
+                                "trade": "Quality Building Products",
+                                "color": "#CD8105",
+                                "parent_id": null,
+                                "activity_code": "QE",
+                                "activity_id": null,
+                                "activity_name": "Insulate Exterior Walls",
+                                "activity_status": null,
+                                "activity_ins": null,
+                                "start": "11-Apr-2025",
+                                "finish": "14-Apr-2025",
+                                "total_float": null
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}
