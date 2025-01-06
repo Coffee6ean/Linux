@@ -10,7 +10,7 @@ from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 # Imported Helper - As Module
 #from utils.data_frame_setup import DataFrameSetup
 
-# Imported Helper Module
+# Imported Helper - As Package 
 from modules.utils.data_frame_setup import DataFrameSetup
 
 class ExcelPostProcessing():
