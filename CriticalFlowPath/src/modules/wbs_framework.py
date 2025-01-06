@@ -1,9 +1,15 @@
 import os
-import json
+import re
 import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.utils import column_index_from_string, get_column_letter
 from openpyxl.styles import PatternFill
+
+# Imported Helper - As Module
+#from utils.data_frame_setup import DataFrameSetup
+
+# Imported Helper - As Package 
+from modules.utils.data_frame_setup import DataFrameSetup
 
 class WbsFramework:
     def __init__(self, input_process_cont, input_excel_path, input_excel_basename, 
@@ -26,34 +32,27 @@ class WbsFramework:
             project = WbsFramework.auto_generate_ins(process_continuity, input_excel_file, 
                                                      input_worksheet_name, input_json_file,
                                                      input_json_title)
+            _, proc_table, custom_ordered_dict, custom_order = DataFrameSetup.main(
+                True, process_continuity, input_json_file, input_json_title
+            )
         else:
             project = WbsFramework.generate_ins()
+            _, proc_table, custom_ordered_dict, custom_order = DataFrameSetup.main(False)
 
         while True:
+            color_list = [project.process_hex_val(item["color"]) for item in custom_ordered_dict]
             process_choice = input("Enter 'c' to create WBS Data Table, 'u' to update an existing WBS Table, or 'q' to quit: ").lower()
 
             if process_choice == 'c':
-                project.create_wbs_table()
-                active_workbook, active_worksheet = project.return_excel_workspace(project.ws_name)
-
-                if not active_workbook or not active_worksheet:
-                    print("Error: Could not load the workbook or worksheet.")
-                    break
-                
-                color_list = project.extract_colors(active_workbook, active_worksheet, 'color')
+                project.create_wbs_table(proc_table)
                 project.process_wbs_column('activity code', color_list)
                 project.process_wbs_column('color', color_list)
+
                 break
             elif process_choice == 'u':
-                active_workbook, active_worksheet = project.return_excel_workspace(project.ws_name)
-
-                if not active_workbook or not active_worksheet:
-                    print("Error: Could not load the workbook or worksheet.")
-                    break
-                
-                color_list = project.extract_colors(active_workbook, active_worksheet, 'color')
                 project.process_wbs_column('activity code', color_list)
                 project.process_wbs_column('color', color_list)
+                
                 break
             elif process_choice == 'q':
                 print("Exiting the program.")
@@ -155,7 +154,7 @@ class WbsFramework:
     @staticmethod
     def file_verification(input_file_path, file_type, mode, input_json_title=None):
         if input_json_title and os.path.isdir(input_file_path):
-            file_basename = f"processed_{input_json_title}.json"
+            file_basename = f"processed_{WbsFramework.normalize_entry(input_json_title)}.json"
             path, basename = WbsFramework.handle_file(input_file_path, file_basename, file_type)
         else:
             if os.path.isdir(input_file_path):
@@ -198,10 +197,14 @@ class WbsFramework:
         print("Error: Please verify that the directory and file exist and that the file is of type .xlsx or .json")
         return -1
     
-    def create_wbs_table(self):
-        table, custom_order = self.design_json_table()
-        proc_table = self.generate_wbs_cfa_style(table, custom_order)
-        self.write_data_to_excel(proc_table)
+    @staticmethod
+    def normalize_entry(entry_str):
+        remove_bewteen_parenthesis = re.sub('(?<=\()(.*?)(?=\))', '', entry_str)
+        special_chars = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
+        remove_special_chars = re.sub(special_chars, '', remove_bewteen_parenthesis.lower())
+        normalized_str = re.sub(' ', '_', remove_special_chars)
+
+        return normalized_str
 
     def process_wbs_column(self, col_header, color_list):
         file = os.path.join(self.excel_path, self.excel_basename)
@@ -212,16 +215,6 @@ class WbsFramework:
         self.fill_color_col(ws, header_idx, color_list)
 
         wb.save(file)
-
-    def extract_colors(self, active_workbook, active_worksheet, header):
-        wb = active_workbook
-        ws = active_worksheet
-
-        color_idx = self.find_column_idx(ws, header)
-        color_hex_list = self.extract_cell_attr(ws, color_idx)
-        pro_hex_list = self.process_hex_val(color_hex_list)
-        
-        return pro_hex_list
 
     def return_excel_workspace(self, worksheet_name):
         file = os.path.join(self.excel_path, self.excel_basename)
@@ -261,86 +254,9 @@ class WbsFramework:
         
         return workbook, worksheet
 
-    def design_json_table(self):
-        j_file = os.path.join(self.json_path, self.json_basename)
+    def create_wbs_table(self, proc_table):
+        self.write_data_to_excel(proc_table)
 
-        with open(j_file, 'r') as json_file:
-            data = json.load(json_file)
-        
-        df = self.flatten_json(data["project_content"][0])
-        df_keys = list(df.keys())
-        struct_dic = []
-
-        for key in df_keys:
-            phase_key = key.split('|')[0]
-            location_key = key.split('|')[1]
-            act_json_obj = {
-                "phase": phase_key,
-                "location": location_key,
-                "entry": df[key].get("entry", None),
-                "activity_code": df[key].get("activity_code", ""),
-                "activity_name": df[key].get("activity_name", ""),
-                "activity_ins": key.split('|')[-1],
-                "color": df[key].get("color", ""),
-                "start": df[key].get("start", ""),
-                "finish": df[key].get("finish", "")
-            }
-
-            struct_dic.append(act_json_obj)
-
-        custom_order = self.bring_category_to_top(struct_dic, "phase", "milestone")
-        df_table = pd.DataFrame(struct_dic)
-
-        return df_table, custom_order
-    
-    def bring_category_to_top(self, unordered_list, category, order_con):
-        categorized_list = []
-        normalized_category = category.lower().strip()
-        normalized_value = order_con.lower().strip()
-
-        sorted_list = sorted(set(item[normalized_category] for item in unordered_list if item.get(normalized_category) is not None))
-
-        for item in sorted_list:
-            if normalized_value in item.lower().strip():
-                position = sorted_list.index(item)
-                sorted_list.pop(position)
-                categorized_list.append(item)
-
-        custom_ordered_list = categorized_list + sorted_list
-        
-        return custom_ordered_list
-
-    def generate_wbs_cfa_style(self, og_table, categories_list):
-        og_table['phase'] = pd.Categorical(og_table['phase'], categories=categories_list, ordered=True)
-
-        proc_table = pd.pivot_table(
-            og_table,
-            index=["phase", "location", "entry", "activity_code"],
-            values=["color", "start", "finish"],
-            aggfunc='first',
-            observed=True
-        )
-        column_header_list = proc_table.columns.tolist()
-
-        if "finish" in column_header_list and column_header_list[-1] != "finish":
-            ordered_header_list = self.order_table_cols(column_header_list)
-        else:
-            ordered_header_list = column_header_list
-
-        proc_table = proc_table[ordered_header_list]
-
-        return proc_table
-
-    def order_table_cols(self, column_list):
-        for idx, col in enumerate(column_list):
-            if col == "finish":
-                temp = column_list[-1]
-                column_list[-1] = col
-                column_list[idx] = temp
-                break
-        
-        return column_list
-    
     def write_data_to_excel(self, proc_table):
         if proc_table.empty:    
             print("Error. DataFrame is empty\n")
@@ -373,48 +289,8 @@ class WbsFramework:
                     if normalized_header in normalized_cell_value:
                         return cell.column
 
-    def process_hex_val(self, hex_dic_list):
-        for hex_code in hex_dic_list:
-            hex_code["value"] = hex_code["value"].replace('#', "00")
-        
-        return hex_dic_list
-
-    def extract_cell_attr(self, active_ws, col_idx):
-        ws = active_ws
-        col_list = []
-
-        if col_idx is not None:
-            for row in ws.iter_rows(min_row=self.wbs_start_row + 1, min_col=col_idx, 
-                                    max_col=col_idx, max_row=ws.max_row):
-                for cell in row:
-                    activity_cell = {
-                        "alignment": {
-                            "horizontal": cell.alignment.horizontal,
-                            "vertical": cell.alignment.vertical,
-                        },
-                        "border": {
-                            "top": cell.border.top,
-                            "left": cell.border.left,
-                            "right": cell.border.right,
-                            "bottom": cell.border.bottom,
-                        },
-                        "fill": {
-                            "start_color": cell.fill.start_color.rgb if cell.fill.start_color.rgb else cell.fill.start_color,
-                            "end_color": cell.fill.end_color.rgb if cell.fill.start_color.rgb else cell.fill.start_color,
-                            "fill_type": cell.fill.fill_type,
-                        },
-                        "font": {
-                            "name": cell.font.name,
-                            "size": cell.font.size,
-                            "bold": cell.font.bold,
-                            "color": cell.font.color,
-                        },
-                        "value": cell.value,
-                    }
-
-                    col_list.append(activity_cell)
-        
-        return col_list
+    def process_hex_val(self, hex_val):
+        return hex_val.replace('#', "00")
 
     def fill_color_col(self, active_ws, col_idx, col_list):
         ws = active_ws
@@ -428,49 +304,19 @@ class WbsFramework:
                                                 min_col=col_idx,
                                                 max_col=col_idx)):
             for cell in row:
-                if idx < len(col_list):
-                    color = col_list[idx].get("value")
-                    try:
-                        cell.fill = PatternFill(start_color=color, 
-                                                end_color=color, 
-                                                fill_type="solid")
-                    except Exception as e:
-                        print(f"Color hex not found: {color}. Error: {e}")
-                        cell.fill = PatternFill(start_color=self.default_hex_fill_color, 
-                                                end_color=self.default_hex_fill_color, 
-                                                fill_type="solid")
-                else:
-                    print(f"No color available for row {idx + self.wbs_start_row + 1}. Using default color.")
+                color = col_list[idx]
+                try:
+                    cell.fill = PatternFill(start_color=color, 
+                                            end_color=color, 
+                                            fill_type="solid")
+                except Exception as e:
+                    print(f"Color hex not found: {color}. Error: {e}")
                     cell.fill = PatternFill(start_color=self.default_hex_fill_color, 
                                             end_color=self.default_hex_fill_color, 
                                             fill_type="solid")
 
         column_letter = get_column_letter(col_idx)
         print(f"Column ({column_letter}) styled successfully")
-
-    def flatten_json(self, json_obj):
-        new_dic = {}
-
-        def flatten(elem, flattened_key=""):
-            if type(elem) is dict:
-                keys_in_dic = list(elem.keys())
-
-                if "entry" in keys_in_dic:
-                    new_dic[flattened_key[:-1]] = elem
-                else:
-                    for current_key in elem:
-                        flatten(elem[current_key], flattened_key + current_key + '|')
-            elif type(elem) is list:
-                i = 0
-                for item in elem:
-                    flatten(item, flattened_key + str(i) + '|')
-                    i += 1
-            else:
-                new_dic[flattened_key[:-1]] = elem
-
-        flatten(json_obj)
-
-        return new_dic
 
 
 if __name__ == "__main__":
