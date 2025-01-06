@@ -6,4 +6,11 @@ venv/
 __pycache__/
 
 # Keys
-/keys
+keys/
+
+# Local Modules
+local_results/
+
+# Discontinued Modules
+disc/
+tests/
