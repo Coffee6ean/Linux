@@ -45,19 +45,21 @@ class ScheduleFramework():
         if auto:
             project = ScheduleFramework.auto_generate_ins(input_excel_file, input_json_file, input_worksheet_name, 
                                                           input_start_date, input_end_date, input_json_title)
-            _, proc_table, custom_ordered_dict, _ = DataFrameSetup.main(
-                True, None, input_json_file, input_json_title
-            )
+            project_details = DataFrameSetup.main(True, None, input_json_file, input_json_title)
         else:
             project = ScheduleFramework.generate_ins()
-            _, proc_table, custom_ordered_dict, _ = DataFrameSetup.main(False)
+            project_details = DataFrameSetup.main(False)
+
+        proc_table = project_details.get("proc_table")
+        custom_ordered_dict = project_details.get("custom_ordered_dict")
+        lead_schedule_struct = project_details.get("lead_schedule_struct")
 
         if project:
             active_workbook, active_worksheet = project.return_excel_workspace(project.ws_name)
 
             if active_workbook and active_worksheet:
                 reworked_json = project.create_schedule(
-                    active_workbook, active_worksheet, proc_table, custom_ordered_dict
+                    active_workbook, active_worksheet, proc_table, custom_ordered_dict, lead_schedule_struct
                 )
             else:
                 print("Error. Could not open Excel file as Workbook & Worksheet")
@@ -248,7 +250,7 @@ class ScheduleFramework():
         
         return workbook, worksheet
 
-    def create_schedule(self, active_workbook, active_worksheet, proc_table, json_dict):
+    def create_schedule(self, active_workbook, active_worksheet, proc_table, json_dict, lead_schedule_struct):
         file = os.path.join(self.excel_path, self.excel_basename)
 
         if self.start_col == "" or self.start_col is None:
@@ -258,7 +260,7 @@ class ScheduleFramework():
 
         self.generate_schedule_frame(active_worksheet, self.start_date, self.end_date)
         reworked_custom_ordered_dict = self.fill_schedule_cfa_style(
-            active_worksheet, custom_ordered_dict, proc_table
+            active_worksheet, custom_ordered_dict, proc_table, lead_schedule_struct
         )
         
         active_workbook.save(filename=file)
@@ -313,7 +315,7 @@ class ScheduleFramework():
                     if normalized_header in normalized_cell_value:
                         return cell.column
 
-    def fill_schedule_gantt_style(self, active_worksheet, custom_ordered_dict, proc_table):
+    def fill_schedule_gantt_style(self, active_worksheet, custom_ordered_dict:dict, proc_table):
         ws = active_worksheet
 
         start_ovr_date = datetime.strptime(self.start_date, "%d-%b-%Y")
@@ -341,20 +343,39 @@ class ScheduleFramework():
 
         print("Workbook filled successfully.")
 
-    def fill_schedule_cfa_style(self, active_worksheet, custom_ordered_dict:dict, proc_table) -> dict:
+    def fill_schedule_cfa_style(self, active_worksheet, custom_ordered_dict:dict, 
+                                proc_table, lead_schedule_struct:str) -> dict:
         ws = active_worksheet
+        schedule_setup = {
+            "start_ovr_date": datetime.strptime(self.start_date, "%d-%b-%Y"),
+            "final_ovr_date": datetime.strptime(self.end_date, "%d-%b-%Y"),
+            "starting_point": self.wbs_start_row + 1,
+            "ref_point": 0,
+            "occupied_rows": {},
+            "completed_tasks":  set(),
+        }
 
-        start_ovr_date = datetime.strptime(self.start_date, "%d-%b-%Y")
-        final_ovr_date = datetime.strptime(self.end_date, "%d-%b-%Y")
-        starting_point = self.wbs_start_row + 1
 
-        ref_location = None
-        occupied_rows = {}
-        completed_tasks = set()
+        self._paint_structured_schedule(
+            ws, custom_ordered_dict, proc_table, schedule_setup, lead_schedule_struct
+        )
+
+        print("Workbook filled successfully.")
+        return custom_ordered_dict
+
+    def _paint_structured_schedule(self, active_worksheet, custom_ordered_dict:dict, proc_table, 
+                                   schedule_setup:dict, structure_based="location") -> None:
+        ws = active_worksheet
+        start_ovr_date = schedule_setup.get("start_ovr_date")
+        final_ovr_date = schedule_setup.get("final_ovr_date")
+        starting_point = schedule_setup.get("starting_point")
+        ref_point = schedule_setup.get("ref_point")
+        occupied_rows = schedule_setup.get("occupied_rows")
+        completed_tasks = schedule_setup.get("completed_tasks")
 
         for idx, value in enumerate(proc_table.index.get_level_values("entry")):
             item = custom_ordered_dict[value]
-            current_location = item["location"]
+            current_location = item.get(structure_based)
             initial_date = datetime.strptime(item["start"], "%d-%b-%Y")
             final_date = datetime.strptime(item["finish"], "%d-%b-%Y")
 
@@ -364,9 +385,9 @@ class ScheduleFramework():
             start_search_col = column_index_from_string(self.start_col) + (initial_date - start_ovr_date).days
             finish_search_col = column_index_from_string(self.start_col) + (final_date - start_ovr_date).days
 
-            if current_location != ref_location:
+            if current_location != ref_point:
                 starting_point = max(starting_point, self.wbs_start_row + idx + 1)
-                ref_location = current_location
+                ref_point = current_location
                 occupied_rows = {}
 
             target_row = starting_point
@@ -381,7 +402,6 @@ class ScheduleFramework():
 
             count = 0
             original_sequence = []
-            reworked_sequence = []
             for col in range(start_search_col, finish_search_col + 1):
                 cell = ws.cell(row=target_row, column=col)
 
@@ -394,25 +414,17 @@ class ScheduleFramework():
                     self._add_comment(cell, item)
                     count += 1
 
-                """ reworked_cell_col = cell.col_idx + column_index_from_string(self.start_col) 
-                reworked_cell_row = cell.row
-                reworked_cell_coordinates = f"{get_column_letter(reworked_cell_col)}{reworked_cell_row}"
-                reworked_sequence.append(reworked_cell_coordinates) """
                 original_sequence.append(cell.coordinate)
                 
-            """ item["cell_sequence"] = {
-                "original_sequence": original_sequence,
-                "reworked_sequence": reworked_sequence
-            } """
-            item["cell_sequence"] = original_sequence
+            item["cell_sequence"] = {
+                "original": original_sequence,
+                "reworked": None
+            }
             completed_tasks.add(value)
 
         missing_tasks = set(proc_table.index.get_level_values("entry")) - completed_tasks
         if missing_tasks:
             print(f"Warning: The following tasks were not painted: {missing_tasks}")
-
-        print("Workbook filled successfully.")
-        return custom_ordered_dict
 
     def _style_cell(self, cell, current_item:dict, paint_border:bool=False) -> None:
         try:
