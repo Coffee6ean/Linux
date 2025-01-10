@@ -28,9 +28,9 @@ class ExcelPostProcessing():
         self.wbs_start_col = 'A'
 
         #Structures
-        self.final_json_categories = {
+        self.wbs_final_categories = {
             "phase": "thick",
-            "location": "no_border", 
+            "location": "dashed", 
             "area": "dashed",
         }
 
@@ -254,29 +254,41 @@ class ExcelPostProcessing():
 
     def _overlapping_dates(self, custom_ordered_dict:dict, 
                           lead_schedule_struct:str, alloted_space:int=2) -> dict:
-        location_based_lists = []
+        lead_based_lists = []
         nested_list = []
-        ref_location = custom_ordered_dict[0][lead_schedule_struct]
+        ref_lead = self._generate_compound_category_name(custom_ordered_dict[0])
 
         for item in custom_ordered_dict:
-            if item[lead_schedule_struct] == ref_location:
+            comp_lead_cat_title = self._generate_compound_category_name(item)
+
+            if comp_lead_cat_title == ref_lead:
                 nested_list.append(item)
             else:
-                location_based_lists.append(nested_list)
+                lead_based_lists.append(nested_list)
                 nested_list = [item]
-                ref_location = item[lead_schedule_struct]
+                ref_lead = comp_lead_cat_title
 
         if nested_list:
-            location_based_lists.append(nested_list)
+            lead_based_lists.append(nested_list)
 
         sorted_entries_list = []
-        for location_list in location_based_lists:
+        for location_list in lead_based_lists:
             sorted_list = self._bubble_sort_entries_by_dates(location_list)
             sorted_entries_list.append(sorted_list)
 
         overlap_results = self._calculate_overlap(sorted_entries_list, lead_schedule_struct, alloted_space)
 
         return overlap_results
+
+    def _generate_compound_category_name(self, item: dict) -> str:
+        category_names = []
+
+        for category in self.wbs_final_categories.keys():
+            cat_name = item.get(category)
+            if cat_name:
+                category_names.append(cat_name)
+
+        return "|".join(category_names)
 
     def _bubble_sort_entries_by_dates(self, unsorted_list:list) -> list:
         n = len(unsorted_list)
@@ -454,7 +466,7 @@ class ExcelPostProcessing():
 
         column_idxs = {
             item:self._find_column_idx(ws, item, self.wbs_start_row) for item in json_struct_categories 
-            if item in self.final_json_categories.keys()
+            if item in self.wbs_final_categories.keys()
         }
         point_col_idx = self._find_column_idx(ws, lead_schedule_struct, self.wbs_start_row)
 
@@ -528,7 +540,7 @@ class ExcelPostProcessing():
         self._style_worksheet(ws, self.start_date, self.end_date, start_col, start_row)
         self._apply_post_styling(ws)
 
-        for key, value in reversed(self.final_json_categories.items()):
+        for key, value in reversed(self.wbs_final_categories.items()):
             self._apply_post_sectioning(ws, key, value, start_col)
 
     def _same_cell_values(self, active_worksheet, starting_col_idx:int, starting_row_idx:int):
