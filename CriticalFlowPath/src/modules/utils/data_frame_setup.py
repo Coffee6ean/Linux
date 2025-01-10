@@ -22,6 +22,7 @@ class DataFrameSetup:
         self.custom_phase_order = ["procurement", "milestone"]
         self.project_table_index = ["phase", "location", "area", "entry", "activity_code"]
         self.project_table_values = ["color", "start", "finish"]
+        self.wbs_final_categories = ["phase", "location", "area"]
 
     @staticmethod
     def main(auto=True, process_continuity=None, input_json_file=None, input_json_title=None):
@@ -272,7 +273,7 @@ class DataFrameSetup:
 
         return df_table, custom_ordered_overall_dict, custom_phase_order
 
-    def _bring_to_top(self, unordered_dict_list, category, order_cons):
+    def _bring_to_top(self, unordered_dict_list, category, order_cons) -> dict:
         categorized_list = []
         custom_order = []
         normalized_category = category.lower().strip()
@@ -303,7 +304,7 @@ class DataFrameSetup:
         custom_ordered_dict = {item["entry"]:item for item in custom_ordered_dict}
         return custom_ordered_dict
 
-    def _sort_inner_activities(self, json_dict):
+    def _sort_inner_activities(self, json_dict:dict) -> list:
         ref_location = list(json_dict.values())[0]["location"]
         nested_loc_list = []
         same_loc_list = []
@@ -345,7 +346,7 @@ class DataFrameSetup:
         sorted_list = unsorted_list
         return sorted_list
     
-    def _group_by_sorted_phases(self, json_dict:dict):
+    def _group_by_sorted_phases(self, json_dict:dict) -> dict:
         ref_phase = json_dict[0]["phase"]
         nested_phase_list = []
         same_phase_list = []
@@ -363,7 +364,7 @@ class DataFrameSetup:
 
         return ordered_phase_dict
     
-    def _generate_phase_heirarchy(self, nested_phase_list:list, order_cons:list):
+    def _generate_phase_heirarchy(self, nested_phase_list:list, order_cons:list) -> dict:
         phase_dict = {}
 
         for unordered_list in nested_phase_list:
@@ -469,7 +470,7 @@ class DataFrameSetup:
 
         return unsorted_list
 
-    def _calculate_overall_date(self, phase_dict: dict):
+    def _calculate_overall_date(self, phase_dict: dict) -> dict:
         for key, value in phase_dict.items():
             overall_date_delta = timedelta(0)
 
@@ -533,7 +534,7 @@ class DataFrameSetup:
 
         return proc_table
 
-    def _order_table_cols(self, column_list:list):
+    def _order_table_cols(self, column_list:list) -> list:
         for idx, col in enumerate(column_list):
             if col == "finish":
                 temp = column_list[-1]
@@ -542,21 +543,20 @@ class DataFrameSetup:
                 break
         
         return column_list
-
+    
     def determine_schedule_structure(self, custom_ordered_dict:list) -> str:
-        project_area_found = False
+        lead_schedule_struct = None
 
-        for item in custom_ordered_dict:
-            if item.get("area") != None or item.get("area") != "":
-                project_area_found = True
+        for category in reversed(self.wbs_final_categories):
+            for item in custom_ordered_dict:
+                if item.get(category) != None or item.get(category) != "":
+                    lead_schedule_struct = category
+                    break
+
+            if lead_schedule_struct:
                 break
-        
-        if project_area_found:
-            result = "area"
-        else:
-            result = "location"
 
-        return result
+        return lead_schedule_struct
 
 
 if __name__ == "__main__":
