@@ -30,6 +30,13 @@ class ScheduleFramework():
         self.dark_default_hex_font = "00000000"
         self.light_default_hex_font = "00FFFFFF"
         self.default_hex_fill_color = "00FFFF00"
+
+        #Structures
+        self.wbs_final_categories = {
+            "phase": "thick",
+            "location": "no_border", 
+            "area": "dashed",
+        }
         self.allowed_headers = {
             "hyperlinks": ["activity_code", "activity_name", "wbs_code"]
         }
@@ -52,14 +59,14 @@ class ScheduleFramework():
 
         proc_table = project_details.get("proc_table")
         custom_ordered_dict = project_details.get("custom_ordered_dict")
-        lead_schedule_struct = project_details.get("lead_schedule_struct")
+        #lead_schedule_struct = project_details.get("lead_schedule_struct")
 
         if project:
             active_workbook, active_worksheet = project.return_excel_workspace(project.ws_name)
 
             if active_workbook and active_worksheet:
                 reworked_json = project.create_schedule(
-                    active_workbook, active_worksheet, proc_table, custom_ordered_dict, lead_schedule_struct
+                    active_workbook, active_worksheet, proc_table, custom_ordered_dict
                 )
             else:
                 print("Error. Could not open Excel file as Workbook & Worksheet")
@@ -250,17 +257,18 @@ class ScheduleFramework():
         
         return workbook, worksheet
 
-    def create_schedule(self, active_workbook, active_worksheet, proc_table, json_dict, lead_schedule_struct):
+    def create_schedule(self, active_workbook, active_worksheet, proc_table, 
+                        json_dict:dict) -> dict:
         file = os.path.join(self.excel_path, self.excel_basename)
 
         if self.start_col == "" or self.start_col is None:
-            self.start_col = get_column_letter(self.find_column_idx(active_worksheet, 'finish') + 1)
+            self.start_col = get_column_letter(self._find_column_idx(active_worksheet, 'finish') + 1)
         
         custom_ordered_dict = {val["entry"]: val for val in json_dict}
 
         self.generate_schedule_frame(active_worksheet, self.start_date, self.end_date)
         reworked_custom_ordered_dict = self.fill_schedule_cfa_style(
-            active_worksheet, custom_ordered_dict, proc_table, lead_schedule_struct
+            active_worksheet, custom_ordered_dict, proc_table
         )
         
         active_workbook.save(filename=file)
@@ -303,7 +311,7 @@ class ScheduleFramework():
 
         print("Gantt chart generated successfully.")
 
-    def find_column_idx(self, active_ws, column_header):
+    def _find_column_idx(self, active_ws, column_header):
         ws = active_ws
         start_col_idx = column_index_from_string(self.wbs_start_col)
         normalized_header = column_header.replace(" ", "_").lower()
@@ -344,38 +352,38 @@ class ScheduleFramework():
         print("Workbook filled successfully.")
 
     def fill_schedule_cfa_style(self, active_worksheet, custom_ordered_dict:dict, 
-                                proc_table, lead_schedule_struct:str) -> dict:
+                                proc_table) -> dict:
         ws = active_worksheet
         schedule_setup = {
             "start_ovr_date": datetime.strptime(self.start_date, "%d-%b-%Y"),
             "final_ovr_date": datetime.strptime(self.end_date, "%d-%b-%Y"),
             "starting_point": self.wbs_start_row + 1,
-            "ref_point": 0,
+            "ref_lead": 0,
             "occupied_rows": {},
             "completed_tasks":  set(),
         }
 
 
         self._paint_structured_schedule(
-            ws, custom_ordered_dict, proc_table, schedule_setup, lead_schedule_struct
+            ws, custom_ordered_dict, proc_table, schedule_setup
         )
 
         print("Workbook filled successfully.")
         return custom_ordered_dict
 
     def _paint_structured_schedule(self, active_worksheet, custom_ordered_dict:dict, proc_table, 
-                                   schedule_setup:dict, structure_based="location") -> None:
+                                   schedule_setup:dict) -> None:
         ws = active_worksheet
         start_ovr_date = schedule_setup.get("start_ovr_date")
         final_ovr_date = schedule_setup.get("final_ovr_date")
         starting_point = schedule_setup.get("starting_point")
-        ref_point = schedule_setup.get("ref_point")
+        ref_lead = schedule_setup.get("ref_lead")
         occupied_rows = schedule_setup.get("occupied_rows")
         completed_tasks = schedule_setup.get("completed_tasks")
 
         for idx, value in enumerate(proc_table.index.get_level_values("entry")):
             item = custom_ordered_dict[value]
-            current_location = item.get(structure_based)
+            current_lead = self._generate_compound_category_name(item)
             initial_date = datetime.strptime(item["start"], "%d-%b-%Y")
             final_date = datetime.strptime(item["finish"], "%d-%b-%Y")
 
@@ -385,9 +393,9 @@ class ScheduleFramework():
             start_search_col = column_index_from_string(self.start_col) + (initial_date - start_ovr_date).days
             finish_search_col = column_index_from_string(self.start_col) + (final_date - start_ovr_date).days
 
-            if current_location != ref_point:
+            if current_lead != ref_lead:
                 starting_point = max(starting_point, self.wbs_start_row + idx + 1)
-                ref_point = current_location
+                ref_lead = current_lead
                 occupied_rows = {}
 
             target_row = starting_point
@@ -425,6 +433,16 @@ class ScheduleFramework():
         missing_tasks = set(proc_table.index.get_level_values("entry")) - completed_tasks
         if missing_tasks:
             print(f"Warning: The following tasks were not painted: {missing_tasks}")
+
+    def _generate_compound_category_name(self, item: dict) -> str:
+        category_names = []
+
+        for category in self.wbs_final_categories.keys():
+            cat_name = item.get(category)
+            if cat_name:
+                category_names.append(cat_name)
+
+        return "|".join(category_names)
 
     def _style_cell(self, cell, current_item:dict, paint_border:bool=False) -> None:
         try:
