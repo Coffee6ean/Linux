@@ -26,63 +26,14 @@ class ExcelPostProcessing():
         self.json_title = input_json_title
         self.wbs_start_row = 4
         self.wbs_start_col = 'A'
-        self.trade_list_validation = [
-            'Bricklayer',
-            'Carpenter',
-            'Cement Mason',
-            'Drywall Finisher',
-            'Electrician',
-            'Elevator Constructor',
-            'Glazier',
-            'Insulation Worker',
-            'Ironworker',
-            'Laborer',
-            'Millwright',
-            'N/A',
-            'Operating Engineer',
-            'Painter',
-            'Pipefitter',
-            'Roofer',
-            'Sheet Metal Worker',
-            'Plumber'
-        ]
-        self.phase_list_validation = [
-            'Civil',
-            'Comissioning',
-            'Elevator',
-            'Exteriors/Skin',
-            'Foundations',
-            'Framing Structure',
-            'Garage',
-            'Interior Finishes',
-            'Interior Rough Ins',
-            'Landscaping Decks',
-            'N/A',
-            'Roof',
-            'Site Prep',
-            'Site Utilities',
-            'Structure',
-            'Transformer Vault'
-        ]
-        self.scope_of_work_list_validation = [
-            'Construction',
-            'Concrete Works', 
-            'Demolition',  
-            'Electrical',
-            'Finishes',
-            'Framing',
-            'HVAC',  
-            'Insulation',  
-            'Landscaping',  
-            'N/A',
-            'Painting',  
-            'Paving',  
-            'Plumbing',
-            'Roofing',  
-            'Site Work',
-            'Structural Steel'
-        ]
-    
+
+        #Structures
+        self.final_json_categories = {
+            "phase": "thick",
+            "location": "no_border", 
+            "area": "dashed",
+        }
+
     @staticmethod
     def main(auto=True, input_excel_file=None, input_worksheet_name=None, input_start_date=None, 
              input_end_date=None, input_json_file=None, input_json_title=None):
@@ -91,18 +42,26 @@ class ExcelPostProcessing():
                 input_excel_file, input_worksheet_name, input_start_date, input_end_date, 
                 input_json_file, input_json_title
             )
-            _, proc_table, custom_ordered_dict, _ = DataFrameSetup.main(
-                True, None, input_json_file, input_json_title
-            )
+            project_details = DataFrameSetup.main(True, None, input_json_file, input_json_title)
         else:
             project = ExcelPostProcessing.generate_ins()
-            _, proc_table, custom_ordered_dict, _ = DataFrameSetup.main(False)
+            project_details = DataFrameSetup.main(False)
 
         active_workbook, active_worksheet = project.return_excel_workspace(project.ws_name)
-        
+        proc_table = project_details.get("proc_table")
+        custom_ordered_dict = project_details.get("custom_ordered_dict")
+        lead_schedule_struct = project_details.get("lead_schedule_struct")
+        json_struct_categories = project_details.get("json_struct_categories")
+
         if active_workbook and active_worksheet:
-            project.update_schedule_frame(active_workbook, active_worksheet, custom_ordered_dict, proc_table)
-            project.update_wbs_table()
+            project.update_schedule_frame(
+                active_workbook, 
+                active_worksheet, 
+                custom_ordered_dict, 
+                proc_table, 
+                lead_schedule_struct,
+            )
+            project.update_wbs_table(lead_schedule_struct, json_struct_categories)
 
     @staticmethod
     def generate_ins():
@@ -269,55 +228,57 @@ class ExcelPostProcessing():
         
         return workbook, worksheet
 
-    def update_schedule_frame(self, active_workbook, active_worksheet, json_dict, proc_table):
+    def update_schedule_frame(self, active_workbook, active_worksheet, custom_ordered_dict:dict, 
+                              proc_table, lead_schedule_struct:str) -> None:
         file = os.path.join(self.excel_path, self.excel_basename)
-        overlap_results = self.overlapping_dates(json_dict)
+        overlap_results = self._overlapping_dates(custom_ordered_dict, lead_schedule_struct)
         entry_dict_available = {}
         
-        ref_loc = list(proc_table.index.get_level_values("location"))[0]
+        ref_point = list(proc_table.index.get_level_values(lead_schedule_struct))[0]
         count_ins = 0
 
-        for location in proc_table.index.get_level_values("location"):
-            if location == ref_loc:
+        for location in proc_table.index.get_level_values(lead_schedule_struct):
+            if location == ref_point:
                 count_ins += 1
             else:
-                entry_dict_available.setdefault(ref_loc, []).append(count_ins)
-                ref_loc = location
+                entry_dict_available.setdefault(ref_point, []).append(count_ins)
+                ref_point = location
                 count_ins = 1
 
-        entry_dict_available.setdefault(ref_loc, []).append(count_ins)
-        self.process_file(active_worksheet, overlap_results, entry_dict_available)
+        entry_dict_available.setdefault(ref_point, []).append(count_ins)
+        self._process_file(active_worksheet, lead_schedule_struct, overlap_results, entry_dict_available)
 
         active_workbook.save(filename=file)
         print("Schedule Frame successfully updated")
         active_workbook.close()
 
-    def overlapping_dates(self, json_dict, alloted_space=2):
+    def _overlapping_dates(self, custom_ordered_dict:dict, 
+                          lead_schedule_struct:str, alloted_space:int=2) -> dict:
         location_based_lists = []
         nested_list = []
-        ref_location = json_dict[0]["location"]
+        ref_location = custom_ordered_dict[0][lead_schedule_struct]
 
-        for item in json_dict:
-            if item['location'] == ref_location:
+        for item in custom_ordered_dict:
+            if item[lead_schedule_struct] == ref_location:
                 nested_list.append(item)
             else:
                 location_based_lists.append(nested_list)
                 nested_list = [item]
-                ref_location = item['location']
+                ref_location = item[lead_schedule_struct]
 
         if nested_list:
             location_based_lists.append(nested_list)
 
         sorted_entries_list = []
         for location_list in location_based_lists:
-            sorted_list = self.bubble_sort_entries_by_dates(location_list)
+            sorted_list = self._bubble_sort_entries_by_dates(location_list)
             sorted_entries_list.append(sorted_list)
 
-        overlap_results = self.calculate_overlap(sorted_entries_list, alloted_space)
+        overlap_results = self._calculate_overlap(sorted_entries_list, lead_schedule_struct, alloted_space)
 
         return overlap_results
 
-    def bubble_sort_entries_by_dates(self, unsorted_list:list):
+    def _bubble_sort_entries_by_dates(self, unsorted_list:list) -> list:
         n = len(unsorted_list)
 
         for i in range(n):
@@ -338,13 +299,14 @@ class ExcelPostProcessing():
         sorted_list = unsorted_list
         return sorted_list
 
-    def calculate_overlap(self, location_based_lists, alloted_space):
+    def _calculate_overlap(self, location_based_lists:list, 
+                          lead_schedule_struct:str, alloted_space:int) -> dict:
         overlap_results = []
 
         for location_list in location_based_lists:
             active_overlaps = []
             max_overlap = 0
-            location_ref = location_list[0]["location"]
+            ref_point = location_list[0][lead_schedule_struct]
 
             for activity in location_list:
                 start = datetime.strptime(activity["start"], "%d-%b-%Y")
@@ -363,7 +325,7 @@ class ExcelPostProcessing():
                 # Update the maximum overlap count
                 max_overlap = max(max_overlap, len(active_overlaps))
 
-            overlap_results.append((location_ref, max_overlap))
+            overlap_results.append((ref_point, max_overlap))
 
         max_rows_dict = {}
         for location, max_row in overlap_results:
@@ -374,21 +336,22 @@ class ExcelPostProcessing():
 
         return max_rows_dict
     
-    def process_file(self, active_worksheet, overlap_results, con_available_ins):
+    def _process_file(self, active_worksheet, lead_schedule_struct:str, 
+                     overlap_results:dict, con_available_ins:dict) -> None:
         ws = active_worksheet
 
         print(f"Processing Excel file: {self.excel_basename}")
         
         wbs_start_col = column_index_from_string(self.wbs_start_col)
-        start_col_idx = self.find_column_idx(ws, "location", self.wbs_start_row) + 1
-        end_col_idx = self.return_first_column_idx(ws, 1, 1)
+        start_col_idx = self._find_column_idx(ws, lead_schedule_struct, self.wbs_start_row) + 1
+        end_col_idx = self._return_first_column_idx(ws, 1, 1)
 
-        self.unmerge_columns(ws, wbs_start_col, end_col_idx)
-        self.delete_excess_rows(ws, "location", overlap_results, con_available_ins)
-        self.delete_columns(ws, start_col_idx, end_col_idx)
-        self.insert_columns(ws, start_col_idx, end_col_idx - start_col_idx)
+        self._unmerge_columns(ws, wbs_start_col, end_col_idx)
+        self._delete_excess_rows(ws, lead_schedule_struct, overlap_results, con_available_ins)
+        self._delete_columns(ws, start_col_idx, end_col_idx)
+        self._insert_columns(ws, start_col_idx, end_col_idx - start_col_idx)
     
-    def find_column_idx(self, active_ws, column_header, start_row):
+    def _find_column_idx(self, active_ws, column_header, start_row):
         ws = active_ws
         start_col_idx = column_index_from_string(self.wbs_start_col)
         normalized_header = column_header.replace(" ", "_").lower()
@@ -400,7 +363,7 @@ class ExcelPostProcessing():
                     if normalized_header in normalized_cell_value:
                         return cell.column
 
-    def return_first_column_idx(self, active_worksheet, start_row_idx, start_col_idx):
+    def _return_first_column_idx(self, active_worksheet, start_row_idx:int, start_col_idx:int):
         ws = active_worksheet
 
         for row in ws.iter_rows(min_row=start_row_idx, min_col=start_col_idx, max_col=ws.max_column):
@@ -411,7 +374,7 @@ class ExcelPostProcessing():
         print(f"Error. No valid value encountered in specified row [{start_row_idx}, {start_row_idx}]")
         return -1
 
-    def unmerge_columns(self, active_worksheet, start_column_idx, end_column_idx):
+    def _unmerge_columns(self, active_worksheet, start_column_idx:int, end_column_idx:int) -> None:
         ws = active_worksheet
 
         for merged_cell in list(ws.merged_cells.ranges):
@@ -424,9 +387,10 @@ class ExcelPostProcessing():
 
         print(f"Column unmerging applied successfully: [{start_col_letter}, {end_col_letter}]")
 
-    def delete_excess_rows(self, active_worksheet, column_header, overlap_results, con_available_ins):
+    def _delete_excess_rows(self, active_worksheet, column_header:str, 
+                            overlap_results:dict, con_available_ins:dict) -> None:
         ws = active_worksheet
-        header_col = self.find_column_idx(active_worksheet, column_header, self.wbs_start_row)
+        header_col = self._find_column_idx(active_worksheet, column_header, self.wbs_start_row)
         all_current_locations = list(overlap_results.keys())
 
         rows_to_delete = []
@@ -463,7 +427,7 @@ class ExcelPostProcessing():
         
         print("Excess rows removed successfully.")
 
-    def delete_columns(self, active_worksheet, start_column_idx, end_column_idx):
+    def _delete_columns(self, active_worksheet, start_column_idx:int, end_column_idx:int) -> None:
         ws = active_worksheet
 
         amount_to_delete = end_column_idx - start_column_idx
@@ -474,7 +438,7 @@ class ExcelPostProcessing():
 
         print(f"Columns deleted successfully: [{start_col_letter}, {end_col_letter}]")
 
-    def insert_columns(self, active_worksheet, start_column_idx, num_cols):
+    def _insert_columns(self, active_worksheet, start_column_idx:int, num_cols:int) -> None:
         ws = active_worksheet
 
         for _ in range(num_cols):
@@ -482,26 +446,34 @@ class ExcelPostProcessing():
 
         print(f"Columns ({num_cols}) added successfully")
 
-    def update_wbs_table(self):
+    def update_wbs_table(self, lead_schedule_struct:str, json_struct_categories:list) -> None:
         file = os.path.join(self.excel_path, self.excel_basename)
 
         wb = load_workbook(file)
         ws = wb[self.ws_name]
-        phase_col_idx = self.find_column_idx(ws, "phase", self.wbs_start_row)
-        location_col_idx = self.find_column_idx(ws, "location", self.wbs_start_row)
-        start_col_idx = location_col_idx + 1
-        end_col_idx = self.return_first_column_idx(ws, 1, 1)
 
-        self.delete_columns(ws, start_col_idx, end_col_idx)
-        self.merge_until_different_value(ws, phase_col_idx, self.wbs_start_row)
-        self.merge_until_different_value(ws, location_col_idx, self.wbs_start_row)
-        self.style_file(ws, start_col_idx)
+        column_idxs = {
+            item:self._find_column_idx(ws, item, self.wbs_start_row) for item in json_struct_categories 
+            if item in self.final_json_categories.keys()
+        }
+        point_col_idx = self._find_column_idx(ws, lead_schedule_struct, self.wbs_start_row)
+
+        start_col_idx = point_col_idx + 1
+        end_col_idx = self._return_first_column_idx(ws, 1, 1)
+
+        self._delete_columns(ws, start_col_idx, end_col_idx)
+
+        for _, value in column_idxs.items():
+            self._merge_until_different_value(ws, value, self.wbs_start_row)
+
+        self._style_file(ws, start_col_idx)
 
         wb.save(filename=file)
         print("WBS Table successfully updated")
         wb.close()
 
-    def merge_until_different_value(self, active_worksheet, starting_col_idx, starting_row_idx):
+    def _merge_until_different_value(self, active_worksheet, starting_col_idx:int, 
+                                     starting_row_idx:int) -> None:
         ws = active_worksheet
 
         thin_border = Border(
@@ -542,22 +514,24 @@ class ExcelPostProcessing():
                     cell = ws.cell(row=row, column=starting_col_idx)
                     cell.border = thin_border
 
-    def style_file(self, active_worksheet, start_col, start_row=1):
+    def _style_file(self, active_worksheet, start_col:int, start_row:int=1) -> None:
         ws = active_worksheet
 
-        year_list, year_row = self.same_cell_values(ws, start_col, start_row)
+        year_list, year_row = self._same_cell_values(ws, start_col, start_row)
         for year in year_list:
-            self.merge_same_value_cells(ws, year, year_row)  
+            self._merge_same_value_cells(ws, year, year_row)  
 
-        month_list, month_row = self.same_cell_values(ws, start_col, start_row + 1)
+        month_list, month_row = self._same_cell_values(ws, start_col, start_row + 1)
         for month in month_list:
-            self.merge_same_value_cells(ws, month, month_row)  
+            self._merge_same_value_cells(ws, month, month_row)  
 
-        self.style_worksheet(ws, self.start_date, self.end_date, start_col, start_row)
-        self.apply_post_styling(ws)
-        self.apply_post_sectioning(ws, "location", start_col)
+        self._style_worksheet(ws, self.start_date, self.end_date, start_col, start_row)
+        self._apply_post_styling(ws)
 
-    def same_cell_values(self, active_worksheet, starting_col_idx, starting_row_idx):
+        for key, value in reversed(self.final_json_categories.items()):
+            self._apply_post_sectioning(ws, key, value, start_col)
+
+    def _same_cell_values(self, active_worksheet, starting_col_idx:int, starting_row_idx:int):
         ws = active_worksheet
 
         iterable_row = ws[starting_row_idx]
@@ -581,7 +555,8 @@ class ExcelPostProcessing():
 
         return overall_list, starting_row_idx  
 
-    def merge_same_value_cells(self, active_worksheet, column_indices, starting_row_idx):
+    def _merge_same_value_cells(self, active_worksheet, column_indices:list, 
+                                starting_row_idx:int) -> None:
         ws = active_worksheet
         
         if not column_indices:
@@ -594,7 +569,7 @@ class ExcelPostProcessing():
         ws.merge_cells(start_row=starting_row_idx, start_column=first_col, 
                               end_row=starting_row_idx, end_column=last_col)
 
-    def style_worksheet(self, active_worksheet, start_date, end_date, start_col, start_row):
+    def _style_worksheet(self, active_worksheet, start_date, end_date, start_col, start_row):
         ws = active_worksheet
     
         start_datetime_obj = datetime.strptime(start_date, '%d-%b-%Y')
@@ -642,7 +617,7 @@ class ExcelPostProcessing():
     
         print("Workbook styled and saved successfully.")
 
-    def apply_post_styling(self, active_worksheet):
+    def _apply_post_styling(self, active_worksheet):
         ws = active_worksheet
         first_row = ws[self.wbs_start_row]
         
@@ -678,11 +653,12 @@ class ExcelPostProcessing():
 
         print(f"Post-styling successfully completed")
 
-    def apply_post_sectioning(self, active_worksheet, section_header, start_col):
+    def _apply_post_sectioning(self, active_worksheet, section_header:str, 
+                               border_style:str, start_col:int) -> None:
         ws = active_worksheet
-        header_idx = self.find_column_idx(ws, section_header, self.wbs_start_row)
+        header_idx = self._find_column_idx(ws, section_header, self.wbs_start_row)
 
-        section_list = self.list_cell_values(ws, header_idx)
+        section_list = self._list_cell_values(ws, header_idx)
         last_valid_section = section_list[0]
 
         for row_idx, row in enumerate(ws.iter_rows(min_col=start_col, 
@@ -692,12 +668,12 @@ class ExcelPostProcessing():
             current_section = section_list[row_idx]
 
             if current_section and current_section != last_valid_section:
-                self.style_row_border(row)
+                self._style_row_border(row, border_style)
                 last_valid_section = current_section
 
         print("Post sectioning applied successfully.")
 
-    def list_cell_values(self, active_worksheet, col_idx):
+    def _list_cell_values(self, active_worksheet, col_idx):
         ws = active_worksheet
         col_list = []
 
@@ -709,67 +685,31 @@ class ExcelPostProcessing():
         
         return col_list 
 
-    def style_row_border(self, row):
-        new_top_border = Side(border_style='dashed', color='000000')
+    def _style_row_border(self, row, border_style:str) -> None:
+        if border_style == "no_border":
+            for cell in row:
+                current_border = cell.border if cell.border else Border()
+                new_border = Border(
+                    top=current_border.top, 
+                    left=current_border.left,  
+                    right=current_border.right,  
+                    bottom=current_border.bottom  
+                )
 
-        for cell in row:
-            current_border = cell.border if cell.border else Border()
-            new_border = Border(
-                top=new_top_border, 
-                left=current_border.left,  
-                right=current_border.right,  
-                bottom=current_border.bottom  
-            )
-
-            cell.border = new_border
-
-    def validate_columns(self, header):
-        file = os.path.join(self.excel_path, self.excel_basename)
-        workbook = load_workbook(filename=file)
-        ws = workbook[self.worksheet_name]
-
-        first_row = ws[self.wbs_start_row ]  
-        
-        if first_row is None:
-            print("Error: The first row is empty.")
-            return
-
-        if header == 'scope_of_work':
-            validation_list = self.scope_of_work_list_validation
-        elif header == 'phase':
-            validation_list = self.phase_list_validation
-        elif header == 'trade':
-            validation_list = self.trade_list_validation
+                cell.border = new_border
         else:
-            print(f"Error: Invalid header '{header}'. Supported headers are 'scope_of_work', 'phase', and 'trade'.")
-            return
-        
-        header_columns = [col for col in first_row if col.value and header.lower() in str(col.value).lower()]
+            new_top_border = Side(border_style=border_style, color='000000')
 
-        if not header_columns:
-            print(f"No columns found matching header: '{header}'")
-            return
+            for cell in row:
+                current_border = cell.border if cell.border else Border()
+                new_border = Border(
+                    top=new_top_border, 
+                    left=current_border.left,  
+                    right=current_border.right,  
+                    bottom=current_border.bottom  
+                )
 
-        for col in header_columns:
-            col_index = col.column  
-
-            dv = DataValidation(
-                type='list',
-                formula1=f'"{",".join(validation_list)}"',
-                allow_blank=True
-            )
-            dv.error = 'Your entry is not in the list'
-            dv.errorTitle = 'Invalid Entry'
-            dv.prompt = 'Please select from the list'
-            dv.promptTitle = 'List Selection'
-            
-            ws.add_data_validation(dv)
-            
-            dv.add(f'{get_column_letter(col_index)}2:{get_column_letter(col_index)}{ws.max_row}')
-        
-        workbook.save(file)
-        print(f"Data validation applied to columns matching '{header}' successfully.")
-        workbook.close()
+                cell.border = new_border
 
 
 if __name__ == "__main__":
