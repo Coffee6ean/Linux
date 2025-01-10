@@ -16,7 +16,12 @@ class DataFrameSetup:
         self.json_basename = input_json_basename
         self.wbs_start_row = 1
         self.wbs_start_col = 'A'
+
+        #Structures
+        self.json_struct_categories = ["phase", "location", "area", "trade", "activity_code"]
         self.custom_phase_order = ["procurement", "milestone"]
+        self.project_table_index = ["phase", "location", "area", "entry", "activity_code"]
+        self.project_table_values = ["color", "start", "finish"]
 
     @staticmethod
     def main(auto=True, process_continuity=None, input_json_file=None, input_json_title=None):
@@ -25,9 +30,9 @@ class DataFrameSetup:
         else:
             project = DataFrameSetup.generate_ins()
 
-        proc_table, custom_ordered_dict, custom_order = project.setup_project()
+        project_details = project.setup_project()
 
-        return project, proc_table, custom_ordered_dict, custom_order
+        return project_details
 
     @staticmethod
     def generate_ins():
@@ -202,9 +207,19 @@ class DataFrameSetup:
     def setup_project(self):
         flat_json_dict = self.read_json_dict()
         table, custom_ordered_dict, custom_phase_order = self.design_json_table(flat_json_dict)
-        proc_table = self.generate_wbs_cfa_style(table, custom_phase_order, 'phase')
+        proc_table = self.generate_wbs_cfa_style(table, custom_phase_order, "phase")
+        lead_schedule_struct = self.determine_schedule_structure(custom_ordered_dict)
 
-        return proc_table, custom_ordered_dict, custom_phase_order
+        project_details = {
+            "project_ins": self,
+            "proc_table": proc_table, 
+            "custom_ordered_dict": custom_ordered_dict, 
+            "custom_phase_order": custom_phase_order, 
+            "lead_schedule_struct": lead_schedule_struct,
+            "json_struct_categories": self.json_struct_categories,
+        }
+
+        return project_details
 
     def read_json_dict(self):
         j_file = os.path.join(self.json_path, self.json_basename)
@@ -212,15 +227,39 @@ class DataFrameSetup:
         with open(j_file, 'r') as json_file:
             data = json.load(json_file)
         
-        df = self.flatten_json(data["project_content"]["body"])
+        df = self._flatten_json(data["project_content"]["body"])
         df_values = list(df.values())
 
         return df_values
+    
+    def _flatten_json(self, json_obj):
+        new_dic = {}
+
+        def flatten(elem, flattened_key=""):
+            if type(elem) is dict:
+                keys_in_dic = list(elem.keys())
+
+                if "entry" in keys_in_dic:
+                    new_dic[flattened_key[:-1]] = elem
+                else:
+                    for current_key in elem:
+                        flatten(elem[current_key], flattened_key + current_key + '|')
+            elif type(elem) is list:
+                i = 0
+                for item in elem:
+                    flatten(item, flattened_key + str(i) + '|')
+                    i += 1
+            else:
+                new_dic[flattened_key[:-1]] = elem
+
+        flatten(json_obj)
+
+        return new_dic
 
     def design_json_table(self, flat_json_dict):
-        custom_ordered_dict = self.bring_to_top(flat_json_dict, "phase", self.custom_phase_order)
-        custom_date_ordered_dict_list = self.sort_inner_activities(custom_ordered_dict)
-        custom_ordered_phase_dict = self.group_by_sorted_phases(custom_date_ordered_dict_list)
+        custom_ordered_dict = self._bring_to_top(flat_json_dict, "phase", self.custom_phase_order)
+        custom_date_ordered_dict_list = self._sort_inner_activities(custom_ordered_dict)
+        custom_ordered_phase_dict = self._group_by_sorted_phases(custom_date_ordered_dict_list)
 
         custom_phase_order = [item for item in list(custom_ordered_phase_dict.keys())]
         custom_entry_order = []
@@ -229,10 +268,11 @@ class DataFrameSetup:
         
         custom_ordered_overall_dict = [custom_ordered_dict[item] for item in custom_entry_order]
         df_table = pd.DataFrame(custom_ordered_overall_dict)
+        df_table.fillna("N/A", inplace=True)
 
         return df_table, custom_ordered_overall_dict, custom_phase_order
 
-    def bring_to_top(self, unordered_dict_list, category, order_cons):
+    def _bring_to_top(self, unordered_dict_list, category, order_cons):
         categorized_list = []
         custom_order = []
         normalized_category = category.lower().strip()
@@ -263,7 +303,7 @@ class DataFrameSetup:
         custom_ordered_dict = {item["entry"]:item for item in custom_ordered_dict}
         return custom_ordered_dict
 
-    def sort_inner_activities(self, json_dict):
+    def _sort_inner_activities(self, json_dict):
         ref_location = list(json_dict.values())[0]["location"]
         nested_loc_list = []
         same_loc_list = []
@@ -280,11 +320,11 @@ class DataFrameSetup:
 
         ordered_list = []
         for unordered_list in nested_loc_list:
-            ordered_list += self.bubble_sort_entries_by_dates(unordered_list)
+            ordered_list += self._bubble_sort_entries_by_dates(unordered_list)
 
         return ordered_list
 
-    def bubble_sort_entries_by_dates(self, unsorted_list:list):
+    def _bubble_sort_entries_by_dates(self, unsorted_list:list):
         n = len(unsorted_list)
 
         for i in range(n):
@@ -305,7 +345,7 @@ class DataFrameSetup:
         sorted_list = unsorted_list
         return sorted_list
     
-    def group_by_sorted_phases(self, json_dict:dict):
+    def _group_by_sorted_phases(self, json_dict:dict):
         ref_phase = json_dict[0]["phase"]
         nested_phase_list = []
         same_phase_list = []
@@ -319,18 +359,18 @@ class DataFrameSetup:
                 same_phase_list.append(item)
 
         nested_phase_list.append(same_phase_list)
-        ordered_phase_dict = self.generate_phase_heirarchy(nested_phase_list, ["procurement", "milestone"])
+        ordered_phase_dict = self._generate_phase_heirarchy(nested_phase_list, ["procurement", "milestone"])
 
         return ordered_phase_dict
     
-    def generate_phase_heirarchy(self, nested_phase_list:list, order_cons:list):
+    def _generate_phase_heirarchy(self, nested_phase_list:list, order_cons:list):
         phase_dict = {}
 
         for unordered_list in nested_phase_list:
             start_dates = [item["start"] for item in unordered_list]
             finish_dates = [item["finish"] for item in unordered_list]
-            earliest_date = self.bubble_sort_dates(start_dates)[0]
-            latest_date = self.bubble_sort_dates(finish_dates)[-1]
+            earliest_date = self._bubble_sort_dates(start_dates)[0]
+            latest_date = self._bubble_sort_dates(finish_dates)[-1]
 
             current_phase = unordered_list[0]["phase"]
 
@@ -354,8 +394,8 @@ class DataFrameSetup:
 
                 all_start_dates = phase_dict[current_phase]["start_list"]
                 all_finish_dates = phase_dict[current_phase]["finish_list"]
-                new_earliest_date = self.bubble_sort_dates(all_start_dates)[0]
-                new_latest_date = self.bubble_sort_dates(all_finish_dates)[-1]
+                new_earliest_date = self._bubble_sort_dates(all_start_dates)[0]
+                new_latest_date = self._bubble_sort_dates(all_finish_dates)[-1]
                 latest_date_obj = datetime.strptime(new_latest_date, "%d-%b-%Y")
                 earliest_date_obj = datetime.strptime(new_earliest_date, "%d-%b-%Y")
                 midpoint_calc = earliest_date_obj + (latest_date_obj - earliest_date_obj) / 2
@@ -364,7 +404,7 @@ class DataFrameSetup:
                 phase_dict[current_phase]["latest_date"] = new_latest_date
                 phase_dict[current_phase]["midpoint_date"] = midpoint_calc.strftime("%d-%b-%Y")
 
-        overall_dates_dict = self.calculate_overall_date(phase_dict)
+        overall_dates_dict = self._calculate_overall_date(phase_dict)
         overall_dates_list = [{key: value["overall_date"]} for key, value in overall_dates_dict.items()]
 
         con_phases = []
@@ -382,14 +422,14 @@ class DataFrameSetup:
             else:
                 uncon_phases.append(item)
 
-        ordered_overall_dates_list = self.bubble_sort_entries_by_overall_date(con_phases) + self.bubble_sort_entries_by_overall_date(uncon_phases)
+        ordered_overall_dates_list = self._bubble_sort_entries_by_overall_date(con_phases) + self._bubble_sort_entries_by_overall_date(uncon_phases)
         ordered_phase_dict = {
             list(item.keys())[0]: overall_dates_dict[list(item.keys())[0]] for item in ordered_overall_dates_list
         }
 
         return ordered_phase_dict
 
-    def bubble_sort_dates(self, unsorted_list):
+    def _bubble_sort_dates(self, unsorted_list:list) -> list:
         n = len(unsorted_list)
 
         for i in range(n):
@@ -413,7 +453,7 @@ class DataFrameSetup:
 
         return unsorted_list
 
-    def bubble_sort_entries_by_overall_date(self, unsorted_list: list) -> list:
+    def _bubble_sort_entries_by_overall_date(self, unsorted_list: list) -> list:
         n = len(unsorted_list)
 
         for i in range(n):
@@ -429,7 +469,7 @@ class DataFrameSetup:
 
         return unsorted_list
 
-    def calculate_overall_date(self, phase_dict: dict):
+    def _calculate_overall_date(self, phase_dict: dict):
         for key, value in phase_dict.items():
             overall_date_delta = timedelta(0)
 
@@ -470,22 +510,22 @@ class DataFrameSetup:
 
         return phase_dict
 
-    def generate_wbs_cfa_style(self, df_table, categories_list, category):
+    def generate_wbs_cfa_style(self, df_table, categories_list:list, category:str):
         custom_entry_list = list(df_table["entry"])
         df_table["phase"] = pd.Categorical(df_table[category], categories=categories_list, ordered=True)
         df_table["entry"] = pd.Categorical(df_table["entry"], categories=custom_entry_list, ordered=True)
 
         proc_table = pd.pivot_table(
             df_table,
-            index=["phase", "location", "entry", "activity_code"],
-            values=["color", "start", "finish"],
+            index=self.project_table_index,
+            values=self.project_table_values,
             aggfunc="first",
             observed=True
         )
         column_header_list = proc_table.columns.tolist()
 
         if "finish" in column_header_list and column_header_list[-1] != "finish":
-            ordered_header_list = self.order_table_cols(column_header_list)
+            ordered_header_list = self._order_table_cols(column_header_list)
         else:
             ordered_header_list = column_header_list
 
@@ -493,7 +533,7 @@ class DataFrameSetup:
 
         return proc_table
 
-    def order_table_cols(self, column_list):
+    def _order_table_cols(self, column_list:list):
         for idx, col in enumerate(column_list):
             if col == "finish":
                 temp = column_list[-1]
@@ -502,34 +542,31 @@ class DataFrameSetup:
                 break
         
         return column_list
-    
-    def flatten_json(self, json_obj):
-        new_dic = {}
 
-        def flatten(elem, flattened_key=""):
-            if type(elem) is dict:
-                keys_in_dic = list(elem.keys())
+    def determine_schedule_structure(self, custom_ordered_dict:list) -> str:
+        project_area_found = False
 
-                if "entry" in keys_in_dic:
-                    new_dic[flattened_key[:-1]] = elem
-                else:
-                    for current_key in elem:
-                        flatten(elem[current_key], flattened_key + current_key + '|')
-            elif type(elem) is list:
-                i = 0
-                for item in elem:
-                    flatten(item, flattened_key + str(i) + '|')
-                    i += 1
-            else:
-                new_dic[flattened_key[:-1]] = elem
+        for item in custom_ordered_dict:
+            if item.get("area") != None or item.get("area") != "":
+                project_area_found = True
+                break
+        
+        if project_area_found:
+            result = "area"
+        else:
+            result = "location"
 
-        flatten(json_obj)
-
-        return new_dic
+        return result
 
 
 if __name__ == "__main__":
-    project_ins, proc_table, custom_ordered_dict, custom_order = DataFrameSetup.main(False)
+    project_details = DataFrameSetup.main(False)
 
     # Print
-    DataFrameSetup.write_df_to_excel(proc_table, project_ins.json_basename, "WBS - TEST", 1, 'A')
+    DataFrameSetup.write_df_to_excel(
+        project_details.get("proc_table"), 
+        project_details.get("project_ins").json_basename, 
+        "WBS - TEST", 
+        1, 
+        'A'
+    )
