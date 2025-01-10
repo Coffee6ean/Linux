@@ -17,7 +17,7 @@ class DataIngestion:
         self.ws_name = input_worksheet_name
         self.output_json_path = input_json_path
         self.output_json_basename = DataIngestion.normalize_string(input_project_title)
-        self.file_id = input_file_id
+        self.project_id = input_file_id
         self.project_code = input_project_code
         self.project_title = input_project_title
         self.project_subtitle = input_project_subtitle
@@ -27,18 +27,40 @@ class DataIngestion:
         self.file_updated_at = input_file_updated_at
         self.xlsx_start_row = xlsx_start_row
         self.xlsx_start_col = xlsx_start_col
-        self.json_categories = ["phase", "location", "area", "trade", "activity_code"]
-        self.allowed_headers = {
+
+        #Structures
+        self.project_metadata = {
+            "project_id": self.project_id,
+            "project_code": self.project_code,
+            "project_title": self.project_title,
+            "project_subtitle": self.project_subtitle,
+            "project_client": self.project_client,
+            "issue_date": self.file_issue_date,
+            "project_start": None,
+            "project_finish": None,
+            "created_at": self.file_created_at,
+            "updated_at": self.file_created_at,
+        },
+        self.project_content_headers = {
+            "entry": None, 
             "phase": ["phase"],
-            "location": ["location"],
-            "trade": ["trade"],
+            "location": ["location"], 
+            "area": ["area"],
+            "trade": ["trade"], 
             "color": ["color"],
+            "parent_id": None, 
             "activity_code": ["activity_code", "code", "task_code", "act_code"],
-            "activity_name": ["activity_name", "act_name"],
-            "activity_status": ["activity_status", "status", "task_status"],
-            "start": ["start", "start_date", "start_dates"],
-            "finish": ["finish", "finish_date", "finish_dates", "end", "end_date"]
+            "activity_id": None,
+            "activity_name": ["activity_name", "act_name"], 
+            "activity_status": ["activity_status", "status", "task_status"], 
+            "activity_ins": None, 
+            "start": ["start", "start_date", "start_dates"], 
+            "finish": ["finish", "finish_date", "finish_dates", "end", "end_date"], 
+            "total_float": ["total_float"],
+            "activity_successor_id": ["successor"],
+            "activity_predecessor_id": ["predecessor"],
         }
+        self.json_struct_categories = ["phase", "location", "area", "trade", "activity_code"]
 
         #Instance Results
         self.initial_project_type:str = None
@@ -77,6 +99,7 @@ class DataIngestion:
             "init_file_type": file_type,
             "final_file_type": type(final_result),
             "final_project_dict": nested_json,
+            "final_project_categories": project.json_struct_categories
         }
 
         DataIngestion.document_project(project, project_final)
@@ -359,37 +382,25 @@ class DataIngestion:
         return header_list
     
     def _verify_header(self, entry_str:str) -> str:
-        flat_allowed_headers = {value: key for key, values in self.allowed_headers.items() for value in values}
+        flat_allowed_headers = {
+            value: key for key, values in self.project_content_headers.items() if values is not None for value in values
+        }
 
         if entry_str in flat_allowed_headers:
             result = flat_allowed_headers[entry_str]
         else:
-            print(f"Warning. Header '{entry_str}' not found in declared dictionary")
+            print(
+                f"Warning. Header '{entry_str}' not found in declared dictionary"
+            )
             result = entry_str
-
+        
         return result
 
     def json_fill_header(self, file_headers):
         json_obj_frame = {
-            "project_metadata": {
-                "project_id": self.file_id,
-                "project_code": self.project_code,
-                "project_title": self.project_title,
-                "project_subtitle": self.project_subtitle,
-                "project_client": self.project_client,
-                "issue_date": self.file_issue_date,
-                "project_start": None,
-                "project_finish": None,
-                "created_at": self.file_created_at,
-                "updated_at": self.file_created_at
-            },
+            "project_metadata": self.project_metadata[0],
             "project_content": {
-                "header": {key: None for key in [
-                    "entry", "phase", "location", "trade", "color",
-                    "parent_id", "activity_code", "activity_id",
-                    "activity_name", "activity_status", "activity_ins", 
-                    "start", "finish", "total_float"
-                ]},
+                "header": {key: None for key, _ in self.project_content_headers.items()},
                 "body": []
             }
         }
@@ -435,7 +446,11 @@ class DataIngestion:
                 else:
                     position = header_coordinates_list.index(parent_header)
                     key = header_key_list[position]
-                    json_activity[key] = ""
+
+                    if key == "area":
+                        json_activity[key] = "N/A"
+                    else:
+                        json_activity[key] = ""
 
             body_dict.append(json_activity)
             entry_counter += 1
@@ -602,7 +617,7 @@ class DataIngestion:
 
 
         for obj in body_dict:
-            keys = [category for category in self.json_categories if obj.get(category) is not None]
+            keys = [category for category in self.json_struct_categories if obj.get(category) is not None]
             nested_dict["project_content"]["body"] = dict_management(
                 obj, keys, nested_dict["project_content"]["body"]
             )
