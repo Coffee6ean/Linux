@@ -32,12 +32,13 @@ class WbsFramework:
             project = WbsFramework.auto_generate_ins(process_continuity, input_excel_file, 
                                                      input_worksheet_name, input_json_file,
                                                      input_json_title)
-            _, proc_table, custom_ordered_dict, custom_order = DataFrameSetup.main(
-                True, process_continuity, input_json_file, input_json_title
-            )
+            project_details = DataFrameSetup.main(True, process_continuity, input_json_file, input_json_title)
         else:
             project = WbsFramework.generate_ins()
-            _, proc_table, custom_ordered_dict, custom_order = DataFrameSetup.main(False)
+            project_details = DataFrameSetup.main(False)
+
+        proc_table = project_details.get("proc_table")
+        custom_ordered_dict = project_details.get("custom_ordered_dict")
 
         while True:
             color_list = [project.process_hex_val(item["color"]) for item in custom_ordered_dict]
