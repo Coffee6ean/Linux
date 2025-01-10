@@ -1,5 +1,6 @@
 import os
 import re
+import json
 import cv2 as cv
 import pandas as pd
 import numpy as np
@@ -458,14 +459,46 @@ class ImageProcessing:
             input_text = file_reader.read()
 
         clean_text = re.sub('\n+', ' ', input_text)
-        normalized_text = re.sub('\s{2,}', '\n', clean_text)
+        cleaned_text = re.sub('\s{2,}', '\n', clean_text)
 
-        output_dir = os.path.join(output_path, f"{output_basename}.txt")
+        output_dir = os.path.join(output_path, f"{output_basename}.json")
+        normalized_project_dict = self.normalize_project_text(cleaned_text)
 
-        with open(output_dir, mode) as file_writer:
-            file_writer.write(normalized_text)
+        with open(output_dir, 'w') as file_writer:
+            json.dump(normalized_project_dict, file_writer)
 
         print("Project text file succesfully cleaned & normalized")
+
+    def normalize_project_text(self, cleaned_txt):
+        pattern = re.compile(
+            r"(?P<ActivityCode>(?:[A-Z]{2,}(?:-[A-Z0-9]+)*-\d+|[A-Z]+(?:-[A-Z0-9]+){2,}))"
+            r"(?P<ActivityDetails>(?:(?!\b(?:[A-Z]{2,}(?:-[A-Z0-9]+)*-\d+|[A-Z]+(?:-[A-Z0-9]+){2,})\b)[\s\S])*)",
+            re.DOTALL
+        )
+
+        matches = pattern.finditer(cleaned_txt)
+
+        project_entries = []
+        for idx, match in enumerate(matches):
+            activity_code_match = match.group("ActivityCode").strip()
+            activity_details_match = self._replace_unicode(match.group("ActivityDetails").strip())
+
+            json_body = {
+                "entry": idx + 1,
+                "activity_code": activity_code_match, 
+                "activity_details": activity_details_match
+            }
+
+            print(json_body["activity_details"])
+
+            project_entries.append(json_body)
+
+        return project_entries
+
+    def _replace_unicode(self, input_str: str, replacement="") -> str:
+        unicode_pattern = re.compile(r"(\\u[0-9a-fA-F]{4})|(\\n)")
+
+        return re.sub(unicode_pattern, replacement, input_str)
 
     def save_task_slices(self, task_slices, input_dir, image_name):
         # Ensure the save folder exists
