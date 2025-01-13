@@ -96,14 +96,16 @@ class DataIngestion:
             final_result = project.create_wbs_table_to_fill(reworked_json, excel_path, excel_basename)
         
         project_final = {
-            "init_file_type": file_type,
-            "final_file_type": type(final_result),
-            "final_project_dict": nested_json,
-            "final_project_categories": project.json_struct_categories
+            "project": project,
+            "project_start_date": final_result["project_metadata"].get("project_start"),
+            "project_finish_date": final_result["project_metadata"].get("project_finish"),
+            "project_categories": project.json_struct_categories,
+            "project_init_type": file_type,
+            "project_final_type": type(final_result),
         }
 
         DataIngestion.document_project(project, project_final)
-        return project
+        return project_final
 
     @staticmethod
     def generate_ins():
@@ -752,4 +754,4 @@ if __name__ == "__main__":
 
     #print(project.initial_project_type)
     #print(project.final_project_type)
-    #print(project.final_project_dict)
+    #print(project.project_dict)
