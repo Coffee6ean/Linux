@@ -277,7 +277,6 @@ class ExcelPostProcessing():
             sorted_entries_list.append(sorted_list)
 
         overlap_results = self._calculate_overlap(sorted_entries_list, lead_schedule_struct, alloted_space)
-
         return overlap_results
 
     def _generate_compound_category_name(self, item: dict) -> str:
@@ -315,12 +314,12 @@ class ExcelPostProcessing():
                           lead_schedule_struct:str, alloted_space:int) -> dict:
         overlap_results = []
 
-        for location_list in location_based_lists:
+        for lead_list in location_based_lists:
             active_overlaps = []
             max_overlap = 0
-            ref_point = location_list[0][lead_schedule_struct]
+            ref_point = lead_list[0][lead_schedule_struct]
 
-            for activity in location_list:
+            for activity in lead_list:
                 start = datetime.strptime(activity["start"], "%d-%b-%Y")
                 finish = datetime.strptime(activity["finish"], "%d-%b-%Y")
 
@@ -340,11 +339,11 @@ class ExcelPostProcessing():
             overlap_results.append((ref_point, max_overlap))
 
         max_rows_dict = {}
-        for location, max_row in overlap_results:
-            if location in max_rows_dict:
-                max_rows_dict[location].append(max_row + alloted_space)
+        for lead_cat, max_row in overlap_results:
+            if lead_cat in max_rows_dict:
+                max_rows_dict[lead_cat].append(max_row + alloted_space)
             else:
-                max_rows_dict[location] = [max_row + alloted_space]
+                max_rows_dict[lead_cat] = [max_row + alloted_space]
 
         return max_rows_dict
     
@@ -460,16 +459,19 @@ class ExcelPostProcessing():
 
     def update_wbs_table(self, lead_schedule_struct:str, json_struct_categories:list) -> None:
         file = os.path.join(self.excel_path, self.excel_basename)
-
         wb = load_workbook(file)
         ws = wb[self.ws_name]
-
-        column_idxs = {
-            item:self._find_column_idx(ws, item, self.wbs_start_row) for item in json_struct_categories 
-            if item in self.wbs_final_categories.keys()
-        }
+        
         point_col_idx = self._find_column_idx(ws, lead_schedule_struct, self.wbs_start_row)
-
+        wbs_keys = list(self.wbs_final_categories.keys())
+        lead_cat_columns = wbs_keys.index(lead_schedule_struct)
+        relevant_keys = wbs_keys[:lead_cat_columns + 1]
+        
+        column_idxs = {
+            item: self._find_column_idx(ws, item, self.wbs_start_row)
+            for item in json_struct_categories
+            if item in relevant_keys
+        }
         start_col_idx = point_col_idx + 1
         end_col_idx = self._return_first_column_idx(ws, 1, 1)
 
@@ -478,7 +480,7 @@ class ExcelPostProcessing():
         for _, value in column_idxs.items():
             self._merge_until_different_value(ws, value, self.wbs_start_row)
 
-        self._style_file(ws, start_col_idx)
+        self._style_file(ws, lead_schedule_struct, start_col_idx)
 
         wb.save(filename=file)
         print("WBS Table successfully updated")
@@ -526,7 +528,8 @@ class ExcelPostProcessing():
                     cell = ws.cell(row=row, column=starting_col_idx)
                     cell.border = thin_border
 
-    def _style_file(self, active_worksheet, start_col:int, start_row:int=1) -> None:
+    def _style_file(self, active_worksheet, lead_schedule_struct:str, 
+                    start_col:int, start_row:int=1) -> None:
         ws = active_worksheet
 
         year_list, year_row = self._same_cell_values(ws, start_col, start_row)
@@ -540,8 +543,13 @@ class ExcelPostProcessing():
         self._style_worksheet(ws, self.start_date, self.end_date, start_col, start_row)
         self._apply_post_styling(ws)
 
-        for key, value in reversed(self.wbs_final_categories.items()):
-            self._apply_post_sectioning(ws, key, value, start_col)
+        wbs_keys = list(self.wbs_final_categories.keys())
+        lead_cat_columns = wbs_keys.index(lead_schedule_struct)
+        relevant_keys = wbs_keys[:lead_cat_columns + 1]
+
+        for categroy in reversed(relevant_keys):
+            cat_value = self.wbs_final_categories.get(categroy)
+            self._apply_post_sectioning(ws, categroy, cat_value, start_col)
 
     def _same_cell_values(self, active_worksheet, starting_col_idx:int, starting_row_idx:int):
         ws = active_worksheet
