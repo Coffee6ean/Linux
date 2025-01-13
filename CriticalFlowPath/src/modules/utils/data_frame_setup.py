@@ -2,7 +2,7 @@ import os
 import re
 import json
 import pandas as pd
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta
 from openpyxl.utils import column_index_from_string
 
 import sys
@@ -544,19 +544,14 @@ class DataFrameSetup:
         
         return column_list
     
-    def determine_schedule_structure(self, custom_ordered_dict:list) -> str:
-        lead_schedule_struct = None
-
+    def determine_schedule_structure(self, custom_ordered_dict: list) -> str:
         for category in reversed(self.wbs_final_categories):
-            for item in custom_ordered_dict:
-                if item.get(category) != None or item.get(category) != "":
-                    lead_schedule_struct = category
-                    break
+            has_valid_entry = any(item.get(category) for item in custom_ordered_dict)
+            
+            if has_valid_entry:
+                return category
 
-            if lead_schedule_struct:
-                break
-
-        return lead_schedule_struct
+        return None
 
 
 if __name__ == "__main__":
