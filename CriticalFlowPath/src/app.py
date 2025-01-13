@@ -1,46 +1,78 @@
-import os
 import re
 from datetime import datetime
 import modules as mdls
 
-def print_result(value):
+
+def system_cfa_create():
+    auto = True
+    answer_dic = _user_inputs()
+
+    _print_result("DataIngestion processing...")
+    project_data = mdls.DataIngestion.main(
+        auto, 
+        answer_dic["proc_cont"], 
+        answer_dic["xlsx_file"], 
+        answer_dic["ws_read"],
+        answer_dic["json_file"], 
+        answer_dic["json_title"]
+    )
+
+    _print_result("WbsFramework processing...")
+    project_wbs = mdls.WbsFramework.main(
+        auto, 
+        answer_dic["proc_cont"], 
+        answer_dic["xlsx_file"], 
+        answer_dic["ws_schedule"], 
+        answer_dic["json_file"], 
+        answer_dic["json_title"]
+    )
+    
+    _print_result("ScheduleFramework processing...")
+    project_schdl = mdls.ScheduleFramework.main(
+        auto, 
+        answer_dic["xlsx_file"], 
+        answer_dic["json_file"], 
+        answer_dic["ws_schedule"], 
+        project_data["project_start_date"], 
+        project_data["project_finish_date"], 
+        answer_dic["json_title"]
+    )
+    
+    # == WIP == #
+    """ _print_result("DataRelationship processing...")
+    mdls.DataRelationship.main(auto, project) """
+
+    _print_result("LegendsFramework processing...")
+    project_lgnds = mdls.LegendsFramework.main(
+        auto, 
+        answer_dic["xlsx_file"], 
+        answer_dic["ws_legends"], 
+        answer_dic["json_file"], 
+        answer_dic["json_title"]
+    )
+    
+    _print_result("ExcelPostProcessing processing...")
+    project_post = mdls.ExcelPostProcessing.main(
+        auto, 
+        answer_dic["xlsx_file"], 
+        answer_dic["ws_schedule"], 
+        project_data["project_start_date"], 
+        project_data["project_finish_date"],  
+        answer_dic["json_file"], 
+        answer_dic["json_title"]
+    )
+
+def _print_result(value):
     print()
     print()
     print(f'//========== {value} ==========//')
     print()
 
-def system_cfa_create():
-    auto = True
-    answer_dic = user_inputs()
-
-    print_result("DataIngestion processing...")
-    mdls.DataIngestion.main(auto, answer_dic["proc_cont"], answer_dic["xlsx_file"], answer_dic["ws_read"],
-                               answer_dic["json_file"], answer_dic["json_title"])
-    print_result("WbsFramework processing...")
-    mdls.WbsFramework.main(auto, answer_dic["proc_cont"], answer_dic["xlsx_file"], 
-                              answer_dic["ws_schedule"], answer_dic["json_file"], answer_dic["json_title"])
-    print_result("ScheduleFramework processing...")
-    project = mdls.ScheduleFramework.main(auto, answer_dic["xlsx_file"], answer_dic["json_file"], answer_dic["ws_schedule"], 
-                                   answer_dic["start_date"], answer_dic["end_date"], answer_dic["json_title"])
-    # == WIP == #
-    """ print_result("DataRelationship processing...")
-    mdls.DataRelationship.main(auto, project) """
-
-    print_result("LegendsFramework processing...")
-    mdls.LegendsFramework.main(auto, answer_dic["xlsx_file"], answer_dic["ws_legends"], 
-                                  answer_dic["json_file"], answer_dic["json_title"])
-    print_result("ExcelPostProcessing processing...")
-    mdls.ExcelPostProcessing.main(auto, answer_dic["xlsx_file"], answer_dic["ws_schedule"], 
-                                     answer_dic["start_date"], answer_dic["end_date"], 
-                                     answer_dic["json_file"], answer_dic["json_title"])
-
-def user_inputs():
+def _user_inputs():
     process_continuity = input("Is this a completly new project? ")
     if process_continuity == 'q':
         print("Exiting the program.")
         return -1
-    
-    now = add_date()
 
     input_excel_dir = input("Please enter the path to the Excel file or directory: ").strip()
     input_worksheet_read = input("Please enter the name for the worksheet to read: ").strip()
@@ -48,8 +80,9 @@ def user_inputs():
     input_worksheet_legends = input("Please enter the name for the new worksheet (Legends): ").strip()
     input_json_dir = input("Please enter the directory to save the new JSON file: ").strip()
     input_json_title = input("Please enter the name for the new JSON file (Base Style): ").strip()
-    input_start_date = return_valid_date("Please enter the start date of the project (format: dd-MMM-yyyy): ")
-    input_end_date = return_valid_date("Please enter the end date of the project (format: dd-MMM-yyyy): ")
+
+    #input_start_date = return_valid_date("Please enter the start date of the project (format: dd-MMM-yyyy): ")
+    #input_end_date = return_valid_date("Please enter the end date of the project (format: dd-MMM-yyyy): ")
 
     answer_dic = {
         "proc_cont": process_continuity,
@@ -59,11 +92,22 @@ def user_inputs():
         "ws_legends": input_worksheet_legends,
         "json_file": input_json_dir,
         "json_title": input_json_title,
-        "start_date": input_start_date,
-        "end_date": input_end_date
     }
 
     return answer_dic
+
+def ynq_user_interaction(prompt_message):
+    valid_responses = {'y', 'n', 'q'}  
+    
+    while True:
+        user_input = input(prompt_message).lower()  
+        
+        if user_input in valid_responses:
+            return user_input  
+        elif user_input == 'q':
+            break
+        else:
+            print("Error. Invalid input, please try again. ['Y/y' for Yes, 'N/n' for No, 'Q/q' for Quit]\n")
 
 def add_date():
     now = datetime.now()
