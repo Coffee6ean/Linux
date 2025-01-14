@@ -21,7 +21,7 @@ class DataFrameSetup:
         self.json_struct_categories = ["phase", "location", "area", "trade", "activity_code"]
         self.custom_phase_order = ["procurement", "milestone"]
         self.project_table_index = ["phase", "location", "area", "entry", "activity_code"]
-        self.project_table_values = ["color", "start", "finish"]
+        self.project_table_values = ["trade", "color", "activity_name", "start", "finish"]
         self.wbs_final_categories = ["phase", "location", "area"]
 
     @staticmethod
