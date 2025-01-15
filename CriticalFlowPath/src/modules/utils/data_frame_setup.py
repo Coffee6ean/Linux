@@ -37,12 +37,12 @@ class DataFrameSetup:
 
     @staticmethod
     def generate_ins():
-        input_process_cont = DataFrameSetup.ynq_user_interaction("Continue with the program? ")
+        input_process_cont = DataFrameSetup.ynq_user_interaction("Continue with the program? ").strip()
         if input_process_cont == 'q':
             print("Exiting the program.")
             return -1 
         
-        input_json_file = input("Please enter the path to the Json file or directory to read: ")
+        input_json_file = input("Please enter the path to the Json file or directory to read: ").strip()
 
         input_json_path, input_json_basename = DataFrameSetup.file_verification(
             input_json_file, 'j', 'r')
