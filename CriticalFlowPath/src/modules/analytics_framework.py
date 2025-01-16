@@ -185,6 +185,7 @@ class AnalyticsFramework:
         filtered_df = df_table_reset[~df_table_reset["phase"].isin(self.categories_not_needed)]
 
         self.hardest_zones_heatmap(filtered_df, lead_schedule_struct, "phase", "dark")
+        self.hardest_zones_horizontal_bar(filtered_df, "phase", lead_schedule_struct, "dark")
         self.slowest_trade_column_chart(filtered_df, "phase", "trade", "dark")
         self.busiest_phases_donut(filtered_df, "phase", 0.05, "dark")
         self.contribution_column_chart(filtered_df, "phase", "trade", 0.075, "dark")
@@ -205,8 +206,7 @@ class AnalyticsFramework:
                 x=category_x,
                 y=category_y,
                 z="activity_count",
-                title="""<b>Hardest Zones Heatmap</b><br><sup>Activity Count by Phase and Location (Top 10 Locations)</sup>
-                """,
+                title=f"<b>Hardest Zones Heatmap</b><br><sup>Activity Count by {category_x.capitalize()} and {category_y.capitalize()} (Top 10 Locations)</sup>",
                 labels={
                     "activity_count": "Activity Count", 
                     category_x: category_x.capitalize(),
@@ -243,7 +243,7 @@ class AnalyticsFramework:
         except Exception as e:
             print(f"An error occurred while creating the chart: {e}")
 
-    def _restructure_table_heatmap(self, df_table, category_x: str, category_y: str):
+    def _restructure_table_heatmap(self, df_table, category_x:str, category_y:str):
         # Group by category_y and category_x, and calculate activity count
         heatmap_data = (
             df_table.groupby([category_y, category_x], observed=True)
@@ -262,6 +262,83 @@ class AnalyticsFramework:
         heatmap_data = heatmap_data[heatmap_data[category_x].isin(top_ten)]
 
         return heatmap_data
+    
+    def hardest_zones_horizontal_bar(self, df_table, category_x:str, category_y:str, 
+                                    color_mode:str="light") -> None:
+        # Restructure the data for the horizontal bar chart
+        proc_bar_data = self._restructure_table_horizontal_bar(
+            df_table, 
+            category_x, 
+            category_y
+        )
+
+        try:
+            # Create the horizontal bar chart
+            fig = px.bar(
+                proc_bar_data,
+                x="activity_count",
+                y="hierarchy",  # Hierarchical sections (phase > lead)
+                title=f"""<b>Hardest Zones Horizontal Bar Chart</b><br><sup>Activity Count by {category_x.capitalize()} and {category_y.capitalize()}</sup>
+                """,
+                labels={
+                    "activity_count": "Activity Count", 
+                    "hierarchy": "Hierarchy"
+                },
+                orientation="h",  # Horizontal bar chart
+                width=1200,  # Increase width for better readability
+                height=800,  # Increase height to accommodate hierarchical sections
+                color_discrete_sequence=["#1f77b4"],  # Use a single color for all bars
+            )
+
+            # Apply color mode settings
+            fig_dict = self.fig_color_modes.get(color_mode)
+            fig.update_layout(
+                title_x=0.5,
+                title_font_size=24,
+                title_font_family=fig_dict["font"]["family"],
+                xaxis_title="Activity Count",
+                yaxis_title="Hierarchy",
+                xaxis_title_font_size=16,
+                yaxis_title_font_size=16,
+                font=fig_dict["font"],
+                margin=dict(l=50, r=50, t=100, b=150),  # Increase bottom margin for legend
+                plot_bgcolor=fig_dict["plot_bgcolor"],
+                paper_bgcolor=fig_dict["paper_bgcolor"],
+                xaxis=fig_dict["axis"],
+                yaxis=fig_dict["axis"],
+                showlegend=False,  # Hide legend since we're using a single color
+            )
+
+            # Save the chart as an image
+            output_file = f"hardest_zones_horizontal_bar_{color_mode}.png"
+            fig.write_image(output_file, scale=2)
+            print(f"Horizontal bar chart saved as '{output_file}'")
+
+        except Exception as e:
+            print(f"An error occurred while creating the chart: {e}")
+
+    def _restructure_table_horizontal_bar(self, df_table, category_x:str, category_y:str):
+        # Convert categorical columns to strings (if necessary)
+        df_table[category_x] = df_table[category_x].astype(str)
+        df_table[category_y] = df_table[category_y].astype(str)
+
+        # Group data hierarchically by phase > lead
+        grouped_data = (
+            df_table.groupby([category_x, category_y], observed=True)
+            .size()
+            .reset_index(name="activity_count")
+        )
+
+        # Create hierarchical labels (phase > lead)
+        grouped_data["hierarchy"] = (
+            grouped_data[category_x] + " > " + 
+            grouped_data[category_y]
+        )
+
+        # Sort by activity_count in descending order and select the top 10
+        grouped_data = grouped_data.sort_values("activity_count", ascending=False).head(10)
+
+        return grouped_data
 
     def slowest_trade_column_chart(self, df_table, category_x:str, category_y:str, 
                                    color_mode:str="light") -> None:
@@ -376,7 +453,7 @@ class AnalyticsFramework:
         except Exception as e:
             print(f"An error occurred while creating the chart: {e}")
 
-    def _restructure_table_donut(self, df_table, category: str, threshold:float):
+    def _restructure_table_donut(self, df_table, category:str, threshold:float):
         # Group and prepare data
         donut_data = (
             df_table.groupby([category], observed=True)
@@ -425,7 +502,7 @@ class AnalyticsFramework:
                 y="activity_count",
                 color=category_y,
                 title=f"""
-                <b>{category_y.capitalize()} Contributions to {category_x.capitalize()}</b><br><sup>Activity Count by {category_y.capitalize()} and {category_x.capitalize()}</sup>
+                <b>{category_y.capitalize()} Contributions to {category_x.capitalize()} (Top 10 Trades)</b><br><sup>Activity Count by {category_y.capitalize()} and {category_x.capitalize()}</sup>
                 """,
                 labels={
                     category_x: category_x.capitalize(), 
@@ -463,8 +540,8 @@ class AnalyticsFramework:
         except Exception as e:
             print(f"An error occurred while creating the chart: {e}")
 
-    def _restructure_table_contribution_column_chart(self, df_table, category_x: str, 
-                                                category_y: str, threshold: float = 0.05):
+    def _restructure_table_contribution_column_chart(self, df_table, category_x:str, 
+                                                category_y:str, threshold:float=0.05):
         # Group by category_x and category_y to calculate activity counts
         column_chart = (
             df_table.groupby([category_x, category_y], observed=True)
@@ -514,8 +591,8 @@ class AnalyticsFramework:
 
         return proc_column_chart
 
-    def lifeline_line_chart(self, df_table, category: str, time_unit, 
-                        color_mode: str = "light") -> None:
+    def lifeline_line_chart(self, df_table, category:str, time_unit:str, 
+                        color_mode:str="light") -> None:
         activity_counts = self._restructure_table_line_chart(
             df_table, 
             category, 
