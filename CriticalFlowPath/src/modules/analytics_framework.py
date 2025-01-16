@@ -186,7 +186,7 @@ class AnalyticsFramework:
 
         self.hardest_zones_heatmap(filtered_df, lead_schedule_struct, "phase", "dark")
         self.slowest_trade_column_chart(filtered_df, "phase", "trade", "dark")
-        self.busiest_phases_donut(filtered_df, "phase", "dark")
+        self.busiest_phases_donut(filtered_df, "phase", 0.05, "dark")
         self.contribution_column_chart(filtered_df, "phase", "trade", 0.075, "dark")
         self.contribution_column_chart(filtered_df, lead_schedule_struct, "trade", 0.075, "dark")
         self.lifeline_line_chart(filtered_df, "phase", "month", "dark")
@@ -195,8 +195,8 @@ class AnalyticsFramework:
                               color_mode:str="light") -> None:
         proc_heatmap_data = self._restructure_table_heatmap(
             df_table, 
+            category_x,
             category_y, 
-            category_x
         )
 
         try:
@@ -243,26 +243,25 @@ class AnalyticsFramework:
         except Exception as e:
             print(f"An error occurred while creating the chart: {e}")
 
-    def _restructure_table_heatmap(self, df_table, category_x:str, category_y:str):
-        print("\nColumns in df_table:", df_table.columns.tolist())
-
-        if category_y not in df_table.columns:
-            print("Error: 'phase' column not found in df_table. Skipping.")
-            return -1
-        else:
-            filtered_df = df_table[~df_table[category_y].isin(self.categories_not_needed)]
-
+    def _restructure_table_heatmap(self, df_table, category_x: str, category_y: str):
+        # Group by category_y and category_x, and calculate activity count
         heatmap_data = (
-            filtered_df.groupby([category_y, category_x], observed=True)
+            df_table.groupby([category_y, category_x], observed=True)
             .size()
             .reset_index(name="activity_count")
         )
-        proc_heatmap_data = heatmap_data.sort_values("activity_count", ascending=False)
 
-        top_ten = proc_heatmap_data[category_x].value_counts().nlargest(10).index
-        proc_heatmap_data = proc_heatmap_data[proc_heatmap_data[category_x].isin(top_ten)]
+        # Calculate total activity count per category_x
+        total_activity = heatmap_data.groupby(category_x, observed=True)["activity_count"].sum().reset_index()
+        total_activity.columns = [category_x, "total_activity"]
 
-        return proc_heatmap_data
+        # Get the top 10 categories for category_x based on total activity count
+        top_ten = total_activity.nlargest(10, "total_activity")[category_x]
+
+        # Filter the heatmap data to include only the top 10 category_x values
+        heatmap_data = heatmap_data[heatmap_data[category_x].isin(top_ten)]
+
+        return heatmap_data
 
     def slowest_trade_column_chart(self, df_table, category_x:str, category_y:str, 
                                    color_mode:str="light") -> None:
@@ -332,8 +331,9 @@ class AnalyticsFramework:
         
         return longest_per_phase
 
-    def busiest_phases_donut(self, df_table, category:str, color_mode:str="light") -> None:
-        labels, values = self._restructure_table_donut(df_table, category)
+    def busiest_phases_donut(self, df_table, category:str, threshold:float=0.05, 
+                             color_mode:str="light") -> None:
+        labels, values = self._restructure_table_donut(df_table, category, threshold)
 
         try:
             fig = go.Figure(
@@ -376,7 +376,8 @@ class AnalyticsFramework:
         except Exception as e:
             print(f"An error occurred while creating the chart: {e}")
 
-    def _restructure_table_donut(self, df_table, category:str):
+    def _restructure_table_donut(self, df_table, category: str, threshold:float):
+        # Group and prepare data
         donut_data = (
             df_table.groupby([category], observed=True)
             .size()
@@ -384,9 +385,28 @@ class AnalyticsFramework:
         )
         proc_donut_data = donut_data.sort_values("activity_count", ascending=False)
 
+        # Calculate total activity count
+        total_activity = proc_donut_data["activity_count"].sum()
+
+        # Identify small categories (those below the threshold)
+        proc_donut_data["proportion"] = proc_donut_data["activity_count"] / total_activity
+        small_categories = proc_donut_data[proc_donut_data["proportion"] < threshold]
+        large_categories = proc_donut_data[proc_donut_data["proportion"] >= threshold]
+
+        # Group small categories into "Other"
+        if not small_categories.empty:
+            other_activity = small_categories["activity_count"].sum()
+            other_row = pd.DataFrame({
+                category: ["Other"],
+                "activity_count": [other_activity],
+                "proportion": [small_categories["proportion"].sum()]
+            })
+            proc_donut_data = pd.concat([large_categories, other_row], ignore_index=True)
+
+        # Extract labels and values
         labels = list(proc_donut_data[category])
         values = list(proc_donut_data["activity_count"])
-        
+
         return labels, values
 
     def contribution_column_chart(self, df_table, category_x:str, category_y:str, 
@@ -443,8 +463,9 @@ class AnalyticsFramework:
         except Exception as e:
             print(f"An error occurred while creating the chart: {e}")
 
-    def _restructure_table_contribution_column_chart(self, df_table, category_x:str, 
-                                                     category_y:str, threshold:float=0.05):
+    def _restructure_table_contribution_column_chart(self, df_table, category_x: str, 
+                                                category_y: str, threshold: float = 0.05):
+        # Group by category_x and category_y to calculate activity counts
         column_chart = (
             df_table.groupby([category_x, category_y], observed=True)
             .size()
@@ -452,6 +473,7 @@ class AnalyticsFramework:
         )
         proc_column_chart = column_chart.sort_values("activity_count", ascending=False)
 
+        # Calculate total activity per x-axis category
         total_activity_per_lead = proc_column_chart.groupby(
             category_x, 
             observed=True
@@ -461,14 +483,14 @@ class AnalyticsFramework:
         # Merge total activity back into the main dataframe
         proc_column_chart = proc_column_chart.merge(total_activity_per_lead, on=category_x)
 
-        # Calculate proportion of each trade per location
+        # Calculate proportion of each y-axis category per x-axis category
         proc_column_chart["proportion"] = proc_column_chart["activity_count"] / proc_column_chart["total_activity"]
 
         # Identify small categories and group them into "Other"
         small_categories = proc_column_chart[proc_column_chart["proportion"] < threshold]
         large_categories = proc_column_chart[proc_column_chart["proportion"] >= threshold]
 
-        # Create an "Other" category for each location
+        # Create an "Other" category for each x-axis category
         other_data = small_categories.groupby(
             category_x,
             observed=True
@@ -480,10 +502,20 @@ class AnalyticsFramework:
         # Combine large categories and "Other" data
         proc_column_chart = pd.concat([large_categories, other_data], ignore_index=True)
 
+        # Sort x-axis categories by total activity and select the top 10
+        top_10_x_categories = (
+            total_activity_per_lead
+            .sort_values("total_activity", ascending=False)
+            .head(10)[category_x]
+        )
+
+        # Filter the data to include only the top 10 x-axis categories
+        proc_column_chart = proc_column_chart[proc_column_chart[category_x].isin(top_10_x_categories)]
+
         return proc_column_chart
 
-    def lifeline_line_chart(self, df_table, category:str, time_unit, 
-                            color_mode:str="light") -> None:
+    def lifeline_line_chart(self, df_table, category: str, time_unit, 
+                        color_mode: str = "light") -> None:
         activity_counts = self._restructure_table_line_chart(
             df_table, 
             category, 
@@ -517,24 +549,34 @@ class AnalyticsFramework:
                 xaxis_title_font_size=16,
                 yaxis_title_font_size=16,
                 font=fig_dict["font"],
-                margin=dict(l=50, r=50, t=100, b=50),
+                margin=dict(l=50, r=50, t=100, b=150),  # Increase bottom margin for legend
                 plot_bgcolor=fig_dict["plot_bgcolor"],
                 paper_bgcolor=fig_dict["paper_bgcolor"],
                 xaxis=fig_dict["axis"],
                 yaxis=fig_dict["axis"],
                 legend=dict(
                     title_text=category.capitalize(),
-                    font=fig_dict["font"])
+                    font=dict(
+                        family=fig_dict["font"]["family"],
+                        size=12,  # Adjust legend font size if needed
+                        color=fig_dict["font"]["color"]
+                    ),
+                    orientation="h",  # Horizontal legend
+                    x=0.5,  # Center the legend horizontally
+                    y=-0.2,  # Position the legend below the chart
+                    xanchor="center",  # Anchor the legend at its center
+                    yanchor="top"  # Anchor the legend at its top
+                )
             )
 
             output_file = f"lifeline_line_chart_{category}_{time_unit}.png"
             fig.write_image(output_file, scale=2)
-            print(f"Line saved as '{output_file}'")
+            print(f"Line chart saved as '{output_file}'")
 
         except Exception as e:
             print(f"An error occurred while creating the chart: {e}")
     
-    def _restructure_table_line_chart(self, df_table, category: str, time_unit: str = "month"):
+    def _restructure_table_line_chart(self, df_table, category:str, time_unit:str="month"):
         # Ensure the start and finish columns are datetime
         df_table["start"] = pd.to_datetime(df_table["start"])
         df_table["finish"] = pd.to_datetime(df_table["finish"])
