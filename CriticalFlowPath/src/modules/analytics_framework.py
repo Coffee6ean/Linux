@@ -390,8 +390,8 @@ class AnalyticsFramework:
             print(f"An error occurred while creating the chart: {e}")
 
     def _restructure_slowest_column_chart(self, df_table, category_x:str, category_y:str):
-        df_table["start"] = pd.to_datetime(df_table["start"])
-        df_table["finish"] = pd.to_datetime(df_table["finish"])
+        df_table["start"] = pd.to_datetime(df_table["start"], format='mixed')
+        df_table["finish"] = pd.to_datetime(df_table["finish"], format='mixed')
         df_table["duration"] = (df_table["finish"] - df_table["start"]).dt.days
 
         longest_trades = (
