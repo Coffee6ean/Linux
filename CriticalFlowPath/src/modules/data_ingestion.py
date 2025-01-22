@@ -52,21 +52,21 @@ class DataIngestion:
         self.json_struct_categories = ["phase", "location", "area", "trade", "activity_code"]
 
     @staticmethod
-    def main(auto=True, process_continuity=None, input_file_path=None, input_file_basename=None, 
-             input_file_extension=None, output_file_dir=None, input_project_code=None, input_project_title=None,
+    def main(auto=True, input_file_path=None, input_file_basename=None, input_file_extension=None, 
+             output_file_dir=None, input_project_code=None, input_project_title=None,
              input_project_subtitle=None, input_project_client=None, input_project_dates_created=None):
         if auto:
             project = DataIngestion.auto_generate_ins(
-                process_continuity, input_file_path, input_file_basename, input_file_extension, 
-                output_file_dir, input_project_code, input_project_title, input_project_subtitle, 
-                input_project_client, input_project_dates_created
+                input_file_path, input_file_basename, input_file_extension, 
+                output_file_dir, input_project_code, input_project_title, 
+                input_project_subtitle, input_project_client, input_project_dates_created
             )
         else:
             project = DataIngestion.generate_ins()
- 
+
         module_data = {
             "logs": {
-                "start": project.return_valid_date(),
+                "start": DataIngestion.return_valid_date(),
                 "finish": None,
                 "run-time": None,
                 "status": [],
@@ -74,31 +74,35 @@ class DataIngestion:
             "content": {}
         }
 
-        if project.input_extension == "xlsx":
-            if project.ws_name is None:
-                worksheet = input("Please enter the name for the new or existing worksheet: ")
+        if project:
+            if project.input_extension == "xlsx":
+                if project.ws_name is None:
+                    worksheet = input("Please enter the name for the new or existing worksheet: ")
+                else:
+                    worksheet = project.ws_name
+
+                reworked_json, nested_json = project.handle_xlsx(worksheet)
+                module_data["content"] = nested_json
+            elif project.input_extension == "xml":
+                excel_path, excel_basename = DataIngestion.return_valid_file(project.output_file_dir)
+                reworked_json = project.handle_xml()
+                module_data["content"] = project.create_wbs_table_to_fill(reworked_json, excel_path, excel_basename)
             else:
-                worksheet = project.ws_name
-
-            reworked_json, nested_json = project.handle_xlsx(worksheet)
-            module_data["content"] = nested_json
-        elif project.input_extension == "xml":
-            excel_path, excel_basename = DataIngestion.return_valid_file(project.output_file_dir)
-            reworked_json = project.handle_xml()
-            module_data["content"] = project.create_wbs_table_to_fill(reworked_json, excel_path, excel_basename)
+                print("Error. Unsuported file type")
+                module_data["logs"]["status"].append((
+                    DataIngestion.__name__, 
+                    dict(Error=f"Unsuported input file extension: {project.input_extension}")
+                ))
         else:
-            print("Error. Unsuported file type")
-            module_data["logs"]["status"].append((
-                DataIngestion.__name__, 
-                dict(Error=f"Unsuported input file extension: {project.input_extension}")
-            ))
-
-        module_data["logs"]["finish"] = project.return_valid_date()
+            module_data["logs"]["status"] = {
+                DataIngestion.__name__: "Error. Module's instance was not generated correctly"
+            }
+            
+        module_data["logs"]["finish"] = DataIngestion.return_valid_date()
         module_data["logs"]["run-time"] = DataIngestion.calculate_time_duration(
             module_data.get("start"), 
             module_data.get("finish")
         )
-
         return module_data
 
     @staticmethod
@@ -125,26 +129,24 @@ class DataIngestion:
         return ins
         
     @staticmethod
-    def auto_generate_ins(process_continuity, input_file_path, input_file_basename, input_file_extension,
-                          output_file_dir, input_project_code, input_project_title, input_project_subtitle, 
-                          input_project_client, input_project_dates_created):
-        
-        if process_continuity == 'y':
-            file_path = input_file_path 
-            file_basename = input_file_basename
-            file_extension = input_file_extension
-            output_dir = output_file_dir
-            project_code = input_project_code
-            project_title = input_project_title
-            project_subtitle = input_project_subtitle
-            project_client = input_project_client
-            project_dates_created = input_project_dates_created
+    def auto_generate_ins(input_file_path, input_file_basename, input_file_extension, 
+                          output_file_dir, input_project_code, input_project_title, 
+                          input_project_subtitle, input_project_client, input_project_dates_created):
+        file_path = input_file_path 
+        file_basename = input_file_basename
+        file_extension = input_file_extension
+        output_dir = output_file_dir
+        project_code = input_project_code
+        project_title = input_project_title
+        project_subtitle = input_project_subtitle
+        project_client = input_project_client
+        project_dates_created = input_project_dates_created
 
-            ins = DataIngestion(file_path, file_basename, file_extension, output_dir,
-                                project_code, project_title, project_subtitle, project_client, 
-                                project_dates_created)
-            
-            return ins
+        ins = DataIngestion(file_path, file_basename, file_extension, 
+                            output_dir, project_code, project_title, 
+                            project_subtitle, project_client, project_dates_created)
+        
+        return ins
     
     @staticmethod
     def return_valid_file(input_file_dir:str) -> dict|int:        
@@ -241,10 +243,10 @@ class DataIngestion:
 
     @staticmethod
     def calculate_time_duration(start_date:str, finish_date:str, 
-                                format:str="%d-%b-%y %H:%M:%S") -> float|int:
+                                date_format:str="%d-%b-%y %H:%M:%S") -> float|int:
         try:
-            start_time = datetime.strptime(start_date, format)
-            finish_time = datetime.strptime(finish_date, format)
+            start_time = datetime.strptime(start_date, date_format)
+            finish_time = datetime.strptime(finish_date, date_format)
 
             minutes_duration = (finish_time - start_time).total_seconds()
 
@@ -697,7 +699,4 @@ class DataIngestion:
 
 
 if __name__ == "__main__":
-    project, project_dict = DataIngestion.main(False)
-
-    if project:
-        project.write_json(project_dict, True)
+    module_data = DataIngestion.main(False)
