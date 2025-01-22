@@ -1,14 +1,12 @@
 import os
 import re
 import json
+from datetime import datetime
+import modules as mdls
 
 import sys
 sys.path.append("../")
 from CriticalFlowPath.keys.secrets import RSLTS_DIR
-
-from datetime import datetime
-import modules as mdls
-
 
 class App:
     #Structures
@@ -199,12 +197,9 @@ class App:
             self.ins["project"]["metadata"].get("client"),
             self.ins["project"]["metadata"]["dates"].get("created")
         )
-        print(mdl_data_1)
-        self.ins["project"]["data"] = {
-            mdls.DataIngestion.__name__: mdl_data_1
-        }
 
-        print(self.ins)
+        self.ins["project"]["data"] = mdl_data_1
+        print(json.dumps(self.ins, indent=4))
 
         """ self._print_result("WbsFramework processing...")
         project_wbs = mdls.WbsFramework.main(
