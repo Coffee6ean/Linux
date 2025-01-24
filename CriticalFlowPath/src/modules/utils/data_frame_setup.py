@@ -10,12 +10,15 @@ sys.path.append("../")
 from CriticalFlowPath.keys.secrets import TEST_XLSX_DIR
 
 class DataFrameSetup:
-    def __init__(self, input_process_cont, input_json_path, input_json_basename):
-        self.process_cont = input_process_cont
-        self.json_path = input_json_path
-        self.json_basename = input_json_basename
-        self.wbs_start_row = 1
-        self.wbs_start_col = 'A'
+    allowed_extensions = ["json"]
+
+    def __init__(self, input_file_path, input_file_basename, 
+                 input_file_extension, output_file_dir, project_data):
+        self.input_path = input_file_path
+        self.input_basename = input_file_basename
+        self.input_extension = input_file_extension
+        self.output_path = output_file_dir
+        self.project_data = project_data
 
         #Structures
         self.json_struct_categories = ["phase", "location", "area", "trade", "activity_code"]
@@ -25,89 +28,90 @@ class DataFrameSetup:
         self.wbs_final_categories = ["phase", "location", "area"]
 
     @staticmethod
-    def main(auto=True, process_continuity=None, input_json_file=None, input_json_title=None):
+    def main(auto=True, input_file_path=None, input_file_basename=None, 
+             input_file_extension=None, output_file_dir=None, project_data=None):
         if auto:
-            project = DataFrameSetup.auto_generate_ins(process_continuity, input_json_file, input_json_title)
+            project = DataFrameSetup.auto_generate_ins(
+                input_file_path, 
+                input_file_basename, 
+                input_file_extension, 
+                output_file_dir,
+                project_data
+            )
         else:
             project = DataFrameSetup.generate_ins()
 
-        project_details = project.setup_project()
+        module_data = {
+            "details": {
+                "json": None
+            },
+            "logs": {
+                "start": DataFrameSetup.return_valid_date(),
+                "finish": None,
+                "run-time": None,
+                "status": [],
+            },
+            "content": {}
+        }
 
-        return project_details
+        if project:
+            if project.project_data:
+                content = project.setup_project(project.project_data["body"])
+                module_data["content"] = content
+            else:
+                if project.input_extension in DataFrameSetup.allowed_extensions:
+                    content = project.setup_project(project.project_data)
+                    module_data["content"] = content
+                else:
+                    print("Error. Unsuported file type")
+                    module_data["logs"]["status"].append((
+                        DataFrameSetup.__name__, 
+                        dict(Error=f"Unsuported input file extension: {project.input_extension}")
+                    ))
+        else:
+            module_data["logs"]["status"] = {
+                DataFrameSetup.__name__: "Error. Module's instance was not generated correctly"
+            }
+
+        module_data["logs"]["finish"] = DataFrameSetup.return_valid_date()
+        module_data["logs"]["run-time"] = DataFrameSetup.calculate_time_duration(
+            module_data["logs"].get("start"), 
+            module_data["logs"].get("finish")
+        )
+
+        return module_data
 
     @staticmethod
     def generate_ins():
-        input_process_cont = DataFrameSetup.ynq_user_interaction("Continue with the program? ").strip()
-        if input_process_cont == 'q':
-            print("Exiting the program.")
-            return -1 
-        
-        input_json_file = input("Please enter the path to the Json file or directory to read: ").strip()
+        input_file = DataFrameSetup.return_valid_file(
+            input("Please enter the path to the file or directory: ").strip()
+        )
+        output_file_dir = DataFrameSetup.return_valid_path(
+            "Please enter the directory to save the new module results: "
+        )
 
-        input_json_path, input_json_basename = DataFrameSetup.file_verification(
-            input_json_file, 'j', 'r')
-
-        ins = DataFrameSetup(input_process_cont, input_json_path, input_json_basename)
-        
-        return ins
-
-    @staticmethod
-    def auto_generate_ins(process_continuity, input_json_file, input_json_title):
-        input_json_path, input_json_basename = DataFrameSetup.file_verification(
-                input_json_file, 'j', 'r', input_json_title)
-
-        ins = DataFrameSetup(process_continuity, input_json_path, input_json_basename)
+        ins = DataFrameSetup(
+            input_file.get("path"), 
+            input_file.get("basename"),
+            input_file.get("extension"),
+            output_file_dir,
+            None
+        )
         
         return ins
 
     @staticmethod
-    def ynq_user_interaction(prompt_message):
-        valid_responses = {'y', 'n', 'q'}  
+    def auto_generate_ins(input_file_path, input_file_basename, 
+                          input_file_extension, output_file_dir, project_data):
+        ins = DataFrameSetup(
+            input_file_path, 
+            input_file_basename, 
+            input_file_extension, 
+            output_file_dir,
+            project_data
+        )
         
-        while True:
-            user_input = input(prompt_message).lower()  
-            
-            if user_input in valid_responses:
-                return user_input  
-            else:
-                print("Error. Invalid input, please try again. ['Y/y' for Yes, 'N/n' for No, 'Q/q' for Quit]\n")
-
-    @staticmethod
-    def display_directory_files(list):
-        selection_idx = 0
-        if len(list)==0:
-            print("Error. No files found")
-            return -1
-        
-        if len(list)>1:
-            print(f"-- {len(list)} files found:")
-            idx = 0
-            for file in list:
-                idx += 1
-                print(f"{idx}. {file}")
-
-            selection_idx = input("\nPlease enter the index number to select the one to process: ") 
-        else:
-            print(f"Single file found: {list[0]}")
-            print("Will go ahead and process")
-
-        return int(selection_idx) - 1
-
-    @staticmethod
-    def is_json(file_name):
-        if file_name.endswith(".json"):
-            return True
-        else:
-            print("Error: Selected file is not a JSON file")
-            return False
-
-    @staticmethod
-    def is_xlsx(file_name):
-        if file_name.endswith(".xlsx"):
-            return True
-        else:
-            print("Error. Selected file is not an Excel")
-            return False
+        return ins
 
     @staticmethod
     def clear_directory(directory_path):
@@ -118,59 +122,88 @@ class DataFrameSetup:
                 os.remove(file_path)
 
     @staticmethod
-    def file_verification(input_file_path, file_type, mode, input_json_title=None):
-        if input_json_title and os.path.isdir(input_file_path):
-            file_basename = f"processed_{DataFrameSetup.normalize_entry(input_json_title)}.json"
-            path, basename = DataFrameSetup.handle_file(input_file_path, file_basename, file_type)
-        else:
-            if os.path.isdir(input_file_path):
-                file_path, file_basename = DataFrameSetup.handle_dir(input_file_path, mode)
-                if mode != 'c':
-                    path, basename = DataFrameSetup.handle_file(file_path, file_basename, file_type)
-                else:
-                    path = file_path
-                    basename = file_basename
-            elif os.path.isfile(input_file_path):
-                file_path = os.path.dirname(input_file_path)
-                file_basename = os.path.basename(input_file_path)
-                path, basename = DataFrameSetup.handle_file(file_path, file_basename, file_type)
+    def return_valid_file(input_file_dir:str) -> dict|int:        
+        if not os.path.exists(input_file_dir):
+            raise FileNotFoundError("Error: Given directory or file does not exist in the system.")
 
-        return path, basename
+        if os.path.isdir(input_file_dir):
+            file_dict = DataFrameSetup._handle_dir(input_file_dir)
+        elif os.path.isfile(input_file_dir):
+            file_dict = DataFrameSetup._handle_file(input_file_dir)
+
+        return file_dict
     
     @staticmethod
-    def handle_dir(input_path, mode):
+    def _handle_dir(input_file_dir:str, mode:str="r") -> dict|int:
         if mode in ['u', 'r', 'd']:
-            dir_list = os.listdir(input_path)
-            selection = DataFrameSetup.display_directory_files(dir_list)
-            base_name = dir_list[selection]
-            print(f'File selected: {base_name}\n')
+            dir_list = os.listdir(input_file_dir)
+            selection = DataFrameSetup._display_directory_files(dir_list)
+            input_file_basename = dir_list[selection]
+            print(f'File selected: {input_file_basename}\n')
         elif mode == 'c':
-            base_name = None
+            input_file_basename = None
         else:
             print("Error: Invalid mode specified.")
             return -1
         
-        return input_path, base_name
+        return dict(
+            path = os.path.dirname(input_file_dir), 
+            basename = os.path.basename(input_file_basename).split(".")[0],
+            extension = os.path.basename(input_file_basename).split(".")[-1],
+        )
 
     @staticmethod
-    def handle_file(file_path, file_basename, file_type):
-        file = os.path.join(file_path, file_basename)
+    def _display_directory_files(file_list:list) -> int:
+        selection_idx = -1  
 
-        if (file_type == 'e' and DataFrameSetup.is_xlsx(file)) or \
-           (file_type == 'j' and DataFrameSetup.is_json(file)):
-            return os.path.dirname(file), os.path.basename(file)
+        if len(file_list) == 0:
+            print('Error. No files found')
+            return -1
         
-        print("Error: Please verify that the directory and file exist and that the file is of type .xlsx or .json")
+        print(f'-- {len(file_list)} files found:')
+        for idx, file in enumerate(file_list, start=1):  
+            print(f'{idx}. {file}')
+
+        while True:
+            try:
+                selection_idx = int(input('\nPlease enter the index number to select the one to process: '))
+                if 1 <= selection_idx <= len(file_list):  
+                    return selection_idx - 1  
+                else:
+                    print(f'Error: Please enter a number between 1 and {len(file_list)}.')
+            except ValueError:
+                print('Error: Invalid input. Please enter a valid number.\n')
+
+    @staticmethod
+    def _handle_file(input_file_dir:str):
+        input_file_extension = os.path.basename(input_file_dir).split(".")[-1]
+
+        if (input_file_extension in DataFrameSetup.allowed_extensions):
+            return dict(
+                path = os.path.dirname(input_file_dir), 
+                basename = os.path.basename(input_file_dir).split(".")[0],
+                extension = input_file_extension,
+            )
+
+        print("Error: Please verify that the directory and file exist and that the file extension complies with class attributes")
         return -1
     
     @staticmethod
-    def normalize_entry(entry_str):
-        remove_bewteen_parenthesis = re.sub('(?<=\()(.*?)(?=\))', '', entry_str)
-        special_chars = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
-        remove_special_chars = re.sub(special_chars, '', remove_bewteen_parenthesis.lower()).strip()
-        normalized_str = re.sub(' ', '_', remove_special_chars)
+    def return_valid_path(prompt_message:str) -> (str|None):
+        while(True):   
+            value = input(prompt_message).strip()
+            try:
+                if os.path.isdir(value):
+                    return value
+            except Exception as e:
+                print(f"Error. {e}\n")
 
-        return normalized_str
+    @staticmethod
+    def return_valid_date() -> str:
+        now = datetime.now()
+        date_str = now.strftime("%d-%b-%y %H:%M:%S")
+
+        return date_str
 
     @staticmethod
     def add_date():
@@ -178,6 +211,20 @@ class DataFrameSetup:
         dt_string = now.strftime("%d-%m-%Y_%H-%M-%S")
 
         return dt_string
+
+    @staticmethod
+    def calculate_time_duration(start_date:str, finish_date:str, 
+                                date_format:str="%d-%b-%y %H:%M:%S") -> float|int:
+        try:
+            start_time = datetime.strptime(start_date, date_format)
+            finish_time = datetime.strptime(finish_date, date_format)
+
+            minutes_duration = (finish_time - start_time).total_seconds()
+
+            return minutes_duration
+        except (ValueError, TypeError) as e:
+            print(f"Error calculating runtime: {e}")
+            return -1
 
     @staticmethod
     def write_df_to_excel(proc_table, file_name, ws_name, wbs_start_row, wbs_start_col):
@@ -205,30 +252,34 @@ class DataFrameSetup:
         except Exception as e:
             print(f"An unexpected error occurred while writing to Excel: {e}\n")
 
-    def setup_project(self):
-        flat_json_dict = self.read_json_dict()
+    def setup_project(self, data:dict=None):
+        if not data:
+            flat_json_dict = self.read_json_dict()
+        else:
+            df = self._flatten_json(data)
+            flat_json_dict = list(df.values())
+
         table, custom_ordered_dict, custom_phase_order = self.design_json_table(flat_json_dict)
         proc_table = self.generate_wbs_cfa_style(table, custom_phase_order, "phase")
         lead_schedule_struct = self.determine_schedule_structure(custom_ordered_dict)
 
-        project_details = {
-            "project_ins": self,
-            "proc_table": proc_table, 
-            "custom_ordered_dict": custom_ordered_dict, 
-            "custom_phase_order": custom_phase_order, 
-            "lead_schedule_struct": lead_schedule_struct,
-            "json_struct_categories": self.json_struct_categories,
+        
+        content = {
+            "table": proc_table, 
+            "custom_ordered_dict": custom_ordered_dict,
+            "custom_phase_order": custom_phase_order,
+            "lead_schedule_struct": lead_schedule_struct
         }
 
-        return project_details
+        return content
 
     def read_json_dict(self):
-        j_file = os.path.join(self.json_path, self.json_basename)
+        j_file = os.path.join(self.input_path, self.input_basename)
 
         with open(j_file, 'r') as json_file:
             data = json.load(json_file)
         
-        df = self._flatten_json(data["project_content"]["body"])
+        df = self._flatten_json(data["body"])
         df_values = list(df.values())
 
         return df_values
@@ -257,7 +308,7 @@ class DataFrameSetup:
 
         return new_dic
 
-    def design_json_table(self, flat_json_dict):
+    def design_json_table(self, flat_json_dict:dict):
         custom_ordered_dict = self._bring_to_top(flat_json_dict, "phase", self.custom_phase_order)
         custom_date_ordered_dict_list = self._sort_inner_activities(custom_ordered_dict)
         custom_ordered_phase_dict = self._group_by_sorted_phases(custom_date_ordered_dict_list)
@@ -273,7 +324,7 @@ class DataFrameSetup:
 
         return df_table, custom_ordered_overall_dict, custom_phase_order
 
-    def _bring_to_top(self, unordered_dict_list, category, order_cons) -> dict:
+    def _bring_to_top(self, unordered_dict_list:list, category:str, order_cons:list) -> dict:
         categorized_list = []
         custom_order = []
         normalized_category = category.lower().strip()
@@ -556,12 +607,3 @@ class DataFrameSetup:
 
 if __name__ == "__main__":
     project_details = DataFrameSetup.main(False)
-
-    # Print
-    DataFrameSetup.write_df_to_excel(
-        project_details.get("proc_table"), 
-        project_details.get("project_ins").json_basename, 
-        "WBS - TEST", 
-        1, 
-        'A'
-    )
