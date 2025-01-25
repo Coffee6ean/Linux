@@ -7,24 +7,29 @@ from openpyxl.utils import get_column_letter, column_index_from_string
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 
 # Imported Helper - As Module
-#from utils.data_frame_setup import DataFrameSetup
+""" from .setup import Setup """
 
 # Imported Helper - As Package 
-from modules.utils.data_frame_setup import DataFrameSetup
+from modules.setup import Setup
 
 class ScheduleFramework():
-    def __init__(self, input_excel_path, input_excel_basename, input_json_path, 
-                 input_json_basename, input_worksheet_name, input_start_row, 
-                 input_start_col, input_start_date, input_end_date):
-        self.excel_path = input_excel_path
-        self.excel_basename = input_excel_basename
-        self.json_path = input_json_path
-        self.json_basename = input_json_basename
-        self.ws_name = input_worksheet_name
-        self.start_date = input_start_date
-        self.end_date = input_end_date
+    def __init__(self, input_file_path, input_file_basename, input_file_extension, project_worksheet_name,
+                 project_table, project_ordered_dict, project_phase_order, project_lead_struct, 
+                 project_start_date, project_finish_date, input_start_row=1, input_start_col=""):
+        self.input_path = input_file_path
+        self.input_basename = input_file_basename
+        self.input_extension = input_file_extension
+        self.worksheet_name = project_worksheet_name
+        self.table = project_table
+        self.ordered_dict = project_ordered_dict
+        self.phase_order = project_phase_order
+        self.lead_struct = project_lead_struct
+        self.start_date = project_start_date
+        self.finish_date = project_finish_date
         self.start_row = int(input_start_row)
         self.start_col = str(input_start_col)
+        
+        #Module Attributes
         self.wbs_start_row = 4
         self.wbs_start_col = 'A'
         self.dark_default_hex_font = "00000000"
@@ -47,37 +52,39 @@ class ScheduleFramework():
         self.final_project_dict:dict = None
 
     @staticmethod
-    def main(auto=True, input_excel_file=None, input_json_file=None, input_worksheet_name=None, 
-             input_start_date=None, input_end_date=None, input_json_title=None):
+    def main(auto=True, input_file_path=None, input_file_basename=None, input_file_extension=None, 
+             project_worksheet_name=None, project_table=None, project_ordered_dict=None, project_phase_order=None, 
+             project_lead_struct=None, project_start_date=None, project_finish_date=None):
         if auto:
-            project = ScheduleFramework.auto_generate_ins(input_excel_file, input_json_file, input_worksheet_name, 
-                                                          input_start_date, input_end_date, input_json_title)
-            project_details = DataFrameSetup.main(True, None, input_json_file, input_json_title)
+            project = ScheduleFramework.auto_generate_ins(
+                input_file_path, 
+                input_file_basename, 
+                input_file_extension, 
+                project_worksheet_name,
+                project_table, 
+                project_ordered_dict, 
+                project_phase_order, 
+                project_lead_struct, 
+                project_start_date, 
+                project_finish_date,
+            )
         else:
             project = ScheduleFramework.generate_ins()
-            project_details = DataFrameSetup.main(False)
-
-        proc_table = project_details.get("proc_table")
-        custom_ordered_dict = project_details.get("custom_ordered_dict")
-        #lead_schedule_struct = project_details.get("lead_schedule_struct")
+            project_details = Setup.main(False)
 
         if project:
-            active_workbook, active_worksheet = project.return_excel_workspace(project.ws_name)
+            active_workbook, active_worksheet = project.return_excel_workspace(project.worksheet_name)
 
             if active_workbook and active_worksheet:
-                reworked_json = project.create_schedule(
-                    active_workbook, active_worksheet, proc_table, custom_ordered_dict
+                project.create_schedule(
+                    active_workbook, 
+                    active_worksheet, 
+                    project.table, 
+                    project.ordered_dict
                 )
             else:
                 print("Error. Could not open Excel file as Workbook & Worksheet")
 
-        project_final = {
-            "init_file_type": type(proc_table),
-            "final_file_type": type(active_workbook),
-            "final_project_dict": reworked_json,
-        }
-
-        ScheduleFramework.document_project(project, project_final)
         return project
 
     @staticmethod
@@ -101,19 +108,21 @@ class ScheduleFramework():
         return ins
     
     @staticmethod
-    def auto_generate_ins(input_excel_file, input_json_file, input_worksheet_name, 
-                          input_start_date, input_end_date, input_json_title):
-        input_start_row = 1
-        input_start_col = ""
-
-        input_excel_path, input_excel_basename = ScheduleFramework.file_verification(
-            input_excel_file, 'e', 'u')
-        input_json_path, input_json_basename = ScheduleFramework.file_verification(
-            input_json_file, 'j', 'r', input_json_title)
-
-        ins = ScheduleFramework(input_excel_path, input_excel_basename, input_json_path, 
-                                input_json_basename, input_worksheet_name, input_start_row, 
-                                input_start_col, input_start_date, input_end_date)
+    def auto_generate_ins(input_file_path, input_file_basename, input_file_extension, 
+                          project_worksheet_name, project_table, project_ordered_dict, project_phase_order, 
+                          project_lead_struct, project_start_date, project_finish_date):
+        ins = ScheduleFramework(
+            input_file_path, 
+            input_file_basename, 
+            input_file_extension, 
+            project_worksheet_name,
+            project_table, 
+            project_ordered_dict, 
+            project_phase_order, 
+            project_lead_struct, 
+            project_start_date, 
+            project_finish_date,
+        )
 
         return ins
 
@@ -222,14 +231,9 @@ class ScheduleFramework():
 
         return normalized_str
 
-    @staticmethod
-    def document_project(project_ins, project_final:dict) -> None:
-        project_ins.initial_project_type = project_final.get("init_file_type")
-        project_ins.final_project_type = project_final.get("final_file_type")
-        project_ins.final_project_dict = project_final.get("final_project_dict")
-
     def return_excel_workspace(self, worksheet_name):
-        file = os.path.join(self.excel_path, self.excel_basename)
+        basename = self.input_basename + '.' + self.input_extension
+        file = os.path.join(self.input_path, basename)
         
         try:
             workbook = load_workbook(filename=file)
@@ -258,15 +262,16 @@ class ScheduleFramework():
         return workbook, worksheet
 
     def create_schedule(self, active_workbook, active_worksheet, proc_table, 
-                        json_dict:dict) -> dict:
-        file = os.path.join(self.excel_path, self.excel_basename)
+                        json_dict:list) -> dict:
+        basename = self.input_basename + '.' + self.input_extension
+        file = os.path.join(self.input_path, basename)
 
         if self.start_col == "" or self.start_col is None:
             self.start_col = get_column_letter(self._find_column_idx(active_worksheet, 'finish') + 1)
         
         custom_ordered_dict = {val["entry"]: val for val in json_dict}
 
-        self.generate_schedule_frame(active_worksheet, self.start_date, self.end_date)
+        self.generate_schedule_frame(active_worksheet, self.start_date, self.finish_date)
         reworked_custom_ordered_dict = self.fill_schedule_cfa_style(
             active_worksheet, custom_ordered_dict, proc_table
         )
@@ -311,7 +316,7 @@ class ScheduleFramework():
 
         print("Gantt chart generated successfully.")
 
-    def _find_column_idx(self, active_ws, column_header):
+    def _find_column_idx(self, active_ws, column_header:str):
         ws = active_ws
         start_col_idx = column_index_from_string(self.wbs_start_col)
         normalized_header = column_header.replace(" ", "_").lower()
@@ -327,7 +332,7 @@ class ScheduleFramework():
         ws = active_worksheet
 
         start_ovr_date = datetime.strptime(self.start_date, "%d-%b-%Y")
-        final_ovr_date = datetime.strptime(self.end_date, "%d-%b-%Y")
+        final_ovr_date = datetime.strptime(self.finish_date, "%d-%b-%Y")
 
         for idx, value in enumerate(proc_table.index.get_level_values("entry")):
             item = custom_ordered_dict[value]
@@ -356,7 +361,7 @@ class ScheduleFramework():
         ws = active_worksheet
         schedule_setup = {
             "start_ovr_date": datetime.strptime(self.start_date, "%d-%b-%Y"),
-            "final_ovr_date": datetime.strptime(self.end_date, "%d-%b-%Y"),
+            "final_ovr_date": datetime.strptime(self.finish_date, "%d-%b-%Y"),
             "starting_point": self.wbs_start_row + 1,
             "ref_lead": 0,
             "occupied_rows": {},
@@ -434,7 +439,7 @@ class ScheduleFramework():
         if missing_tasks:
             print(f"Warning: The following tasks were not painted: {missing_tasks}")
 
-    def _generate_compound_category_name(self, item: dict) -> str:
+    def _generate_compound_category_name(self, item:dict) -> str:
         category_names = []
 
         for category in self.wbs_final_categories.keys():
