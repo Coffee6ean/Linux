@@ -6,68 +6,54 @@ from openpyxl.utils import column_index_from_string, get_column_letter
 from openpyxl.styles import PatternFill
 
 # Imported Helper - As Module
-#from utils.data_frame_setup import DataFrameSetup
+""" from .setup import Setup """
 
 # Imported Helper - As Package 
-from modules.utils.data_frame_setup import DataFrameSetup
+from modules.setup import Setup
 
 class WbsFramework:
-    def __init__(self, input_process_cont, input_excel_path, input_excel_basename, 
-                input_worksheet_name, input_json_path, input_json_basename):
-        self.process_cont = input_process_cont
-        self.excel_path = input_excel_path
-        self.excel_basename = input_excel_basename
-        self.ws_name = input_worksheet_name
-        self.json_path = input_json_path
-        self.json_basename = input_json_basename
+    def __init__(self, input_file_path, input_file_basename, input_file_extension, 
+                 input_worksheet_name, project_table, project_ordered_dict):
+        self.input_path = input_file_path
+        self.input_basename = input_file_basename
+        self.input_extension = input_file_extension
+        self.worksheet_name = input_worksheet_name
+        self.table = project_table
+        self.ordered_dict = project_ordered_dict
+
+        #Module Attributes
         self.wbs_start_row = 4
         self.wbs_start_col = 'A'
         self.default_hex_font_color = "00FFFFFF"
         self.default_hex_fill_color = "00FFFF00"
     
     @staticmethod
-    def main(auto=True, process_continuity=None, input_excel_file=None, 
-             input_worksheet_name=None, input_json_file=None, input_json_title=None):
+    def main(auto=True, input_file_path=None, input_file_basename=None, input_file_extension=None, 
+             input_worksheet_name=None, project_table=None, project_ordered_dict=None):
         if auto:
-            project = WbsFramework.auto_generate_ins(process_continuity, input_excel_file, 
-                                                     input_worksheet_name, input_json_file,
-                                                     input_json_title)
-            project_details = DataFrameSetup.main(True, process_continuity, input_json_file, input_json_title)
+            project = WbsFramework.auto_generate_ins(
+                input_file_path, 
+                input_file_basename, 
+                input_file_extension,
+                input_worksheet_name, 
+                project_table, 
+                project_ordered_dict,
+            )
         else:
             project = WbsFramework.generate_ins()
-            project_details = DataFrameSetup.main(False)
+            project_details = Setup.main(False)
 
-        proc_table = project_details.get("proc_table")
-        custom_ordered_dict = project_details.get("custom_ordered_dict")
 
-        while True:
-            color_list = [project.process_hex_val(item["color"]) for item in custom_ordered_dict]
-            process_choice = input("Enter 'c' to create WBS Data Table, 'u' to update an existing WBS Table, or 'q' to quit: ").lower()
-
-            if process_choice == 'c':
-                project.create_wbs_table(proc_table)
-                project.process_wbs_column('activity code', color_list)
-                project.process_wbs_column('color', color_list)
-
-                break
-            elif process_choice == 'u':
-                project.process_wbs_column('activity code', color_list)
-                project.process_wbs_column('color', color_list)
-                
-                break
-            elif process_choice == 'q':
-                print("Exiting the program.")
-                break
-            else:
-                print("Invalid input. Please enter 'c', 'u', or 'q'.")
+        if project:
+            color_list = [
+                project.process_hex_val(item["color"]) for item in project.ordered_dict
+            ]
+            project.create_wbs_table(project.table)
+            project.process_wbs_column('activity code', color_list)
+            project.process_wbs_column('color', color_list)
 
     @staticmethod
-    def generate_ins():
-        input_process_cont = WbsFramework.ynq_user_interaction("Continue with the program? ")
-        if input_process_cont == 'q':
-            print("Exiting the program.")
-            return -1 
-        
+    def generate_ins():        
         input_excel_file = input("Please enter the path to the Excel file or directory: ")
         input_worksheet_name = input("Please enter the name for the new or existing worksheet: ")
         input_json_file = input("Please enter the path to the Json file or directory: ")
@@ -83,29 +69,18 @@ class WbsFramework:
         return ins
 
     @staticmethod
-    def auto_generate_ins(process_continuity, input_excel_file, input_worksheet_name, 
-                          input_json_file, input_json_title):
-        input_excel_path, input_excel_basename = WbsFramework.file_verification(
-            input_excel_file, 'e', 'r')
-        input_json_path, input_json_basename = WbsFramework.file_verification(
-                input_json_file, 'j', 'r', input_json_title)
-
-        ins = WbsFramework(process_continuity, input_excel_path, input_excel_basename, 
-                            input_worksheet_name, input_json_path, input_json_basename)
+    def auto_generate_ins(input_file_path, input_file_basename, input_file_extension,
+                          input_worksheet_name, project_table, project_ordered_dict):
+        ins = WbsFramework(
+            input_file_path, 
+            input_file_basename, 
+            input_file_extension,
+            input_worksheet_name, 
+            project_table,
+            project_ordered_dict
+        )
         
         return ins
-
-    @staticmethod
-    def ynq_user_interaction(prompt_message):
-        valid_responses = {'y', 'n', 'q'}  
-        
-        while True:
-            user_input = input(prompt_message).lower()  
-            
-            if user_input in valid_responses:
-                return user_input  
-            else:
-                print("Error. Invalid input, please try again. ['Y/y' for Yes, 'N/n' for No, 'Q/q' for Quit]\n")
 
     @staticmethod
     def display_directory_files(list):
@@ -208,17 +183,19 @@ class WbsFramework:
         return normalized_str
 
     def process_wbs_column(self, col_header, color_list):
-        file = os.path.join(self.excel_path, self.excel_basename)
+        basename = self.input_basename + '.' + self.input_extension
+        file = os.path.join(self.input_path, basename)
         wb = load_workbook(file)
-        ws = wb[self.ws_name]
+        ws = wb[self.worksheet_name]
 
         header_idx = self.find_column_idx(ws, col_header)
         self.fill_color_col(ws, header_idx, color_list)
 
         wb.save(file)
 
-    def return_excel_workspace(self, worksheet_name):
-        file = os.path.join(self.excel_path, self.excel_basename)
+    def return_excel_workspace(self, worksheet_name:str):
+        basename = self.input_basename + '.' + self.input_extension
+        file = os.path.join(self.input_path, basename)
         
         try:
             workbook = load_workbook(filename=file)
@@ -231,8 +208,8 @@ class WbsFramework:
                 
                 if user_answer == 'y':
                     worksheet = workbook.create_sheet(worksheet_name)
-                    self.ws_name = worksheet_name
-                    print(f"New worksheet '{self.ws_name}' created.\n")
+                    self.worksheet_name = worksheet_name
+                    print(f"New worksheet '{self.worksheet_name}' created.\n")
                     break
                 elif user_answer == 'n':
                     ws_list = workbook.sheetnames
@@ -240,8 +217,8 @@ class WbsFramework:
                     
                     if selected_ws_idx >= 0:  
                         worksheet = workbook.worksheets[selected_ws_idx]
-                        self.ws_name = ws_list[selected_ws_idx]
-                        print(f"Worksheet selected: '{self.ws_name}'\n")
+                        self.worksheet_name = ws_list[selected_ws_idx]
+                        print(f"Worksheet selected: '{self.worksheet_name}'\n")
                         return workbook, worksheet
                     else:
                         print("Invalid selection. Returning without changes.\n")
@@ -262,23 +239,24 @@ class WbsFramework:
         if proc_table.empty:    
             print("Error. DataFrame is empty\n")
         else:
-            file = os.path.join(self.excel_path, self.excel_basename)
+            basename = self.input_basename + '.' + self.input_extension
+            file = os.path.join(self.input_path, basename)
 
             try:
                 with pd.ExcelWriter(file, engine="openpyxl", mode='a', if_sheet_exists='replace') as writer:
                     proc_table.to_excel(
                         writer, 
-                        sheet_name=self.ws_name, 
+                        sheet_name=self.worksheet_name, 
                         startrow=self.wbs_start_row - 1, 
                         startcol=column_index_from_string(self.wbs_start_col) - 1
                     )
                 
                 print(f"Successfully converted JSON to Excel and saved to: {file}")
-                print(f"Saved to sheet: {self.ws_name}\n")
+                print(f"Saved to sheet: {self.worksheet_name}\n")
             except Exception as e:
                 print(f"An unexpected error occurred: {e}\n")
 
-    def find_column_idx(self, active_ws, column_header):
+    def find_column_idx(self, active_ws, column_header:str):
         ws = active_ws
         start_col_idx = column_index_from_string(self.wbs_start_col)
         normalized_header = column_header.replace(" ", "_").lower()
@@ -290,7 +268,7 @@ class WbsFramework:
                     if normalized_header in normalized_cell_value:
                         return cell.column
 
-    def process_hex_val(self, hex_val):
+    def process_hex_val(self, hex_val:str) -> str:
         return hex_val.replace('#', "00")
 
     def fill_color_col(self, active_ws, col_idx, col_list):
