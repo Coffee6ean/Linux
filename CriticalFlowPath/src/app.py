@@ -1,135 +1,228 @@
+import os
 import re
+import json
 from datetime import datetime
 import modules as mdls
 
+import sys
+sys.path.append("../")
+from CriticalFlowPath.keys.secrets import RSLTS_DIR
 
-def system_cfa_create():
-    auto = True
-    answer_dic = _user_inputs()
+class App:
+    #Structures
+    file_management = {
+            "create": ["create", "c"],
+            "read": ["read", "r"],
+            "update": ["update", "u"],
+            "delete": ["delete", "d"],
+        }
+    allowed_extensions = ["xlsx", "xml"]
 
-    _print_result("DataIngestion processing...")
-    project_data = mdls.DataIngestion.main(
-        auto, 
-        answer_dic["proc_cont"], 
-        answer_dic["xlsx_file"], 
-        answer_dic["ws_read"],
-        answer_dic["json_file"], 
-        answer_dic["json_title"]
-    )
+    def __init__(self, project_ins_dict):
+        self.obj = project_ins_dict
+        self.schedule_worksheet = "CFA - Schedule"
+        self.legends_worksheet = "CFA - Legends"
 
-    _print_result("WbsFramework processing...")
-    project_wbs = mdls.WbsFramework.main(
-        auto, 
-        answer_dic["proc_cont"], 
-        answer_dic["xlsx_file"], 
-        answer_dic["ws_schedule"], 
-        answer_dic["json_file"], 
-        answer_dic["json_title"]
-    )
+    @staticmethod
+    def main(auto=True):
+        project = App.generate_ins()
+
+        if project:
+            project.execute_project_package()
+
+    @staticmethod
+    def generate_ins() -> dict:
+        App.ynq_user_interaction(
+            "Is this a completly new project? "
+        )
+
+        setup = mdls.Setup.main()
+
+        project_ins_dict = {"setup": setup.obj}
+        ins = App(project_ins_dict)
+
+        return ins
+
+    @staticmethod
+    def ynq_user_interaction(prompt_message):
+        valid_responses = {'y', 'n', 'q'}  
+        
+        while True:
+            user_input = input(prompt_message).lower().strip()
+            
+            if user_input in valid_responses:
+                return user_input  
+            else:
+                print("Error. Invalid input, please try again. ['Y/y' for Yes, 'N/n' for No, 'Q/q' for Quit]\n")
+
+    @staticmethod
+    def return_valid_file(input_file_dir:str) -> dict|int:        
+        if not os.path.exists(input_file_dir):
+            raise FileNotFoundError("Error: Given directory or file does not exist in the system.")
+
+        if os.path.isdir(input_file_dir):
+            file_dict = App._handle_dir(input_file_dir)
+        elif os.path.isfile(input_file_dir):
+            file_dict = App._handle_file(input_file_dir)
+
+        return file_dict
     
-    _print_result("ScheduleFramework processing...")
-    project_schdl = mdls.ScheduleFramework.main(
-        auto, 
-        answer_dic["xlsx_file"], 
-        answer_dic["json_file"], 
-        answer_dic["ws_schedule"], 
-        project_data["project_start_date"], 
-        project_data["project_finish_date"], 
-        answer_dic["json_title"]
-    )
-    
-    # == WIP == #
-    """ _print_result("DataRelationship processing...")
-    mdls.DataRelationship.main(auto, project) """
+    @staticmethod
+    def _handle_dir(input_file_dir:str, mode:str="r") -> dict|int:
+        if mode in ['u', 'r', 'd']:
+            dir_list = os.listdir(input_file_dir)
+            selection = App._display_directory_files(dir_list)
+            input_file_basename = dir_list[selection]
+            print(f'File selected: {input_file_basename}\n')
+        elif mode == 'c':
+            input_file_basename = None
+        else:
+            print("Error: Invalid mode specified.")
+            return -1
+        
+        return dict(
+            path = os.path.dirname(input_file_dir), 
+            basename = os.path.basename(input_file_basename).split(".")[0],
+            extension = os.path.basename(input_file_basename).split(".")[-1],
+        )
 
-    _print_result("LegendsFramework processing...")
-    project_lgnds = mdls.LegendsFramework.main(
-        auto, 
-        answer_dic["xlsx_file"], 
-        answer_dic["ws_legends"], 
-        answer_dic["json_file"], 
-        answer_dic["json_title"]
-    )
-    
-    _print_result("ExcelPostProcessing processing...")
-    project_post = mdls.ExcelPostProcessing.main(
-        auto, 
-        answer_dic["xlsx_file"], 
-        answer_dic["ws_schedule"], 
-        project_data["project_start_date"], 
-        project_data["project_finish_date"],  
-        answer_dic["json_file"], 
-        answer_dic["json_title"]
-    )
+    @staticmethod
+    def _display_directory_files(file_list:list) -> int:
+        selection_idx = -1  
 
-def _print_result(value):
-    print()
-    print()
-    print(f'//========== {value} ==========//')
-    print()
+        if len(file_list) == 0:
+            print('Error. No files found')
+            return -1
+        
+        print(f'-- {len(file_list)} files found:')
+        for idx, file in enumerate(file_list, start=1):  
+            print(f'{idx}. {file}')
 
-def _user_inputs():
-    process_continuity = input("Is this a completly new project? ")
-    if process_continuity == 'q':
-        print("Exiting the program.")
+        while True:
+            try:
+                selection_idx = int(input('\nPlease enter the index number to select the one to process: '))
+                if 1 <= selection_idx <= len(file_list):  
+                    return selection_idx - 1  
+                else:
+                    print(f'Error: Please enter a number between 1 and {len(file_list)}.')
+            except ValueError:
+                print('Error: Invalid input. Please enter a valid number.\n')
+
+    @staticmethod
+    def _handle_file(input_file_dir:str):
+        input_file_extension = os.path.basename(input_file_dir).split(".")[-1]
+
+        if (input_file_extension in App.allowed_extensions):
+            return dict(
+                path = os.path.dirname(input_file_dir), 
+                basename = os.path.basename(input_file_dir).split(".")[0],
+                extension = input_file_extension,
+            )
+
+        print("Error: Please verify that the directory and file exist and that the file extension complies with class attributes")
         return -1
 
-    input_excel_dir = input("Please enter the path to the Excel file or directory: ").strip()
-    input_worksheet_read = input("Please enter the name for the worksheet to read: ").strip()
-    input_worksheet_schedule = input("Please enter the name for the new worksheet (WBS + Schedule): ").strip()
-    input_worksheet_legends = input("Please enter the name for the new worksheet (Legends): ").strip()
-    input_json_dir = input("Please enter the directory to save the new JSON file: ").strip()
-    input_json_title = input("Please enter the name for the new JSON file (Base Style): ").strip()
+    @staticmethod
+    def return_valid_path(prompt_message:str) -> (str|None):
+        while(True):   
+            value = input(prompt_message).strip()
+            try:
+                if os.path.isdir(value):
+                    return value
+            except Exception as e:
+                print(f"Error. {e}\n")
 
-    #input_start_date = return_valid_date("Please enter the start date of the project (format: dd-MMM-yyyy): ")
-    #input_end_date = return_valid_date("Please enter the end date of the project (format: dd-MMM-yyyy): ")
+    @staticmethod
+    def return_valid_date() -> str:
+        now = datetime.now()
+        date_str = now.strftime("%d-%b-%y %H:%M:%S")
 
-    answer_dic = {
-        "proc_cont": process_continuity,
-        "xlsx_file": input_excel_dir,
-        "ws_read": input_worksheet_read,
-        "ws_schedule": input_worksheet_schedule,
-        "ws_legends": input_worksheet_legends,
-        "json_file": input_json_dir,
-        "json_title": input_json_title,
-    }
+        return date_str
 
-    return answer_dic
+    @staticmethod
+    def normalize_entry(entry_str:str) -> str:
+        special_chars = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
+        remove_special_chars = re.sub(special_chars, '', entry_str.lower())
+        normalized_str = re.sub(' ', '_', remove_special_chars)
 
-def ynq_user_interaction(prompt_message):
-    valid_responses = {'y', 'n', 'q'}  
-    
-    while True:
-        user_input = input(prompt_message).lower()  
+        return normalized_str
+
+    def create_project_folder(self) -> None:
+        results_folder = RSLTS_DIR
+        client_folder = self.obj["project"]["metadata"].get("client")
+        date_folder = self.obj["project"]["metadata"]["dates"].get("created")
+
+        project_path = os.path.join(results_folder, client_folder, date_folder)
+        os.makedirs(project_path, exist_ok=True)
+
+        return project_path
+
+    def execute_project_package(self, auto:bool=True) -> None:
+        ins_obj = self.obj["setup"]
+        mdl_1 = ins_obj["project"]["modules"].get("MODULE_1")
+        mdl_2 = ins_obj["project"]["modules"].get("MODULE_2")
+
+        self._print_result("WbsFramework processing...")
+        mdls.WbsFramework.main(
+            auto, 
+            ins_obj["input_file"].get("path"), 
+            ins_obj["input_file"].get("basename"),
+            ins_obj["input_file"].get("extension"),
+            self.schedule_worksheet,
+            mdl_2["content"].get("table"),
+            mdl_2["content"].get("custom_ordered_dict"),
+        )
+
+        self._print_result("ScheduleFramework processing...")
+        mdls.ScheduleFramework.main(
+            auto,
+            ins_obj["input_file"].get("path"), 
+            ins_obj["input_file"].get("basename"),
+            ins_obj["input_file"].get("extension"), 
+            self.schedule_worksheet,
+            mdl_2["content"].get("table"),
+            mdl_2["content"].get("custom_ordered_dict"),
+            mdl_2["content"].get("custom_phase_order"),
+            mdl_2["content"].get("lead_schedule_struct"),
+            mdl_1["details"].get("start_date"),
+            mdl_1["details"].get("finish_date"),
+        )
+
+        self._print_result("PostProcessingFramework processing...")
+        mdls.PostProcessingFramework.main(
+            auto,
+            ins_obj["input_file"].get("path"), 
+            ins_obj["input_file"].get("basename"),
+            ins_obj["input_file"].get("extension"), 
+            self.schedule_worksheet,
+            mdl_2["content"].get("table"),
+            mdl_2["content"].get("custom_ordered_dict"),
+            mdl_2["content"].get("custom_phase_order"),
+            mdl_2["content"].get("lead_schedule_struct"),
+            mdl_1["details"].get("start_date"),
+            mdl_1["details"].get("finish_date"),
+        )
+
+        self._print_result("LegendsFramework processing...")
+        mdls.LegendsFramework.main(
+            auto,
+            ins_obj["input_file"].get("path"), 
+            ins_obj["input_file"].get("basename"),
+            ins_obj["input_file"].get("extension"), 
+            self.legends_worksheet,
+            mdl_2["content"].get("table"),
+        )
         
-        if user_input in valid_responses:
-            return user_input  
-        elif user_input == 'q':
-            break
-        else:
-            print("Error. Invalid input, please try again. ['Y/y' for Yes, 'N/n' for No, 'Q/q' for Quit]\n")
+        # == WIP == #
+        """ self._print_result("DataRelationship processing...")
+        mdls.DataRelationship.main(auto, self.obj) """
 
-def add_date():
-    now = datetime.now()
-    dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+    def _print_result(self, prompt_message:str) -> None:
+        print()
+        print()
+        print(f'//========== {prompt_message} ==========//')
+        print()
 
-    return dt_string
-
-def return_valid_date(message):
-    while(True):   
-        value = input(message).strip()
-        try:
-            if datetime.strptime(value, "%d-%b-%Y"):
-                return value
-        except Exception as e:
-            print(f"Error. {e}\n")
-
-def normalize_entry(entry_str):
-    special_chars = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
-    remove_special_chars = re.sub(special_chars, '', entry_str.lower())
-    normalized_str = re.sub(' ', '_', remove_special_chars)
-
-    return normalized_str
 
 if __name__ == "__main__":
-    system_cfa_create()
+    App.main(False)
