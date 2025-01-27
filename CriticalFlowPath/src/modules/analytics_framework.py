@@ -4,16 +4,24 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
+import sys
+sys.path.append("../")
+
 # Imported Helper - As Module
-from utils.data_frame_setup import DataFrameSetup
+""" from .setup import Setup """
 
 # Imported Helper - As Package 
-#from modules.utils.data_frame_setup import DataFrameSetup
+from modules.setup import Setup
 
 class AnalyticsFramework:
-    def __init__(self, input_json_path, input_json_basename):
-        self.json_path = input_json_path
-        self.json_basename = input_json_basename
+    def __init__(self, input_file_path, input_file_basename, input_file_extension, 
+                 output_file_dir, project_table, project_lead_struct):
+        self.input_path = input_file_path
+        self.input_basename = input_file_basename
+        self.input_extension = input_file_extension
+        self.output_dir = output_file_dir
+        self.table = project_table
+        self.lead_struct = project_lead_struct
 
         #Structures
         self.categories_not_needed = ["procurement", "milestones"]
@@ -57,128 +65,61 @@ class AnalyticsFramework:
         }
     
     @staticmethod
-    def main():
-        project = AnalyticsFramework.generate_ins()
-        project_details = DataFrameSetup.main(False)
+    def main(auto=True, input_file_path=None, input_file_basename=None, input_file_extension=None, 
+             output_file_dir=None, project_table=None, project_lead_struct=None):
+        if auto:
+            project = AnalyticsFramework.auto_genarate_ins(
+                input_file_path, 
+                input_file_basename, 
+                input_file_extension, 
+                output_file_dir, 
+                project_table,
+                project_lead_struct
+            )
+        else:
+            project = AnalyticsFramework.generate_ins()
 
-        proc_table = project_details.get("proc_table")
-        lead_schedule_struct = project_details.get("lead_schedule_struct")
-
-        # KPI's - Lagging
-        project.generate_lagging_indicators(proc_table, lead_schedule_struct)
+        if project:
+            project.generate_lagging_indicators(project.table, project.lead_struct)
     
     @staticmethod
     def generate_ins():
-        input_json_file = input("Please enter the path to the Json file or directory: ").strip()
+        AnalyticsFramework.ynq_user_interaction(
+            "Run as Module as stand-alone? "
+        )
 
-        input_json_path, input_json_basename = AnalyticsFramework.file_verification(
-            input_json_file, 'j', 'r')
+        setup = Setup.main()
 
-        ins = AnalyticsFramework(input_json_path, input_json_basename)
+        project_ins_dict = {"setup": setup.obj}
+        ins = AnalyticsFramework(project_ins_dict)
 
         return ins
     
     @staticmethod
-    def auto_genarate_ins():
-        """ input_json_path, input_json_basename = AnalyticsFramework.file_verification(
-            input_json_file, 'j', 'r')
-
-        ins = AnalyticsFramework(input_json_path, input_json_basename)
-
-        return ins """
-        pass
+    def auto_genarate_ins(input_file_path, input_file_basename, input_file_extension, 
+                          output_file_dir, project_table, project_lead_struct):
+        ins = AnalyticsFramework(
+            input_file_path,
+            input_file_basename,
+            input_file_extension,
+            output_file_dir,
+            project_table,
+            project_lead_struct
+        )
+        
+        return ins
     
     @staticmethod
-    def display_directory_files(list):
-        selection_idx = 0
-        if len(list)==0:
-            print("Error. No files found")
-            return -1
+    def ynq_user_interaction(prompt_message):
+        valid_responses = {'y', 'n', 'q'}  
         
-        if len(list)>1:
-            print(f"-- {len(list)} files found:")
-            idx = 0
-            for file in list:
-                idx += 1
-                print(f"{idx}. {file}")
-
-            selection_idx = input("\nPlease enter the index number to select the one to process: ") 
-        else:
-            print(f"Single file found: {list[0]}")
-            print("Will go ahead and process")
-
-        return int(selection_idx) - 1
-
-    @staticmethod
-    def is_json(file_name):
-        if file_name.endswith(".json"):
-            return True
-        else:
-            print("Error: Selected file is not a JSON file")
-            return False
-
-    @staticmethod
-    def is_xlsx(file_name):
-        if file_name.endswith(".xlsx"):
-            return True
-        else:
-            print("Error. Selected file is not an Excel")
-            return False
-
-    @staticmethod
-    def file_verification(input_file_path, file_type, mode, input_json_title=None):
-        if input_json_title and os.path.isdir(input_file_path):
-            file_basename = f"processed_{AnalyticsFramework.normalize_entry(input_json_title)}.json"
-            path, basename = AnalyticsFramework.handle_file(input_file_path, file_basename, file_type)
-        else:
-            if os.path.isdir(input_file_path):
-                file_path, file_basename = AnalyticsFramework.handle_dir(input_file_path, mode)
-                if mode != 'c':
-                    path, basename = AnalyticsFramework.handle_file(file_path, file_basename, file_type)
-                else:
-                    path = file_path
-                    basename = file_basename
-            elif os.path.isfile(input_file_path):
-                file_path = os.path.dirname(input_file_path)
-                file_basename = os.path.basename(input_file_path)
-                path, basename = AnalyticsFramework.handle_file(file_path, file_basename, file_type)
-
-        return path, basename
-    
-    @staticmethod
-    def handle_dir(input_path, mode):
-        if mode in ['u', 'r', 'd']:
-            dir_list = os.listdir(input_path)
-            selection = AnalyticsFramework.display_directory_files(dir_list)
-            base_name = dir_list[selection]
-            print(f'File selected: {base_name}\n')
-        elif mode == 'c':
-            base_name = None
-        else:
-            print("Error: Invalid mode specified.")
-            return -1
-        
-        return input_path, base_name
-
-    @staticmethod
-    def handle_file(file_path, file_basename, file_type):
-        file = os.path.join(file_path, file_basename)
-
-        if (file_type == 'e' and AnalyticsFramework.is_xlsx(file)) or \
-           (file_type == 'j' and AnalyticsFramework.is_json(file)):
-            return os.path.dirname(file), os.path.basename(file)
-        
-        print("Error: Please verify that the directory and file exist and that the file is of type .xlsx or .json")
-        return -1
-    
-    @staticmethod
-    def normalize_entry(entry_str):
-        remove_bewteen_parenthesis = re.sub('(?<=\()(.*?)(?=\))', '', entry_str)
-        special_chars = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
-        remove_special_chars = re.sub(special_chars, '', remove_bewteen_parenthesis.lower())
-        normalized_str = re.sub(' ', '_', remove_special_chars)
-
-        return normalized_str
+        while True:
+            user_input = input(prompt_message).lower().strip()
+            
+            if user_input in valid_responses:
+                return user_input  
+            else:
+                print("Error. Invalid input, please try again. ['Y/y' for Yes, 'N/n' for No, 'Q/q' for Quit]\n")
     
     def generate_lagging_indicators(self, df_table, lead_schedule_struct:str):
         df_table_reset = df_table.reset_index()
@@ -236,7 +177,9 @@ class AnalyticsFramework:
                 yaxis=fig_dict["axis"],
             )
 
-            output_file = f"hardest_zones_heatmap_{color_mode}.png"
+            output_path = self.output_dir
+            output_basename = f"hardest_zones_heatmap_{color_mode}.png"
+            output_file = os.path.join(output_path, output_basename)
             fig.write_image(output_file, scale=2)
             print(f"Heatmap saved as '{output_file}'")
 
@@ -310,7 +253,9 @@ class AnalyticsFramework:
             )
 
             # Save the chart as an image
-            output_file = f"hardest_zones_horizontal_bar_{color_mode}.png"
+            output_path = self.output_dir
+            output_basename = f"hardest_zones_horizontal_bar_{color_mode}.png"
+            output_file = os.path.join(output_path, output_basename)
             fig.write_image(output_file, scale=2)
             print(f"Horizontal bar chart saved as '{output_file}'")
 
@@ -382,7 +327,9 @@ class AnalyticsFramework:
                 )
             )
 
-            output_file = f"slowest_trade_column_chart_{color_mode}.png"
+            output_path = self.output_dir
+            output_basename = f"slowest_trade_column_chart_{color_mode}.png"
+            output_file = os.path.join(output_path, output_basename)
             fig.write_image(output_file, scale=2)
             print(f"Chart saved as '{output_file}'")
 
@@ -446,7 +393,9 @@ class AnalyticsFramework:
                 )
             )
 
-            output_file = f"busiest_phases_donut_{color_mode}.png"
+            output_path = self.output_dir
+            output_basename = f"busiest_phases_donut_{color_mode}.png"
+            output_file = os.path.join(output_path, output_basename)
             fig.write_image(output_file, scale=2)
             print(f"Donut saved as '{output_file}'")
 
@@ -533,7 +482,9 @@ class AnalyticsFramework:
                 barmode="stack"
             )
 
-            output_file = f"{category_y}_contributions_to_{category_x}_stacked_chart_{color_mode}.png"
+            output_path = self.output_dir
+            output_basename = f"{category_y}_contributions_to_{category_x}_stacked_chart_{color_mode}.png"
+            output_file = os.path.join(output_path, output_basename)
             fig.write_image(output_file, scale=2)
             print(f"Chart saved as '{output_file}'")
 
@@ -646,7 +597,9 @@ class AnalyticsFramework:
                 )
             )
 
-            output_file = f"lifeline_line_chart_{category}_{time_unit}.png"
+            output_path = self.output_dir
+            output_basename = f"lifeline_line_chart_{category}_{time_unit}.png"
+            output_file = os.path.join(output_path, output_basename)
             fig.write_image(output_file, scale=2)
             print(f"Line chart saved as '{output_file}'")
 
