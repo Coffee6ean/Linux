@@ -24,7 +24,7 @@ class App:
         self.legends_worksheet = "CFA - Legends"
 
     @staticmethod
-    def main(auto=True):
+    def main():
         project = App.generate_ins()
 
         if project:
@@ -213,9 +213,16 @@ class App:
             mdl_2["content"].get("table"),
         )
         
-        # == WIP == #
-        """ self._print_result("DataRelationship processing...")
-        mdls.DataRelationship.main(auto, self.obj) """
+        self._print_result("AnalyticsFramework processing...")
+        mdls.AnalyticsFramework.main(
+            auto,
+            ins_obj["input_file"].get("path"), 
+            ins_obj["input_file"].get("basename"),
+            ins_obj["input_file"].get("extension"),
+            ins_obj["output_file"].get("parent_directory"),
+            mdl_2["content"].get("table"),
+            mdl_2["content"].get("lead_schedule_struct"),
+        )
 
     def _print_result(self, prompt_message:str) -> None:
         print()
