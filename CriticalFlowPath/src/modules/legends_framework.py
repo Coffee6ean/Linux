@@ -6,6 +6,12 @@ from openpyxl import load_workbook
 from openpyxl.utils import column_index_from_string, get_column_letter
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 
+# Imported Helper - As Module
+""" from .setup import Setup """
+
+# Imported Helper - As Package 
+from modules.setup import Setup
+
 class LegendsFramework():
     def __init__(self, input_file_path, input_file_basename, input_file_extension, 
                  input_worksheet_name, project_table, input_start_row=1, input_start_col='A'):
@@ -36,7 +42,7 @@ class LegendsFramework():
                 project_table,
             )
         else:
-            project = LegendsFramework.genrate_ins()
+            project = LegendsFramework.generate_ins()
         
         active_workbook, active_worksheet = project.return_excel_workspace(project.worksheet_name)
 
@@ -48,18 +54,16 @@ class LegendsFramework():
             )
 
     @staticmethod
-    def genrate_ins():
-        input_excel_file = input("Please enter the path to the Excel file or directory: ")
-        input_excel_path, input_excel_basename = LegendsFramework.file_verification(input_excel_file, 'e', 'u')
-        input_worksheet_name = input("Please enter the name for the new or existing worksheet: ")
-        input_start_row = input("Please enter the starting row to write the schedule: ")
-        input_start_col = input("Please enter the starting column to write the schedule: ")
-        input_json_file = input("Please enter the path to the Json file or directory: ")
-        input_json_path, input_json_basename = LegendsFramework.file_verification(input_json_file, 'j', 'u')
-        
-        ins = LegendsFramework(input_excel_path, input_excel_basename, input_worksheet_name, 
-                               input_json_path, input_json_basename, input_start_row, input_start_col)
-        
+    def generate_ins():
+        LegendsFramework.ynq_user_interaction(
+            "Run as Module as stand-alone? "
+        )
+
+        setup = Setup.main()
+
+        project_ins_dict = {"setup": setup.obj}
+        ins = LegendsFramework(project_ins_dict)
+
         return ins
 
     @staticmethod
@@ -74,6 +78,18 @@ class LegendsFramework():
         )
         
         return ins
+
+    @staticmethod
+    def ynq_user_interaction(prompt_message):
+        valid_responses = {'y', 'n', 'q'}  
+        
+        while True:
+            user_input = input(prompt_message).lower().strip()
+            
+            if user_input in valid_responses:
+                return user_input  
+            else:
+                print("Error. Invalid input, please try again. ['Y/y' for Yes, 'N/n' for No, 'Q/q' for Quit]\n")
 
     @staticmethod
     def file_verification(input_file_path, file_type, mode, input_json_title=None):
