@@ -11,11 +11,11 @@ from CriticalFlowPath.keys.secrets import RSLTS_DIR
 class App:
     #Structures
     file_management = {
-            "create": ["create", "c"],
-            "read": ["read", "r"],
-            "update": ["update", "u"],
-            "delete": ["delete", "d"],
-        }
+        "create": ["create", "c"],
+        "read": ["read", "r"],
+        "update": ["update", "u"],
+        "delete": ["delete", "d"],
+    }
     allowed_extensions = ["xlsx", "xml"]
 
     def __init__(self, project_ins_dict):
@@ -23,12 +23,24 @@ class App:
         self.schedule_worksheet = "CFA - Schedule"
         self.legends_worksheet = "CFA - Legends"
 
+        #Structures
+        self.project_documentation_title = "ticket.json"
+        self.folder_structure = ["client", "name", "date"]
+
     @staticmethod
     def main():
         project = App.generate_ins()
 
         if project:
-            project.execute_project_package()
+            #Generate Project Folder
+            project_folder = App.create_project_folder(project.obj["setup"], RSLTS_DIR)
+
+            #Process and Document File
+            project.execute_project_package(project_folder)
+            project.document_project_package(project_folder)
+
+            #Sort and Order File
+            App.move_project_to_folder(project.obj["setup"], project_folder)
 
     @staticmethod
     def generate_ins() -> dict:
@@ -147,17 +159,58 @@ class App:
 
         return normalized_str
 
-    def create_project_folder(self) -> None:
-        results_folder = RSLTS_DIR
-        client_folder = self.obj["project"]["metadata"].get("client")
-        date_folder = self.obj["project"]["metadata"]["dates"].get("created")
+    @staticmethod
+    def create_project_folder(project_ins:dict, parent_dir:str) -> None:
+        folder_structure = ["client", "name", "date"]
+        entry_date = project_ins["project"]["metadata"]["dates"].get("created")
+        entry_month = datetime.strptime(entry_date, "%d-%b-%y %H:%M:%S").month
+        
+        months_in_year = {
+            1:"Jan",
+            2:"Feb",
+            3:"Mar",
+            4:"Apr",
+            5:"May",
+            6:"Jun",
+            7:"Jul",
+            8:"Aug",
+            9:"Sep",
+            10:"Oct",
+            11:"Nov",
+            12:"Dec",
+        }
 
-        project_path = os.path.join(results_folder, client_folder, date_folder)
-        os.makedirs(project_path, exist_ok=True)
+        def create_dir(directory_name:str, counter:int=0, new_directory:str=""):
+            if counter == len(folder_structure):
+                os.makedirs(directory_name, exist_ok=True)
+                return directory_name
+            else:
+                category = folder_structure[counter]
 
-        return project_path
+                if category == "date": 
+                    new_directory += months_in_year[entry_month] + '/' + entry_date
+                else:
+                    new_directory += project_ins["project"]["metadata"].get(category) + '/'
 
-    def execute_project_package(self, auto:bool=True) -> None:
+                new_folder_dir = os.path.join(directory_name, new_directory)
+                return create_dir(new_folder_dir, counter + 1)
+
+        folder = create_dir(parent_dir)
+        return folder
+    
+    @staticmethod
+    def move_project_to_folder(project_ins:dict, parent_dir:str) -> None:
+        input_path = project_ins["input_file"].get("path")
+        input_basename = project_ins["input_file"].get("basename")
+        input_extension = project_ins["input_file"].get("extension")
+        basename = input_basename + '.' + input_extension
+        
+        init_dir = os.path.join(input_path, basename)
+        final_dir = os.path.join(parent_dir, basename)
+
+        os.rename(init_dir, final_dir)
+                        
+    def execute_project_package(self, project_folder:str, auto:bool=True) -> None:
         ins_obj = self.obj["setup"]
         mdl_1 = ins_obj["project"]["modules"].get("MODULE_1")
         mdl_2 = ins_obj["project"]["modules"].get("MODULE_2")
@@ -219,10 +272,37 @@ class App:
             ins_obj["input_file"].get("path"), 
             ins_obj["input_file"].get("basename"),
             ins_obj["input_file"].get("extension"),
-            ins_obj["output_file"].get("parent_directory"),
+            project_folder,
             mdl_2["content"].get("table"),
             mdl_2["content"].get("lead_schedule_struct"),
         )
+
+    def document_project_package(self, project_folder:str) -> None:
+        ins_obj = self.obj["setup"]
+        mdl_1 = ins_obj["project"]["modules"].get("MODULE_1")
+        mdl_2 = ins_obj["project"]["modules"].get("MODULE_2")
+        
+        ins_obj["project"]["metadata"]["dates"]["finished"] = App.return_valid_date()
+        
+        ticket_body = {
+            "metadata": ins_obj["project"].get("metadata"),
+            "data": mdl_1.get("content"),
+            "details": {
+                "MDL_1": mdl_1.get("details"),
+                "MDL_2": mdl_2.get("details"),
+            },
+            "logs": {
+                "MDL_1": mdl_1.get("logs"),
+                "MDL_2": mdl_2.get("logs"),
+            },
+            "status": None,
+        }
+
+        basename = self.project_documentation_title
+        file = os.path.join(project_folder, basename)
+
+        with open(file, 'w') as writer:
+            json.dump(ticket_body, writer)
 
     def _print_result(self, prompt_message:str) -> None:
         print()
@@ -232,4 +312,4 @@ class App:
 
 
 if __name__ == "__main__":
-    App.main(False)
+    App.main()
