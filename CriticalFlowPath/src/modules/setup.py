@@ -59,10 +59,13 @@ class Setup:
         output_file_dir = DataFrameSetup.return_valid_path(
             "Please enter the directory to save the new module results: "
         )
+        input_project_client = input("Enter Project Client: ").strip()
+        input_project_name = input("Enter Project Name: ").strip()
         input_project_code = input("Enter Project Code: ").strip()
         input_project_title = input("Enter Project Title: ").strip()
         input_project_subtitle = input("Enter Project Subtitle: ").strip()
-        input_project_client = input("Enter Project Client: ").strip()
+        input_project_asignee = input("Enter Project Asignee: ").strip()
+        input_project_tags = input("Enter Project Tags: ").strip()
 
         project_ins_dict = {
             "input_file": dict(
@@ -80,12 +83,15 @@ class Setup:
                     continuity = None,
                     dates = dict(
                         created = Setup.return_valid_date(),
-                        updated = [],
+                        finished = None,
                     ),
+                    client = input_project_client,
+                    name = input_project_name,
                     code = input_project_code,
                     title = input_project_title,
                     subtitle = input_project_subtitle,
-                    client = input_project_client,
+                    asignee = input_project_asignee,
+                    tags = input_project_tags,
                 ),
                 modules = {},
             ),
