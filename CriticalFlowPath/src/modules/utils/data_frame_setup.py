@@ -43,7 +43,8 @@ class DataFrameSetup:
 
         module_data = {
             "details": {
-                "json": None
+                "json": None,
+                "df_rows": 0,
             },
             "logs": {
                 "start": DataFrameSetup.return_valid_date(),
@@ -57,10 +58,12 @@ class DataFrameSetup:
         if project:
             if project.project_data:
                 content = project.setup_project(project.project_data["body"])
+                module_data["details"]["df_rows"] = content["table"].shape[0] + 1
                 module_data["content"] = content
             else:
                 if project.input_extension in DataFrameSetup.allowed_extensions:
                     content = project.setup_project(project.project_data)
+                    module_data["details"] = content["table"].shape[0]
                     module_data["content"] = content
                 else:
                     print("Error. Unsuported file type")
@@ -265,7 +268,7 @@ class DataFrameSetup:
 
         
         content = {
-            "table": proc_table, 
+            "table": proc_table,
             "custom_ordered_dict": custom_ordered_dict,
             "custom_phase_order": custom_phase_order,
             "lead_schedule_struct": lead_schedule_struct
