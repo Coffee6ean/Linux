@@ -62,6 +62,7 @@ class DataIngestion:
                 "worksheet": None,
                 "start_date": None,
                 "finish_date": None,
+                "entry_count": 0,
             },
             "logs": {
                 "start": DataIngestion.return_valid_date(),
@@ -79,13 +80,14 @@ class DataIngestion:
                 else:
                     worksheet = project.ws_name
 
-                processed_json, earliest_start, latest_finish = project.handle_xlsx(worksheet)
+                xlsx_results = project.handle_xlsx(worksheet)
                 basename = project.input_basename + '.' + project.input_extension 
                 module_data["details"]["workbook"] = os.path.join(project.input_path, basename)
                 module_data["details"]["worksheet"] = worksheet
-                module_data["details"]["start_date"] = earliest_start
-                module_data["details"]["finish_date"] = latest_finish
-                module_data["content"] = processed_json
+                module_data["details"]["start_date"] = xlsx_results.get("earliest_start")
+                module_data["details"]["finish_date"] = xlsx_results.get("latest_finish")
+                module_data["details"]["entry_count"] = xlsx_results.get("entry_count")
+                module_data["content"] = xlsx_results.get("processed_json")
             elif project.input_extension == "xml":
                 excel_path, excel_basename = DataIngestion.return_valid_file(project.output_file_dir)
                 processed_json = project.handle_xml()
@@ -251,13 +253,19 @@ class DataIngestion:
         file_headers = self._xlsx_return_header(ws)
 
         json_header = self._json_fill_header(file_headers)
-        json_obj = self._json_fill_body(ws, json_header)
+        json_obj, entry_counter = self._json_fill_body(ws, json_header)
         reworked_json = self._fill_missing_dates(json_obj)
         earliest_start, latest_finish = self._project_dates(reworked_json)
         nested_json = self._build_nested_dic(reworked_json)
         
+        xlsx_results = {
+            "processed_json": nested_json,
+            "entry_count": entry_counter,
+            "earliest_start": earliest_start,
+            "latest_finish": latest_finish,
+        }
 
-        return nested_json, earliest_start, latest_finish
+        return xlsx_results
     
     def _return_excel_workspace(self, worksheet_name:str):
         basename = self.input_basename + '.' + self.input_extension
@@ -387,7 +395,7 @@ class DataIngestion:
             body_dict.append(json_activity)
             entry_counter += 1
 
-        return json_obj
+        return json_obj, entry_counter
     
     def _get_column_coordinates(self, header_dict:dict, header_key:str):
         coordinates = header_dict[header_key]
