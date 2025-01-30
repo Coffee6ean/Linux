@@ -44,6 +44,7 @@ class PostProcessingFramework():
             "location": "dashed", 
             "area": "dotted",
         }
+        self.calendar_days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
     @staticmethod
     def main(auto=True, input_file_path=None, input_file_basename=None, input_file_extension=None, 
@@ -69,14 +70,14 @@ class PostProcessingFramework():
         active_workbook, active_worksheet = project.return_excel_workspace(project.worksheet_name)
 
         if active_workbook and active_worksheet:
-            project.update_schedule_frame(
+            project.update_schedule_size(
                 active_workbook, 
                 active_worksheet, 
                 project.ordered_dict, 
                 project.table, 
                 project.lead_struct,
             )
-            project.update_wbs_table(
+            project.update_schedule_style(
                 project.lead_struct, project.json_struct_categories
             )
 
@@ -118,98 +119,6 @@ class PostProcessingFramework():
         )
 
         return ins
-    
-    @staticmethod
-    def file_verification(input_file_path, file_type, mode, input_json_title=None):
-        if input_json_title and os.path.isdir(input_file_path):
-            file_basename = f"processed_{PostProcessingFramework.normalize_entry(input_json_title)}.json"
-            path, basename = PostProcessingFramework.handle_file(input_file_path, file_basename, file_type)
-        else:
-            if os.path.isdir(input_file_path):
-                file_path, file_basename = PostProcessingFramework.handle_dir(input_file_path, mode)
-                if mode != 'c':
-                    path, basename = PostProcessingFramework.handle_file(file_path, file_basename, file_type)
-                else:
-                    path = file_path
-                    basename = file_basename
-            elif os.path.isfile(input_file_path):
-                file_path = os.path.dirname(input_file_path)
-                file_basename = os.path.basename(input_file_path)
-                path, basename = PostProcessingFramework.handle_file(file_path, file_basename, file_type)
-
-        return path, basename
-    
-    @staticmethod
-    def handle_dir(input_path, mode):
-        if mode in ['u', 'r', 'd']:
-            dir_list = os.listdir(input_path)
-            selection = PostProcessingFramework.display_directory_files(dir_list)
-            base_name = dir_list[selection]
-            print(f'File selected: {base_name}\n')
-        elif mode == 'c':
-            base_name = None
-        else:
-            print("Error: Invalid mode specified.")
-            return -1
-        
-        return input_path, base_name
-
-    @staticmethod
-    def handle_file(file_path, file_basename, file_type):
-        file = os.path.join(file_path, file_basename)
-
-        if (file_type == 'e' and PostProcessingFramework.is_xlsx(file)) or \
-           (file_type == 'j' and PostProcessingFramework.is_json(file)):
-            return os.path.dirname(file), os.path.basename(file)
-        
-        print("Error: Please verify that the directory and file exist and that the file is of type .xlsx or .json")
-        return -1
-
-    @staticmethod
-    def display_directory_files(list):
-        selection_idx = 0
-        if len(list)==0:
-            print("Error. No files found")
-            return -1
-        
-        if len(list)>1:
-            print(f"-- {len(list)} files found:")
-            idx = 0
-            for file in list:
-                idx += 1
-                print(f"{idx}. {file}")
-
-            selection_idx = input("\nPlease enter the index number to select the one to process: ") 
-        else:
-            print(f"Single file found: {list[0]}")
-            print("Will go ahead and process")
-
-        return int(selection_idx) - 1
-
-    @staticmethod
-    def is_json(file_name):
-        if file_name.endswith(".json"):
-            return True
-        else:
-            print("Error: Selected file is not a JSON file")
-            return False
-
-    @staticmethod
-    def is_xlsx(file_name):
-        if file_name.endswith('.xlsx'):
-            return True
-        else:
-            print('Error. Selected file is not an Excel')
-            return False
-
-    @staticmethod
-    def normalize_entry(entry_str):
-        remove_bewteen_parenthesis = re.sub('(?<=\()(.*?)(?=\))', '', entry_str)
-        special_chars = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
-        remove_special_chars = re.sub(special_chars, '', remove_bewteen_parenthesis.lower())
-        normalized_str = re.sub(' ', '_', remove_special_chars)
-
-        return normalized_str
 
     def return_excel_workspace(self, worksheet_name):
         basename = self.input_basename + '.' + self.input_extension
@@ -250,7 +159,7 @@ class PostProcessingFramework():
         
         return workbook, worksheet
 
-    def update_schedule_frame(self, active_workbook, active_worksheet, custom_ordered_dict:dict, 
+    def update_schedule_size(self, active_workbook, active_worksheet, custom_ordered_dict:dict, 
                               proc_table, lead_schedule_struct:str) -> None:
         basename = self.input_basename + '.' + self.input_extension
         file = os.path.join(self.input_path, basename)
@@ -493,7 +402,7 @@ class PostProcessingFramework():
 
         print(f"Columns ({num_cols}) added successfully")
 
-    def update_wbs_table(self, lead_schedule_struct:str, json_struct_categories:list) -> None:
+    def update_schedule_style(self, lead_schedule_struct:str, json_struct_categories:list) -> None:
         basename = self.input_basename + '.' + self.input_extension
         file = os.path.join(self.input_path, basename)
         wb = load_workbook(file)
@@ -574,14 +483,36 @@ class PostProcessingFramework():
     def _style_file(self, active_worksheet, lead_schedule_struct:str, 
                     start_col:int, start_row:int=1) -> None:
         ws = active_worksheet
+        
+        starting_day_of_the_week = ws[get_column_letter(start_col)+str(self.wbs_start_row)].value
 
-        year_list, year_row = self._same_cell_values(ws, start_col, start_row)
-        for year in year_list:
-            self._merge_same_value_cells(ws, year, year_row)  
+        year_list, year_row = self._same_week_based_values(
+            ws, 
+            start_col, 
+            start_row, 
+            starting_day_of_the_week
+        )
+        for nested_list in year_list:
+            self._merge_same_value_cells(
+                ws, 
+                list(nested_list.keys()), 
+                list(nested_list.values()), 
+                year_row
+            ) 
 
-        month_list, month_row = self._same_cell_values(ws, start_col, start_row + 1)
-        for month in month_list:
-            self._merge_same_value_cells(ws, month, month_row)  
+        month_list, month_row = self._same_week_based_values(
+            ws, 
+            start_col, 
+            start_row + 1, 
+            starting_day_of_the_week
+        )
+        for nested_list in month_list:
+            self._merge_same_value_cells(
+                ws, 
+                list(nested_list.keys()), 
+                list(nested_list.values()), 
+                month_row
+            )  
 
         self._style_worksheet(
             ws, 
@@ -605,47 +536,66 @@ class PostProcessingFramework():
                 start_col
             )
 
-    def _same_cell_values(self, active_worksheet, starting_col_idx:int, starting_row_idx:int):
+    def _same_week_based_values(self, active_worksheet, starting_col_idx:int, 
+                                starting_row_idx:int, starting_day:str):
         ws = active_worksheet
-
         iterable_row = ws[starting_row_idx]
-        last_value = iterable_row[starting_col_idx].value  
-        same_cell_list = []  
-        overall_list = []  
 
-        for cell in iterable_row[starting_col_idx - 1:]:  
+        starting_week_day = self.calendar_days.index(starting_day)
+        day_count = 1 + starting_week_day
+        same_week_list = {}
+        overall_list = []
+
+        for cell in iterable_row[starting_col_idx-1:]:
             if cell.value is None:
-                break  
-            elif cell.value == last_value:  
-                same_cell_list.append(cell.column)  
-            else:
-                if same_cell_list:  
-                    overall_list.append(same_cell_list)
-                same_cell_list = [cell.column]  
-                last_value = cell.value  
+                break
 
-        if same_cell_list:
-            overall_list.append(same_cell_list)
+            if day_count > len(self.calendar_days):
+                overall_list.append(same_week_list)
+                same_week_list = {}
+                day_count = 1
+            
+            same_week_list[cell.column] = cell.value
+            day_count += 1
 
-        return overall_list, starting_row_idx  
+        if same_week_list:
+            overall_list.append(same_week_list)
 
-    def _merge_same_value_cells(self, active_worksheet, column_indices:list, 
-                                starting_row_idx:int) -> None:
+        return overall_list, starting_row_idx
+
+    def _merge_same_value_cells(self, active_worksheet, columns_list: list, 
+                                values_list: list, starting_row_idx: int) -> None:
         ws = active_worksheet
-        
-        if not column_indices:
+
+        if not columns_list:
             print("No columns to merge.")
             return
 
-        first_col = column_indices[0]
-        last_col = column_indices[-1]
+        last_value = values_list[0]
+        overall_list = []
+        same_val_list = []
 
-        ws.merge_cells(
-            start_row=starting_row_idx, 
-            start_column=first_col, 
-            end_row=starting_row_idx, 
-            end_column=last_col
-        )
+        for col, val in zip(columns_list, values_list):
+            if val == last_value:
+                same_val_list.append(col)
+            else:
+                overall_list.append(same_val_list)
+                same_val_list = [col]
+                last_value = val
+
+        if same_val_list:
+            overall_list.append(same_val_list)
+
+        for group in overall_list:
+            if len(group) > 1:
+                first_col = group[0]
+                last_col = group[-1]
+                ws.merge_cells(
+                    start_row=starting_row_idx,
+                    start_column=first_col,
+                    end_row=starting_row_idx,
+                    end_column=last_col
+                )
 
     def _style_worksheet(self, active_worksheet, start_date, finish_date, start_col, start_row):
         ws = active_worksheet
@@ -659,50 +609,68 @@ class PostProcessingFramework():
                                  min_col=start_col, 
                                  max_col=start_col + duration - 1):
             for cell in cell:  
+                cell.border = Border(
+                    top=Side(border_style="thin", color="00C0C0C0"), 
+                    left=Side(border_style="thin", color="00C0C0C0"),  
+                    right=Side(border_style="thin", color="00C0C0C0"),  
+                    bottom=Side(border_style="thin", color="00C0C0C0")  
+                )
                 cell.font = Font(
                     name='Century Gothic', 
                     size=12, 
-                    bold=True, 
-                    color="FFFFFF"
+                    bold=False, 
+                    color="00000000"
                 )  
                 cell.alignment = Alignment(horizontal='center', vertical='center')
-                cell.fill = PatternFill(start_color='00800080', end_color='00800080', fill_type='solid')
+                cell.fill = PatternFill(start_color="00F2F2F2", end_color="00F2F2F2", fill_type='solid')
     
         for cell in ws.iter_rows(min_row=start_row + 1, 
                                  max_row=start_row + 1, 
                                  min_col=start_col, 
                                  max_col=start_col + duration - 1):
-            for cell in cell:  
+            for cell in cell: 
+                cell.border = Border(
+                    top=Side(border_style="thin", color="00C0C0C0"), 
+                    left=Side(border_style="thin", color="00C0C0C0"),  
+                    right=Side(border_style="thin", color="00C0C0C0"),  
+                    bottom=Side(border_style="thin", color="00C0C0C0")  
+                ) 
                 cell.font = Font(
                     name='Century Gothic', 
                     size=12, 
-                    bold=True, 
-                    color="00333333"
+                    bold=False, 
+                    color="00000000"
                 )
                 cell.alignment = Alignment(horizontal='center', vertical='center')
-                cell.fill = PatternFill(start_color='00CC99FF', end_color='00CC99FF', fill_type='solid')
+                cell.fill = PatternFill(start_color="00D9D9D9", end_color="00D9D9D9", fill_type='solid')
     
         for cell in ws.iter_rows(min_row=start_row + 2, 
                                  max_row=start_row + 2, 
                                  min_col=start_col, 
                                  max_col=start_col + duration - 1):
-            for cell in cell:  
+            for cell in cell:
+                cell.border = Border(
+                    top=Side(border_style="thin", color="00C0C0C0"), 
+                    left=Side(border_style="thin", color="00C0C0C0"),  
+                    right=Side(border_style="thin", color="00C0C0C0"),  
+                    bottom=Side(border_style="thin", color="00C0C0C0")  
+                )
                 cell.font = Font(
                     name='Century Gothic', 
                     size=12, 
-                    bold=True, 
+                    bold=False, 
                     color="00000000"
                 )
                 cell.alignment = Alignment(horizontal='center', vertical='center')
-                cell.fill = PatternFill(start_color='00C0C0C0', end_color='00C0C0C0', fill_type='solid')
+                #cell.fill = PatternFill(start_color='00ab88c6', end_color='00ab88c6', fill_type='solid')
         
         for row in ws.iter_rows(min_row=start_row + 3, min_col=start_col):  
             for cell in row:
                 cell.alignment = Alignment(horizontal='center', vertical='center')
     
-        for col in range(start_col, start_col + duration):
-            last_month_cell = ws.cell(row=start_row + 1, column=col)  
-            if last_month_cell.value is not None:  
+        """ for col in range(start_col, start_col + duration):
+            last_month_cell = ws.cell(row=start_row + 1, column=col).value
+            if last_month_cell is not None:  
                 for row in range(start_row + 1, ws.max_row + 1):  
                     cell = ws.cell(row=row, column=col)
 
@@ -712,7 +680,7 @@ class PostProcessingFramework():
                         left=Side(border_style="dashed"),  
                         right=current_border.right,  
                         bottom=current_border.bottom  
-                    )
+                    ) """
     
         print("Workbook styled and saved successfully.")
 
@@ -728,7 +696,7 @@ class PostProcessingFramework():
             cell.font = Font(
                 name='Century Gothic', 
                 size=12, 
-                bold=True, 
+                bold=False, 
                 color="FFFFFF"
             )  
             cell.fill = PatternFill(start_color="00800080", end_color="00800080", fill_type="solid")
@@ -753,7 +721,7 @@ class PostProcessingFramework():
                     cell.font = Font(
                         name='Century Gothic', 
                         size=12, 
-                        bold=True, 
+                        bold=False, 
                         color="00333333"
                     )  
                     cell.fill = PatternFill(start_color="00FFFFFF", end_color="00FFFFFF", fill_type="solid")
