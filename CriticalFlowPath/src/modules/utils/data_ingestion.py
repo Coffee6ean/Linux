@@ -26,7 +26,7 @@ class DataIngestion:
             "entry": None, 
             "phase": ["phase"],
             "location": ["location"], 
-            "area": ["area"],
+            "area": ["area", "zone"],
             "trade": ["trade"], 
             "color": ["color"],
             "parent_id": None, 
