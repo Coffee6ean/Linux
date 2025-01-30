@@ -14,8 +14,8 @@ from modules.setup import Setup
 
 class PostProcessingFramework():
     def __init__(self, input_file_path, input_file_basename, input_file_extension, project_worksheet_name,
-                 project_table, project_ordered_dict, project_phase_order, project_lead_struct, 
-                 project_start_date, project_finish_date):
+                 project_table, project_ordered_dict, project_phase_order, 
+                 project_lead_struct, project_start_date, project_finish_date):
         self.input_path = input_file_path
         self.input_basename = input_file_basename
         self.input_extension = input_file_extension
@@ -514,7 +514,7 @@ class PostProcessingFramework():
                 month_row
             )  
 
-        self._style_worksheet(
+        self._apply_color_format(
             ws, 
             self.start_date, 
             self.finish_date, 
@@ -522,14 +522,14 @@ class PostProcessingFramework():
             start_row
         )
         self._apply_post_styling(ws)
-
+        
         wbs_keys = list(self.wbs_final_categories.keys())
         lead_cat_columns = wbs_keys.index(lead_schedule_struct)
         relevant_keys = wbs_keys[:lead_cat_columns + 1]
 
         for categroy in reversed(relevant_keys):
             cat_value = self.wbs_final_categories.get(categroy)
-            self._apply_post_sectioning(
+            self._apply_horizontal_sectioning(
                 ws, 
                 categroy, 
                 cat_value, 
@@ -597,23 +597,68 @@ class PostProcessingFramework():
                     end_column=last_col
                 )
 
-    def _style_worksheet(self, active_worksheet, start_date, finish_date, start_col, start_row):
+    def _apply_color_format(self, active_worksheet, start_date, finish_date, start_col, start_row):
         ws = active_worksheet
     
         start_datetime_obj = datetime.strptime(start_date, '%d-%b-%Y')
         end_datetime_obj = datetime.strptime(finish_date, '%d-%b-%Y')
         duration = (end_datetime_obj - start_datetime_obj).days + 1  
     
-        for cell in ws.iter_rows(min_row=start_row, 
+        self._paint_schedule_row(
+            ws, 
+            start_col, 
+            start_row, 
+            duration, 
+            "00C0C0C0", 
+            "00F2F2F2"
+        )
+        self._paint_schedule_row(
+            ws, 
+            start_col, 
+            start_row + 1, 
+            duration, 
+            "00C0C0C0", 
+            "00D9D9D9"
+        )
+        self._paint_schedule_row(
+            ws, 
+            start_col, 
+            start_row + 2, 
+            duration, 
+            "00C0C0C0", 
+            "00FFFFFF"
+        )
+        self._paint_schedule_row(
+            ws, 
+            start_col, 
+            start_row + 3, 
+            duration, 
+            "00C0C0C0", 
+            "00FFFFFF"
+        )
+    
+        self._apply_vertical_sectioning(
+            ws, 
+            start_col, 
+            start_row + 1, 
+            duration
+        )
+
+        print("Workbook styled and saved successfully.")
+
+    def _paint_schedule_row(self, active_worksheet, start_col:str, start_row:int, 
+                            duration:int, border_color:str, fill_color:str) -> None:
+        ws = active_worksheet
+        for row in ws.iter_rows(min_row=start_row, 
                                  max_row=start_row, 
                                  min_col=start_col, 
                                  max_col=start_col + duration - 1):
-            for cell in cell:  
+            for cell in row:  
                 cell.border = Border(
-                    top=Side(border_style="thin", color="00C0C0C0"), 
-                    left=Side(border_style="thin", color="00C0C0C0"),  
-                    right=Side(border_style="thin", color="00C0C0C0"),  
-                    bottom=Side(border_style="thin", color="00C0C0C0")  
+                    top=Side(border_style="thin", color=border_color), 
+                    left=Side(border_style="thin", color=border_color),  
+                    right=Side(border_style="thin", color=border_color),  
+                    bottom=Side(border_style="thin", color=border_color)  
                 )
                 cell.font = Font(
                     name='Century Gothic', 
@@ -622,55 +667,17 @@ class PostProcessingFramework():
                     color="00000000"
                 )  
                 cell.alignment = Alignment(horizontal='center', vertical='center')
-                cell.fill = PatternFill(start_color="00F2F2F2", end_color="00F2F2F2", fill_type='solid')
+                cell.fill = PatternFill(start_color=fill_color, end_color=fill_color, fill_type='solid')
     
-        for cell in ws.iter_rows(min_row=start_row + 1, 
-                                 max_row=start_row + 1, 
-                                 min_col=start_col, 
-                                 max_col=start_col + duration - 1):
-            for cell in cell: 
-                cell.border = Border(
-                    top=Side(border_style="thin", color="00C0C0C0"), 
-                    left=Side(border_style="thin", color="00C0C0C0"),  
-                    right=Side(border_style="thin", color="00C0C0C0"),  
-                    bottom=Side(border_style="thin", color="00C0C0C0")  
-                ) 
-                cell.font = Font(
-                    name='Century Gothic', 
-                    size=12, 
-                    bold=False, 
-                    color="00000000"
-                )
-                cell.alignment = Alignment(horizontal='center', vertical='center')
-                cell.fill = PatternFill(start_color="00D9D9D9", end_color="00D9D9D9", fill_type='solid')
-    
-        for cell in ws.iter_rows(min_row=start_row + 2, 
-                                 max_row=start_row + 2, 
-                                 min_col=start_col, 
-                                 max_col=start_col + duration - 1):
-            for cell in cell:
-                cell.border = Border(
-                    top=Side(border_style="thin", color="00C0C0C0"), 
-                    left=Side(border_style="thin", color="00C0C0C0"),  
-                    right=Side(border_style="thin", color="00C0C0C0"),  
-                    bottom=Side(border_style="thin", color="00C0C0C0")  
-                )
-                cell.font = Font(
-                    name='Century Gothic', 
-                    size=12, 
-                    bold=False, 
-                    color="00000000"
-                )
-                cell.alignment = Alignment(horizontal='center', vertical='center')
-                #cell.fill = PatternFill(start_color='00ab88c6', end_color='00ab88c6', fill_type='solid')
-        
-        for row in ws.iter_rows(min_row=start_row + 3, min_col=start_col):  
-            for cell in row:
-                cell.alignment = Alignment(horizontal='center', vertical='center')
-    
-        """ for col in range(start_col, start_col + duration):
-            last_month_cell = ws.cell(row=start_row + 1, column=col).value
-            if last_month_cell is not None:  
+    def _apply_vertical_sectioning(self, active_worksheet, start_col:str, 
+                                   start_row:int, duration:int) -> None:
+        ws = active_worksheet
+        last_header = ws[get_column_letter(start_col)+str(start_row)].value
+
+        for col in range(start_col, start_col + duration):
+            col_header = ws.cell(row=start_row, column=col).value
+
+            if col_header and col_header != last_header:
                 for row in range(start_row + 1, ws.max_row + 1):  
                     cell = ws.cell(row=row, column=col)
 
@@ -680,9 +687,9 @@ class PostProcessingFramework():
                         left=Side(border_style="dashed"),  
                         right=current_border.right,  
                         bottom=current_border.bottom  
-                    ) """
-    
-        print("Workbook styled and saved successfully.")
+                    )
+
+                last_header = col_header
 
     def _apply_post_styling(self, active_worksheet):
         ws = active_worksheet
@@ -730,7 +737,7 @@ class PostProcessingFramework():
 
         print(f"Post-styling successfully completed")
 
-    def _apply_post_sectioning(self, active_worksheet, section_header:str, 
+    def _apply_horizontal_sectioning(self, active_worksheet, section_header:str, 
                                border_style:str, start_col:int) -> None:
         ws = active_worksheet
         header_idx = self._find_column_idx(ws, section_header, self.wbs_start_row)
