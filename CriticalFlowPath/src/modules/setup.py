@@ -64,7 +64,7 @@ class Setup:
         input_project_code = input("Enter Project Code: ").strip()
         input_project_title = input("Enter Project Title: ").strip()
         input_project_subtitle = input("Enter Project Subtitle: ").strip()
-        input_project_asignee = input("Enter Project Asignee: ").strip()
+        input_project_asignee = input("Enter Project Assignee: ").strip()
         input_project_tags = input("Enter Project Tags: ").strip()
 
         project_ins_dict = {
@@ -90,7 +90,8 @@ class Setup:
                     code = input_project_code,
                     title = input_project_title,
                     subtitle = input_project_subtitle,
-                    asignee = input_project_asignee,
+                    location = None,
+                    assignee = input_project_asignee,
                     tags = input_project_tags,
                 ),
                 modules = {},
