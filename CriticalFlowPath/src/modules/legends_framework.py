@@ -24,8 +24,6 @@ class LegendsFramework():
         #Module Attributes
         self.start_row = int(input_start_row)
         self.start_col = str(input_start_col)
-        self.wbs_start_row = 4
-        self.wbs_start_col = 'A'
         self.default_hex_fill_color = "00FFFF00"
         self.dark_default_hex_font = "00000000"
         self.light_default_hex_font = "00FFFFFF"
