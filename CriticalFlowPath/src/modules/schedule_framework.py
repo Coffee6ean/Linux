@@ -45,6 +45,7 @@ class ScheduleFramework():
         self.allowed_headers = {
             "hyperlinks": ["activity_code", "activity_name", "wbs_code"]
         }
+        self.calendar_weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
         #Instance Results
         self.initial_project_type:str = None
@@ -272,7 +273,7 @@ class ScheduleFramework():
         custom_ordered_dict = {val["entry"]: val for val in json_dict}
 
         self.generate_schedule_frame(active_worksheet, self.start_date, self.finish_date)
-        reworked_custom_ordered_dict = self.fill_schedule_cfa_style(
+        reworked_custom_ordered_dict = self.apply_schedule_cfa_style(
             active_worksheet, custom_ordered_dict, proc_table
         )
         
@@ -281,40 +282,6 @@ class ScheduleFramework():
         active_workbook.close()
 
         return reworked_custom_ordered_dict
-
-    def generate_schedule_frame(self, active_worksheet, start_date:str, end_date:str) -> None:
-        worksheet = active_worksheet
-
-        start_datetime_obj = datetime.strptime(start_date, '%d-%b-%Y')
-        end_datetime_obj = datetime.strptime(end_date, '%d-%b-%Y')
-        duration = (end_datetime_obj - start_datetime_obj).days + 1  
-        weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-
-        for day in range(duration):
-            date = start_datetime_obj + timedelta(days=day)
-            worksheet.cell(row=self.start_row + 3, 
-                           column=column_index_from_string(self.start_col) + day, 
-                           value=weekdays[date.weekday()])
-    
-        for day in range(duration):
-            date = start_datetime_obj + timedelta(days=day)
-            worksheet.cell(row=self.start_row + 2, 
-                           column=column_index_from_string(self.start_col) + day, 
-                           value=date.strftime('%d'))
-
-        for day in range(duration):
-            date = start_datetime_obj + timedelta(days=day)
-            worksheet.cell(row=self.start_row + 1, 
-                           column=column_index_from_string(self.start_col) + day, 
-                           value=date.strftime('%b'))
-    
-        for day in range(duration):
-            date = start_datetime_obj + timedelta(days=day)
-            worksheet.cell(row=self.start_row, 
-                           column=column_index_from_string(self.start_col) + day, 
-                           value=date.strftime('%Y'))
-
-        print("Gantt chart generated successfully.")
 
     def _find_column_idx(self, active_ws, column_header:str):
         ws = active_ws
@@ -328,7 +295,48 @@ class ScheduleFramework():
                     if normalized_header in normalized_cell_value:
                         return cell.column
 
-    def fill_schedule_gantt_style(self, active_worksheet, custom_ordered_dict:dict, proc_table):
+    def generate_schedule_frame(self, active_worksheet, start_date:str, end_date:str) -> None:
+        ws = active_worksheet
+
+        start_datetime_obj = datetime.strptime(start_date, '%d-%b-%Y')
+        end_datetime_obj = datetime.strptime(end_date, '%d-%b-%Y')
+        duration = (end_datetime_obj - start_datetime_obj).days + 1  
+        
+        self._fill_schedule_row(
+            ws, start_datetime_obj, duration, self.start_row, self.start_col, '%Y'
+        )
+        self._fill_schedule_row(
+            ws, start_datetime_obj, duration, self.start_row+1, self.start_col, '%b'
+        )
+        self._fill_schedule_row(
+            ws, start_datetime_obj, duration, self.start_row+2, self.start_col, '%d'
+        )
+        self._fill_schedule_row(
+            ws, start_datetime_obj, duration, self.start_row+3, self.start_col, "", True
+        )
+
+        print("Schedule frame generated successfully.")
+
+    def _fill_schedule_row(self, active_worksheet, start_datetime_obj:datetime, duration:int, 
+                           start_row:int, start_col:str, format:str, week_days:bool=False) -> None:
+        if week_days:
+            for day in range(duration):
+                date = start_datetime_obj + timedelta(days=day)
+                active_worksheet.cell(
+                    row=start_row, 
+                    column=column_index_from_string(start_col) + day, 
+                    value=self.calendar_weekdays[date.weekday()]
+                )
+        else:
+            for day in range(duration):
+                date = start_datetime_obj + timedelta(days=day)
+                active_worksheet.cell(
+                    row=start_row, 
+                    column=column_index_from_string(start_col) + day, 
+                    value=date.strftime(format)
+                )
+
+    def apply_schedule_gantt_style(self, active_worksheet, custom_ordered_dict:dict, proc_table):
         ws = active_worksheet
 
         start_ovr_date = datetime.strptime(self.start_date, "%d-%b-%Y")
@@ -356,7 +364,7 @@ class ScheduleFramework():
 
         print("Workbook filled successfully.")
 
-    def fill_schedule_cfa_style(self, active_worksheet, custom_ordered_dict:dict, 
+    def apply_schedule_cfa_style(self, active_worksheet, custom_ordered_dict:dict, 
                                 proc_table) -> dict:
         ws = active_worksheet
         schedule_setup = {
