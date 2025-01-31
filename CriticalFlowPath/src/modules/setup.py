@@ -10,6 +10,10 @@ from utils.data_frame_setup import DataFrameSetup """
 from modules.utils.data_ingestion import DataIngestion
 from modules.utils.data_frame_setup import DataFrameSetup
 
+import sys
+sys.path.append("../")
+from CriticalFlowPath.keys.secrets import RSLTS_DIR
+
 class Setup:
     modules = 0
 
@@ -34,7 +38,7 @@ class Setup:
             ins.obj["input_file"]["path"], 
             ins.obj["input_file"]["basename"], 
             ins.obj["input_file"]["extension"],
-            ins.obj["output_file"]["parent_directory"]
+            RSLTS_DIR
         )
         ins._update_project_modules(data)
 
@@ -44,7 +48,7 @@ class Setup:
             ins.obj["input_file"]["path"], 
             ins.obj["input_file"]["basename"], 
             ins.obj["input_file"]["extension"],
-            ins.obj["output_file"]["parent_directory"],
+            RSLTS_DIR,
             data["content"]
         )
         ins._update_project_modules(frame)
@@ -56,14 +60,12 @@ class Setup:
         input_file = Setup.return_valid_file(
             input("Please enter the path to the file or directory: ").strip()
         )
-        output_file_dir = DataFrameSetup.return_valid_path(
-            "Please enter the directory to save the new module results: "
-        )
         input_project_client = input("Enter Project Client: ").strip()
         input_project_name = input("Enter Project Name: ").strip()
         input_project_code = input("Enter Project Code: ").strip()
         input_project_title = input("Enter Project Title: ").strip()
         input_project_subtitle = input("Enter Project Subtitle: ").strip()
+        input_project_location = input("Enter Project Location: ").strip()
         input_project_asignee = input("Enter Project Assignee: ").strip()
         input_project_tags = input("Enter Project Tags: ").strip()
 
@@ -74,7 +76,7 @@ class Setup:
                 extension = input_file.get("extension"),
             ),
             "output_file": dict(
-                parent_directory = output_file_dir,
+                parent_directory = "== SECRET ==",
                 directories = {},
             ),
             "project": dict(
@@ -90,7 +92,7 @@ class Setup:
                     code = input_project_code,
                     title = input_project_title,
                     subtitle = input_project_subtitle,
-                    location = None,
+                    location = input_project_location,
                     assignee = input_project_asignee,
                     tags = input_project_tags,
                 ),
