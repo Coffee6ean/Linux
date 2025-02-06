@@ -45,7 +45,7 @@ class DataIngestion:
 
     @staticmethod
     def main(auto=True, input_file_path=None, input_file_basename=None, 
-             input_file_extension=None, output_file_dir=None,):
+             input_file_extension=None, output_file_dir=None):
         if auto:
             project = DataIngestion.auto_generate_ins(
                 input_file_path, 
@@ -87,7 +87,7 @@ class DataIngestion:
                 module_data["details"]["start_date"] = xlsx_results.get("earliest_start")
                 module_data["details"]["finish_date"] = xlsx_results.get("latest_finish")
                 module_data["details"]["entry_count"] = xlsx_results.get("entry_count")
-                module_data["content"] = xlsx_results.get("processed_json")
+                module_data["content"] = xlsx_results.get("nested_json")
             elif project.input_extension == "xml":
                 excel_path, excel_basename = DataIngestion.return_valid_file(project.output_file_dir)
                 processed_json = project.handle_xml()
@@ -259,7 +259,8 @@ class DataIngestion:
         nested_json = self._build_nested_dic(reworked_json)
         
         xlsx_results = {
-            "processed_json": nested_json,
+            "nested_json": nested_json,
+            "flattend_json": reworked_json,
             "entry_count": entry_counter,
             "earliest_start": earliest_start,
             "latest_finish": latest_finish,
