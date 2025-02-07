@@ -1,5 +1,4 @@
 import os
-import re
 from datetime import datetime
 from openpyxl import load_workbook
 from openpyxl.utils import column_index_from_string
@@ -7,23 +6,26 @@ from openpyxl.utils import get_column_letter
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 
 # Imported Helper - As Module
-""" from .setup import Setup """
+""" import setup """
 
-# Imported Helper - As Package 
-from modules.setup import Setup
+import sys
+sys.path.append("../")
+from CriticalFlowPath.keys.secrets import RSLTS_DIR
 
 class PostProcessingFramework():
-    def __init__(self, input_file_path, input_file_basename, input_file_extension, project_worksheet_name,
-                 project_table, project_ordered_dict, project_phase_order, 
-                 project_lead_struct, project_start_date, project_finish_date):
+    def __init__(self, input_file_path, input_file_basename, input_file_extension, input_file_workweek,
+                 project_worksheet_name, project_table, project_ordered_dict, project_phase_order, 
+                 project_lead_struct, project_duration_processed, project_start_date, project_finish_date):
         self.input_path = input_file_path
         self.input_basename = input_file_basename
         self.input_extension = input_file_extension
+        self.input_workweek = input_file_workweek
         self.worksheet_name = project_worksheet_name
         self.table = project_table
         self.ordered_dict = project_ordered_dict
         self.phase_order = project_phase_order
         self.lead_struct = project_lead_struct
+        self.duration_processed = project_duration_processed
         self.start_date = project_start_date
         self.finish_date = project_finish_date
 
@@ -44,28 +46,29 @@ class PostProcessingFramework():
             "location": "dashed", 
             "area": "dotted",
         }
-        self.calendar_days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        self.calendar_weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
     @staticmethod
-    def main(auto=True, input_file_path=None, input_file_basename=None, input_file_extension=None, 
+    def main(auto=True, input_file_path=None, input_file_basename=None, input_file_extension=None, input_file_workweek=None,
              project_worksheet_name=None, project_table=None, project_ordered_dict=None, project_phase_order=None, 
-             project_lead_struct=None, project_start_date=None, project_finish_date=None):
+             project_lead_struct=None, project_duration_processed=None, project_start_date=None, project_finish_date=None):
         if auto:
             project = PostProcessingFramework.auto_generate_ins(
                 input_file_path, 
                 input_file_basename, 
-                input_file_extension, 
+                input_file_extension,
+                input_file_workweek, 
                 project_worksheet_name,
                 project_table, 
                 project_ordered_dict, 
                 project_phase_order, 
-                project_lead_struct, 
+                project_lead_struct,
+                project_duration_processed,
                 project_start_date, 
                 project_finish_date,
             )
         else:
             project = PostProcessingFramework.generate_ins()
-            project_details = Setup.main(False)
 
         active_workbook, active_worksheet = project.return_excel_workspace(project.worksheet_name)
 
@@ -83,37 +86,44 @@ class PostProcessingFramework():
 
     @staticmethod
     def generate_ins():
-        input_file_path = input("Please enter the path to the Excel file or directory: ")
-        input_json_file = input("Please enter the path to the Json file or directory: ")
-        input_start_date = input("Please enter the start date of the project (format: dd-MMM-yyyy): ")
-        input_end_date = input("Please enter the end date of the project (format: dd-MMM-yyyy): ")
+        PostProcessingFramework.ynq_user_interaction(
+            "Run as Module as stand-alone? "
+        )
 
-        input_excel_path, input_excel_basename = PostProcessingFramework.file_verification(
-            input_file_path, 'e', 'u')
-        input_json_path, input_json_basename = PostProcessingFramework.file_verification(
-            input_json_file, 'j', 'r')
-        
-        if input_excel_path == -1:
-            return None  
+        setup_cls = setup.Setup.main()
 
-        input_worksheet_name = input("Please enter the name to create a worksheet: ")
+        ins = PostProcessingFramework(
+            setup_cls.obj["input_file"].get("path"), 
+            setup_cls.obj["input_file"].get("basename"),
+            setup_cls.obj["input_file"].get("extension"),  
+            setup_cls.obj["project"]["modules"]["MODULE_3"]["details"].get("workweek"),
+            "CFA - Schedule",
+            setup_cls.obj["project"]["modules"]["MODULE_2"]["content"].get("table"),
+            setup_cls.obj["project"]["modules"]["MODULE_3"].get("content"),
+            setup_cls.obj["project"]["modules"]["MODULE_2"]["content"].get("custom_phase_order"),
+            setup_cls.obj["project"]["modules"]["MODULE_2"]["content"].get("lead_schedule_struct"),
+            setup_cls.obj["project"]["modules"]["MODULE_3"]["details"]["calendar"]["processed"]["days"].get("total"),
+            setup_cls.obj["project"]["modules"]["MODULE_1"]["details"].get("start_date"),
+            setup_cls.obj["project"]["modules"]["MODULE_1"]["details"].get("finish_date"),
+        )
 
-        return PostProcessingFramework(input_excel_path, input_excel_basename, input_worksheet_name, input_start_date,
-                                   input_end_date, input_json_path, input_json_basename, None)
+        return ins
 
     @staticmethod
-    def auto_generate_ins(input_file_path, input_file_basename, input_file_extension, 
+    def auto_generate_ins(input_file_path, input_file_basename, input_file_extension, input_file_workweek,
                           project_worksheet_name, project_table, project_ordered_dict, project_phase_order, 
-                          project_lead_struct, project_start_date, project_finish_date):
+                          project_lead_struct, project_duration_processed, project_start_date, project_finish_date):
         ins = PostProcessingFramework(
             input_file_path, 
             input_file_basename, 
-            input_file_extension, 
+            input_file_extension,
+            input_file_workweek,
             project_worksheet_name,
             project_table, 
             project_ordered_dict, 
             project_phase_order, 
-            project_lead_struct, 
+            project_lead_struct,
+            project_duration_processed,
             project_start_date, 
             project_finish_date,
         )
@@ -307,8 +317,8 @@ class PostProcessingFramework():
         self._delete_columns(ws, start_col_idx, end_col_idx)
         self._insert_columns(ws, start_col_idx, end_col_idx - start_col_idx)
     
-    def _find_column_idx(self, active_ws, column_header, start_row):
-        ws = active_ws
+    def _find_column_idx(self, active_worksheet, column_header:str, start_row:int):
+        ws = active_worksheet
         start_col_idx = column_index_from_string(self.wbs_start_col)
         normalized_header = column_header.replace(" ", "_").lower()
 
@@ -515,9 +525,7 @@ class PostProcessingFramework():
             )  
 
         self._apply_color_format(
-            ws, 
-            self.start_date, 
-            self.finish_date, 
+            ws,
             start_col, 
             start_row
         )
@@ -541,7 +549,7 @@ class PostProcessingFramework():
         ws = active_worksheet
         iterable_row = ws[starting_row_idx]
 
-        starting_week_day = self.calendar_days.index(starting_day)
+        starting_week_day = self.calendar_weekdays.index(starting_day)
         day_count = 1 + starting_week_day
         same_week_list = {}
         overall_list = []
@@ -550,7 +558,7 @@ class PostProcessingFramework():
             if cell.value is None:
                 break
 
-            if day_count > len(self.calendar_days):
+            if day_count > len(self.input_workweek):
                 overall_list.append(same_week_list)
                 same_week_list = {}
                 day_count = 1
@@ -563,8 +571,8 @@ class PostProcessingFramework():
 
         return overall_list, starting_row_idx
 
-    def _merge_same_value_cells(self, active_worksheet, columns_list: list, 
-                                values_list: list, starting_row_idx: int) -> None:
+    def _merge_same_value_cells(self, active_worksheet, columns_list:list, 
+                                values_list:list, starting_row_idx:int) -> None:
         ws = active_worksheet
 
         if not columns_list:
@@ -597,18 +605,14 @@ class PostProcessingFramework():
                     end_column=last_col
                 )
 
-    def _apply_color_format(self, active_worksheet, start_date, finish_date, start_col, start_row):
+    def _apply_color_format(self, active_worksheet, start_col:int, start_row:int):
         ws = active_worksheet
-    
-        start_datetime_obj = datetime.strptime(start_date, '%d-%b-%Y')
-        end_datetime_obj = datetime.strptime(finish_date, '%d-%b-%Y')
-        duration = (end_datetime_obj - start_datetime_obj).days + 1  
     
         self._paint_schedule_row(
             ws, 
             start_col, 
             start_row, 
-            duration, 
+            self.duration_processed, 
             "00C0C0C0", 
             "00F2F2F2"
         )
@@ -616,7 +620,7 @@ class PostProcessingFramework():
             ws, 
             start_col, 
             start_row + 1, 
-            duration, 
+            self.duration_processed, 
             "00C0C0C0", 
             "00D9D9D9"
         )
@@ -624,7 +628,7 @@ class PostProcessingFramework():
             ws, 
             start_col, 
             start_row + 2, 
-            duration, 
+            self.duration_processed, 
             "00C0C0C0", 
             "00FFFFFF"
         )
@@ -632,7 +636,7 @@ class PostProcessingFramework():
             ws, 
             start_col, 
             start_row + 3, 
-            duration, 
+            self.duration_processed, 
             "00C0C0C0", 
             "00FFFFFF"
         )
@@ -641,7 +645,7 @@ class PostProcessingFramework():
             ws, 
             start_col, 
             start_row + 1, 
-            duration
+            self.duration_processed
         )
 
         print("Workbook styled and saved successfully.")
@@ -757,7 +761,7 @@ class PostProcessingFramework():
 
         print("Post sectioning applied successfully.")
 
-    def _list_cell_values(self, active_worksheet, col_idx):
+    def _list_cell_values(self, active_worksheet, col_idx:int):
         ws = active_worksheet
         col_list = []
 
