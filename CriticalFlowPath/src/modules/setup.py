@@ -1,14 +1,19 @@
 import os
 import re
+import json
 from datetime import datetime
-
-# Imported Helper - As Module
-""" from utils.data_ingestion import DataIngestion
-from utils.data_frame_setup import DataFrameSetup """
 
 # Imported Helper - As Package 
 from modules.utils.data_ingestion import DataIngestion
 from modules.utils.data_frame_setup import DataFrameSetup
+from modules.utils.data_relationship import DataRelationship
+from modules.utils.data_processing import DataProcessing
+
+# Imported Helper - As Module
+""" from utils.data_ingestion import DataIngestion
+from utils.data_frame_setup import DataFrameSetup
+from utils.data_relationship import DataRelationship
+from utils.data_processing import DataProcessing """
 
 import sys
 sys.path.append("../")
@@ -53,6 +58,31 @@ class Setup:
         )
         ins._update_project_modules(frame)
 
+        """ ins._print_result("DataRelationship processing...")
+        link = ins._link_data_from_file(
+            auto,
+            ins.obj["input_file"]["path"], 
+            ins.obj["input_file"]["basename"], 
+            ins.obj["input_file"]["extension"],
+            RSLTS_DIR,
+            data["content"],
+        )
+        ins._update_project_modules(link) """
+
+        ins._print_result("DataProcessing processing...")
+        proc = ins._process_data_from_file(
+            auto,
+            ins.obj["input_file"]["path"], 
+            ins.obj["input_file"]["basename"], 
+            ins.obj["input_file"]["extension"],
+            data["details"]["start_date"],
+            data["details"]["finish_date"],
+            ins.obj["project"]["metadata"]["workweek"],
+            RSLTS_DIR,
+            frame["content"]["custom_ordered_dict"],
+        )
+        ins._update_project_modules(proc)
+
         return ins
         
     @staticmethod
@@ -65,6 +95,7 @@ class Setup:
         input_project_code = input("Enter Project Code: ").strip()
         input_project_title = input("Enter Project Title: ").strip()
         input_project_subtitle = input("Enter Project Subtitle: ").strip()
+        input_project_workweek = input("Enter Project Workweek (default. Mon-Sun): ").strip()
         input_project_location = input("Enter Project Location: ").strip()
         input_project_asignee = input("Enter Project Assignee: ").strip()
         input_project_tags = input("Enter Project Tags: ").strip()
@@ -92,6 +123,7 @@ class Setup:
                     code = input_project_code,
                     title = input_project_title,
                     subtitle = input_project_subtitle,
+                    workweek = input_project_workweek if input_project_workweek else "Mon-Sun",
                     location = input_project_location,
                     assignee = input_project_asignee,
                     tags = input_project_tags,
@@ -194,6 +226,13 @@ class Setup:
 
         return f"MODULE_{count}"
 
+    @staticmethod
+    def write_data_to_json(file_title:str, json_dict:dict):
+        file = os.path.join(RSLTS_DIR, file_title)
+        
+        with open(file, 'w') as writer:
+            json.dump(json_dict, writer)
+
     def _update_project_modules(self, data:dict) -> None:
         module_key = self.return_valid_module_key()
         if module_key:
@@ -225,6 +264,36 @@ class Setup:
         )
 
         return frame
+
+    def _link_data_from_file(self, auto:str, input_file_path=None, input_file_basename=None, 
+                              input_file_extension=None, output_file_dir=None, project_data=None) -> dict:
+        relationship = DataRelationship.main(
+            auto,
+            input_file_path,
+            input_file_basename,
+            input_file_extension,
+            output_file_dir,
+            project_data
+        )
+
+        return relationship
+
+    def _process_data_from_file(self, auto:str, input_file_path=None, input_file_basename=None, 
+                                input_file_extension=None, project_start_date=None, project_finish_date=None, 
+                                input_file_workweek=None, output_file_dir=None, project_data=None) -> dict:
+        processing = DataProcessing.main(
+            auto,
+            input_file_path,
+            input_file_basename,
+            input_file_extension,
+            project_start_date,
+            project_finish_date,
+            input_file_workweek,
+            output_file_dir,
+            project_data
+        )
+
+        return processing
 
     def _print_result(self, prompt_message:str) -> None:
         print()
