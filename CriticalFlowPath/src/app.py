@@ -214,6 +214,7 @@ class App:
         ins_obj = self.obj["setup"]
         mdl_1 = ins_obj["project"]["modules"].get("MODULE_1")
         mdl_2 = ins_obj["project"]["modules"].get("MODULE_2")
+        mdl_3 = ins_obj["project"]["modules"].get("MODULE_3")
 
         self._print_result("WbsFramework processing...")
         mdls.WbsFramework.main(
@@ -232,9 +233,10 @@ class App:
             ins_obj["input_file"].get("path"), 
             ins_obj["input_file"].get("basename"),
             ins_obj["input_file"].get("extension"), 
+            mdl_3["details"].get("workweek"), 
             self.schedule_worksheet,
             mdl_2["content"].get("table"),
-            mdl_2["content"].get("custom_ordered_dict"),
+            mdl_3.get("content"),
             mdl_2["content"].get("custom_phase_order"),
             mdl_2["content"].get("lead_schedule_struct"),
             mdl_1["details"].get("start_date"),
@@ -246,12 +248,14 @@ class App:
             auto,
             ins_obj["input_file"].get("path"), 
             ins_obj["input_file"].get("basename"),
-            ins_obj["input_file"].get("extension"), 
+            ins_obj["input_file"].get("extension"),
+            mdl_3["details"].get("workweek"), 
             self.schedule_worksheet,
             mdl_2["content"].get("table"),
-            mdl_2["content"].get("custom_ordered_dict"),
+            mdl_3.get("content"),
             mdl_2["content"].get("custom_phase_order"),
             mdl_2["content"].get("lead_schedule_struct"),
+            mdl_3["details"]["calendar"]["processed"]["days"].get("total"),
             mdl_1["details"].get("start_date"),
             mdl_1["details"].get("finish_date"),
         )
@@ -281,6 +285,7 @@ class App:
         ins_obj = self.obj["setup"]
         mdl_1 = ins_obj["project"]["modules"].get("MODULE_1")
         mdl_2 = ins_obj["project"]["modules"].get("MODULE_2")
+        mdl_3 = ins_obj["project"]["modules"].get("MODULE_3")
         
         ins_obj["project"]["metadata"]["dates"]["finished"] = App.return_valid_date()
         
@@ -290,10 +295,12 @@ class App:
             "details": {
                 "MDL_1": mdl_1.get("details"),
                 "MDL_2": mdl_2.get("details"),
+                "MDL_3": mdl_3.get("details"),
             },
             "logs": {
                 "MDL_1": mdl_1.get("logs"),
                 "MDL_2": mdl_2.get("logs"),
+                "MDL_3": mdl_3.get("logs"),
             },
             "status": None,
         }
