@@ -4,14 +4,12 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
+# Imported Helper - As Module
+""" import setup """
+
 import sys
 sys.path.append("../")
-
-# Imported Helper - As Module
-""" from .setup import Setup """
-
-# Imported Helper - As Package 
-from modules.setup import Setup
+from CriticalFlowPath.keys.secrets import RSLTS_DIR
 
 class AnalyticsFramework:
     def __init__(self, input_file_path, input_file_basename, input_file_extension, 
@@ -88,10 +86,16 @@ class AnalyticsFramework:
             "Run as Module as stand-alone? "
         )
 
-        setup = Setup.main()
+        setup_cls = setup.Setup.main()
 
-        project_ins_dict = {"setup": setup.obj}
-        ins = AnalyticsFramework(project_ins_dict)
+        ins = AnalyticsFramework(
+            setup_cls.obj["input_file"].get("path"), 
+            setup_cls.obj["input_file"].get("basename"),
+            setup_cls.obj["input_file"].get("extension"),
+            RSLTS_DIR,
+            setup_cls.obj["project"]["modules"]["MODULE_2"]["content"].get("table"),
+            setup_cls.obj["project"]["modules"]["MODULE_2"]["content"].get("lead_schedule_struct"),
+        )
 
         return ins
     
