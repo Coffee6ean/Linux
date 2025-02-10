@@ -12,5 +12,6 @@ keys/
 local_results/
 
 # Discontinued Modules
+CFA_Results_Local/
 disc/
 tests/
