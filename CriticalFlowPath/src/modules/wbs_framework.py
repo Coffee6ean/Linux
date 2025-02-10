@@ -6,10 +6,11 @@ from openpyxl.utils import column_index_from_string, get_column_letter
 from openpyxl.styles import PatternFill
 
 # Imported Helper - As Module
-""" from .setup import Setup """
+""" import setup """
 
-# Imported Helper - As Package 
-from modules.setup import Setup
+import sys
+sys.path.append("../")
+from CriticalFlowPath.keys.secrets import RSLTS_DIR
 
 class WbsFramework:
     def __init__(self, input_file_path, input_file_basename, input_file_extension, 
@@ -41,8 +42,6 @@ class WbsFramework:
             )
         else:
             project = WbsFramework.generate_ins()
-            project_details = Setup.main(False)
-
 
         if project:
             color_list = [
@@ -53,19 +52,22 @@ class WbsFramework:
             project.process_wbs_column('color', color_list)
 
     @staticmethod
-    def generate_ins():        
-        input_excel_file = input("Please enter the path to the Excel file or directory: ")
-        input_worksheet_name = input("Please enter the name for the new or existing worksheet: ")
-        input_json_file = input("Please enter the path to the Json file or directory: ")
+    def generate_ins():
+        WbsFramework.ynq_user_interaction(
+            "Run as Module as stand-alone? "
+        )
 
-        input_excel_path, input_excel_basename = WbsFramework.file_verification(
-            input_excel_file, 'e', 'r')
-        input_json_path, input_json_basename = WbsFramework.file_verification(
-            input_json_file, 'j', 'r')
-
-        ins = WbsFramework(input_process_cont, input_excel_path, input_excel_basename, 
-                            input_worksheet_name, input_json_path, input_json_basename)
+        setup_cls = setup.Setup.main()
         
+        ins = WbsFramework(
+            setup_cls.obj["input_file"].get("path"), 
+            setup_cls.obj["input_file"].get("basename"),
+            setup_cls.obj["input_file"].get("extension"),  
+            "CFA - Schedule",
+            setup_cls.obj["project"]["modules"]["MODULE_2"]["content"].get("table"),
+            setup_cls.obj["project"]["modules"]["MODULE_3"].get("content"),
+        )
+
         return ins
 
     @staticmethod
@@ -83,159 +85,41 @@ class WbsFramework:
         return ins
 
     @staticmethod
-    def display_directory_files(list):
+    def display_directory_files(file_list:list) -> int:
         selection_idx = 0
-        if len(list)==0:
+        if len(file_list)==0:
             print("Error. No files found")
             return -1
         
-        if len(list)>1:
-            print(f"-- {len(list)} files found:")
+        if len(file_list)>1:
+            print(f"-- {len(file_list)} files found:")
             idx = 0
-            for file in list:
+            for file in file_list:
                 idx += 1
                 print(f"{idx}. {file}")
 
             selection_idx = input("\nPlease enter the index number to select the one to process: ") 
         else:
-            print(f"Single file found: {list[0]}")
+            print(f"Single file found: {file_list[0]}")
             print("Will go ahead and process")
 
         return int(selection_idx) - 1
 
     @staticmethod
-    def is_json(file_name):
-        if file_name.endswith(".json"):
-            return True
-        else:
-            print("Error: Selected file is not a JSON file")
-            return False
-
-    @staticmethod
-    def is_xlsx(file_name):
-        if file_name.endswith(".xlsx"):
-            return True
-        else:
-            print("Error. Selected file is not an Excel")
-            return False
-
-    @staticmethod
-    def clear_directory(directory_path):
+    def clear_directory(directory_path:str) -> None:
         if os.path.isdir(directory_path):
             file_list = os.listdir(directory_path)
             for file in file_list:
                 file_path = os.path.join(directory_path, file)
                 os.remove(file_path)
 
-    @staticmethod
-    def file_verification(input_file_path, file_type, mode, input_json_title=None):
-        if input_json_title and os.path.isdir(input_file_path):
-            file_basename = f"processed_{WbsFramework.normalize_entry(input_json_title)}.json"
-            path, basename = WbsFramework.handle_file(input_file_path, file_basename, file_type)
-        else:
-            if os.path.isdir(input_file_path):
-                file_path, file_basename = WbsFramework.handle_dir(input_file_path, mode)
-                if mode != 'c':
-                    path, basename = WbsFramework.handle_file(file_path, file_basename, file_type)
-                else:
-                    path = file_path
-                    basename = file_basename
-            elif os.path.isfile(input_file_path):
-                file_path = os.path.dirname(input_file_path)
-                file_basename = os.path.basename(input_file_path)
-                path, basename = WbsFramework.handle_file(file_path, file_basename, file_type)
-
-        return path, basename
-    
-    @staticmethod
-    def handle_dir(input_path, mode):
-        if mode in ['u', 'r', 'd']:
-            dir_list = os.listdir(input_path)
-            selection = WbsFramework.display_directory_files(dir_list)
-            base_name = dir_list[selection]
-            print(f'File selected: {base_name}\n')
-        elif mode == 'c':
-            base_name = None
-        else:
-            print("Error: Invalid mode specified.")
-            return -1
-        
-        return input_path, base_name
-
-    @staticmethod
-    def handle_file(file_path, file_basename, file_type):
-        file = os.path.join(file_path, file_basename)
-
-        if (file_type == 'e' and WbsFramework.is_xlsx(file)) or \
-           (file_type == 'j' and WbsFramework.is_json(file)):
-            return os.path.dirname(file), os.path.basename(file)
-        
-        print("Error: Please verify that the directory and file exist and that the file is of type .xlsx or .json")
-        return -1
-    
-    @staticmethod
-    def normalize_entry(entry_str):
-        remove_bewteen_parenthesis = re.sub('(?<=\()(.*?)(?=\))', '', entry_str)
-        special_chars = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
-        remove_special_chars = re.sub(special_chars, '', remove_bewteen_parenthesis.lower())
-        normalized_str = re.sub(' ', '_', remove_special_chars)
-
-        return normalized_str
-
-    def process_wbs_column(self, col_header, color_list):
-        basename = self.input_basename + '.' + self.input_extension
-        file = os.path.join(self.input_path, basename)
-        wb = load_workbook(file)
-        ws = wb[self.worksheet_name]
-
-        header_idx = self.find_column_idx(ws, col_header)
-        self.fill_color_col(ws, header_idx, color_list)
-
-        wb.save(file)
-
-    def return_excel_workspace(self, worksheet_name:str):
-        basename = self.input_basename + '.' + self.input_extension
-        file = os.path.join(self.input_path, basename)
-        
-        try:
-            workbook = load_workbook(filename=file)
-            worksheet = workbook[worksheet_name]
-        except KeyError:
-            print(f"Error: Worksheet '{worksheet_name}' does not exist.")
-            
-            while True:
-                user_answer = input("Would you like to create a new worksheet under this name? (Y/N/Q): ").strip().lower()
-                
-                if user_answer == 'y':
-                    worksheet = workbook.create_sheet(worksheet_name)
-                    self.worksheet_name = worksheet_name
-                    print(f"New worksheet '{self.worksheet_name}' created.\n")
-                    break
-                elif user_answer == 'n':
-                    ws_list = workbook.sheetnames
-                    selected_ws_idx = WbsFramework.display_directory_files(ws_list)
-                    
-                    if selected_ws_idx >= 0:  
-                        worksheet = workbook.worksheets[selected_ws_idx]
-                        self.worksheet_name = ws_list[selected_ws_idx]
-                        print(f"Worksheet selected: '{self.worksheet_name}'\n")
-                        return workbook, worksheet
-                    else:
-                        print("Invalid selection. Returning without changes.\n")
-                        return workbook, None
-                        
-                elif user_answer == 'q':
-                    print("Quitting without changes.")
-                    return workbook, None
-                else:
-                    print("Invalid input. Please enter 'Y' for Yes, 'N' for No, or 'Q' to Quit.")
-        
-        return workbook, worksheet
+    def process_hex_val(self, hex_val:str) -> str:
+        return hex_val.replace('#', "00")
 
     def create_wbs_table(self, proc_table):
-        self.write_data_to_excel(proc_table)
+        self._write_data_to_excel(proc_table)
 
-    def write_data_to_excel(self, proc_table):
+    def _write_data_to_excel(self, proc_table):
         if proc_table.empty:    
             print("Error. DataFrame is empty\n")
         else:
@@ -256,8 +140,19 @@ class WbsFramework:
             except Exception as e:
                 print(f"An unexpected error occurred: {e}\n")
 
-    def find_column_idx(self, active_ws, column_header:str):
-        ws = active_ws
+    def process_wbs_column(self, col_header:str, color_list:list) -> None:
+        basename = self.input_basename + '.' + self.input_extension
+        file = os.path.join(self.input_path, basename)
+        wb = load_workbook(file)
+        ws = wb[self.worksheet_name]
+
+        header_idx = self._find_column_idx(ws, col_header)
+        self._fill_color_col(ws, header_idx, color_list)
+
+        wb.save(file)
+
+    def _find_column_idx(self, active_worksheet, column_header:str) -> int|None:
+        ws = active_worksheet
         start_col_idx = column_index_from_string(self.wbs_start_col)
         normalized_header = column_header.replace(" ", "_").lower()
 
@@ -268,11 +163,8 @@ class WbsFramework:
                     if normalized_header in normalized_cell_value:
                         return cell.column
 
-    def process_hex_val(self, hex_val:str) -> str:
-        return hex_val.replace('#', "00")
-
-    def fill_color_col(self, active_ws, col_idx, col_list):
-        ws = active_ws
+    def _fill_color_col(self, active_worksheet, col_idx:int, col_list:list) -> None:
+        ws = active_worksheet
 
         if not col_list:
             print("Error: Color list is empty.")
