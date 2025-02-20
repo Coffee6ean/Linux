@@ -1,14 +1,10 @@
 import os
 import re
 import json
-import cv2 as cv
-import numpy as np
-import pytesseract
 from dateutil import parser
 from openpyxl import load_workbook
 from datetime import datetime, date
 from openpyxl.utils import get_column_letter, column_index_from_string 
-from PIL import Image
 
 import sys
 sys.path.append("../")
@@ -28,6 +24,7 @@ class XlsxDataIngestion:
         #Module Attributes
         self.start_col_idx = 1
         self.start_row_idx = 1
+        self.ws_name = ""
 
         #Structures
         self.project_content_headers = {
@@ -67,8 +64,11 @@ class XlsxDataIngestion:
 
         module_data = {
             "details": {
-                "file_path": None,
-                "file_basename": None,
+                "workbook": None,
+                "worksheet": None,
+                "start_date": None,
+                "finish_date": None,
+                "entry_count": 0,
             },
             "logs": {
                 "start": XlsxDataIngestion.return_valid_date(),
@@ -80,14 +80,18 @@ class XlsxDataIngestion:
         }
 
         if project:
-            _, output_folder = project.create_project_directory()
+            if not project.ws_name:
+                worksheet = input("Please enter the name for the new or existing worksheet: ")
+            else:
+                worksheet = project.ws_name
 
             xlsx_results = project.handle_xlsx()
-            project.write_dict_to_json(
-                xlsx_results["flattend_json"],
-                "reference_dictionary_test",
-                output_folder
-            )
+            basename = project.input_basename + '.' + project.input_extension 
+            module_data["details"]["workbook"] = os.path.join(project.input_path, basename)
+            module_data["details"]["worksheet"] = worksheet
+            module_data["details"]["start_date"] = xlsx_results.get("earliest_start")
+            module_data["details"]["finish_date"] = xlsx_results.get("latest_finish")
+            module_data["details"]["entry_count"] = xlsx_results.get("entry_count")
             module_data["content"] = xlsx_results["flattend_json"]
 
         module_data["logs"]["finish"] = XlsxDataIngestion.return_valid_date()
@@ -192,16 +196,6 @@ class XlsxDataIngestion:
         return -1
 
     @staticmethod
-    def return_valid_path(prompt_message:str) -> (str|None):
-        while(True):   
-            value = input(prompt_message).strip()
-            try:
-                if os.path.isdir(value):
-                    return value
-            except Exception as e:
-                print(f"Error. {e}\n")
-
-    @staticmethod
     def return_valid_date() -> str:
         now = datetime.now()
         date_str = now.strftime("%d-%b-%y %H:%M:%S")
@@ -232,73 +226,6 @@ class XlsxDataIngestion:
             return -1
 
     @staticmethod
-    def get_type_files(input_dir:str, file_type:str) -> list:
-        file_list = []
-
-        if os.path.isfile(input_dir):
-            if input_dir.endswith(file_type):
-                file_list.append(os.path.abspath(input_dir))
-            else:
-                print(f"Error: The file '{input_dir}' does not match the specified type '{file_type}'.")
-
-        elif os.path.isdir(input_dir):
-            files = os.listdir(input_dir)
-            for file in files:
-                if file.endswith(file_type):
-                    file_path = os.path.join(input_dir, file)
-                    file_list.append(os.path.abspath(file_path))
-
-        else:
-            print(f"Error: '{input_dir}' is neither a valid file nor a directory.")
-
-        return file_list
-
-    @staticmethod
-    def repackage_file(input_dir:str, package_name:str=None) -> str:
-        if os.path.isfile(input_dir):
-            file_path = os.path.dirname(input_dir)
-            file_basename = os.path.basename(input_dir)
-            file_extension = os.path.splitext(file_basename)[1]
-            new_directory_basename = os.path.splitext(file_basename)[0]
-
-            if isinstance(package_name, str):
-                new_directory = os.path.join(file_path, package_name)
-            else:
-                new_directory = os.path.join(file_path, new_directory_basename)
-
-            if not os.path.exists(new_directory):
-                os.mkdir(new_directory)
-
-            new_file_name = f"packaged_{new_directory_basename}{file_extension}"
-            new_file_path = os.path.join(new_directory, new_file_name)
-
-            try:
-                os.rename(input_dir, new_file_path)
-            except Exception as e:
-                print(f"Error moving the file {input_dir} to {new_file_path}: {e}")
-        else:
-            print(f"{input_dir} is not a valid file.")
-
-        return new_file_path
-
-    @staticmethod
-    def extract_data_from_image(image_path:str, output_path:str, output_basename:str, 
-                                file_extension:str, tesseract_config:str="--psm 4") -> str:
-        try:
-            if os.stat(image_path).st_size >= 5000:
-                image = Image.open(image_path)
-                text = pytesseract.image_to_string(image, config=tesseract_config)
-
-                os.makedirs(output_path, exist_ok=True)
-                output_file = os.path.join(output_path, f"{output_basename}.{file_extension}")
-                
-                cleaned_text = XlsxDataIngestion._normalize_file_text(text)
-
-                return cleaned_text
-        except Exception as e:
-            print(f"Error: Unable to write to file at '{output_file}'. Exception: {e}")
-
-    @staticmethod
     def _normalize_file_text(text_body:str) -> str:
         empty_lines = re.compile('^\s*$', re.MULTILINE)
         removed_empty_lines = re.sub(empty_lines, "", text_body)
@@ -323,7 +250,7 @@ class XlsxDataIngestion:
         }
 
         def extract_match(line):
-            match = XlsxDataIngestion.standard_pattern(line) or XlsxDataIngestion.special_pattern(line)
+            match = XlsxDataIngestion._standard_pattern(line) or XlsxDataIngestion._special_pattern(line)
             if match:
                 return {
                     "activity_id": match.group("ActivityID").strip() if match.group("ActivityID") else "",
@@ -357,7 +284,7 @@ class XlsxDataIngestion:
         return proc_dict
 
     @staticmethod
-    def standard_pattern(text:str):
+    def _standard_pattern(text:str):
         special_chars = re.compile('[+=—@_!#$%^&*<>?/\|}{~:]')
         remove_special_chars = re.sub(special_chars, '', text)
 
@@ -372,7 +299,7 @@ class XlsxDataIngestion:
         return pattern.match(remove_special_chars)
 
     @staticmethod
-    def special_pattern(text:str):
+    def _special_pattern(text:str):
         special_chars = re.compile('[+=—@_!#$%^&*<>?/\|}{~:]')
         remove_special_chars = re.sub(special_chars, '', text)
 
