@@ -262,7 +262,8 @@ class XlsxDataReferencing:
                 "activity_code": match_ref["content"].get("activity_code") if match_ref else None,
                 "wbs_code": updated_item.get("wbs_code"),
                 "activity_name": updated_item.get("activity_name"),
-                "activity_status": updated_item.get("activity_status").upper() if updated_item.get("activity_status") else None,
+                "activity_category": updated_item.get("activity_category").upper() if updated_item.get("activity_category") else None,
+                "activity_status": None,
                 "activity_duration": updated_item.get("activity_duration"),
                 "activity_ins": None,
                 "start": updated_item.get("start"),
@@ -303,7 +304,7 @@ class XlsxDataReferencing:
             reference = {}
 
         if not entry.get("activity_name") and not entry.get("parent_id"):
-            entry["activity_status"] = "invalid"
+            entry["activity_category"] = "invalid"
             self.entry_statuses["invalid"].append(entry)
             return entry
 
@@ -311,36 +312,36 @@ class XlsxDataReferencing:
             entry.get("activity_name") == reference.get("activity_name") and
             entry.get("start") == reference.get("start") and
             entry.get("finish") == reference.get("finish")):
-            entry["activity_status"] = "matching"
+            entry["activity_category"] = "matching"
             self.entry_statuses["matching"].append(entry)
             return entry
 
         #WIP - Improve labeling for data entries
         if (entry.get("wbs_code") == reference.get("wbs_code") and
             entry.get("activity_name") == reference.get("activity_name")):
-            entry["activity_status"] = "updated"
+            entry["activity_category"] = "updated"
             self.entry_statuses["updated"].append(entry)
             return entry
 
         if entry.get("wbs_code") == reference.get("wbs_code"):
-            entry["activity_status"] = "modified"
+            entry["activity_category"] = "modified"
             self.entry_statuses["modified"].append(entry)
             return entry
 
         if entry.get("activity_name") and not reference.get("activity_name"):
-            entry["activity_status"] = "new"
+            entry["activity_category"] = "new"
             self.entry_statuses["new"].append(entry)
             return entry
 
         if reference.get("activity_name") and not entry.get("activity_name"):
-            reference["activity_status"] = "removed"
+            reference["activity_category"] = "removed"
             self.entry_statuses["removed"].append(reference)
             return reference
 
         if any(e for e in self.entry_statuses["duplicate"] 
             if e.get("activity_name") == entry.get("activity_name") and 
                 e.get("wbs_code") == entry.get("wbs_code")):
-            entry["activity_status"] = "duplicate"
+            entry["activity_category"] = "duplicate"
             self.entry_statuses["duplicate"].append(entry)
             return entry
 
