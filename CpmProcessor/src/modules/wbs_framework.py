@@ -26,6 +26,19 @@ class WbsFramework:
         self.wbs_start_col = 'A'
         self.default_hex_font_color = "00FFFFFF"
         self.default_hex_fill_color = "00FFFF00"
+
+        #Structures
+        self.entry_statuses = {
+            "added": "#b5f26b",
+            "new": "#f2b86b",
+            "updated": "#9f6bf2", 
+            "modified": "#9f6bf2",
+            "matching": "5dc1e8", 
+            "removed": "f2706b", 
+            "duplicate": "c2110b", 
+            "invalid": "#f2ee6b",
+            "n/a": "c1c9cc"
+        }
     
     @staticmethod
     def main(auto=True, input_file_path=None, input_file_basename=None, input_file_extension=None, 
@@ -47,6 +60,7 @@ class WbsFramework:
             project.create_wbs_table(proc_table)
             project.process_wbs_column('Activity Code', color_list)
             project.process_wbs_column('Color', color_list) 
+            project.style_categorized_column("activity category")
 
     @staticmethod
     def generate_ins():
@@ -60,8 +74,8 @@ class WbsFramework:
             setup_cls.obj["input_file"].get("path"), 
             setup_cls.obj["input_file"].get("basename"),
             setup_cls.obj["input_file"].get("extension"),  
-            "Cross-Reference Table",
-            setup_cls.obj["project"]["modules"]["MODULE_2"].get("content"),
+            "Compared - WBS Table",
+            setup_cls.obj["project"]["modules"]["MODULE_3"].get("content"),
         )
 
         return ins
@@ -116,7 +130,7 @@ class WbsFramework:
 
         proc_table = pd.pivot_table(
             reset_table,
-            index=["parent_id", "phase", "location", "area", "trade", "color", "activity_code"],
+            index=["phase", "location", "area", "trade", "color", "activity_code"],
             values=["wbs_code", "activity_name", "activity_category", "start", "finish"],
             aggfunc="first",
             observed=True
@@ -129,7 +143,7 @@ class WbsFramework:
 
         proc_table = pd.pivot_table(
             filtered_table,
-            index=["parent_id", "phase", "location", "area", "trade", "color", "activity_code"],
+            index=["phase", "location", "area", "trade", "color", "activity_code"],
             values=["wbs_code", "activity_name", "activity_category", "start", "finish"],
             aggfunc="first",
             observed=True
@@ -151,7 +165,6 @@ class WbsFramework:
         proc_table = proc_table[column_order]
 
         column_renames = {
-            "parent_id": "Parent Id",
             "phase": "Phase",
             "location": "Location",
             "area": "Area",
@@ -231,6 +244,25 @@ class WbsFramework:
 
         wb.save(file)
 
+    def style_categorized_column(self, col_header:str) -> None:
+        basename = self.input_basename + '.' + self.input_extension
+        file = os.path.join(self.input_path, basename)
+        wb = load_workbook(file)
+        ws = wb[self.worksheet_name]
+
+        header_idx = self._find_column_idx(ws, col_header)
+        
+        for row in ws.iter_rows(min_row=self.wbs_start_row + 1, 
+                                max_row=ws.max_row, 
+                                min_col=header_idx,
+                                max_col=header_idx):
+            for cell in row:
+                color = self.entry_statuses[cell.value.lower()] if cell.value else "n/a" 
+                proc_color = self._process_hex_val(color)
+                self._style_cell(cell, proc_color)
+
+        wb.save(file)
+
     def _find_column_idx(self, active_worksheet, column_header:str) -> int|None:
         ws = active_worksheet
         start_col_idx = column_index_from_string(self.wbs_start_col)
@@ -269,6 +301,17 @@ class WbsFramework:
 
         column_letter = get_column_letter(col_idx)
         print(f"Column ({column_letter}) styled successfully")
+
+    def _style_cell(self, cell, color:str) -> None:
+        try:
+            cell.fill = PatternFill(start_color=color, 
+                                    end_color=color, 
+                                    fill_type="solid")
+        except Exception as e:
+            print(f"Color hex not found: {color}. Error: {e}")
+            cell.fill = PatternFill(start_color=self.default_hex_fill_color, 
+                                    end_color=self.default_hex_fill_color, 
+                                    fill_type="solid")
 
     def _process_hex_val(self, hex_val:str) -> str:
         return hex_val.replace('#', "00")
