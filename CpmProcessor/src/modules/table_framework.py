@@ -7,10 +7,6 @@ from openpyxl.styles import PatternFill
 # Imported Helper - As Module
 """ import setup """
 
-import sys
-sys.path.append("../")
-from CriticalFlowPath.keys.secrets import RSLTS_DIR, DB_CONFIG
-
 class TableFramework:
     def __init__(self, input_file_path, input_file_basename, input_file_extension, 
                  input_worksheet_name, project_ordered_dict):
@@ -28,6 +24,7 @@ class TableFramework:
 
         #Structures
         self.entry_statuses = {
+            "added": "#b5f26b",
             "new": "#f2b86b",
             "updated": "#9f6bf2", 
             "modified": "#9f6bf2",
@@ -71,8 +68,8 @@ class TableFramework:
             setup_cls.obj["input_file"].get("path"), 
             setup_cls.obj["input_file"].get("basename"),
             setup_cls.obj["input_file"].get("extension"),  
-            "Cross-Reference Table",
-            setup_cls.obj["project"]["modules"]["MODULE_2"].get("content"),
+            "Referenced - WBS Table",
+            setup_cls.obj["project"]["modules"]["MODULE_3"].get("content"),
         )
 
         return ins
@@ -127,7 +124,7 @@ class TableFramework:
 
         proc_table = pd.pivot_table(
             reset_table,
-            index=["entry", "parent_id", "phase", "location", "area", "trade", "color", "activity_code"],
+            index=["entry", "phase", "location", "area", "trade", "color", "activity_code"],
             values=["wbs_code", "activity_name", "activity_category", "start", "finish"],
             aggfunc="first",
             observed=True
