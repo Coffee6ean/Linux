@@ -7,7 +7,7 @@ from datetime import datetime
 
 import sys
 sys.path.append("../")
-from CpmProcessor.keys.secrets import CLAYCO, TEST_JSON_DIR
+from CpmProcessor.keys.secrets import CLAYCO
 
 class XlsxDataReferencing:
     allowed_extensions = ["json", "xlsx"]
@@ -21,7 +21,7 @@ class XlsxDataReferencing:
         self.data_dict = project_data_dict
 
         #Structures
-        self.entry_statuses = {
+        self.entry_categories = {
             "new": [],
             "updated": [], 
             "modified": [],
@@ -68,8 +68,8 @@ class XlsxDataReferencing:
             ref_dict = XlsxDataReferencing.read_data_from_json(CLAYCO, "reference_dictionary")
             cross_ref_results = project.cross_reference_new_data(ref_dict, project.data_dict)
             module_data["details"]["activities"]["count"] = len(cross_ref_results)
-            module_data["details"]["activities"]["categorized"] = {key: len(value) for key, value in project.entry_statuses.items()}
-            module_data["content"]["categorized"] = project.entry_statuses
+            module_data["details"]["activities"]["categorized"] = {key: len(value) for key, value in project.entry_categories.items()}
+            module_data["content"]["categorized"] = project.entry_categories
             module_data["content"]["referenced"] = cross_ref_results
 
         module_data["logs"]["finish"] = XlsxDataReferencing.return_valid_date()
@@ -248,103 +248,88 @@ class XlsxDataReferencing:
                 continue
 
             match_ref = self._search_for_existing_item(ref_dict, "wbs_code", target_value)
-            updated_item = self._categorize_entries(item, match_ref.get("content") if match_ref else None)
+            updated_item = self._categorize_entries(item, match_ref if match_ref else None)
 
             cross_ref_result = {
                 "entry": updated_item.get("entry"),
-                "bread_crumbs": match_ref.get("bread_crumbs") if match_ref else None,
-                "phase": match_ref["content"].get("phase") if match_ref else None,
-                "location": match_ref["content"].get("location") if match_ref else None,
-                "area": match_ref["content"].get("area") if match_ref else None,
-                "trade": match_ref["content"].get("trade") if match_ref else None,
-                "color": match_ref["content"].get("color") if match_ref else None,
-                "parent_id": match_ref["content"].get("entry") if match_ref else None,
-                "activity_code": match_ref["content"].get("activity_code") if match_ref else None,
+                "phase": match_ref.get("phase") if match_ref else None,
+                "location": match_ref.get("location") if match_ref else None,
+                "area": match_ref.get("area") if match_ref else None,
+                "trade": match_ref.get("trade") if match_ref else None,
+                "color": match_ref.get("color") if match_ref else None,
+                "activity_code": match_ref.get("activity_code") if match_ref else None,
                 "wbs_code": updated_item.get("wbs_code"),
                 "activity_name": updated_item.get("activity_name"),
                 "activity_category": updated_item.get("activity_category").upper() if updated_item.get("activity_category") else None,
-                "activity_status": None,
+                "activity_status": item.get("activity_status"),
                 "activity_duration": updated_item.get("activity_duration"),
-                "activity_ins": None,
                 "start": updated_item.get("start"),
                 "finish": updated_item.get("finish"),
-                "total_float": None,
-                "activity_predecessor_id": None,
-                "activity_successor_id": None,
+                "total_float": item.get("total_float"),
+                "activity_predecessor_id": item.get("activity_predecessor_id"),
             }
 
             results.append(cross_ref_result)
 
         print("Successfully filled new model based on the existing reference")
         return results
-
-    def _search_for_existing_item(self, ref_dict: dict, category: str, target_value: str, bread_crumbs: str = "") -> dict[str, any]:    
+    
+    def _search_for_existing_item(self, ref_dict:dict, category:str, target_value:str) -> dict[str, any]:    
         if isinstance(ref_dict, dict):
             if category in ref_dict and ref_dict[category] == target_value:
-                return {
-                    "bread_crumbs": bread_crumbs.strip(" > "),
-                    "content": ref_dict
-                }
+                return ref_dict
 
-            for key, value in ref_dict.items():
-                result = self._search_for_existing_item(value, category, target_value, bread_crumbs + f"{key} > ")
+            for _, value in ref_dict.items():
+                result = self._search_for_existing_item(value, category, target_value)
                 if result:
                     return result
 
         elif isinstance(ref_dict, list):
-            for idx, item in enumerate(ref_dict):
-                result = self._search_for_existing_item(item, category, target_value, bread_crumbs + f"{idx} > ")
+            for item in ref_dict:
+                result = self._search_for_existing_item(item, category, target_value)
                 if result:
                     return result  
 
         return None
 
-    def _categorize_entries(self, entry:dict, reference:dict) -> dict:
+    def _categorize_entries(self, entry: dict, reference: dict) -> dict:
         if reference is None:
             reference = {}
 
-        if not entry.get("activity_name") and not entry.get("parent_id"):
+        if (not entry.get("activity_name") or
+            not entry.get("wbs_code") or
+            not entry.get("start") or
+            not entry.get("finish")):
             entry["activity_category"] = "invalid"
-            self.entry_statuses["invalid"].append(entry)
+            self.entry_categories["invalid"].append(entry)
             return entry
 
-        if (entry.get("wbs_code") == reference.get("wbs_code") and 
-            entry.get("activity_name") == reference.get("activity_name") and
+        if (entry.get("wbs_code") == reference.get("wbs_code") and
             entry.get("start") == reference.get("start") and
             entry.get("finish") == reference.get("finish")):
             entry["activity_category"] = "matching"
-            self.entry_statuses["matching"].append(entry)
-            return entry
-
-        #WIP - Improve labeling for data entries
-        if (entry.get("wbs_code") == reference.get("wbs_code") and
-            entry.get("activity_name") == reference.get("activity_name")):
-            entry["activity_category"] = "updated"
-            self.entry_statuses["updated"].append(entry)
+            self.entry_categories["matching"].append(entry)
             return entry
 
         if entry.get("wbs_code") == reference.get("wbs_code"):
             entry["activity_category"] = "modified"
-            self.entry_statuses["modified"].append(entry)
+            self.entry_categories["modified"].append(entry)
             return entry
 
-        if entry.get("activity_name") and not reference.get("activity_name"):
+        if entry.get("wbs_code") and not reference.get("wbs_code"):
             entry["activity_category"] = "new"
-            self.entry_statuses["new"].append(entry)
+            self.entry_categories["new"].append(entry)
             return entry
 
-        if reference.get("activity_name") and not entry.get("activity_name"):
-            reference["activity_category"] = "removed"
-            self.entry_statuses["removed"].append(reference)
-            return reference
-
-        if any(e for e in self.entry_statuses["duplicate"] 
-            if e.get("activity_name") == entry.get("activity_name") and 
+        if any(e for e in self.entry_categories["duplicate"]
+            if e.get("wbs_code") == entry.get("wbs_code") and
                 e.get("wbs_code") == entry.get("wbs_code")):
             entry["activity_category"] = "duplicate"
-            self.entry_statuses["duplicate"].append(entry)
+            self.entry_categories["duplicate"].append(entry)
             return entry
 
+        entry["activity_category"] = "new"
+        self.entry_categories["new"].append(entry)
         return entry
 
 
