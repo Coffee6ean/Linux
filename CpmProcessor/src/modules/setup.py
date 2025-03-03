@@ -6,14 +6,19 @@ from datetime import datetime
 # Imported Helper - As Package 
 from modules.utils.xlsx.data_ingestion import XlsxDataIngestion
 from modules.utils.xlsx.data_referencing import XlsxDataReferencing
+from modules.utils.xlsx.data_comparing import XlsxDataComparing
 
 # Imported Helper - As Module
 """ from utils.xlsx.data_ingestion import XlsxDataIngestion
-from utils.xlsx.data_referencing import XlsxDataReferencing """
+from utils.xlsx.data_referencing import XlsxDataReferencing
+from utils.xlsx.data_comparing import XlsxDataComparing
+ """
 
 import sys
 sys.path.append("../")
-from CpmProcessor.keys.secrets import RSLTS_DIR, TEST_PDF_DIR, TEST_XLSX_DIR
+from CpmProcessor.keys.secrets import RSLTS_DIR
+
+from CpmProcessor.src import db
 
 class Setup:
     modules = 0
@@ -22,29 +27,40 @@ class Setup:
         self.obj = project_dict
 
     @staticmethod
-    def main(auto=True):
+    def main(auto=True, database=True):
         ins = Setup.generate_ins()
 
-        ins._print_result("DataIngestion processing...")
-        data = ins._extract_data_from_file(
+        ins.print_result("Setup processing...")
+        data = ins.extract_data_from_file(
             auto, 
             ins.obj["input_file"]["path"], 
             ins.obj["input_file"]["basename"], 
             ins.obj["input_file"]["extension"],
             RSLTS_DIR
         )
-        ins._update_project_modules(data)
+        ins.update_project_modules(data)
 
-        ins._print_result("DataReferencing processing...")
-        reference = ins._reference_data_from_file(
+        ins.print_result("DataReferencing processing...")
+        reference = ins.reference_data_from_file(
             auto, 
             ins.obj["input_file"]["path"], 
             ins.obj["input_file"]["basename"], 
             ins.obj["input_file"]["extension"],
             data["content"]["body"]
         )
-        ins._update_project_modules(reference)
+        ins.update_project_modules(reference)
 
+        ins.print_result("DataComparing processing...")
+        compared = ins.compare_data_from_file(
+            auto, 
+            ins.obj["input_file"]["path"], 
+            ins.obj["input_file"]["basename"], 
+            ins.obj["input_file"]["extension"],
+            reference["content"]["referenced"]
+        )
+        ins.update_project_modules(compared)
+
+        Setup.write_data_to_json('comp_test.json', ins.obj)
 
         return ins
 
@@ -53,15 +69,86 @@ class Setup:
         input_file = Setup.return_valid_file(
             input("Please enter the path to the file or directory: ").strip()
         )
-        input_project_client = input("Enter Project Client: ").strip()
-        input_project_name = input("Enter Project Name: ").strip()
-        input_project_code = input("Enter Project Code: ").strip()
-        input_project_title = input("Enter Project Title: ").strip()
-        input_project_subtitle = input("Enter Project Subtitle: ").strip()
-        input_project_workweek = input("Enter Project Workweek (default. Mon-Sun): ").strip()
-        input_project_location = input("Enter Project Location: ").strip()
-        input_project_asignee = input("Enter Project Assignee: ").strip()
-        input_project_tags = input("Enter Project Tags: ").strip()
+        print("== Select a parent Client for the project ==")
+        clients = db.Clients.fetch_and_print_data()
+        client_id = Setup._display_directory_files(clients) + 1
+
+        if client_id > 0:
+            project_ins = Setup._verify_if_project_exists(str(client_id), "client_id", input_file)
+
+            if project_ins:
+                print("Succesfully instanciated project: ")
+                print(project_ins.obj)
+                return project_ins
+        else:
+            print(client_id)
+
+    @staticmethod
+    def _verify_if_project_exists(client_id:int, client_category:str, input_file:str):
+        print("== Select a child Project ==")
+        projects = db.Projects.read_all_from_category(client_id, client_category)
+        project_id = Setup._display_directory_files(projects) + 1
+
+        if project_id > 0:
+            print("\nProject exists - Will move forward with a new version")
+            project_ins = Setup._handle_exists(input_file, project_id)
+        else:
+            print("\nProject doesn't exist - Will move forward and create a new one")
+            project_ins = Setup._handle_exists_not(client_id, input_file)
+
+        return project_ins
+
+    @staticmethod
+    def _handle_exists(input_file:str, project_id:int):
+        project = db.Projects.read(project_id)
+
+        if project:
+            return Setup.get_ins(input_file, **project)
+
+    @staticmethod
+    def get_ins(input_file, **project_metadata):
+        project_ins_dict = {
+            "input_file": dict(
+                path = input_file.get("path"),
+                basename = input_file.get("basename"),
+                extension = input_file.get("extension"),
+            ),
+            "output_file": dict(
+                parent_directory = "== SECRET ==",
+                directories = {},
+            ),
+            "project": dict(
+                metadata = {
+                    "version": Setup._return_valid_entity_name(db.Versions, project_metadata.get("version_id")),
+                    "client": Setup._return_valid_entity_name(db.Clients, project_metadata.get("client_id")),
+                    "division": project_metadata.get("division"),
+                    "label": Setup._return_valid_entity_name(db.Labels, project_metadata.get("label_id")),
+                    "name": project_metadata.get("name"),
+                    "code": project_metadata.get("code"),
+                    "notes": project_metadata.get("notes"),
+                    "workweek": project_metadata.get("workweek"),
+                    "location": Setup._return_valid_entity_name(db.Locations, project_metadata.get("location_id")),
+                    "assignee": Setup._return_valid_entity_name(db.Users, project_metadata.get("assignee_id")),
+                    "status": Setup._return_valid_entity_name(db.Labels, project_metadata.get("status_id")),
+                    "start_date": project_metadata.get("start"),
+                    "finish_date": project_metadata.get("finish"),
+                    "tags": Setup._return_valid_entity_name(db.Tags, project_metadata.get("tag_id")),
+                },
+                modules = {},
+            ),
+        }
+
+        ins = Setup(project_ins_dict)
+
+        return ins
+
+    @staticmethod
+    def _handle_exists_not(client_id:int, input_file:str):
+        return Setup.create_ins(client_id, input_file)
+            
+    @staticmethod
+    def create_ins(client_id:int, input_file:str):
+        project_id = Setup._return_valid_project(client_id)
 
         project_ins_dict = {
             "input_file": dict(
@@ -74,23 +161,7 @@ class Setup:
                 directories = {},
             ),
             "project": dict(
-                metadata = dict(
-                    id = None,
-                    continuity = None,
-                    dates = dict(
-                        created = Setup.return_valid_date(),
-                        finished = None,
-                    ),
-                    client = input_project_client,
-                    name = input_project_name,
-                    code = input_project_code,
-                    title = input_project_title,
-                    subtitle = input_project_subtitle,
-                    workweek = input_project_workweek if input_project_workweek else "Mon-Sun",
-                    location = input_project_location,
-                    assignee = input_project_asignee,
-                    tags = input_project_tags,
-                ),
+                metadata = db.Projects.read(project_id),
                 modules = {},
             ),
         }
@@ -98,9 +169,82 @@ class Setup:
         ins = Setup(project_ins_dict)
 
         return ins
-    
+
     @staticmethod
-    def return_valid_file(input_file_dir:str) -> dict|int:        
+    def _return_valid_project(client_id:int):
+        project_metadata = {
+            "version": Setup._return_valid_entity_name(
+                db.Versions, 
+                2
+            ),
+            "client": Setup._return_valid_entity_name(
+                db.Clients, 
+                client_id
+            ),
+            "division": input("Enter project Division: ").strip(),
+            "label": Setup._return_valid_entity_name(
+                db.Labels, 
+                Setup._return_valid_entity_id(db.Labels, table="labels")
+            ),
+            "name": input("Enter project Name: ").strip(),
+            "code": input("Enter project Code: ").strip(),
+            "notes": input("Enter project Notes: ").strip(),
+            "workweek": input("Enter project Workweek (default: Mon-Sun): ").strip() or "Mon-Sun",
+            "location": Setup._return_valid_entity_name(
+                db.Locations, 
+                Setup._return_valid_entity_id(db.Locations, table="locations")
+            ),
+            "assignee": Setup._return_valid_entity_name(
+                db.Users,
+                Setup._return_valid_entity_id(db.Users, table="users")
+            ),
+            "status": Setup._return_valid_entity_name(
+                db.Labels, 
+                8
+            ),
+            "start_date": input("Enter project Start Date: ").strip(),
+            "finish_date": input("Enter project Finish Date: ").strip(),
+            "tags": Setup._return_valid_entity_name(
+                db.Tags, 
+                Setup._return_valid_entity_id(db.Tags, table="tags")
+            ),
+        },
+
+        print(project_metadata)
+        """ project_id = db.Projects.create(project_metadata)
+
+        return project_id """
+
+    @staticmethod
+    def _return_valid_entity_id(class_entity, table:str):
+        option_list = class_entity.fetch_and_print_data()
+        option_id = Setup._display_directory_files(option_list)
+
+        if option_id > 0:
+            return option_id
+        else:
+            response = Setup.binary_user_interaction(
+                f"{table.capitalize()} does not exist. Would you like to create it? "
+            )
+            if response:
+                essential_columns = class_entity.get_none_nullable_columns()
+                inputs = {
+                    item:input(f"Please give me the value for this field {item}").strip() 
+                    for item in essential_columns
+                }
+
+                return class_entity.create(inputs)
+            else:
+                return None
+
+    @staticmethod
+    def _return_valid_entity_name(class_entity, entity_id:int):
+        entity_details = class_entity.read(entity_id)
+
+        return entity_details.get("name")
+
+    @staticmethod
+    def return_valid_file(input_file_dir:str) -> dict|int:
         if not os.path.exists(input_file_dir):
             raise FileNotFoundError("Error: Given directory or file does not exist in the system.")
 
@@ -115,7 +259,7 @@ class Setup:
     def _handle_dir(input_file_dir:str, mode:str="r") -> dict|int:
         if mode in ['u', 'r', 'd']:
             dir_list = os.listdir(input_file_dir)
-            selection = DataIngestion._display_directory_files(dir_list)
+            selection = Setup._display_directory_files(dir_list)
             input_file_basename = dir_list[selection]
             print(f'File selected: {input_file_basename}\n')
         elif mode == 'c':
@@ -144,7 +288,10 @@ class Setup:
 
         while True:
             try:
-                selection_idx = int(input('\nPlease enter the index number to select the one to process: '))
+                selection_idx = int(input('\nPlease enter the index number to select the one to process. If you dont find your option enter "-1" to continue: '))
+                if selection_idx == -1:
+                    return selection_idx
+                
                 if 1 <= selection_idx <= len(file_list):  
                     return selection_idx - 1  
                 else:
@@ -187,7 +334,34 @@ class Setup:
         with open(file, 'w') as writer:
             json.dump(json_dict, writer)
 
-    def _extract_data_from_file(self, auto:str, input_file_path=None, input_file_basename=None, 
+    @staticmethod
+    def ynq_user_interaction(prompt_message) -> str:
+        valid_responses = {'y', 'n', 'q'}  
+        
+        while True:
+            user_input = input(prompt_message).lower().strip()
+            
+            if user_input in valid_responses:
+                return user_input  
+            else:
+                print("Error. Invalid input, please try again. ['Y/y' for Yes, 'N/n' for No, 'Q/q' for Quit]\n")\
+                
+    @staticmethod
+    def binary_user_interaction(prompt_message) -> bool:
+        valid_responses = {'y', 'n'}  
+        
+        while True:
+            user_input = input(prompt_message).lower().strip()
+            
+            if user_input in valid_responses:
+                if user_input == 'y':
+                    return True 
+                else:
+                    return False 
+            else:
+                print("Error. Invalid input, please try again. ['Y/y' for Yes, 'N/n' for No]\n")
+    
+    def extract_data_from_file(self, auto:str, input_file_path=None, input_file_basename=None, 
                                 input_file_extension=None, output_file_dir=None) -> dict:
         data = XlsxDataIngestion.main(
             auto,
@@ -199,7 +373,7 @@ class Setup:
 
         return data
 
-    def _reference_data_from_file(self, auto:str, input_file_path=None, input_file_basename=None, 
+    def reference_data_from_file(self, auto:str, input_file_path=None, input_file_basename=None, 
                                   input_file_extension=None, project_data_dict=None) -> dict:
         reference = XlsxDataReferencing.main(
             auto,
@@ -211,14 +385,26 @@ class Setup:
 
         return reference
 
-    def _update_project_modules(self, data:dict) -> None:
+    def compare_data_from_file(self, auto:str, input_file_path=None, input_file_basename=None, 
+                                  input_file_extension=None, project_data_dict=None) -> dict:
+        comparison = XlsxDataComparing.main(
+            auto,
+            input_file_path,
+            input_file_basename,
+            input_file_extension,
+            project_data_dict
+        )
+
+        return comparison
+
+    def update_project_modules(self, data:dict) -> None:
         module_key = self.return_valid_module_key()
         if module_key:
             self.obj["project"]["modules"][module_key] = data
         else:
             raise ValueError("Invalid module key")
 
-    def _print_result(self, prompt_message:str) -> None:
+    def print_result(self, prompt_message:str) -> None:
         print()
         print()
         print(f'//========== {prompt_message} ==========//')
@@ -226,4 +412,4 @@ class Setup:
 
 
 if __name__ == "__main__":
-    setup = Setup.main()
+    setup = Setup.main(False)
