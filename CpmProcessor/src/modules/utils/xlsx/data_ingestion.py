@@ -27,14 +27,13 @@ class XlsxDataIngestion:
         self.ws_name = ""
 
         #Structures
-        self.project_content_headers = {
+        self.activity_headers = {
             "entry": None, 
             "phase": ["phase"],
             "location": ["location"], 
             "area": ["area", "zone"],
             "trade": ["trade"], 
             "color": ["color"],
-            "parent_id": None, 
             "activity_code": ["activity_code", "code", "task_code", "act_code"],
             "wbs_code": ["wbs_code"],
             "activity_name": ["activity_name", "act_name"], 
@@ -45,7 +44,6 @@ class XlsxDataIngestion:
             "finish": ["finish", "finish_date", "finish_dates", "end", "end_date"], 
             "total_float": ["total_float"],
             "activity_predecessor_id": ["predecessor"],
-            "activity_successor_id": ["successor"],
         }
         self.json_struct_categories = ["phase", "location", "area", "trade", "activity_code"]
 
@@ -417,7 +415,7 @@ class XlsxDataIngestion:
     
     def _verify_header(self, entry_str:str) -> str:
         flat_allowed_headers = {
-            value: key for key, values in self.project_content_headers.items() if values is not None for value in values
+            value: key for key, values in self.activity_headers.items() if values is not None for value in values
         }
 
         if entry_str in flat_allowed_headers:
@@ -434,7 +432,7 @@ class XlsxDataIngestion:
         json_obj = {
             "start": None,
             "finish": None,
-            "header": {key: None for key, _ in self.project_content_headers.items()},
+            "header": {key: None for key, _ in self.activity_headers.items()},
             "body": [],
         }
 
