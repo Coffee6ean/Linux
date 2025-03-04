@@ -28,7 +28,6 @@ class XlsxDataIngestion:
 
         #Structures
         self.activity_headers = {
-            "entry": None, 
             "phase": ["phase"],
             "location": ["location"], 
             "area": ["area", "zone"],
@@ -39,9 +38,9 @@ class XlsxDataIngestion:
             "activity_name": ["activity_name", "act_name"], 
             "activity_status": ["activity_status", "status", "task_status"], 
             "activity_duration": ["activity_duration", "duration", "remaining_duration"],
-            "activity_ins": None, 
             "start": ["start", "start_date", "start_dates"], 
             "finish": ["finish", "finish_date", "finish_dates", "end", "end_date"], 
+            "difference": ["difference"],
             "total_float": ["total_float"],
             "activity_predecessor_id": ["predecessor"],
         }
