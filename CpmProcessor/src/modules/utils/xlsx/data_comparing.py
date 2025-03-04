@@ -271,6 +271,7 @@ class XlsxDataComparing:
                 "activity_ins": item.get("activity_ins"),
                 "start": match.get("start") if match else None,
                 "finish": match.get("finish") if match else None,
+                "difference": categorized_item.get("difference", 0),
                 "total_float": match.get("total_float") if match else None,
                 "activity_predecessor_id": match.get("activity_predecessor_id") if match else None,
             }
@@ -308,6 +309,7 @@ class XlsxDataComparing:
                     "activity_ins": item.get("activity_ins"),
                     "start": categorized_item.get("start"),
                     "finish": categorized_item.get("finish"),
+                    "difference": categorized_item.get("difference", 0),
                     "total_float": item.get("total_float", ""),
                     "activity_predecessor_id": None,
                 }
@@ -349,6 +351,7 @@ class XlsxDataComparing:
         if entry.get("wbs_code") == comp.get("wbs_code"):
             if entry.get("start") != comp.get("start") or entry.get("finish") != comp.get("finish"):
                 entry["activity_category"] = "updated"
+                entry["difference"] = self._calculate_time_difference(entry, comp)
                 self.entry_statuses["updated"].append(entry)
             else:
                 entry["activity_category"] = "matching"
@@ -358,6 +361,20 @@ class XlsxDataComparing:
             self.entry_statuses["added"].append(entry)
 
         return entry
+
+    def _calculate_time_difference(self, entry:dict, comp:dict) -> int:
+        try:
+            entry_start_obj = datetime.strptime(entry.get("start"), "%d-%b-%Y")
+            entry_finish_obj = datetime.strptime(entry.get("finish"), "%d-%b-%Y")
+            entry_duration = (entry_finish_obj - entry_start_obj).days + 1
+
+            comp_start_obj = datetime.strptime(comp.get("start"), "%d-%b-%Y")
+            comp_finish_obj = datetime.strptime(comp.get("finish"), "%d-%b-%Y")
+            comp_duration = (comp_finish_obj - comp_start_obj).days + 1
+
+            return entry_duration - comp_duration
+        except (ValueError, TypeError):
+            return 0
 
 
 if __name__ == "__main__":
