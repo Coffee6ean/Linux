@@ -131,7 +131,7 @@ class WbsFramework:
         proc_table = pd.pivot_table(
             reset_table,
             index=["phase", "location", "area", "trade", "color", "activity_code"],
-            values=["wbs_code", "activity_name", "activity_category", "start", "finish"],
+            values=["wbs_code", "activity_name", "activity_category", "start", "finish", "difference"],
             aggfunc="first",
             observed=True
         )
@@ -144,7 +144,7 @@ class WbsFramework:
         proc_table = pd.pivot_table(
             filtered_table,
             index=["phase", "location", "area", "trade", "color", "activity_code"],
-            values=["wbs_code", "activity_name", "activity_category", "start", "finish"],
+            values=["wbs_code", "activity_name", "activity_category", "start", "finish", "difference"],
             aggfunc="first",
             observed=True
         )
@@ -161,6 +161,10 @@ class WbsFramework:
             column_order, 
             self._send_column_to_back(column_order, "finish")
         )
+        column_order = self._check_column_order(
+            column_order, 
+            self._send_column_to_back(column_order, "difference")
+        )
 
         proc_table = proc_table[column_order]
 
@@ -175,7 +179,8 @@ class WbsFramework:
             "activity_name": "Activity Name",
             "activity_category": "Activity Category",
             "start": "Start",
-            "finish": "Finish"
+            "finish": "Finish",
+            "difference": "Difference"
         }
         proc_table.rename(columns=column_renames, inplace=True)
 
