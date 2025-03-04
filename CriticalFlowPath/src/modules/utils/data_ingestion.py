@@ -33,6 +33,7 @@ class DataIngestion:
             "activity_code": ["activity_code", "code", "task_code", "act_code"],
             "wbs_code": ["wbs_code"],
             "activity_name": ["activity_name", "act_name"], 
+            "activity_category": ["activity_category", "category"], 
             "activity_status": ["activity_status", "status", "task_status"], 
             "activity_ins": None, 
             "start": ["start", "start_date", "start_dates"], 
