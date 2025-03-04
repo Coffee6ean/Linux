@@ -296,10 +296,7 @@ class XlsxDataReferencing:
         if reference is None:
             reference = {}
 
-        if (not entry.get("activity_name") or
-            not entry.get("wbs_code") or
-            not entry.get("start") or
-            not entry.get("finish")):
+        if not entry.get("activity_name"):
             entry["activity_category"] = "invalid"
             self.entry_categories["invalid"].append(entry)
             return entry
