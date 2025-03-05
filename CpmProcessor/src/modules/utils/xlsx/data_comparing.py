@@ -18,7 +18,7 @@ class XlsxDataComparing:
 
         #Structures
         self.entry_statuses = {
-            "added": [],
+            "new": [],
             "logic": [],
             "matching": [],
             "updated": [], 
@@ -61,7 +61,7 @@ class XlsxDataComparing:
         if project:
             comp_file = XlsxDataComparing.return_valid_file(input("Please enter the path to the file or directory: "))
             comp_dict = XlsxDataComparing.read_data_from_json(comp_file.get("path"), comp_file.get("basename"))
-            comp_ref_results = project.compare_data(comp_dict["data"].get("body"), project.data_dict)
+            comp_ref_results = project.compare_data_2(comp_dict["data"].get("body"), project.data_dict)
             module_data["details"]["activities"]["count"] = len(comp_ref_results)
             module_data["details"]["activities"]["categorized"] = {key: len(value) for key, value in project.entry_statuses.items()}
             module_data["content"]["categorized"] = project.entry_statuses
@@ -278,7 +278,7 @@ class XlsxDataComparing:
 
             results.append(comp_result)
 
-        # Iterate through new_dict to find entries not in comp_dict (added entries)
+        # Iterate through new_dict to find entries not in comp_dict (new entries)
         for item in new_dict:
             target_value = item.get("wbs_code")
             if not target_value:
@@ -291,7 +291,7 @@ class XlsxDataComparing:
                 if categorized_item.get("activity_category") == "invalid":
                     continue
 
-                # Create the result entry for added items
+                # Create the result entry for new items
                 comp_result = {
                     "entry": item.get("entry"),
                     "phase": item.get("phase"),
@@ -319,6 +319,90 @@ class XlsxDataComparing:
         print("Successfully compared data and labeled activity_category.")
         return results
 
+    def compare_data_2(self, comp_dict: dict, new_dict: list) -> list:
+        results = []
+
+        # Convert comp_dict to a dictionary for faster lookups
+        comp_lookup = {item.get("wbs_code"): item for item in comp_dict if item.get("wbs_code")}
+
+        # Iterate through new_dict to find matches in comp_dict
+        for item in new_dict:
+            target_value = item.get("wbs_code")
+            if not target_value:
+                continue
+
+            # Find the matching entry in comp_dict
+            match = comp_lookup.get(target_value)
+            categorized_item = self._categorize_entries(item, match)
+
+            # Skip invalid entries
+            if categorized_item.get("activity_category") == "invalid":
+                continue
+
+            # Create the result entry
+            comp_result = {
+                "entry": item.get("entry"),
+                "phase": item.get("phase"),
+                "location": item.get("location"),
+                "area": item.get("area"),
+                "trade": item.get("trade"),
+                "color": item.get("color"),
+                "activity_code": item.get("activity_code"),
+                "wbs_code": item.get("wbs_code"),
+                "activity_name": item.get("activity_name"),
+                "activity_category": categorized_item.get("activity_category").upper() if categorized_item.get("activity_category") else None,
+                "activity_status": item.get("activity_status"),
+                "activity_duration": item.get("activity_duration"),
+                "activity_ins": item.get("activity_ins"),
+                "start": item.get("start"),
+                "finish": item.get("finish"),
+                "difference": categorized_item.get("difference", 0),  # Default to 0 if not found
+                "total_float": item.get("total_float", ""),  # Default to empty string if not found
+                "activity_predecessor_id": item.get("activity_predecessor_id"),
+            }
+
+            results.append(comp_result)
+
+        # Iterate through comp_dict to find entries not in new_dict (removed entries)
+        for item in comp_dict:
+            target_value = item.get("wbs_code")
+            if not target_value:
+                continue
+
+            if target_value not in comp_lookup:
+                categorized_item = self._categorize_entries(None, item)
+
+                # Skip invalid entries
+                if categorized_item.get("activity_category") == "invalid":
+                    continue
+
+                # Create the result entry for removed items
+                comp_result = {
+                    "entry": item.get("entry"),
+                    "phase": item.get("phase"),
+                    "location": item.get("location"),
+                    "area": item.get("area"),
+                    "trade": item.get("trade"),
+                    "color": item.get("color"),
+                    "activity_code": item.get("activity_code"),
+                    "wbs_code": item.get("wbs_code"),
+                    "activity_name": item.get("activity_name"),
+                    "activity_category": categorized_item.get("activity_category").upper() if categorized_item.get("activity_category") else None,
+                    "activity_status": item.get("activity_status"),
+                    "activity_duration": item.get("activity_duration"),
+                    "activity_ins": item.get("activity_ins"),
+                    "start": item.get("start"),
+                    "finish": item.get("finish"),
+                    "difference": categorized_item.get("difference", 0),  # Default to 0 if not found
+                    "total_float": item.get("total_float", ""),  # Default to empty string if not found
+                    "activity_predecessor_id": item.get("activity_predecessor_id"),
+                }
+
+                results.append(comp_result)
+
+        print("Successfully compared data and labeled activity_category.")
+        return results
+
     def _search_for_existing_item(self, ref_dict:dict, category:str, target_value:str) -> dict[str, any]:    
         if isinstance(ref_dict, dict):
             if category in ref_dict and ref_dict[category] == target_value:
@@ -339,8 +423,8 @@ class XlsxDataComparing:
 
     def _categorize_entries(self, entry:dict, comp:dict) -> dict:
         if comp is None:
-            entry["activity_category"] = "added"
-            self.entry_statuses["added"].append(entry)
+            entry["activity_category"] = "new"
+            self.entry_statuses["new"].append(entry)
             return entry
 
         if entry is None:
@@ -357,8 +441,8 @@ class XlsxDataComparing:
                 entry["activity_category"] = "matching"
                 self.entry_statuses["matching"].append(entry)
         else:
-            entry["activity_category"] = "added"
-            self.entry_statuses["added"].append(entry)
+            entry["activity_category"] = "new"
+            self.entry_statuses["new"].append(entry)
 
         return entry
 
