@@ -65,8 +65,8 @@ class XlsxDataReferencing:
         }
 
         if project:
-            ref_dict = XlsxDataReferencing.read_data_from_json(CLAYCO, "reference_dictionary")
-            cross_ref_results = project.cross_reference_new_data(ref_dict, project.data_dict)
+            ref_dict = XlsxDataReferencing.read_data_from_json(CLAYCO, "ticket")
+            cross_ref_results = project.cross_reference_new_data(ref_dict.get("data").get("body"), project.data_dict)
             module_data["details"]["activities"]["count"] = len(cross_ref_results)
             module_data["details"]["activities"]["categorized"] = {key: len(value) for key, value in project.entry_categories.items()}
             module_data["content"]["categorized"] = project.entry_categories
