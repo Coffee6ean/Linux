@@ -22,13 +22,34 @@ class XlsxDataReferencing:
 
         #Structures
         self.entry_categories = {
-            "new": [],
-            "updated": [], 
-            "modified": [],
-            "matching": [], 
-            "removed": [], 
-            "duplicate": [], 
-            "invalid": []
+            "new": {
+                "count": 0,
+                "activities": []
+            },
+            "updated": {
+                "count": 0,
+                "activities": []
+            }, 
+            "modified": {
+                "count": 0,
+                "activities": []
+            },
+            "matching": {
+                "count": 0,
+                "activities": []
+            }, 
+            "removed": {
+                "count": 0,
+                "activities": []
+            }, 
+            "duplicate": {
+                "count": 0,
+                "activities": []
+            }, 
+            "invalid": {
+                "count": 0,
+                "activities": []
+            }
         }
     
     @staticmethod
@@ -68,8 +89,8 @@ class XlsxDataReferencing:
             ref_dict = XlsxDataReferencing.read_data_from_json(CLAYCO, "ticket")
             cross_ref_results = project.cross_reference_new_data(ref_dict.get("data").get("body"), project.data_dict)
             module_data["details"]["activities"]["count"] = len(cross_ref_results)
-            module_data["details"]["activities"]["categorized"] = {key: len(value) for key, value in project.entry_categories.items()}
-            module_data["content"]["categorized"] = project.entry_categories
+            module_data["details"]["activities"]["categorized"] = {key: value.get("count") for key, value in project.entry_categories.items()}
+            module_data["content"]["categorized"] = {key: value.get("activities") for key, value in project.entry_categories.items()}
             module_data["content"]["referenced"] = cross_ref_results
 
         module_data["logs"]["finish"] = XlsxDataReferencing.return_valid_date()
@@ -239,42 +260,23 @@ class XlsxDataReferencing:
         except Exception as e:
             print(f"An unexpected error occurred while writing to Excel: {e}\n")
 
-    def cross_reference_new_data(self, ref_dict:dict, new_dict:list) -> list:
+    def cross_reference_new_data(self, ref_dict:dict, new_dict:list, attribute:str="wbs_code") -> list:
         results = []
 
         for item in new_dict:
-            target_value = item.get("wbs_code")
+            target_value = item.get(attribute)
             if not target_value:
                 continue
 
-            match_ref = self._search_for_existing_item(ref_dict, "wbs_code", target_value)
+            match_ref = self._search_for_existing_item(ref_dict, attribute, target_value)
             updated_item = self._categorize_entries(item, match_ref if match_ref else None)
 
-            cross_ref_result = {
-                "entry": updated_item.get("entry"),
-                "phase": match_ref.get("phase") if match_ref else None,
-                "location": match_ref.get("location") if match_ref else None,
-                "area": match_ref.get("area") if match_ref else None,
-                "trade": match_ref.get("trade") if match_ref else None,
-                "color": match_ref.get("color") if match_ref else None,
-                "activity_code": match_ref.get("activity_code") if match_ref else None,
-                "wbs_code": updated_item.get("wbs_code"),
-                "activity_name": updated_item.get("activity_name"),
-                "activity_category": updated_item.get("activity_category").upper() if updated_item.get("activity_category") else None,
-                "activity_status": item.get("activity_status"),
-                "activity_duration": updated_item.get("activity_duration"),
-                "start": updated_item.get("start"),
-                "finish": updated_item.get("finish"),
-                "total_float": item.get("total_float"),
-                "activity_predecessor_id": item.get("activity_predecessor_id"),
-            }
-
-            results.append(cross_ref_result)
+            results.append(updated_item)
 
         print("Successfully filled new model based on the existing reference")
         return results
     
-    def _search_for_existing_item(self, ref_dict:dict, category:str, target_value:str) -> dict[str, any]:    
+    def _search_for_existing_item(self, ref_dict:dict, category:str, target_value:str) -> dict:    
         if isinstance(ref_dict, dict):
             if category in ref_dict and ref_dict[category] == target_value:
                 return ref_dict
@@ -290,44 +292,62 @@ class XlsxDataReferencing:
                 if result:
                     return result  
 
-        return None
+        return {}
 
-    def _categorize_entries(self, entry: dict, reference: dict) -> dict:
-        if reference is None:
-            reference = {}
+    def _categorize_entries(self, entry:dict, reference:dict) -> dict:
+        category = "new"
 
         if not entry.get("activity_name"):
-            entry["activity_category"] = "invalid"
-            self.entry_categories["invalid"].append(entry)
-            return entry
+            category = "invalid"
+            return self._build_result(entry, reference, category)
 
         if (entry.get("wbs_code") == reference.get("wbs_code") and
             entry.get("start") == reference.get("start") and
             entry.get("finish") == reference.get("finish")):
-            entry["activity_category"] = "matching"
-            self.entry_categories["matching"].append(entry)
-            return entry
+            category = "matching"
+            return self._build_result(entry, reference, category)
 
         if entry.get("wbs_code") == reference.get("wbs_code"):
-            entry["activity_category"] = "modified"
-            self.entry_categories["modified"].append(entry)
-            return entry
+            category = "modified"
+            return self._build_result(entry, reference, category)
 
         if entry.get("wbs_code") and not reference.get("wbs_code"):
-            entry["activity_category"] = "new"
-            self.entry_categories["new"].append(entry)
-            return entry
+            category = "new"
+            return self._build_result(entry, reference, category)
 
-        if any(e for e in self.entry_categories["duplicate"]
-            if e.get("wbs_code") == entry.get("wbs_code") and
-                e.get("wbs_code") == entry.get("wbs_code")):
-            entry["activity_category"] = "duplicate"
-            self.entry_categories["duplicate"].append(entry)
-            return entry
+        if any(e for e in self.entry_categories["duplicate"]["activities"]
+            if e.get("wbs_code") == entry.get("wbs_code")):
+            category = "duplicate"
+            return self._build_result(entry, reference, category)
 
-        entry["activity_category"] = "new"
-        self.entry_categories["new"].append(entry)
-        return entry
+        return self._build_result(entry, reference, category)
+
+    def _build_result(self, entry:dict, reference:dict, category:str) -> dict:
+        source = entry if not reference else reference
+
+        result = {
+            "entry": entry.get("entry"),
+            "phase": source.get("phase"),
+            "location": source.get("location"),
+            "area": source.get("area"),
+            "trade": source.get("trade"),
+            "color": source.get("color"),
+            "activity_code": source.get("activity_code"),
+            "wbs_code": entry.get("wbs_code"),
+            "activity_name": entry.get("activity_name"),
+            "activity_category": category.upper(),
+            "activity_status": entry.get("activity_status"),
+            "activity_duration": entry.get("activity_duration"),
+            "start": entry.get("start"),
+            "finish": entry.get("finish"),
+            "total_float": entry.get("total_float"),
+            "activity_predecessor_id": entry.get("activity_predecessor_id"),
+        }
+
+        self.entry_categories[category]["activities"].append(result)
+        self.entry_categories[category]["count"] = self.entry_categories[category]["count"] + 1
+
+        return result    
 
 
 if __name__ == "__main__":
