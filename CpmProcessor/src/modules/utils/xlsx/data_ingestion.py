@@ -462,7 +462,7 @@ class XlsxDataIngestion:
         first_header_col = column_index_from_string(first_header_col_letter)
         last_header_col = column_index_from_string(last_header_col_letter)
 
-        entry_counter = 1
+        entry_counter = 0
         for row in ws.iter_rows(min_row=first_header_row + 1, max_row=ws.max_row, 
                                 min_col=first_header_col, max_col=last_header_col):
             json_activity = {key: None for key in header_dict.keys()}
