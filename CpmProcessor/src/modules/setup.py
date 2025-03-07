@@ -1,5 +1,4 @@
 import os
-import re
 import json
 from datetime import datetime
 
@@ -59,8 +58,6 @@ class Setup:
             reference["content"]["referenced"]
         )
         ins.update_project_modules(compared)
-
-        Setup.write_data_to_json('comp_test.json', ins.obj)
 
         return ins
 
@@ -335,7 +332,7 @@ class Setup:
             json.dump(json_dict, writer)
 
     @staticmethod
-    def ynq_user_interaction(prompt_message) -> str:
+    def ynq_user_interaction(prompt_message:str) -> str:
         valid_responses = {'y', 'n', 'q'}  
         
         while True:
@@ -347,7 +344,7 @@ class Setup:
                 print("Error. Invalid input, please try again. ['Y/y' for Yes, 'N/n' for No, 'Q/q' for Quit]\n")\
                 
     @staticmethod
-    def binary_user_interaction(prompt_message) -> bool:
+    def binary_user_interaction(prompt_message:str) -> bool:
         valid_responses = {'y', 'n'}  
         
         while True:
@@ -361,8 +358,8 @@ class Setup:
             else:
                 print("Error. Invalid input, please try again. ['Y/y' for Yes, 'N/n' for No]\n")
     
-    def extract_data_from_file(self, auto:str, input_file_path=None, input_file_basename=None, 
-                                input_file_extension=None, output_file_dir=None) -> dict:
+    def extract_data_from_file(self, auto:str, input_file_path:str=None, input_file_basename:str=None, 
+                                input_file_extension:str=None, output_file_dir:str=None) -> dict:
         data = XlsxDataIngestion.main(
             auto,
             input_file_path,
@@ -373,8 +370,8 @@ class Setup:
 
         return data
 
-    def reference_data_from_file(self, auto:str, input_file_path=None, input_file_basename=None, 
-                                  input_file_extension=None, project_data_dict=None) -> dict:
+    def reference_data_from_file(self, auto:str, input_file_path:str=None, input_file_basename:str=None, 
+                                  input_file_extension:str=None, project_data_dict:str=None) -> dict:
         reference = XlsxDataReferencing.main(
             auto,
             input_file_path,
@@ -385,8 +382,8 @@ class Setup:
 
         return reference
 
-    def compare_data_from_file(self, auto:str, input_file_path=None, input_file_basename=None, 
-                                  input_file_extension=None, project_data_dict=None) -> dict:
+    def compare_data_from_file(self, auto:str, input_file_path:str=None, input_file_basename:str=None, 
+                                  input_file_extension:str=None, project_data_dict:str=None) -> dict:
         comparison = XlsxDataComparing.main(
             auto,
             input_file_path,
