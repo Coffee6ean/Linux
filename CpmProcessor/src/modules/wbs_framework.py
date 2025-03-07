@@ -1,5 +1,4 @@
 import os
-import re
 import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.utils import column_index_from_string, get_column_letter
@@ -130,8 +129,23 @@ class WbsFramework:
 
         proc_table = pd.pivot_table(
             reset_table,
-            index=["phase", "location", "area", "trade", "color", "activity_code"],
-            values=["wbs_code", "activity_name", "activity_category", "start", "finish", "difference"],
+            index=[
+                "phase", 
+                "location", 
+                "area", 
+                "trade", 
+                "color", 
+                "activity_code"
+            ],
+            values=[
+                "wbs_code", 
+                "activity_name", 
+                "activity_category", 
+                "start", 
+                "finish", 
+                "time_shift", 
+                "time_difference"
+            ],
             aggfunc="first",
             observed=True
         )
@@ -139,17 +153,7 @@ class WbsFramework:
         return proc_table
     
     def restructure_for_workable_table(self, table):
-        filtered_table = table[~table["activity_category"].str.startswith("INVALID")]
-
-        proc_table = pd.pivot_table(
-            filtered_table,
-            index=["phase", "location", "area", "trade", "color", "activity_code"],
-            values=["wbs_code", "activity_name", "activity_category", "start", "finish", "difference"],
-            aggfunc="first",
-            observed=True
-        )
-
-        proc_table = proc_table.reset_index(drop=False)
+        proc_table = table.reset_index(drop=False)
         color_list = proc_table["color"].tolist()
 
         column_header_list = proc_table.columns.tolist()
@@ -163,7 +167,11 @@ class WbsFramework:
         )
         column_order = self._check_column_order(
             column_order, 
-            self._send_column_to_back(column_order, "difference")
+            self._send_column_to_back(column_order, "time_shift")
+        )
+        column_order = self._check_column_order(
+            column_order, 
+            self._send_column_to_back(column_order, "time_difference")
         )
 
         proc_table = proc_table[column_order]
@@ -180,7 +188,8 @@ class WbsFramework:
             "activity_category": "Activity Category",
             "start": "Start",
             "finish": "Finish",
-            "difference": "Difference"
+            "time_shift": "Time Shift",
+            "time_difference": "Time Difference"
         }
         proc_table.rename(columns=column_renames, inplace=True)
 
