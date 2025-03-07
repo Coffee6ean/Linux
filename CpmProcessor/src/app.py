@@ -32,14 +32,11 @@ class App:
         project = App.generate_ins()
 
         if project:
-            #Generate Project Folder
             project_folder = App.create_project_folder(project.obj["setup"], RSLTS_DIR)
 
-            #Process and Document File
             project.execute_project_package()
             project.document_project_package(project_folder)
 
-            #Sort and Order File
             App.move_project_to_folder(project.obj["setup"], project_folder)
 
     @staticmethod
@@ -237,25 +234,12 @@ class App:
 
     def document_project_package(self, project_folder:str) -> None:
         ins_obj = self.obj["setup"]
-        mdl_1 = ins_obj["project"]["modules"].get("MODULE_1")
-        mdl_2 = ins_obj["project"]["modules"].get("MODULE_2")
-        mdl_3 = ins_obj["project"]["modules"].get("MODULE_3")
-        
-        #ins_obj["project"]["metadata"]["dates"]["finished"] = App.return_valid_date()
-        
+
         ticket_body = {
             "metadata": ins_obj["project"].get("metadata"),
-            "data": mdl_3.get("content"),
-            "details": {
-                "MDL_1": mdl_1.get("details"),
-                "MDL_2": mdl_2.get("details"),
-                "MDL_3": mdl_3.get("details")
-            },
-            "logs": {
-                "MDL_1": mdl_1.get("logs"),
-                "MDL_2": mdl_2.get("logs"),
-                "MDL_3": mdl_3.get("logs"),
-            },
+            "data": self._get_last_module_data(ins_obj["project"]["modules"]),
+            "details": {key: value.get("details") for key, value in ins_obj["project"]["modules"].items()},
+            "logs": {key: value.get("logs") for key, value in ins_obj["project"]["modules"].items()},
             "status": None,
         }
 
@@ -264,6 +248,12 @@ class App:
 
         with open(file, 'w') as writer:
             json.dump(ticket_body, writer)
+
+    def _get_last_module_data(self, project_dict:dict):
+        last_module_key = list(project_dict.keys())[-1]
+        last_module = project_dict.get(last_module_key)
+
+        return last_module
 
     def _print_result(self, prompt_message:str) -> None:
         print()
