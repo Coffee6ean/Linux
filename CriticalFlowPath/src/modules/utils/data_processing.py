@@ -178,7 +178,7 @@ class DataProcessing:
             finish_date = datetime.strptime(project_finish, "%d-%b-%Y")
         except ValueError:
             raise ValueError(
-                "Invalid date format. Please use DD-Mon-YYYY"
+                "Invalid date format. Please use DD-MMM-YYYY"
             )
 
         if start_date > finish_date:
