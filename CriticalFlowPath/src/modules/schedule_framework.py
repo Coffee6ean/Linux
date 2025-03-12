@@ -94,7 +94,7 @@ class ScheduleFramework():
     @staticmethod
     def generate_ins():
         ScheduleFramework.ynq_user_interaction(
-            "Run as Module as stand-alone? "
+            "Run Module as stand-alone? "
         )
 
         setup_cls = setup.Setup.main()
@@ -104,6 +104,7 @@ class ScheduleFramework():
             setup_cls.obj["input_file"].get("basename"),
             setup_cls.obj["input_file"].get("extension"),  
             setup_cls.obj["project"]["modules"]["MODULE_3"]["details"].get("workweek"),
+            setup_cls.obj["project"]["modules"]["MODULE_1"]["details"].get("worksheet"),
             setup_cls.obj["project"]["modules"]["MODULE_2"]["content"].get("table"),
             setup_cls.obj["project"]["modules"]["MODULE_3"].get("content"),
             setup_cls.obj["project"]["modules"]["MODULE_2"]["content"].get("custom_phase_order"),
@@ -133,6 +134,18 @@ class ScheduleFramework():
         )
 
         return ins
+
+    @staticmethod
+    def ynq_user_interaction(prompt_message):
+        valid_responses = {'y', 'n', 'q'}  
+        
+        while True:
+            user_input = input(prompt_message).lower().strip()
+            
+            if user_input in valid_responses:
+                return user_input  
+            else:
+                print("Error. Invalid input, please try again. ['Y/y' for Yes, 'N/n' for No, 'Q/q' for Quit]\n")
 
     @staticmethod
     def display_directory_files(file_list:list) -> int:
@@ -319,7 +332,7 @@ class ScheduleFramework():
             "final_ovr_date": datetime.strptime(self.finish_date, "%d-%b-%Y"),
             "starting_point_row": self.wbs_start_row + 1,
             "starting_point_col": self.start_col,
-            "ref_lead": 0,
+            "ref_lead": "",
             "occupied_rows": {},
             "completed_tasks": set(),
         }
@@ -329,8 +342,8 @@ class ScheduleFramework():
             ws, custom_ordered_dict, proc_table, schedule_setup
         )
 
-        print("Workbook filled successfully.")
-        return custom_ordered_dict
+        """ print("Workbook filled successfully.")
+        return custom_ordered_dict """
 
     def _paint_structured_schedule(self, active_worksheet, custom_ordered_dict:dict, proc_table, 
                                  schedule_setup:dict) -> None:
@@ -357,18 +370,16 @@ class ScheduleFramework():
                 ref_lead = current_lead
                 occupied_rows[starting_point_row] = []
 
-            target_row = starting_point_row
             date_offset = self._determine_range(start_ovr_date, initial_date)
-            target_col = column_index_from_string(starting_point_col) + len(date_offset)
+            starting_col = column_index_from_string(starting_point_col) + len(date_offset)
+            task_range = range(starting_col, starting_col + len(dates))
 
-            while target_col in occupied_rows.get(target_row, []):
-                target_row += 1
-                if target_row not in occupied_rows:
-                    occupied_rows[target_row] = []
+            target_row = self._assign_range_to_occupied(occupied_rows, starting_point_row, task_range)
+            occupied_rows.setdefault(target_row, []).extend(task_range)
 
             original_sequence = []
-            for i in range(len(dates)):
-                cell = ws.cell(row=target_row, column=target_col+i)
+            for i in task_range:
+                cell = ws.cell(row=target_row, column=i)
 
                 if item.get("predecessor"):
                     self._style_cell(cell, item, True)
@@ -379,7 +390,6 @@ class ScheduleFramework():
                     self._add_comment(cell, item)
 
                 original_sequence.append(cell.coordinate)
-                occupied_rows[target_row].append(target_col)
 
             item["cell_sequence"] = {
                 "original": original_sequence,
@@ -391,6 +401,16 @@ class ScheduleFramework():
         if missing_tasks:
             print(f"Warning: The following tasks were not painted: {missing_tasks}")
     
+    def _generate_compound_category_name(self, item:dict) -> str:
+        category_names = []
+
+        for category in self.wbs_final_categories.keys():
+            cat_name = item.get(category)
+            if cat_name:
+                category_names.append(cat_name)
+
+        return "|".join(category_names)
+
     def _determine_range(self, project_start:datetime, task_start:datetime) -> list:
         date_range = []
 
@@ -407,15 +427,11 @@ class ScheduleFramework():
 
         return date_range
 
-    def _generate_compound_category_name(self, item:dict) -> str:
-        category_names = []
+    def _assign_range_to_occupied(self, occupied_rows:dict, target_row:int, range_to_check:list) -> int:
+        while any(target_col in occupied_rows.get(target_row, []) for target_col in range_to_check):
+            target_row += 1
 
-        for category in self.wbs_final_categories.keys():
-            cat_name = item.get(category)
-            if cat_name:
-                category_names.append(cat_name)
-
-        return "|".join(category_names)
+        return target_row
 
     def _style_cell(self, cell, current_item:dict, paint_border:bool=False) -> None:
         try:
