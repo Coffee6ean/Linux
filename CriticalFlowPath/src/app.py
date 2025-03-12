@@ -209,7 +209,14 @@ class App:
         final_dir = os.path.join(parent_dir, basename)
 
         os.rename(init_dir, final_dir)
-                        
+
+    @staticmethod
+    def write_data_to_json(file_title:str, json_dict:dict):
+        file = os.path.join(RSLTS_DIR, file_title)
+        
+        with open(file, 'w') as writer:
+            json.dump(json_dict, writer)
+
     def execute_project_package(self, project_folder:str, auto:bool=True) -> None:
         ins_obj = self.obj["setup"]
         mdl_1 = ins_obj["project"]["modules"].get("MODULE_1")
