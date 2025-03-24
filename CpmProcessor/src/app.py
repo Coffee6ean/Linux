@@ -10,12 +10,12 @@ from CpmProcessor.keys.secrets import RSLTS_DIR
 
 class App:
     #Structures
-    file_management = {
-        "create": ["create", "c"],
-        "read": ["read", "r"],
-        "update": ["update", "u"],
-        "delete": ["delete", "d"],
-    }
+    file_management = [
+        "CREATE",
+        "READ",
+        "UPDATE",
+        "DELETE",
+    ]
     allowed_extensions = ["xlsx", "xml"]
 
     def __init__(self, project_ins_dict):
@@ -41,9 +41,7 @@ class App:
 
     @staticmethod
     def generate_ins() -> dict:
-        App.ynq_user_interaction(
-            "Is this a completly new project? "
-        )
+        print("== Initializing 'CpmProcessor' tool ==")
 
         setup = mdls.Setup.main()
 
@@ -207,7 +205,7 @@ class App:
 
         os.rename(init_dir, final_dir)
                         
-    def execute_project_package(self, project_folder:str=None, auto:bool=True) -> None:
+    def execute_project_package(self, db_action:str=None, project_folder:str=None, auto:bool=True) -> None:
         ins_obj = self.obj["setup"]
         mdl_2 = ins_obj["project"]["modules"].get("MODULE_2")
         mdl_3 = ins_obj["project"]["modules"].get("MODULE_3")
