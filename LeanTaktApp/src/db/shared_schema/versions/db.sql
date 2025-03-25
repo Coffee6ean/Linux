@@ -1,5 +1,5 @@
 -- Create a 'Versions' polymorphic table
-CREATE TABLE construction_schema.versions (
+CREATE TABLE shared_schema.versions (
     id SERIAL PRIMARY KEY,
     entity_type VARCHAR(50) NOT NULL,
     entity_id INTEGER NOT NULL,
