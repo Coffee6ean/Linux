@@ -1,5 +1,5 @@
 -- Create a 'Colors' table
-CREATE TABLE construction_schema.colors (
+CREATE TABLE shared_schema.colors (
     id SERIAL PRIMARY KEY,
     type VARCHAR(50) NOT NULL,      -- Type of color (e.g., Primary, Secondary, All)
     category VARCHAR(50) NOT NULL,  -- Category of the color (e.g., Brand, Error, Background)
