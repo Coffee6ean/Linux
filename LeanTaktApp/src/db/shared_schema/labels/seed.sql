@@ -1,10 +1,55 @@
--- For 'Roles'
+-- shared_schema
+
+INSERT INTO shared_schema.labels (name, entity_type, type, notes)
+VALUES
+('STABLE', 'versions', 'STATUS', 'Stable/production-ready release'),
+('BETA', 'versions', 'STATUS', 'Beta/pre-release version'),
+('DEPRECATED', 'versions', 'STATUS', 'Version is no longer supported');
+
+-- auth_schema
+
 INSERT INTO shared_schema.labels (name, entity_type, type, notes)
 VALUES
 ('ACTIVE', 'roles', 'STATUS', 'The role is actively being used'),
-('INACTIVE', 'roles', 'STATUS', 'The role has been deprecated');
+('INACTIVE', 'roles', 'STATUS', 'The role has been deprecated'),
+('SYSTEM', 'roles', 'TYPE', 'System-defined role (cannot be modified by users)'),
+('CUSTOM', 'roles', 'TYPE', 'User-defined custom role');
 
--- For 'Projects'
+INSERT INTO shared_schema.labels (name, entity_type, type, notes)
+VALUES
+('READ', 'permissions', 'CATEGORY', 'Read-only access'),
+('WRITE', 'permissions', 'CATEGORY', 'Create/edit access'),
+('DELETE', 'permissions', 'CATEGORY', 'Delete access'),
+('ADMIN', 'permissions', 'CATEGORY', 'Administrative privileges'),
+('ACTIVE', 'permissions', 'STATUS', 'The permission is actively grantable'),
+('DEPRECATED', 'permissions', 'STATUS', 'The permission is no longer grantable (historical use only)');
+
+INSERT INTO shared_schema.labels (name, entity_type, type, notes)
+VALUES
+('ACTIVE', 'users', 'STATUS', 'The user is actively being used'),
+('INACTIVE', 'users', 'STATUS', 'The user has been deprecated');
+
+INSERT INTO shared_schema.labels (name, entity_type, type, notes)
+VALUES
+('DEVELOPMENT', 'teams', 'CATEGORY', 'Team focused on software development'),
+('SALES', 'teams', 'CATEGORY', 'Team focused on sales and customer acquisition'),
+('SUPPORT', 'teams', 'CATEGORY', 'Team handling customer support'),
+('ACTIVE', 'teams', 'STATUS', 'The team is actively being used'),
+('INACTIVE', 'teams', 'STATUS', 'The team has been deprecated'),
+('ARCHIVED', 'teams', 'STATUS', 'The team is no longer active but preserved for historical data');
+
+INSERT INTO shared_schema.labels (name, entity_type, type, notes)
+VALUES
+('ACTIVE', 'tenants', 'STATUS', 'The tenant is actively being used'),
+('INACTIVE', 'tenants', 'STATUS', 'The tenant has been deprecated'),
+('SUSPENDED', 'tenants', 'STATUS', 'Tenant access is temporarily suspended (e.g., non-payment)'),
+('TRIAL', 'tenants', 'STATUS', 'Tenant is in a trial period'),
+('FREE', 'tenants', 'TIER', 'Free-tier tenant with basic features'),
+('STANDARD', 'tenants', 'TIER', 'Standard paid tier'),
+('ENTERPRISE', 'tenants', 'TIER', 'Custom enterprise-tier tenant');
+
+-- construction_schema
+
 INSERT INTO shared_schema.labels (name, entity_type, type, notes) 
 VALUES
 ('LOW', 'projects', 'PRIORITY',  'Used to prioritize'),
@@ -27,8 +72,7 @@ VALUES
 ('REFERENCE', 'projects', 'VERSIONING', 'Used to determine if project should be used as reference'),
 ('COMPARISON', 'projects', 'VERSIONING', 'Used to determine if project should be used as reference');
 
--- For 'Phases'
-INSERT INTO shared_schema.labels(name, entity_type, type, notes)
+INSERT INTO shared_schema.labels (name, entity_type, type, notes)
 VALUES 
 ('LOW', 'phases', 'PRIORITY',  'Used to prioritize'),
 ('MEDIUM', 'phases', 'PRIORITY', 'Used to prioritize'),
@@ -41,7 +85,6 @@ VALUES
 ('CANCELLED', 'phases', 'STATUS', 'The phase has been cancelled'),
 ('ARCHIVED', 'phases', 'STATUS', 'The phase has been archived for historical reference');
 
--- For 'Areas'
 INSERT INTO shared_schema.labels (name, entity_type, type, notes)
 VALUES
 ('LOW', 'areas', 'PRIORITY', 'Used to prioritize areas based on urgency or importance'),
@@ -55,7 +98,6 @@ VALUES
 ('CANCELLED', 'areas', 'STATUS', 'The area has been cancelled'),
 ('ARCHIVED', 'areas', 'STATUS', 'The area has been archived for historical reference');
 
--- For 'Zones'
 INSERT INTO shared_schema.labels (name, entity_type, type, notes)
 VALUES
 ('LOW', 'zones', 'PRIORITY', 'Used to prioritize zones based on urgency or importance'),
@@ -69,8 +111,7 @@ VALUES
 ('CANCELLED', 'zones', 'STATUS', 'The zone has been cancelled'),
 ('ARCHIVED', 'zones', 'STATUS', 'The zone has been archived for historical reference');
 
--- For 'Trades'
-INSERT INTO shared_schema.labels(name, entity_type, type, notes)
+INSERT INTO shared_schema.labels (name, entity_type, type, notes)
 VALUES
 ('LOW', 'trades', 'PRIORITY',  'Used to prioritize'),
 ('MEDIUM', 'trades', 'PRIORITY', 'Used to prioritize'),
@@ -83,8 +124,7 @@ VALUES
 ('CANCELLED', 'trades', 'STATUS', 'The phase has been cancelled'),
 ('ARCHIVED', 'trades', 'STATUS', 'The phase has been archived for historical reference');
 
--- For 'Milestones'
-INSERT INTO shared_schema.labels(name, entity_type, type, notes)
+INSERT INTO shared_schema.labels (name, entity_type, type, notes)
 VALUES
 ('LOW', 'milestones', 'PRIORITY',  'Used to prioritize'),
 ('MEDIUM', 'milestones', 'PRIORITY', 'Used to prioritize'),
@@ -97,8 +137,7 @@ VALUES
 ('CANCELLED', 'milestones', 'STATUS', 'The phase has been cancelled'),
 ('ARCHIVED', 'milestones', 'STATUS', 'The phase has been archived for historical reference');
 
--- For 'Procurements'
-INSERT INTO shared_schema.labels(name, entity_type, type, notes)
+INSERT INTO shared_schema.labels (name, entity_type, type, notes)
 VALUES
 ('LOW', 'procurements', 'PRIORITY',  'Used to prioritize'),
 ('MEDIUM', 'procurements', 'PRIORITY', 'Used to prioritize'),
@@ -111,7 +150,6 @@ VALUES
 ('CANCELLED', 'procurements', 'STATUS', 'The phase has been cancelled'),
 ('ARCHIVED', 'procurements', 'STATUS', 'The phase has been archived for historical reference');
 
--- For 'Activities'
 INSERT INTO shared_schema.labels (name, entity_type, type, notes)
 VALUES
 ('NEW', 'activities', 'CATEGORY', 'Activity is newly created and requires review'),
@@ -132,7 +170,6 @@ VALUES
 ('CANCELLED', 'activities', 'STATUS', 'The activity has been cancelled'),
 ('ARCHIVED', 'activities', 'STATUS', 'The activity has been archived for historical reference');
 
--- For 'Issues'
 INSERT INTO shared_schema.labels (name, entity_type, type, notes)
 VALUES
 ('LOW', 'issues', 'PRIORITY', 'Used to prioritize issues based on urgency or importance'),
