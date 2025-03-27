@@ -6,6 +6,21 @@ VALUES
 ('BETA', 'versions', 'STATUS', 'Beta/pre-release version'),
 ('DEPRECATED', 'versions', 'STATUS', 'Version is no longer supported');
 
+INSERT INTO shared_schema.labels (name, entity_type, type, notes)
+VALUES
+('PRIMARY', 'colors', 'TYPE', 'Dominant brand color used for key UI elements'),
+('SECONDARY', 'colors', 'TYPE', 'Supporting brand color used for accents'),
+('ACCENT', 'colors', 'TYPE', 'Highlight color for calls-to-action and important indicators'),
+('NEUTRAL', 'colors', 'TYPE', 'Background and text colors for readability'),
+('STATUS', 'colors', 'TYPE', 'Colors representing system states (success, warning, error)'),
+('TEXT', 'colors', 'TYPE', 'Color palette for typography and readability'),
+('BACKGROUND', 'colors', 'TYPE', 'Surface and layout colors'),
+('DATA', 'colors', 'TYPE', 'Colors used in charts and data visualization');
+('DARK_MODE', 'colors', 'RELATIONSHIP', 'Dark theme variant of this color'),
+('LIGHT_MODE', 'colors', 'RELATIONSHIP', 'Light theme variant of this color'),
+('COMPLEMENTARY', 'colors', 'RELATIONSHIP', 'Color that visually complements this one'),
+('CONTRAST', 'colors', 'RELATIONSHIP', 'High-contrast pairing for accessibility');
+
 -- auth_schema
 
 INSERT INTO shared_schema.labels (name, entity_type, type, notes)
@@ -52,6 +67,13 @@ VALUES
 
 INSERT INTO shared_schema.labels (name, entity_type, type, notes) 
 VALUES
+('UNSPECIFIED', 'projects', 'DIVISION', 'Used to determine project type'),
+('DATA_CENTER', 'projects', 'DIVISION', 'Used to determine project type'),
+('MULTI-FAMILAR', 'projects', 'DIVISION', 'Used to determine project type'),
+('VERTICALS', 'projects', 'DIVISION', 'Used to determine project type'),
+('CIVIL', 'projects', 'DIVISION', 'Used to determine project type'),
+('COMERCIAL', 'projects', 'DIVISION', 'Used to determine project type'),
+('TOWN_HOMES', 'projects', 'DIVISION', 'Used to determine project type'),
 ('LOW', 'projects', 'PRIORITY',  'Used to prioritize'),
 ('MEDIUM', 'projects', 'PRIORITY', 'Used to prioritize'),
 ('HIGH', 'projects', 'PRIORITY', 'Used to prioritize'),
@@ -62,13 +84,8 @@ VALUES
 ('COMPLETED', 'projects', 'STATUS', 'The project has been successfully completed'),
 ('CANCELLED', 'projects', 'STATUS', 'The project has been cancelled'),
 ('ARCHIVED', 'projects', 'STATUS', 'The project has been archived for historical reference'),
-('UNSPECIFIED', 'projects', 'TYPE', 'Used to determine project type'),
-('DATA_CENTER', 'projects', 'TYPE', 'Used to determine project type'),
-('MULTI-FAMILAR', 'projects', 'TYPE', 'Used to determine project type'),
-('VERTICALS', 'projects', 'TYPE', 'Used to determine project type'),
-('CIVIL', 'projects', 'TYPE', 'Used to determine project type'),
-('COMERCIAL', 'projects', 'TYPE', 'Used to determine project type'),
-('TOWN_HOMES', 'projects', 'TYPE', 'Used to determine project type'),
+('NEW', 'projects', 'TYPE', 'Original approved project schedule baseline for ground-up construction'),
+('RECOVERY', 'projects', 'TYPE', 'Project recovery plan after delays/disasters'),
 ('REFERENCE', 'projects', 'VERSIONING', 'Used to determine if project should be used as reference'),
 ('COMPARISON', 'projects', 'VERSIONING', 'Used to determine if project should be used as reference');
 
@@ -124,37 +141,12 @@ VALUES
 ('CANCELLED', 'trades', 'STATUS', 'The phase has been cancelled'),
 ('ARCHIVED', 'trades', 'STATUS', 'The phase has been archived for historical reference');
 
-INSERT INTO shared_schema.labels (name, entity_type, type, notes)
-VALUES
-('LOW', 'milestones', 'PRIORITY',  'Used to prioritize'),
-('MEDIUM', 'milestones', 'PRIORITY', 'Used to prioritize'),
-('HIGH', 'milestones', 'PRIORITY', 'Used to prioritize'),
-('PLANNING', 'milestones', 'STATUS', 'The phase is in the planning stage'),
-('PENDING', 'milestones', 'STATUS', 'The phase is awaiting approval/resources/etc'),
-('ACTIVE', 'milestones', 'STATUS', 'The phase is actively being worked on'),
-('ON_HOLD', 'milestones', 'STATUS', 'The phase is temporarily paused'),
-('COMPLETED', 'milestones', 'STATUS', 'The phase has been successfully completed'),
-('CANCELLED', 'milestones', 'STATUS', 'The phase has been cancelled'),
-('ARCHIVED', 'milestones', 'STATUS', 'The phase has been archived for historical reference');
-
-INSERT INTO shared_schema.labels (name, entity_type, type, notes)
-VALUES
-('LOW', 'procurements', 'PRIORITY',  'Used to prioritize'),
-('MEDIUM', 'procurements', 'PRIORITY', 'Used to prioritize'),
-('HIGH', 'procurements', 'PRIORITY', 'Used to prioritize'),
-('PLANNING', 'procurements', 'STATUS', 'The phase is in the planning stage'),
-('PENDING', 'procurements', 'STATUS', 'The phase is awaiting approval/resources/etc'),
-('ACTIVE', 'procurements', 'STATUS', 'The phase is actively being worked on'),
-('ON_HOLD', 'procurements', 'STATUS', 'The phase is temporarily paused'),
-('COMPLETED', 'procurements', 'STATUS', 'The phase has been successfully completed'),
-('CANCELLED', 'procurements', 'STATUS', 'The phase has been cancelled'),
-('ARCHIVED', 'procurements', 'STATUS', 'The phase has been archived for historical reference');
 
 INSERT INTO shared_schema.labels (name, entity_type, type, notes)
 VALUES
 ('NEW', 'activities', 'CATEGORY', 'Activity is newly created and requires review'),
 ('UPDATED', 'activities', 'CATEGORY', 'Activity has been updated and requires review'),
-('MATCHING', 'activities', 'CATEGORY', 'Activity matches an existing record or template'),
+('MATCHING', 'activities', 'CATEGORY', 'Activity matches an existing record or template')
 ('REMOVED', 'activities', 'CATEGORY', 'Activity has been removed or deleted'),
 ('DUPLICATE', 'activities', 'CATEGORY', 'Activity is a duplicate of another record'),
 ('INVALID', 'activities', 'CATEGORY', 'Activity is invalid or contains errors'),
@@ -162,13 +154,21 @@ VALUES
 ('LOW', 'activities', 'PRIORITY', 'Used to prioritize activities based on urgency or importance'),
 ('MEDIUM', 'activities', 'PRIORITY', 'Used to prioritize activities based on urgency or importance'),
 ('HIGH', 'activities', 'PRIORITY', 'Used to prioritize activities based on urgency or importance'),
+('PREDECESSOR', 'activities', 'RELATIONSHIP', 'Activity that must be completed before this one can begin'),
+('SUCCESSOR', 'activities', 'RELATIONSHIP', 'Activity that depends on this one being completed'),
+('BLOCKER', 'activities', 'RELATIONSHIP', 'Activity that prevents progress on this one'),
 ('PLANNING', 'activities', 'STATUS', 'The activity is in the planning stage'),
 ('PENDING', 'activities', 'STATUS', 'The activity is awaiting approval, resources, or other dependencies'),
 ('ACTIVE', 'activities', 'STATUS', 'The activity is actively being worked on'),
 ('ON_HOLD', 'activities', 'STATUS', 'The activity is temporarily paused'),
 ('COMPLETED', 'activities', 'STATUS', 'The activity has been successfully completed'),
 ('CANCELLED', 'activities', 'STATUS', 'The activity has been cancelled'),
-('ARCHIVED', 'activities', 'STATUS', 'The activity has been archived for historical reference');
+('ARCHIVED', 'activities', 'STATUS', 'The activity has been archived for historical reference'),
+('ACTIVITY', 'activities', 'TYPE', 'Standard work activity or task'),
+('MILESTONE', 'activities', 'TYPE', 'Key project milestone or deliverable'),
+('PROCUREMENT', 'activities', 'TYPE', 'Material or equipment procurement activity'),
+('BUFFER', 'activities', 'TYPE', 'Schedule buffer or contingency time'),
+('HOLIDAY', 'activities', 'TYPE', 'Non-working holiday or break period');
 
 INSERT INTO shared_schema.labels (name, entity_type, type, notes)
 VALUES
