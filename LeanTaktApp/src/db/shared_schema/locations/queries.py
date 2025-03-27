@@ -14,7 +14,7 @@ class Locations:
         pass
 
     @staticmethod
-    def get_column_names():
+    def get_column_names(table_name:str=TABLE) -> list:
         try:
             config = load_config()
             with psycopg.connect(**config) as conn:
@@ -25,12 +25,12 @@ class Locations:
                         WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s;
                     """)
 
-                    cur.execute(query, (Locations.SCHEMA, Locations.TABLE))
+                    cur.execute(query, (Locations.SCHEMA, table_name))
 
                     available_columns = [row[0] for row in cur.fetchall()]
                     return available_columns
         except (Exception, psycopg.DatabaseError) as e:
-            print(f"Error retrieving location columns: {e}")
+            print(f"Error retrieving table columns: {e}")
             return []
 
     @staticmethod

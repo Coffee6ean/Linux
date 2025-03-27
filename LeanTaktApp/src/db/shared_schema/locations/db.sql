@@ -1,6 +1,10 @@
 -- Create a 'Locations' table
 CREATE TABLE shared_schema.locations (
     id SERIAL PRIMARY KEY,
+    created_by_entity_type VARCHAR(50), -- 'users', 'system', 'api_key'
+    created_by_entity_id INTEGER,       -- ID in auth_schema.users, etc.
+    updated_by_entity_type VARCHAR(50),
+    updated_by_entity_id INTEGER,
     name VARCHAR(255) NOT NULL,
     type VARCHAR(255),
     size REAL,
@@ -12,6 +16,6 @@ CREATE TABLE shared_schema.locations (
     city VARCHAR(255),
     state VARCHAR(255),
     country VARCHAR(255),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
 );
