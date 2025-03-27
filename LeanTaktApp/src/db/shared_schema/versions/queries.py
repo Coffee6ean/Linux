@@ -14,7 +14,7 @@ class Versions:
         pass
 
     @staticmethod
-    def get_column_names() -> list:
+    def get_column_names(table_name:str=TABLE) -> list:
         try:
             config = load_config()
             with psycopg.connect(**config) as conn:
@@ -25,12 +25,12 @@ class Versions:
                         WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s;
                     """)
 
-                    cur.execute(query, (Versions.SCHEMA, Versions.TABLE))
+                    cur.execute(query, (Versions.SCHEMA, table_name))
 
                     available_columns = [row[0] for row in cur.fetchall()]
                     return available_columns
         except (Exception, psycopg.DatabaseError) as e:
-            print(f"Error retrieving project columns: {e}")
+            print(f"Error retrieving table columns: {e}")
             return []
 
     @staticmethod
