@@ -3,6 +3,7 @@
 \i /home/coffee_6ean/Linux/LeanTaktApp/src/db/shared_schema/labels/db.sql;
 \i /home/coffee_6ean/Linux/LeanTaktApp/src/db/shared_schema/colors/db.sql;
 \i /home/coffee_6ean/Linux/LeanTaktApp/src/db/shared_schema/locations/db.sql;
+\i /home/coffee_6ean/Linux/LeanTaktApp/src/db/shared_schema/tags/db.sql;
 
 -- Call other scripts to generate data pool for 'auth_schema'
 \i /home/coffee_6ean/Linux/LeanTaktApp/src/db/shared_schema/versions/seed.sql;
