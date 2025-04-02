@@ -277,60 +277,71 @@ class PdfDataIngestion:
         return removed_whitespace_lines
 
     @staticmethod
-    def jsonify_project_data(text_body:str) -> list:
-        text_lines = text_body.split('\n')
+    def jsonify_project_data(text_body: str) -> list:
+        text_lines = [line.strip() for line in text_body.split('\n') if line.strip()]
         proc_dict = {
-            "header": {
-                "page": PdfDataIngestion.project_pages,
-            },
+            "header": {"page": PdfDataIngestion.project_pages},
             "body": {
-                "details": {
-                    "activities": {
-                        "total": 1
-                    },
-                },
+                "details": {"activities": {"total": 0}},
                 "logs": [],
                 "content": [],
             },
         }
         
-        for i, line in enumerate(text_lines):
-            entry = i + 1
-            match = PdfDataIngestion.standard_pattern(line)
+        for i, line in enumerate(text_lines, 1):
+            try:
+                match = PdfDataIngestion.test_pattern(line)
+                if not match:
+                    match = PdfDataIngestion.special_pattern(line)
+                    if not match:
+                        proc_dict["body"]["logs"].append({
+                            "task": i,
+                            "content": line,
+                            "parse_error": True
+                        })
+                        continue
 
-            if not match:
-                match = PdfDataIngestion.special_pattern(line)
-
-            if not match:
-                proc_dict["body"]["logs"].append(dict(
-                    task = entry,
-                    content = line
-                ))
-            else:
-                activity_id = match.group("ActivityID").strip() if match.group("ActivityID") else ""
-                activity_name = match.group("ActivityName").strip() if match.group("ActivityName") else ""
-                duration = match.group("Duration").strip() if match.group("Duration") else ""
-                dates = match.group("Dates").strip().split() if match.group("Dates") else ""
-
-                dates = [re.sub(r"[A*]$", "", date) for date in dates]
-
-                start_date = dates[0]
-                finish_date = dates[1] if len(dates) > 1 else ""
-
+                groups = match.groupdict()
+                
+                def clean(value):
+                    return value.strip() if value and isinstance(value, str) else ""
+                
+                start_date = clean(groups.get("StartDate") or groups.get("StartDateAlt"))
+                finish_date = clean(groups.get("FinishDate"))
+                start_day = clean(groups.get("StartDay") or groups.get("StartDay1") or groups.get("StartDay2"))
+                finish_day = clean(groups.get("FinishDay") or groups.get("FinishDay1"))
+                start = f"{start_day} {start_date}".strip() if start_day and start_date else start_date or ""
+                finish = f"{finish_day} {finish_date}".strip() if finish_day and finish_date else finish_date or ""
+                
+                deps = groups.get("Dependencies", "")
+                if deps:
+                    predecessors = [dep.strip() for dep in str(deps).split(',') if dep.strip()]
+                else:
+                    predecessors = []
+                
                 task = {
-                    "entry": entry,
-                    "parent_id": activity_id,
-                    "parent_name": activity_name,
-                    "parent_duration": duration,
-                    "parent_start": start_date,
-                    "parent_finish": finish_date,
+                    "entry": i,
+                    "wbs_code": clean(groups.get("ActivityCode")),
+                    "activity_name": clean(groups.get("ActivityName")),
+                    "percentage_complete": clean(groups.get("PercentageComplete")),
+                    "duration": clean(groups.get("Duration")),
+                    "start_date": start,
+                    "finish_date": finish,
+                    "predecessors": predecessors
                 }
-
+                
                 proc_dict["body"]["content"].append(task)
-                proc_dict["body"]["details"]["activities"]["total"] += 1  
-            
+                proc_dict["body"]["details"]["activities"]["total"] += 1
+                
+            except Exception as e:
+                proc_dict["body"]["logs"].append({
+                    "task": i,
+                    "content": line,
+                    "parse_error": True,
+                    "error": str(e)
+                })
+        
         PdfDataIngestion.project_pages += 1
-
         return proc_dict
 
     @staticmethod
@@ -361,6 +372,28 @@ class PdfDataIngestion:
         r"(?P<Duration>((\d{3,})+d)|((\d{3,})+\S)|)\s*"
 
         return pattern.match(remove_special_chars)
+    
+    @staticmethod
+    def test_pattern(text: str):
+        special_chars = re.compile(r'[+=@_!#$%^&*<>?/\|}{~]')
+        clean_text = re.sub(special_chars, '', text.strip())
+        
+        pattern = re.compile(
+            r"^(?P<ActivityCode>\d+|[A-Za-z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)*)\s+"
+            r"(?P<ActivityName>.+?)\s+"
+            r"(?:(?P<PercentageComplete>\d+%)\s+)?"
+            r"(?:(?P<Duration>\d+\s*d(?:ays?)?|i\s*\d*\s*day|0d|[A-Za-z]+\d*)\s+)?"
+            r"(?:"
+            r"(?:(?P<StartDay>[A-Za-z]{3})\s+)?"
+            r"(?P<StartDate>\d{1,2}[/-]\d{1,2}[/-]\d{2,4})\s+"
+            r"(?:(?P<FinishDay>[A-Za-z]{3})\s+)?"
+            r"(?P<FinishDate>\d{1,2}[/-]\d{1,2}[/-]\d{2,4})"
+            r")?"
+            r"(?:\s+(?P<Dependencies>\d+[A-Z]{2}[^0-9]*\d*\s*\w*|\d+)(?:\s*,\s*\d+[A-Z]{2}[^0-9]*\d*\s*\w*|\d+)*)?$",
+            re.IGNORECASE
+        )
+    
+        return pattern.match(clean_text)
 
     def pdf_to_images(self, input_file:str, output_directory:str, image_extension:str="png") -> None:
         pdf = input_file
