@@ -14,7 +14,7 @@ class JsonPostProcessing:
         # Open and read the JSON file
         try:
             with open(json_file_input, mode='r') as json_file:
-                json_obj = json.load(json_file)  # Load JSON data
+                json_obj = json.load(json_file)
                 json_post_processing = JsonPostProcessing(json_obj['project_content']['body'])
                 #json_post_processing.reorder_json(json_obj['project_content']['body'], None)  # Start the reordering process
                 json_post_processing.test(json_obj['project_content']['body'], None)  # Start the reordering process
@@ -164,6 +164,7 @@ class JsonPostProcessing:
                     last_accepted_parent = parent_stack[-1]  # Get the last valid parent
                     last_accepted_parent['activities'].append(child)  # Append child to last valid parent
                     parent_stack.append(child)  # Child has been graduated to a new 'possible_parent' """
+
 
 if __name__ == "__main__":
     JsonPostProcessing.main()
