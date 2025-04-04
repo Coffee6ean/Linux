@@ -28,3 +28,6 @@ __pycache__/
 
 # Keys
 keys/
+
+# Documentation
+docs/
