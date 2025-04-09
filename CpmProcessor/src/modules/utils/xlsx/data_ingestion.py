@@ -8,7 +8,7 @@ from openpyxl.utils import get_column_letter, column_index_from_string
 
 import sys
 sys.path.append("../")
-from CpmProcessor.keys.secrets import TEST_XLSX_DIR
+from CpmProcessor.keys.secrets import TEST_XLSX_DIR, TEST_JSON_DIR
 
 class XlsxDataIngestion:
     allowed_extensions = ["pdf", "xlsx"]
@@ -24,25 +24,26 @@ class XlsxDataIngestion:
         #Module Attributes
         self.start_col_idx = 1
         self.start_row_idx = 1
-        self.ws_name = ""
+        self.ws_name_list = []
 
         #Structures
         self.activity_headers = {
             "phase": ["phase"],
-            "location": ["location"], 
-            "area": ["area", "zone"],
+            "area": ["area", "location"], 
+            "zone": ["zone"],
             "trade": ["trade"], 
             "color": ["color"],
             "activity_code": ["activity_code", "code", "task_code", "act_code"],
             "wbs_code": ["wbs_code"],
-            "activity_name": ["activity_name", "act_name"], 
-            "activity_status": ["activity_status", "status", "task_status"], 
+            "activity_name": ["activity_name", "act_name", "task_name"], 
+            "activity_status": ["activity_status", "status", "task_status", "status_code"], 
             "activity_duration": ["activity_duration", "duration", "remaining_duration"],
             "start": ["start", "start_date", "start_dates"], 
             "finish": ["finish", "finish_date", "finish_dates", "end", "end_date"], 
             "difference": ["difference"],
             "total_float": ["total_float"],
-            "activity_predecessor_id": ["predecessor"],
+            "successor_code": ["successor"],
+            "predecessor_code": ["predecessor"],
         }
         self.json_struct_categories = ["phase", "location", "area", "trade", "activity_code"]
 
@@ -59,45 +60,23 @@ class XlsxDataIngestion:
         else:
             project = XlsxDataIngestion.generate_ins()
 
-        module_data = {
-            "details": {
-                "workbook": None,
-                "worksheet": None,
-                "start_date": None,
-                "finish_date": None,
-                "entry_count": 0,
-            },
-            "logs": {
-                "start": XlsxDataIngestion.return_valid_date(),
-                "finish": None,
-                "run-time": None,
-                "status": [],
-            },
-            "content": {}
-        }
-
         if project:
-            if not project.ws_name:
-                worksheet = input("Please enter the name for the new or existing worksheet: ")
-            else:
-                worksheet = project.ws_name
+            module_data = project.process_workbook(project)
 
-            xlsx_results = project.handle_xlsx()
-            basename = project.input_basename + '.' + project.input_extension 
-            module_data["details"]["workbook"] = os.path.join(project.input_path, basename)
-            module_data["details"]["worksheet"] = worksheet
-            module_data["details"]["start_date"] = xlsx_results.get("earliest_start")
-            module_data["details"]["finish_date"] = xlsx_results.get("latest_finish")
-            module_data["details"]["entry_count"] = xlsx_results.get("entry_count")
-            module_data["content"] = xlsx_results["flattend_json"]
-
-        module_data["logs"]["finish"] = XlsxDataIngestion.return_valid_date()
-        module_data["logs"]["run-time"] = XlsxDataIngestion.calculate_time_duration(
-            module_data["logs"].get("start"), 
-            module_data["logs"].get("finish")
-        )
+        #XlsxDataIngestion.write_dict_to_json(module_data, "multiple_tabs_test", TEST_JSON_DIR)
 
         return module_data
+    
+    @staticmethod
+    def process_workbook(project) -> dict:
+        if project:
+            xlsx_processed = {}
+            xlsx_extracted = project.handle_xlsx()
+
+            for sheet in project.ws_name_list:
+                project.process_json(xlsx_processed, xlsx_extracted[sheet], sheet)
+        
+        return xlsx_processed
 
     @staticmethod
     def generate_ins():
@@ -141,7 +120,7 @@ class XlsxDataIngestion:
     def _handle_dir(input_file_dir:str, mode:str="r") -> dict|int:
         if mode in ['u', 'r', 'd']:
             dir_list = os.listdir(input_file_dir)
-            selection = XlsxDataIngestion._display_directory_files(dir_list)
+            selection = XlsxDataIngestion._display_options(dir_list)
             input_file_basename = dir_list[selection]
             print(f'File selected: {input_file_basename}\n')
         elif mode == 'c':
@@ -157,26 +136,31 @@ class XlsxDataIngestion:
         )
     
     @staticmethod
-    def _display_directory_files(file_list:list) -> int:
-        selection_idx = -1  
+    def _display_options(file_list:list) -> list:
+        if not file_list:
+            print('Error: No elements found.')
+            return []
 
-        if len(file_list) == 0:
-            print('Error. No files found')
-            return -1
-        
-        print(f'-- {len(file_list)} files found:')
-        for idx, file in enumerate(file_list, start=1):  
+        print(f'-- {len(file_list)} elements found:')
+        for idx, file in enumerate(file_list, start=1):
             print(f'{idx}. {file}')
 
-        while True:
-            try:
-                selection_idx = int(input('\nPlease enter the index number to select the one to process: '))
-                if 1 <= selection_idx <= len(file_list):  
-                    return selection_idx - 1  
-                else:
-                    print(f'Error: Please enter a number between 1 and {len(file_list)}.')
-            except ValueError:
-                print('Error: Invalid input. Please enter a valid number.\n')
+        result = []
+        selection_input = input('\nEnter index numbers (comma-separated) to select elements to process: ').split(',')
+
+        for selection in selection_input:
+            selection = selection.strip()
+            if not selection.isdigit():
+                print(f'Error: Invalid input "{selection}", skipping.')
+                continue
+
+            index = int(selection)
+            if 1 <= index <= len(file_list):
+                result.append(index)
+            else:
+                print(f'Error: "{index}" is out of range (1 to {len(file_list)}).')
+
+        return result
 
     @staticmethod
     def _handle_file(input_file_dir:str) -> dict|int:
@@ -202,7 +186,7 @@ class XlsxDataIngestion:
     @staticmethod
     def normalize_string(entry_str:str) -> str:
         remove_bewteen_parenthesis = re.sub('(?<=\()(.*?)(?=\))', '', entry_str)
-        special_chars = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
+        special_chars = re.compile('[@!#$%^&*()<>?/\|}{~:]')
         remove_special_chars = re.sub(special_chars, '', remove_bewteen_parenthesis.lower()).strip()
         normalized_str = re.sub(' ', '_', remove_special_chars)
 
@@ -339,65 +323,78 @@ class XlsxDataIngestion:
         print("Directory successfully created")
         return file, output_folder
 
-    def handle_xlsx(self, ws_name:str="") -> tuple[dict, dict]:
-        _, ws = self._return_excel_workspace(ws_name)
-        file_headers = self._xlsx_return_header(ws, self.start_row_idx, self.start_col_idx)
+    def handle_xlsx(self, ws_name:str="") -> dict:
+        wb, ws_list = self._return_excel_workspace(ws_name)
 
-        json_header = self._json_fill_header(file_headers)
-        json_obj, entry_counter = self._json_fill_body(ws, json_header)
-        reworked_json = self._fill_missing_dates(json_obj)
-        earliest_start, latest_finish = self._project_dates(reworked_json)
-        nested_json = self._build_nested_dic(reworked_json)
-        
-        xlsx_results = {
-            "nested_json": nested_json,
-            "flattend_json": reworked_json,
-            "entry_count": entry_counter,
-            "earliest_start": earliest_start,
-            "latest_finish": latest_finish,
-        }
+        xlsx_results = {ws:{} for ws in ws_list}
 
+        for ws in ws_list: 
+            start = XlsxDataIngestion.return_valid_date()
+            file_headers = self._xlsx_return_header(wb[ws], self.start_row_idx, self.start_col_idx)
+
+            json_header = self._json_fill_header(file_headers)
+            json_obj, entry_counter = self._json_fill_body(wb[ws], json_header)
+            reworked_json = self._fill_missing_dates(json_obj)
+            earliest_start, latest_finish = self._project_dates(reworked_json)
+            nested_json = self._build_nested_dic(reworked_json)
+            
+            xlsx_results[ws] = {
+                "proc_start": start,
+                "proc_finish": XlsxDataIngestion.return_valid_date(),
+                "flattend_json": reworked_json,
+                "nested_json": nested_json,
+                "entry_count": entry_counter,
+                "earliest_start": earliest_start,
+                "latest_finish": latest_finish,
+            }
+            
         return xlsx_results
 
-    def _return_excel_workspace(self, worksheet_name:str="Sheet1"):
-        basename = self.input_basename + '.' + self.input_extension
-        file = os.path.join(self.input_path, basename)
+    def _return_excel_workspace(self, worksheet_name:str="Sheet1") -> tuple:
+        basename = f"{self.input_basename}.{self.input_extension}"
+        file_path = os.path.join(self.input_path, basename)
         
         try:
-            workbook = load_workbook(filename=file)
-            worksheet = workbook[worksheet_name]
+            workbook = load_workbook(filename=file_path)
+            worksheet_list = [workbook[worksheet_name]]
+            return workbook, worksheet_list
         except KeyError:
             print(f"Error: Worksheet '{worksheet_name}' does not exist.")
-            
-            while True:
-                user_answer = input("Would you like to create a new worksheet under this name? (Y/N/Q): ").strip().lower()
-                
-                if user_answer == 'y':
-                    worksheet = workbook.create_sheet(worksheet_name)
-                    self.ws_name = worksheet_name
-                    print(f"New worksheet '{worksheet_name}' created.\n")
-                    break
-                elif user_answer == 'n':
-                    ws_list = workbook.sheetnames
-                    selected_ws_idx = XlsxDataIngestion._display_directory_files(ws_list)
-                    
-                    if selected_ws_idx >= 0:  
-                        worksheet = workbook.worksheets[selected_ws_idx]
-                        self.ws_name = ws_list[selected_ws_idx]
-                        print(f"Worksheet selected: '{self.ws_name}'")
-                        return workbook, worksheet
-                    else:
-                        print("Invalid selection. Returning without changes.\n")
-                        return workbook, None
-                        
-                elif user_answer == 'q':
-                    print("Quitting without changes.\n")
-                    return workbook, None
-                else:
-                    print("Invalid input. Please enter 'Y' for Yes, 'N' for No, or 'Q' to Quit.")
+            return self._handle_missing_worksheet(workbook, worksheet_name)
         
-        return workbook, worksheet
+    def _handle_missing_worksheet(self, workbook, worksheet_name:str) -> tuple:
+        while True:
+            user_answer = input("Would you like to create a new worksheet under this name? (Y/N/Q): ").strip().lower()
+            
+            if user_answer == 'y':
+                return self._create_new_worksheet(workbook, worksheet_name)
+            elif user_answer == 'n':
+                return self._select_existing_worksheets(workbook)
+            elif user_answer == 'q':
+                print("Quitting without changes.\n")
+                return workbook, []
+            else:
+                print("Invalid input. Please enter 'Y' for Yes, 'N' for No, or 'Q' to Quit.")
 
+    def _create_new_worksheet(self, workbook, worksheet_name:str) -> tuple:
+        worksheet_list = [workbook.create_sheet(worksheet_name)]
+        self.ws_name_list = worksheet_list
+        print(f"New worksheet '{worksheet_name}' created.\n")
+        return workbook, worksheet_list
+
+    def _select_existing_worksheets(self, workbook) -> tuple:
+        ws_list = workbook.sheetnames
+        selected = XlsxDataIngestion._display_options(ws_list)
+        
+        if not selected:
+            print("Invalid selection. Returning without changes.\n")
+            return workbook, []
+        
+        worksheet_list = [workbook[ws_list[idx - 1]].title for idx in selected]
+        self.ws_name_list = worksheet_list
+        print(f"Worksheets selected: {self.ws_name_list}")
+        return workbook, worksheet_list
+        
     def _xlsx_return_header(self, active_worksheet, start_row_idx:int, start_col_idx:int) -> list:
         ws = active_worksheet
         header_list = []
@@ -462,7 +459,7 @@ class XlsxDataIngestion:
         first_header_col = column_index_from_string(first_header_col_letter)
         last_header_col = column_index_from_string(last_header_col_letter)
 
-        entry_counter = 0
+        entry_counter = 1
         for row in ws.iter_rows(min_row=first_header_row + 1, max_row=ws.max_row, 
                                 min_col=first_header_col, max_col=last_header_col):
             json_activity = {key: None for key in header_dict.keys()}
@@ -518,8 +515,7 @@ class XlsxDataIngestion:
         else:
             return None
         
-    def _format_date_string(self, date_string:str, 
-                           output_format="%d-%b-%Y") -> str|None:
+    def _format_date_string(self, date_string:str, output_format="%d-%b-%Y") -> str|None:
         try:
             special_chars = re.compile('[@_!#$%^&*()<>?\|}{~:]')
 
@@ -631,6 +627,30 @@ class XlsxDataIngestion:
             )
         
         return nested_dict
+
+    def process_json(self, new_dict:dict, xlsx_dict:dict, xlsx_sheet:str="") -> None:
+        basename = self.input_basename + '.' + self.input_extension 
+        run_time = XlsxDataIngestion.calculate_time_duration(
+            xlsx_dict.get("proc_start", ""), 
+            xlsx_dict.get("proc_finish", "")
+        )
+
+        new_dict[xlsx_sheet] = {
+            "details": {
+                "workbook": os.path.join(self.input_path, basename),
+                "worksheet": xlsx_sheet,
+                "start_date": xlsx_dict.get("earliest_start", ""),
+                "finish_date": xlsx_dict.get("latest_finish", ""),
+                "entry_count": xlsx_dict.get("entry_count", ""),
+            },
+            "logs": {
+                "start": xlsx_dict.get("proc_start", ""),
+                "finish": xlsx_dict.get("proc_finish", ""),
+                "run-time": run_time,
+                "status": [],
+            },
+            "content": xlsx_dict.get("flattend_json", "")
+        }
 
 
 if __name__ == "__main__":
