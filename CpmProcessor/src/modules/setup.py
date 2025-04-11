@@ -15,9 +15,9 @@ from utils.xlsx.data_comparing import XlsxDataComparing
 
 import sys
 sys.path.append("../")
-from CpmProcessor.keys.secrets import RSLTS_DIR
+from CpmProcessor.keys.secrets import RSLTS_DIR, TEST_XLSX_DIR, TEST_JSON_DIR
 
-from CpmProcessor.src import db
+#from CpmProcessor.src import db
 
 class Setup:
     modules = 0
@@ -26,8 +26,8 @@ class Setup:
         self.obj = project_dict
 
     @staticmethod
-    def main(auto=True, database=True):
-        ins = Setup.generate_ins()
+    def main(auto=True, database=False):
+        ins = Setup.generate_ins(database)
 
         ins.print_result("Setup processing...")
         data = ins.extract_data_from_file(
@@ -35,21 +35,26 @@ class Setup:
             ins.obj["input_file"]["path"], 
             ins.obj["input_file"]["basename"], 
             ins.obj["input_file"]["extension"],
-            RSLTS_DIR
+            RSLTS_DIR   
         )
         ins.update_project_modules(data)
 
         ins.print_result("DataReferencing processing...")
+        worksheets = list(data.keys())
+        print("Please choose the worksheet to reference: ")
+        worksheet_idx = XlsxDataReferencing._display_options(worksheets)[0]
+        worksheet = worksheets[worksheet_idx - 1]
         reference = ins.reference_data_from_file(
             auto, 
             ins.obj["input_file"]["path"], 
             ins.obj["input_file"]["basename"], 
             ins.obj["input_file"]["extension"],
-            data["content"]["body"]
+            data[worksheet]
         )
         ins.update_project_modules(reference)
 
         ins.print_result("DataComparing processing...")
+        Setup.write_dict_to_json(reference, "project_modules_test", TEST_JSON_DIR)
         compared = ins.compare_data_from_file(
             auto, 
             ins.obj["input_file"]["path"], 
@@ -62,10 +67,14 @@ class Setup:
         return ins
 
     @staticmethod
-    def generate_ins():
+    def generate_ins(database:str):
         input_file = Setup.return_valid_file(
             input("Please enter the path to the file or directory: ").strip()
         )
+
+        if not database:
+            return Setup.fill_ins(input_file)
+
         print("== Select a parent Client for the project ==")
         clients = db.Clients.fetch_and_print_data()
         client_id = Setup._display_directory_files(clients) + 1
@@ -103,7 +112,7 @@ class Setup:
             return Setup.get_ins(input_file, **project)
 
     @staticmethod
-    def get_ins(input_file, **project_metadata):
+    def get_ins(input_file:dict, **project_metadata:dict):
         project_ins_dict = {
             "input_file": dict(
                 path = input_file.get("path"),
@@ -130,6 +139,43 @@ class Setup:
                     "start_date": project_metadata.get("start"),
                     "finish_date": project_metadata.get("finish"),
                     "tags": Setup._return_valid_entity_name(db.Tags, project_metadata.get("tag_id")),
+                },
+                modules = {},
+            ),
+        }
+
+        ins = Setup(project_ins_dict)
+
+        return ins
+
+    @staticmethod
+    def fill_ins(input_file:dict):
+        project_ins_dict = {
+            "input_file": dict(
+                path = input_file.get("path"),
+                basename = input_file.get("basename"),
+                extension = input_file.get("extension"),
+            ),
+            "output_file": dict(
+                parent_directory = "== SECRET ==",
+                directories = {},
+            ),
+            "project": dict(
+                metadata = {
+                    "version": input("Please enter the project version: "),
+                    "client": input("Please enter the project client: "),
+                    "division": input("Please enter the project division: "),
+                    "label": "N/A",
+                    "name": input("Please enter the project name: "),
+                    "code": input("Please enter the project code: "),
+                    "notes": input("Please enter project notes: "),
+                    "workweek": input("Please enter the project's work-week: "),
+                    "location": input("Please enter the project's location: "),
+                    "assignee": input("Please enter the project asignee: "),
+                    "status": input("Please enter the project's status: "),
+                    "start_date": input("Please enter the project's start date (dd-mmm-yyyy): "),
+                    "finish_date": input("Please enter the project's start date (dd-mmm-yyyy): "),
+                    "tags": input("Please enter the project's tags: "),
                 },
                 modules = {},
             ),
@@ -297,6 +343,33 @@ class Setup:
                 print('Error: Invalid input. Please enter a valid number.\n')
 
     @staticmethod
+    def _display_options(file_list:list) -> list:
+        if not file_list:
+            print('Error: No elements found.')
+            return []
+
+        print(f'-- {len(file_list)} elements found:')
+        for idx, file in enumerate(file_list, start=1):
+            print(f'{idx}. {file}')
+
+        result = []
+        selection_input = input('\nEnter index numbers (comma-separated) to select elements to process: ').split(',')
+
+        for selection in selection_input:
+            selection = selection.strip()
+            if not selection.isdigit():
+                print(f'Error: Invalid input "{selection}", skipping.')
+                continue
+
+            index = int(selection)
+            if 1 <= index <= len(file_list):
+                result.append(index)
+            else:
+                print(f'Error: "{index}" is out of range (1 to {len(file_list)}).')
+
+        return result
+
+    @staticmethod
     def _handle_file(input_file_dir:str):
         input_file_extension = os.path.basename(input_file_dir).split(".")[-1]
 
@@ -325,11 +398,24 @@ class Setup:
         return f"MODULE_{count}"
 
     @staticmethod
-    def write_data_to_json(file_title:str, json_dict:dict):
-        file = os.path.join(RSLTS_DIR, file_title)
+    def write_dict_to_json(json_dict:dict, file_name:str, output_folder:str, mode:str='w') -> None:
+        if not json_dict:
+            print("Error: Dictionary is empty. No data to write.\n")
+            return
         
-        with open(file, 'w') as writer:
-            json.dump(json_dict, writer)
+        basename = file_name.split(".")[0] if "." in file_name else file_name
+        new_directory = os.path.join(
+            output_folder, 
+            f"{basename}.json"
+        )
+
+        try:
+            with open(new_directory, mode) as file_writer:
+                json.dump(json_dict, file_writer)
+
+            print(f"Successfully saved Dictionary to JSON:\nFile: {new_directory}\n")
+        except Exception as e:
+            print(f"An unexpected error occurred while writing to Excel: {e}\n")
 
     @staticmethod
     def ynq_user_interaction(prompt_message:str) -> str:
