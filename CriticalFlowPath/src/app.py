@@ -21,6 +21,7 @@ class App:
     def __init__(self, project_ins_dict):
         self.obj = project_ins_dict
         self.schedule_worksheet = "CFA - Schedule"
+        self.schedule_worksheet_macro = "Macro CFA - Schedule"
         self.legends_worksheet = "CFA - Legends"
 
         #Structures
@@ -165,7 +166,7 @@ class App:
         entry_date = project_ins["project"]["metadata"]["dates"].get("created")
         entry_month = datetime.strptime(entry_date, "%d-%b-%y %H:%M:%S").month
         
-        months_in_year = {
+        calendar_months = {
             1:"Jan",
             2:"Feb",
             3:"Mar",
@@ -188,7 +189,7 @@ class App:
                 category = folder_structure[counter]
 
                 if category == "date": 
-                    new_directory += months_in_year[entry_month] + '/' + entry_date
+                    new_directory += calendar_months[entry_month] + '/' + entry_date
                 else:
                     new_directory += project_ins["project"]["metadata"].get(category) + '/'
 
@@ -234,7 +235,7 @@ class App:
             mdl_2["content"].get("custom_ordered_dict"),
         )
 
-        self._print_result("ScheduleFramework processing...")
+        self._print_result("ScheduleFramework (CFA) processing...")
         mdls.ScheduleFramework.main(
             auto,
             ins_obj["input_file"].get("path"), 
@@ -248,9 +249,10 @@ class App:
             mdl_2["content"].get("lead_schedule_struct"),
             mdl_1["details"].get("start_date"),
             mdl_1["details"].get("finish_date"),
+            'd',
         )
 
-        self._print_result("PostProcessingFramework processing...")
+        self._print_result("PostProcessingFramework (CFA) processing...")
         mdls.PostProcessingFramework.main(
             auto,
             ins_obj["input_file"].get("path"), 
@@ -265,6 +267,53 @@ class App:
             mdl_3["details"]["calendar"]["processed"]["days"].get("total"),
             mdl_1["details"].get("start_date"),
             mdl_1["details"].get("finish_date"),
+            'd',
+        )
+
+        self._print_result("WbsFramework processing...")
+        mdls.WbsFramework.main(
+            auto, 
+            ins_obj["input_file"].get("path"), 
+            ins_obj["input_file"].get("basename"),
+            ins_obj["input_file"].get("extension"),
+            self.schedule_worksheet_macro,
+            mdl_2["content"].get("table"),
+            mdl_2["content"].get("custom_ordered_dict"),
+        )
+
+        self._print_result("ScheduleFramework (Macro CFA) processing...")
+        mdls.ScheduleFramework.main(
+            auto,
+            ins_obj["input_file"].get("path"), 
+            ins_obj["input_file"].get("basename"),
+            ins_obj["input_file"].get("extension"), 
+            mdl_3["details"].get("workweek"), 
+            self.schedule_worksheet_macro,
+            mdl_2["content"].get("table"),
+            mdl_3.get("content"),
+            mdl_2["content"].get("custom_phase_order"),
+            mdl_2["content"].get("lead_schedule_struct"),
+            mdl_1["details"].get("start_date"),
+            mdl_1["details"].get("finish_date"),
+            'w',
+        )
+
+        self._print_result("PostProcessingFramework (Macro CFA) processing...")
+        mdls.PostProcessingFramework.main(
+            auto,
+            ins_obj["input_file"].get("path"), 
+            ins_obj["input_file"].get("basename"),
+            ins_obj["input_file"].get("extension"),
+            mdl_3["details"].get("workweek"), 
+            self.schedule_worksheet_macro,
+            mdl_2["content"].get("table"),
+            mdl_3.get("content"),
+            mdl_2["content"].get("custom_phase_order"),
+            mdl_2["content"].get("lead_schedule_struct"),
+            mdl_3["details"]["calendar"]["processed"]["days"].get("total"),
+            mdl_1["details"].get("start_date"),
+            mdl_1["details"].get("finish_date"),
+            'w',
         )
 
         self._print_result("LegendsFramework processing...")
