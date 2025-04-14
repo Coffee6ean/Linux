@@ -29,6 +29,7 @@ class WbsFramework:
         #Structures
         self.entry_statuses = {
             "added": "#b5f26b",
+            "naming": "#f26bf0",
             "new": "#f2b86b",
             "updated": "#9f6bf2", 
             "modified": "#9f6bf2",
