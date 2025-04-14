@@ -160,7 +160,7 @@ class App:
         entry_date = datetime.now()
         entry_month = datetime.now().month
         
-        months_in_year = {
+        calendar_months = {
             1:"Jan",
             2:"Feb",
             3:"Mar",
@@ -183,7 +183,7 @@ class App:
                 category = folder_structure[counter]
 
                 if category == "date": 
-                    new_directory += months_in_year[entry_month] + '/' + datetime.strftime(entry_date, "%d-%b-%y %H:%M:%S")
+                    new_directory += calendar_months[entry_month] + '/' + datetime.strftime(entry_date, "%d-%b-%y %H:%M:%S")
                 else:
                     new_directory += project_ins["project"]["metadata"].get(category) + '/'
 
@@ -220,7 +220,7 @@ class App:
             mdl_2["content"].get("referenced")
         )
 
-        self._print_result("WBSFramework processing...")
+        """ self._print_result("WBSFramework processing...")
         mdls.WbsFramework.main(
             auto, 
             ins_obj["input_file"].get("path"), 
@@ -228,7 +228,7 @@ class App:
             ins_obj["input_file"].get("extension"),
             self.wbs_table,
             mdl_3["content"].get("compared")
-        )
+        ) """
 
     def document_project_package(self, project_folder:str) -> None:
         ins_obj = self.obj["setup"]
