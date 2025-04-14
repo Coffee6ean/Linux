@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from openpyxl import load_workbook
 from openpyxl.utils import column_index_from_string
 from openpyxl.utils import get_column_letter
@@ -15,7 +15,7 @@ from CriticalFlowPath.keys.secrets import RSLTS_DIR
 class PostProcessingFramework():
     def __init__(self, input_file_path, input_file_basename, input_file_extension, input_file_workweek,
                  project_worksheet_name, project_table, project_ordered_dict, project_phase_order, 
-                 project_lead_struct, project_duration_processed, project_start_date, project_finish_date):
+                 project_lead_struct, project_duration_processed, project_start_date, project_finish_date, time_scale):
         self.input_path = input_file_path
         self.input_basename = input_file_basename
         self.input_extension = input_file_extension
@@ -28,6 +28,7 @@ class PostProcessingFramework():
         self.duration_processed = project_duration_processed
         self.start_date = project_start_date
         self.finish_date = project_finish_date
+        self.time_scale = time_scale
 
         #Module Attributes
         self.wbs_start_row = 4
@@ -51,7 +52,8 @@ class PostProcessingFramework():
     @staticmethod
     def main(auto=True, input_file_path=None, input_file_basename=None, input_file_extension=None, input_file_workweek=None,
              project_worksheet_name=None, project_table=None, project_ordered_dict=None, project_phase_order=None, 
-             project_lead_struct=None, project_duration_processed=None, project_start_date=None, project_finish_date=None):
+             project_lead_struct=None, project_duration_processed=None, project_start_date=None, project_finish_date=None,
+             time_scale=None):
         if auto:
             project = PostProcessingFramework.auto_generate_ins(
                 input_file_path, 
@@ -66,6 +68,7 @@ class PostProcessingFramework():
                 project_duration_processed,
                 project_start_date, 
                 project_finish_date,
+                time_scale
             )
         else:
             project = PostProcessingFramework.generate_ins()
@@ -73,13 +76,16 @@ class PostProcessingFramework():
         active_workbook, active_worksheet = project.return_excel_workspace(project.worksheet_name)
 
         if active_workbook and active_worksheet:
-            project.update_schedule_size(
-                active_workbook, 
-                active_worksheet, 
-                project.ordered_dict, 
-                project.table, 
-                project.lead_struct,
-            )
+            if not project.time_scale:
+                project.update_schedule_size(
+                    active_workbook, 
+                    active_worksheet, 
+                    project.ordered_dict, 
+                    project.table, 
+                    project.lead_struct,
+                    project.time_scale
+                )
+
             project.update_schedule_style(
                 project.lead_struct, project.json_struct_categories
             )
@@ -112,7 +118,8 @@ class PostProcessingFramework():
     @staticmethod
     def auto_generate_ins(input_file_path, input_file_basename, input_file_extension, input_file_workweek,
                           project_worksheet_name, project_table, project_ordered_dict, project_phase_order, 
-                          project_lead_struct, project_duration_processed, project_start_date, project_finish_date):
+                          project_lead_struct, project_duration_processed, project_start_date, project_finish_date,
+                          time_scale):
         ins = PostProcessingFramework(
             input_file_path, 
             input_file_basename, 
@@ -126,9 +133,25 @@ class PostProcessingFramework():
             project_duration_processed,
             project_start_date, 
             project_finish_date,
+            time_scale
         )
 
         return ins
+
+    @staticmethod
+    def binary_user_interaction(prompt_message:str) -> bool:
+        valid_responses = {'y', 'n'}  
+        
+        while True:
+            user_input = input(prompt_message).lower().strip()
+            
+            if user_input in valid_responses:
+                if user_input == 'y':
+                    return True 
+                else:
+                    return False 
+            else:
+                print("Error. Invalid input, please try again. ['Y/y' for Yes, 'N/n' for No]\n")
 
     def return_excel_workspace(self, worksheet_name):
         basename = self.input_basename + '.' + self.input_extension
@@ -175,7 +198,8 @@ class PostProcessingFramework():
         file = os.path.join(self.input_path, basename)
         overlap_results = self._overlapping_dates(
             custom_ordered_dict, 
-            lead_schedule_struct
+            lead_schedule_struct,
+            self.time_scale
         )
         entry_dict_available = {}
         
@@ -202,8 +226,8 @@ class PostProcessingFramework():
         print("Schedule Frame successfully updated")
         active_workbook.close()
 
-    def _overlapping_dates(self, custom_ordered_dict:dict, 
-                          lead_schedule_struct:str, alloted_space:int=2) -> dict:
+    def _overlapping_dates(self, custom_ordered_dict:dict, lead_schedule_struct:str, 
+                           alloted_space:int=2, time_scale:str='d') -> dict:
         lead_based_lists = []
         nested_list = []
         ref_lead = self._generate_compound_category_name(custom_ordered_dict[0])
@@ -226,7 +250,12 @@ class PostProcessingFramework():
             sorted_list = self._bubble_sort_entries_by_dates(location_list)
             sorted_entries_list.append(sorted_list)
 
-        overlap_results = self._calculate_overlap(sorted_entries_list, lead_schedule_struct, alloted_space)
+        overlap_results = self._calculate_overlap(
+            sorted_entries_list, 
+            lead_schedule_struct, 
+            alloted_space,
+            time_scale
+        )
         return overlap_results
 
     def _generate_compound_category_name(self, item: dict) -> str:
@@ -260,8 +289,19 @@ class PostProcessingFramework():
         sorted_list = unsorted_list
         return sorted_list
 
-    def _calculate_overlap(self, location_based_lists:list, 
-                          lead_schedule_struct:str, alloted_space:int) -> dict:
+    def _calculate_overlap(self, location_based_lists:list, lead_schedule_struct:str, 
+                           alloted_space:int, time_scale:str) -> dict:
+        overlap = {}
+
+        if time_scale == 'd':
+            overlap = self._day_based_overlap(location_based_lists, lead_schedule_struct, alloted_space)
+        elif time_scale == 'w':
+            overlap = self._week_based_overlap(location_based_lists, lead_schedule_struct, alloted_space)            
+
+        return overlap
+        
+    def _day_based_overlap(self, location_based_lists:list, lead_schedule_struct:str, 
+                           alloted_space:int) -> dict:
         overlap_results = []
 
         for lead_list in location_based_lists:
@@ -297,6 +337,70 @@ class PostProcessingFramework():
 
         return max_rows_dict
     
+    def _week_based_overlap(self, location_based_lists: list, 
+                           lead_schedule_struct: str, 
+                           alloted_space: int) -> dict:
+        overlap_results = []
+
+        for lead_list in location_based_lists:
+            if not lead_list:
+                continue
+
+            active_overlaps = []
+            max_overlap = 0
+            ref_point = lead_list[0].get(lead_schedule_struct, "UNKNOWN")
+
+            for activity in lead_list:
+                try:
+                    start_date = datetime.strptime(activity["start"], "%d-%b-%Y")
+                    finish_date = datetime.strptime(activity["finish"], "%d-%b-%Y")
+                except (KeyError, ValueError) as e:
+                    print(f"Invalid date format in activity: {e}")
+                    continue
+
+                week_start, week_finish = self._calculate_week(start_date, finish_date)
+
+                # Filter out non-overlapping activities
+                active_overlaps = [
+                    (active_start, active_finish) 
+                    for active_start, active_finish in active_overlaps 
+                    if week_finish >= active_start and week_start <= active_finish
+                ]
+
+                active_overlaps.append((week_start, week_finish))
+                max_overlap = max(max_overlap, len(active_overlaps))
+
+            if ref_point != "UNKNOWN":
+                overlap_results.append((ref_point, max_overlap))
+
+        # Process results into output dictionary
+        max_rows_dict = {}
+        for lead_cat, max_row in overlap_results:
+            max_rows_dict.setdefault(lead_cat, []).append(max_row + alloted_space)
+
+        return max_rows_dict
+    
+    def _calculate_week(self, start_date:datetime, 
+                       finish_date:datetime) -> tuple[datetime, datetime]:
+
+        def adjust_to_weekday(target_date, target_weekday):
+            while self.calendar_weekdays[target_date.weekday()] != target_weekday:
+                if self.calendar_weekdays[target_date.weekday()] < target_weekday:
+                    target_date += timedelta(days=1)
+                else:
+                    target_date -= timedelta(days=1)
+            return target_date
+
+        week_start = adjust_to_weekday(start_date, self.input_workweek[0])
+        week_finish = adjust_to_weekday(finish_date, self.input_workweek[-1])
+
+        if week_start > finish_date:
+            week_start = adjust_to_weekday(finish_date, self.input_workweek[0])
+        if week_finish < start_date:
+            week_finish = adjust_to_weekday(start_date, self.input_workweek[-1])
+
+        return (week_start, week_finish)
+    
     def _process_file(self, active_worksheet, lead_schedule_struct:str, 
                      overlap_results:dict, con_available_ins:dict) -> None:
         ws = active_worksheet
@@ -317,17 +421,27 @@ class PostProcessingFramework():
         self._delete_columns(ws, start_col_idx, end_col_idx)
         self._insert_columns(ws, start_col_idx, end_col_idx - start_col_idx)
     
-    def _find_column_idx(self, active_worksheet, column_header:str, start_row:int):
+    def _find_column_idx(self, active_worksheet, column_header:str, start_row:int) -> int|None:
         ws = active_worksheet
         start_col_idx = column_index_from_string(self.wbs_start_col)
-        normalized_header = column_header.replace(" ", "_").lower()
-
-        for row in ws.iter_rows(min_row=start_row, min_col=start_col_idx, max_col=ws.max_column):
+        normalized_header = column_header.strip().replace(" ", "_").lower()
+        
+        for row in ws.iter_rows(
+            min_row=start_row,
+            min_col=start_col_idx,
+            max_col=active_worksheet.max_column
+        ):
             for cell in row:
                 if cell.value and isinstance(cell.value, str):
-                    normalized_cell_value = cell.value.replace(" ", "_").lower()
-                    if normalized_header in normalized_cell_value:
+                    normalized_cell_value = cell.value.strip().replace(" ", "_").lower()
+                    if normalized_header == normalized_cell_value:
                         return cell.column
+        
+        if PostProcessingFramework.binary_user_interaction(
+            f"Column header '{column_header}' not found. Use default column 'A'?: "
+        ):
+            return 0
+        return None
 
     def _return_first_column_idx(self, active_worksheet, start_row_idx:int, start_col_idx:int):
         ws = active_worksheet
@@ -605,7 +719,7 @@ class PostProcessingFramework():
                     end_column=last_col
                 )
 
-    def _apply_color_format(self, active_worksheet, start_col:int, start_row:int):
+    def _apply_color_format(self, active_worksheet, start_col:int, start_row:int) -> None:
         ws = active_worksheet
     
         self._paint_schedule_row(
@@ -695,7 +809,7 @@ class PostProcessingFramework():
 
                 last_header = col_header
 
-    def _apply_post_styling(self, active_worksheet):
+    def _apply_post_styling(self, active_worksheet) -> None:
         ws = active_worksheet
         first_row = ws[self.wbs_start_row]
         
@@ -761,7 +875,7 @@ class PostProcessingFramework():
 
         print("Post sectioning applied successfully.")
 
-    def _list_cell_values(self, active_worksheet, col_idx:int):
+    def _list_cell_values(self, active_worksheet, col_idx:int) -> list:
         ws = active_worksheet
         col_list = []
 
