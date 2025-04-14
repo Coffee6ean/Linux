@@ -15,9 +15,10 @@ sys.path.append("../")
 from CriticalFlowPath.keys.secrets import RSLTS_DIR
 
 class ScheduleFramework():
+
     def __init__(self, input_file_path, input_file_basename, input_file_extension, input_file_workweek,
                  project_worksheet_name, project_table, project_ordered_dict, project_phase_order, project_lead_struct, 
-                 project_start_date, project_finish_date, input_start_row=1, input_start_col=""):
+                 project_start_date, project_finish_date, time_scale, input_start_row=1, input_start_col=""):
         self.input_path = input_file_path
         self.input_basename = input_file_basename
         self.input_extension = input_file_extension
@@ -29,17 +30,20 @@ class ScheduleFramework():
         self.lead_struct = project_lead_struct
         self.start_date = project_start_date
         self.finish_date = project_finish_date
+        self.time_scale = time_scale
         self.start_row = int(input_start_row)
         self.start_col = str(input_start_col)
         
         #Module Attributes
         self.wbs_start_row = 4
         self.wbs_start_col = 'A'
+        self.schedule_scale_based = []
         self.dark_default_hex_font = "00000000"
         self.light_default_hex_font = "00FFFFFF"
         self.default_hex_fill_color = "00FFFF00"
 
         #Structures
+        self.time_scale_options = ["d", "w"]
         self.wbs_final_categories = {
             "phase": "thick",
             "location": "no_border", 
@@ -49,16 +53,25 @@ class ScheduleFramework():
             "hyperlinks": ["activity_code", "activity_name", "wbs_code"]
         }
         self.calendar_weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-
-        #Instance Results
-        self.initial_project_type:str = None
-        self.final_project_type:any = None
-        self.final_project_dict:dict = None
+        self.calendar_months = {
+            1:"Jan",
+            2:"Feb",
+            3:"Mar",
+            4:"Apr",
+            5:"May",
+            6:"Jun",
+            7:"Jul",
+            8:"Aug",
+            9:"Sep",
+            10:"Oct",
+            11:"Nov",
+            12:"Dec",
+        }
 
     @staticmethod
     def main(auto=True, input_file_path=None, input_file_basename=None, input_file_extension=None, input_file_workweek=None, 
              project_worksheet_name=None, project_table=None, project_ordered_dict=None, project_phase_order=None, 
-             project_lead_struct=None, project_start_date=None, project_finish_date=None):
+             project_lead_struct=None, project_start_date=None, project_finish_date=None, time_scale=None):
         if auto:
             project = ScheduleFramework.auto_generate_ins(
                 input_file_path, 
@@ -72,11 +85,20 @@ class ScheduleFramework():
                 project_lead_struct, 
                 project_start_date, 
                 project_finish_date,
+                time_scale
             )
         else:
             project = ScheduleFramework.generate_ins()
 
         if project:
+            if not project.worksheet_name:
+                project.worksheet_name = "CFA - Schedule"
+
+            if not project.time_scale:
+                print("Please choose the time scale to process the schedule: ")
+                scale_idx = ScheduleFramework.display_options(project.time_scale_options)
+                project.time_scale = project.time_scale_options[scale_idx[0] - 1]
+
             active_workbook, active_worksheet = project.return_excel_workspace(project.worksheet_name)
 
             if active_workbook and active_worksheet:
@@ -111,6 +133,7 @@ class ScheduleFramework():
             setup_cls.obj["project"]["modules"]["MODULE_2"]["content"].get("lead_schedule_struct"),
             setup_cls.obj["project"]["modules"]["MODULE_1"]["details"].get("start_date"),
             setup_cls.obj["project"]["modules"]["MODULE_1"]["details"].get("finish_date"),
+            None
         )
 
         return ins
@@ -118,7 +141,7 @@ class ScheduleFramework():
     @staticmethod
     def auto_generate_ins(input_file_path, input_file_basename, input_file_extension, input_file_workweek, 
                           project_worksheet_name, project_table, project_ordered_dict, project_phase_order, 
-                          project_lead_struct, project_start_date, project_finish_date):
+                          project_lead_struct, project_start_date, project_finish_date, time_scale):
         ins = ScheduleFramework(
             input_file_path, 
             input_file_basename, 
@@ -131,12 +154,13 @@ class ScheduleFramework():
             project_lead_struct, 
             project_start_date, 
             project_finish_date,
+            time_scale
         )
 
         return ins
 
     @staticmethod
-    def ynq_user_interaction(prompt_message):
+    def ynq_user_interaction(prompt_message:str) -> str:
         valid_responses = {'y', 'n', 'q'}  
         
         while True:
@@ -146,6 +170,21 @@ class ScheduleFramework():
                 return user_input  
             else:
                 print("Error. Invalid input, please try again. ['Y/y' for Yes, 'N/n' for No, 'Q/q' for Quit]\n")
+
+    @staticmethod
+    def binary_user_interaction(prompt_message:str) -> bool:
+        valid_responses = {'y', 'n'}  
+        
+        while True:
+            user_input = input(prompt_message).lower().strip()
+            
+            if user_input in valid_responses:
+                if user_input == 'y':
+                    return True 
+                else:
+                    return False 
+            else:
+                print("Error. Invalid input, please try again. ['Y/y' for Yes, 'N/n' for No]\n")
 
     @staticmethod
     def display_directory_files(file_list:list) -> int:
@@ -169,6 +208,33 @@ class ScheduleFramework():
         return int(selection_idx) - 1
 
     @staticmethod
+    def display_options(file_list:list) -> list:
+        if not file_list:
+            print('Error: No elements found.')
+            return []
+
+        print(f'-- {len(file_list)} elements found:')
+        for idx, file in enumerate(file_list, start=1):
+            print(f'{idx}. {file}')
+
+        result = []
+        selection_input = input('\nEnter index numbers (comma-separated) to select elements to process: ').split(',')
+
+        for selection in selection_input:
+            selection = selection.strip()
+            if not selection.isdigit():
+                print(f'Error: Invalid input "{selection}", skipping.')
+                continue
+
+            index = int(selection)
+            if 1 <= index <= len(file_list):
+                result.append(index)
+            else:
+                print(f'Error: "{index}" is out of range (1 to {len(file_list)}).')
+
+        return result
+
+    @staticmethod
     def hex2rgb(hex_color:str):
         trimmed_hex = hex_color.lstrip('#')
         calc_rgb = tuple(int(trimmed_hex[i:i+2], 16) for i in (0, 2, 4))
@@ -176,7 +242,7 @@ class ScheduleFramework():
         return calc_rgb
 
     @staticmethod
-    def calculateLuminance(R, G, B):
+    def calculateLuminance(R, G, B) -> float:
         lum = 0.2126*(R/255.0)**2.2 + 0.7152*(G/255.0)**2.2 + 0.0722*(B/255.0)**2.2
 
         return lum
@@ -224,7 +290,9 @@ class ScheduleFramework():
         file = os.path.join(self.input_path, basename)
 
         if self.start_col == "" or self.start_col is None:
-            self.start_col = get_column_letter(self._find_column_idx(active_worksheet, 'finish') + 1)
+            self.start_col = get_column_letter(
+                self._find_column_idx(active_worksheet, "finish", self.wbs_start_row) + 1
+            )
         
         custom_ordered_dict = {val["entry"]: val for val in json_dict}
 
@@ -239,24 +307,34 @@ class ScheduleFramework():
 
         return reworked_custom_ordered_dict
 
-    def _find_column_idx(self, active_worksheet, column_header:str):
+    def _find_column_idx(self, active_worksheet, column_header:str, start_row:int) -> int|None:
         ws = active_worksheet
         start_col_idx = column_index_from_string(self.wbs_start_col)
-        normalized_header = column_header.replace(" ", "_").lower()
-
-        for row in ws.iter_rows(min_row=self.wbs_start_row, min_col=start_col_idx, max_col=ws.max_column):
+        normalized_header = column_header.strip().replace(" ", "_").lower()
+        
+        for row in ws.iter_rows(
+            min_row=start_row,
+            min_col=start_col_idx,
+            max_col=active_worksheet.max_column
+        ):
             for cell in row:
                 if cell.value and isinstance(cell.value, str):
-                    normalized_cell_value = cell.value.replace(" ", "_").lower()
-                    if normalized_header in normalized_cell_value:
+                    normalized_cell_value = cell.value.strip().replace(" ", "_").lower()
+                    if normalized_header == normalized_cell_value:
                         return cell.column
+        
+        if ScheduleFramework.binary_user_interaction(
+            f"Column header '{column_header}' not found. Use default column 'A'?: "
+        ):
+            return 0
+        return None
 
-    def generate_schedule_frame(self, active_worksheet, start_date:str, end_date:str) -> None:
+    def generate_schedule_frame(self, active_worksheet, start_date:str, finish_date:str) -> None:
         ws = active_worksheet
 
         start_datetime_obj = datetime.strptime(start_date, "%d-%b-%Y")
-        end_datetime_obj = datetime.strptime(end_date, "%d-%b-%Y")
-        duration = (end_datetime_obj - start_datetime_obj).days + 1  
+        finish_datetime_obj = datetime.strptime(finish_date, "%d-%b-%Y")
+        duration = (finish_datetime_obj - start_datetime_obj).days + 1  
         
         self._fill_schedule_row(
             ws, start_date, duration, self.start_row, self.start_col, '%Y'
@@ -275,28 +353,76 @@ class ScheduleFramework():
 
     def _fill_schedule_row(self, active_worksheet, start_date:str, duration:int, 
                          start_row:int, start_col:str, format:str, week_days:bool=False) -> None:
-        project_workweek_based = []
+        schedule_workweek_based = []
         start_datetime = datetime.strptime(start_date, "%d-%b-%Y")
 
         for day in range(duration):
             date = start_datetime + timedelta(days=day)
 
             if self.calendar_weekdays[date.weekday()] in self.input_workweek:
-                project_workweek_based.append(date)
+                schedule_workweek_based.append(date)
 
-        for idx, day in enumerate(project_workweek_based):
-            cell_value = (
-                self.calendar_weekdays[day.weekday()]
-                if week_days 
-                else day.strftime(format)
-            )
-            active_worksheet.cell(
-                row=start_row, 
-                column=column_index_from_string(start_col) + idx, 
-                value=cell_value
-            )
+        if self.time_scale == 'd':
+            for idx, day in enumerate(schedule_workweek_based):
+                cell_value = (
+                    self.calendar_weekdays[day.weekday()]
+                    if week_days 
+                    else day.strftime(format)
+                )
+                active_worksheet.cell(
+                    row=start_row, 
+                    column=column_index_from_string(start_col) + idx, 
+                    value=cell_value
+                )
+        else:
+            self.schedule_scale_based = self._scale_schedule_frame(schedule_workweek_based, self.time_scale)
+            if self.schedule_scale_based:
+                for idx, dates in enumerate(self.schedule_scale_based):
+                    cell_value = (
+                        self.calendar_weekdays[dates[0].weekday()]
+                        if week_days 
+                        else dates[0].strftime(format)
+                    )
+                    active_worksheet.cell(
+                        row=start_row, 
+                        column=column_index_from_string(start_col) + idx, 
+                        value=cell_value
+                    )
+            
+    def _scale_schedule_frame(self, project_dates:list, time_scale:str) -> list:
+        if time_scale not in self.time_scale_options:
+            raise ValueError(f"Invalid time scale: {time_scale}. Use 'd', 'w', 'm', or 'y'")
+        
+        dates = []
+        
+        for date in project_dates:
+            if time_scale == "w":
+                dates.append(self._calculate_week(date, self.input_workweek))
+            elif time_scale == "m":
+                dates.append(ScheduleFramework._calculate_month(date, self.input_workweek))
+        
+        unique_dates = set(dates)
 
-    def apply_schedule_gantt_style(self, active_worksheet, custom_ordered_dict:dict, proc_table):
+        return sorted(unique_dates)
+    
+    def _calculate_week(self, date:datetime, workweek:list) -> tuple[datetime, datetime]:
+        start_of_week = workweek[0]
+        end_of_week = workweek[-1]
+        
+        while self.calendar_weekdays[date.weekday()] != start_of_week:
+            date = date - timedelta(days=1)
+        start_of_week_date = date
+
+        while self.calendar_weekdays[date.weekday()] != end_of_week:
+            date = date + timedelta(days=1)
+        end_of_week_date = date
+
+        return (start_of_week_date, end_of_week_date)
+    
+    def _calculate_month(self, date:datetime, workweek:list) -> datetime:
+        return date.month() 
+
+    def apply_schedule_gantt_style(self, active_worksheet, custom_ordered_dict:dict, proc_table) -> None:
         ws = active_worksheet
 
         start_ovr_date = datetime.strptime(self.start_date, "%d-%b-%Y")
@@ -322,8 +448,6 @@ class ScheduleFramework():
 
                 count += 1
 
-        print("Workbook filled successfully.")
-
     def apply_schedule_cfa_style(self, active_worksheet, custom_ordered_dict:dict, 
                                 proc_table) -> dict:
         ws = active_worksheet
@@ -337,15 +461,18 @@ class ScheduleFramework():
             "completed_tasks": set(),
         }
 
-
         self._paint_structured_schedule(
-            ws, custom_ordered_dict, proc_table, schedule_setup
+            ws, custom_ordered_dict, proc_table, schedule_setup, self.time_scale
         )
 
-        """ print("Workbook filled successfully.")
-        return custom_ordered_dict """
-
     def _paint_structured_schedule(self, active_worksheet, custom_ordered_dict:dict, proc_table, 
+                                 schedule_setup:dict, time_scale:str) -> None:
+        if time_scale == 'd':
+            self._day_based_schedule(active_worksheet, custom_ordered_dict, proc_table, schedule_setup)
+        if time_scale == "w":
+            self._week_based_schedule(active_worksheet, custom_ordered_dict, proc_table, schedule_setup)
+        
+    def _day_based_schedule(self, active_worksheet, custom_ordered_dict:dict, proc_table, 
                                  schedule_setup:dict) -> None:
         ws = active_worksheet
         start_ovr_date = schedule_setup.get("start_ovr_date")
@@ -370,9 +497,65 @@ class ScheduleFramework():
                 ref_lead = current_lead
                 occupied_rows[starting_point_row] = []
 
-            date_offset = self._determine_range(start_ovr_date, initial_date)
+            date_offset = self._determine_date_offset(start_ovr_date, initial_date)
             starting_col = column_index_from_string(starting_point_col) + len(date_offset)
             task_range = range(starting_col, starting_col + len(dates))
+
+            target_row = self._assign_range_to_occupied(occupied_rows, starting_point_row, task_range)
+            occupied_rows.setdefault(target_row, []).extend(task_range)
+
+            original_sequence = []
+            for i in task_range:
+                cell = ws.cell(row=target_row, column=i)
+
+                if item.get("predecessor"):
+                    self._style_cell(cell, item, True)
+                else:
+                    self._style_cell(cell, item)
+
+                if not original_sequence:
+                    self._add_comment(cell, item)
+
+                original_sequence.append(cell.coordinate)
+
+            item["cell_sequence"] = {
+                "original": original_sequence,
+                "reworked": None
+            }
+            completed_tasks.add(entry)
+
+        missing_tasks = set(proc_table.index.get_level_values("entry")) - completed_tasks
+        if missing_tasks:
+            print(f"Warning: The following tasks were not painted: {missing_tasks}")
+
+    def _week_based_schedule(self, active_worksheet, custom_ordered_dict:dict, proc_table, 
+                                 schedule_setup:dict) -> None:
+        ws = active_worksheet
+        starting_point_row = schedule_setup.get("starting_point_row")
+        starting_point_col = schedule_setup.get("starting_point_col")
+        ref_lead = schedule_setup.get("ref_lead")
+        occupied_rows = schedule_setup.get("occupied_rows", {})
+        completed_tasks = schedule_setup.get("completed_tasks", set())
+
+        for idx, entry in enumerate(proc_table.index.get_level_values("entry")):
+            item = custom_ordered_dict[entry]
+            current_lead = self._generate_compound_category_name(item)
+            dates = item["dates"].get("processed", [])
+
+            if not dates:
+                continue
+
+            initial_date = datetime.strptime(dates[0], "%d-%b-%Y")
+            final_date = datetime.strptime(dates[-1], "%d-%b-%Y")
+
+            if current_lead != ref_lead:
+                starting_point_row = max(starting_point_row, self.wbs_start_row + idx + 1)
+                ref_lead = current_lead
+                occupied_rows[starting_point_row] = []
+
+            date_offset, week_coverage = self._determine_date_coverage(initial_date, final_date)
+            starting_col = column_index_from_string(starting_point_col) + date_offset
+            task_range = range(starting_col, starting_col + week_coverage)
 
             target_row = self._assign_range_to_occupied(occupied_rows, starting_point_row, task_range)
             occupied_rows.setdefault(target_row, []).extend(task_range)
@@ -411,7 +594,7 @@ class ScheduleFramework():
 
         return "|".join(category_names)
 
-    def _determine_range(self, project_start:datetime, task_start:datetime) -> list:
+    def _determine_date_offset(self, project_start:datetime, task_start:datetime) -> list:
         date_range = []
 
         if task_start < project_start:
@@ -426,6 +609,28 @@ class ScheduleFramework():
                 date_range.append(current_date)
 
         return date_range
+
+    def _determine_date_coverage(self, task_start:datetime, task_finish:datetime) -> tuple[int, int]:
+        if task_start > task_finish:
+            raise ValueError(f"Task start date ({task_start}) cannot be after finish date ({task_finish})")
+        
+        offset = 0
+        for period in self.schedule_scale_based:
+            if period[0] >= task_start:
+                if period[0] > task_start:
+                    offset -= 1
+
+                break
+            offset += 1
+
+        coverage = 1
+        for period in self.schedule_scale_based[offset:]:
+            if task_finish >= period[1]:
+                coverage += 1
+            else:
+                break
+        
+        return offset, coverage
 
     def _assign_range_to_occupied(self, occupied_rows:dict, target_row:int, range_to_check:list) -> int:
         while any(target_col in occupied_rows.get(target_row, []) for target_col in range_to_check):
