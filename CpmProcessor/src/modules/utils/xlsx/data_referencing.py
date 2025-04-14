@@ -7,7 +7,7 @@ from datetime import datetime
 
 import sys
 sys.path.append("../")
-from CpmProcessor.keys.secrets import CLAYCO
+from CpmProcessor.keys.secrets import CLAYCO, MCGOUGH
 
 class XlsxDataReferencing:
     allowed_extensions = ["json", "xlsx"]
@@ -21,6 +21,10 @@ class XlsxDataReferencing:
         self.data_dict = project_data_dict
 
         #Structures
+        self.valid_sheet_name = {
+            "table": ["table", "task"],
+        }
+
         self.entry_categories = {
             "new": {
                 "count": 0,
@@ -86,11 +90,17 @@ class XlsxDataReferencing:
         }
 
         if project:
-            ref_dict = XlsxDataReferencing.read_data_from_json(CLAYCO, "ticket")
-            cross_ref_results = project.cross_reference_new_data(ref_dict.get("data").get("body"), project.data_dict)
+            ref_dict = XlsxDataReferencing.read_data_from_json(MCGOUGH, "ticket")
+            cross_ref_results = project.cross_reference_new_data(
+                ref_dict.get("data").get("body"), project.data_dict["content"]["body"]
+            )
             module_data["details"]["activities"]["count"] = len(cross_ref_results)
-            module_data["details"]["activities"]["categorized"] = {key: value.get("count") for key, value in project.entry_categories.items()}
-            module_data["content"]["categorized"] = {key: value.get("activities") for key, value in project.entry_categories.items()}
+            module_data["details"]["activities"]["categorized"] = {
+                key: value.get("count") for key, value in project.entry_categories.items()
+            }
+            module_data["content"]["categorized"] = {
+                key: value.get("activities") for key, value in project.entry_categories.items()
+            }
             module_data["content"]["referenced"] = cross_ref_results
 
         module_data["logs"]["finish"] = XlsxDataReferencing.return_valid_date()
@@ -158,7 +168,7 @@ class XlsxDataReferencing:
     def _handle_dir(input_file_dir:str, mode:str="r") -> dict|int:
         if mode in ['u', 'r', 'd']:
             dir_list = os.listdir(input_file_dir)
-            selection = XlsxDataReferencing._display_directory_files(dir_list)
+            selection = XlsxDataReferencing._display_options(dir_list)
             input_file_basename = dir_list[selection]
             print(f'File selected: {input_file_basename}\n')
         elif mode == 'c':
@@ -174,26 +184,31 @@ class XlsxDataReferencing:
         )
     
     @staticmethod
-    def _display_directory_files(file_list:list) -> int:
-        selection_idx = -1  
+    def _display_options(file_list:list) -> list:
+        if not file_list:
+            print('Error: No elements found.')
+            return []
 
-        if len(file_list) == 0:
-            print('Error. No files found')
-            return -1
-        
-        print(f'-- {len(file_list)} files found:')
-        for idx, file in enumerate(file_list, start=1):  
+        print(f'-- {len(file_list)} elements found:')
+        for idx, file in enumerate(file_list, start=1):
             print(f'{idx}. {file}')
 
-        while True:
-            try:
-                selection_idx = int(input('\nPlease enter the index number to select the one to process: '))
-                if 1 <= selection_idx <= len(file_list):  
-                    return selection_idx - 1  
-                else:
-                    print(f'Error: Please enter a number between 1 and {len(file_list)}.')
-            except ValueError:
-                print('Error: Invalid input. Please enter a valid number.\n')
+        result = []
+        selection_input = input('\nEnter index numbers (comma-separated) to select elements to process: ').split(',')
+
+        for selection in selection_input:
+            selection = selection.strip()
+            if not selection.isdigit():
+                print(f'Error: Invalid input "{selection}", skipping.')
+                continue
+
+            index = int(selection)
+            if 1 <= index <= len(file_list):
+                result.append(index)
+            else:
+                print(f'Error: "{index}" is out of range (1 to {len(file_list)}).')
+
+        return result
 
     @staticmethod
     def _handle_file(input_file_dir:str) -> dict|int:
@@ -265,11 +280,12 @@ class XlsxDataReferencing:
 
         for item in new_dict:
             target_value = item.get(attribute)
+
             if not target_value:
                 continue
 
             match_ref = self._search_for_existing_item(ref_dict, attribute, target_value)
-            updated_item = self._categorize_entries(item, match_ref if match_ref else None)
+            updated_item = self._categorize_entries(item, match_ref if match_ref else {})
 
             results.append(updated_item)
 
@@ -341,7 +357,8 @@ class XlsxDataReferencing:
             "start": entry.get("start"),
             "finish": entry.get("finish"),
             "total_float": entry.get("total_float"),
-            "activity_predecessor_id": entry.get("activity_predecessor_id"),
+            "successor_code": entry.get("successor_code"),
+            "predecessor_code": entry.get("predecessor_code"),
         }
 
         self.entry_categories[category]["activities"].append(result)

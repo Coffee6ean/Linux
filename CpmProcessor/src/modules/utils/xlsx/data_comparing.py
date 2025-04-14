@@ -80,6 +80,8 @@ class XlsxDataComparing:
         if project:
             comp_file = XlsxDataComparing.return_valid_file(input("Please enter the path to the file or directory: "))
             comp_dict = XlsxDataComparing.read_data_from_json(comp_file.get("path"), comp_file.get("basename"))
+            #flat_dict = project._flatten_json(comp_dict["data"].get("body"))
+            #comp_results = project.compare_data(project.data_dict, flat_dict)
             comp_results = project.compare_data(project.data_dict, comp_dict["data"].get("content").get("compared"))
             module_data["details"]["activities"]["count"] = len(comp_results)
             module_data["details"]["activities"]["categorized"] = {key: value.get("count") for key, value in project.entry_categories.items()}
@@ -252,6 +254,30 @@ class XlsxDataComparing:
             print(f"Successfully saved Dictionary to JSON:\nFile: {new_directory}\n")
         except Exception as e:
             print(f"An unexpected error occurred while writing to Excel: {e}\n")
+
+    def _flatten_json(self, json_obj):
+        new_dic = {}
+
+        def flatten(elem, flattened_key=""):
+            if type(elem) is dict:
+                keys_in_dic = list(elem.keys())
+
+                if "entry" in keys_in_dic:
+                    new_dic[flattened_key[:-1]] = elem
+                else:
+                    for current_key in elem:
+                        flatten(elem[current_key], flattened_key + current_key + '|')
+            elif type(elem) is list:
+                i = 0
+                for item in elem:
+                    flatten(item, flattened_key + str(i) + '|')
+                    i += 1
+            else:
+                new_dic[flattened_key[:-1]] = elem
+
+        flatten(json_obj)
+
+        return new_dic
 
     def compare_data(self, new_dict:list, comp_dict:list, attribute:str="wbs_code") -> list:
         results = []
