@@ -37,15 +37,15 @@ class PostProcessingFramework():
         #Structures
         self.json_struct_categories = [
             "phase", 
-            "location", 
             "area", 
+            "zone", 
             "trade", 
             "activity_code"
         ]
         self.wbs_final_categories = {
             "phase": "thin",
-            "location": "dashed", 
-            "area": "dotted",
+            "area": "dashed", 
+            "zone": "dotted",
         }
         self.calendar_weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
@@ -206,12 +206,12 @@ class PostProcessingFramework():
         ref_point = list(proc_table.index.get_level_values(lead_schedule_struct))[0]
         count_ins = 0
 
-        for location in proc_table.index.get_level_values(lead_schedule_struct):
-            if location == ref_point:
+        for area in proc_table.index.get_level_values(lead_schedule_struct):
+            if area == ref_point:
                 count_ins += 1
             else:
                 entry_dict_available.setdefault(ref_point, []).append(count_ins)
-                ref_point = location
+                ref_point = area
                 count_ins = 1
 
         entry_dict_available.setdefault(ref_point, []).append(count_ins)
@@ -643,7 +643,7 @@ class PostProcessingFramework():
             start_col, 
             start_row
         )
-        self._apply_post_styling(ws)
+        #self._apply_post_styling(ws)
         
         wbs_keys = list(self.wbs_final_categories.keys())
         lead_cat_columns = wbs_keys.index(lead_schedule_struct)
@@ -812,6 +812,7 @@ class PostProcessingFramework():
     def _apply_post_styling(self, active_worksheet) -> None:
         ws = active_worksheet
         first_row = ws[self.wbs_start_row]
+        n_row = ws[self.wbs_start_row + 2]
         
         if first_row is None:
             print("Error: The first row is empty.")
@@ -826,6 +827,18 @@ class PostProcessingFramework():
             )  
             cell.fill = PatternFill(start_color="00800080", end_color="00800080", fill_type="solid")
             cell.alignment = Alignment(horizontal="center")  
+
+        for cell in n_row:  
+            cell.font = Font(
+                name='Century Gothic', 
+                size=12, 
+                bold=False, 
+                color="00333333"
+            )  
+            cell.fill = PatternFill(start_color="00FFFFFF", end_color="00FFFFFF", fill_type="solid")
+            thin = Side(border_style="thin", color="000000")
+            cell.border = Border(bottom=thin) 
+            
         
         for column in ws.columns:
             max_length = 0
@@ -839,7 +852,7 @@ class PostProcessingFramework():
             adjusted_width = (max_length + 1)  
             ws.column_dimensions[column_letter].width = adjusted_width
 
-        for row in ws.rows:    
+        """ for row in ws.rows:    
             if isinstance(row[0].value, int):
                 parent_row = row
                 for cell in parent_row:
@@ -851,7 +864,7 @@ class PostProcessingFramework():
                     )  
                     cell.fill = PatternFill(start_color="00FFFFFF", end_color="00FFFFFF", fill_type="solid")
                     thin = Side(border_style="thin", color="000000")
-                    cell.border = Border(bottom=thin)
+                    cell.border = Border(bottom=thin) """
 
         print(f"Post-styling successfully completed")
 
