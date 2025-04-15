@@ -190,7 +190,7 @@ class Setup:
                 print('Error: Invalid input. Please enter a valid number.\n')
 
     @staticmethod
-    def _handle_file(input_file_dir:str):
+    def _handle_file(input_file_dir:str) -> dict:
         input_file_extension = os.path.basename(input_file_dir).split(".")[-1]
 
         if (input_file_extension in ["xlsx", "xml"]):
@@ -201,7 +201,7 @@ class Setup:
             )
 
         print("Error: Please verify that the directory and file exist and that the file extension complies with class attributes")
-        return -1
+        return {}
 
     @staticmethod
     def normalize_string(entry_str:str) -> str:
