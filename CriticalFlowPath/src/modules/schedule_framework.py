@@ -15,7 +15,6 @@ sys.path.append("../")
 from CriticalFlowPath.keys.secrets import RSLTS_DIR
 
 class ScheduleFramework():
-
     def __init__(self, input_file_path, input_file_basename, input_file_extension, input_file_workweek,
                  project_worksheet_name, project_table, project_ordered_dict, project_phase_order, project_lead_struct, 
                  project_start_date, project_finish_date, time_scale, input_start_row=1, input_start_col=""):
@@ -46,8 +45,8 @@ class ScheduleFramework():
         self.time_scale_options = ["d", "w"]
         self.wbs_final_categories = {
             "phase": "thick",
-            "location": "no_border", 
-            "area": "dashed",
+            "area": "no_border", 
+            "zone": "dashed",
         }
         self.allowed_headers = {
             "hyperlinks": ["activity_code", "activity_name", "wbs_code"]
@@ -676,7 +675,7 @@ class ScheduleFramework():
         msg = f"""
             Activity Name: {current_item.get('activity_name', "NaN")}
             Phase: {current_item.get("phase", "NaN")} 
-            Location: {current_item.get("location", "NaN")}
+            Location: {current_item.get("area", "NaN")}
             Trade: {current_item.get("trade", "NaN")} 
 
             Start Date: {current_item.get("start", "NaN")}
