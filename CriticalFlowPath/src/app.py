@@ -22,6 +22,7 @@ class App:
         self.obj = project_ins_dict
         self.schedule_worksheet = "CFA - Schedule"
         self.schedule_worksheet_macro = "Macro CFA - Schedule"
+        self.activity_list_worksheet = "CFA - Activity List"
         self.legends_worksheet = "CFA - Legends"
 
         #Structures
@@ -224,9 +225,22 @@ class App:
         mdl_2 = ins_obj["project"]["modules"].get("MODULE_2")
         mdl_3 = ins_obj["project"]["modules"].get("MODULE_3")
 
-        self._print_result("WbsFramework processing...")
+        """ self._print_result("WbsFramework (Activity List) processing...")
         mdls.WbsFramework.main(
             auto, 
+            False,
+            ins_obj["input_file"].get("path"), 
+            ins_obj["input_file"].get("basename"),
+            ins_obj["input_file"].get("extension"),
+            self.activity_list_worksheet,
+            mdl_2["content"].get("table"),
+            mdl_2["content"].get("custom_ordered_dict"),
+        ) """
+
+        self._print_result("WbsFramework (CFA) processing...")
+        mdls.WbsFramework.main(
+            auto, 
+            True,
             ins_obj["input_file"].get("path"), 
             ins_obj["input_file"].get("basename"),
             ins_obj["input_file"].get("extension"),
@@ -270,9 +284,10 @@ class App:
             'd',
         )
 
-        self._print_result("WbsFramework processing...")
+        self._print_result("WbsFramework (Macro CFA) processing...")
         mdls.WbsFramework.main(
             auto, 
+            True,
             ins_obj["input_file"].get("path"), 
             ins_obj["input_file"].get("basename"),
             ins_obj["input_file"].get("extension"),
