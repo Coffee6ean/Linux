@@ -21,11 +21,11 @@ class DataFrameSetup:
         self.project_data = project_data
 
         #Structures
-        self.json_struct_categories = ["phase", "location", "area", "trade", "activity_code"]
+        self.json_struct_categories = ["phase", "area", "zone", "trade", "activity_code"]
         self.custom_phase_order = ["procurement", "milestone"]
-        self.project_table_index = ["phase", "location", "area", "entry", "activity_code"]
+        self.project_table_index = ["phase", "area", "zone", "entry", "activity_code"]
         self.project_table_values = ["trade", "color", "activity_name", "start", "finish"]
-        self.wbs_final_categories = ["phase", "location", "area"]
+        self.wbs_final_categories = ["phase", "area", "zone"]
 
     @staticmethod
     def main(auto=True, input_file_path=None, input_file_basename=None, 
@@ -117,7 +117,7 @@ class DataFrameSetup:
         return ins
 
     @staticmethod
-    def clear_directory(directory_path):
+    def clear_directory(directory_path) -> None:
         if os.path.isdir(directory_path):
             file_list = os.listdir(directory_path)
             for file in file_list:
@@ -125,7 +125,7 @@ class DataFrameSetup:
                 os.remove(file_path)
 
     @staticmethod
-    def return_valid_file(input_file_dir:str) -> dict|int:        
+    def return_valid_file(input_file_dir:str) -> dict|int:
         if not os.path.exists(input_file_dir):
             raise FileNotFoundError("Error: Given directory or file does not exist in the system.")
 
@@ -209,7 +209,7 @@ class DataFrameSetup:
         return date_str
 
     @staticmethod
-    def add_date():
+    def add_date() -> str:
         now = datetime.now()
         dt_string = now.strftime("%d-%m-%Y_%H-%M-%S")
 
@@ -230,7 +230,8 @@ class DataFrameSetup:
             return -1
 
     @staticmethod
-    def write_df_to_excel(proc_table, file_name, ws_name, wbs_start_row, wbs_start_col):
+    def write_df_to_excel(proc_table, file_name, 
+                          ws_name, wbs_start_row, wbs_start_col) -> None:
         if proc_table.empty:
             print("Error: DataFrame is empty. No data to write.\n")
             return
@@ -255,7 +256,7 @@ class DataFrameSetup:
         except Exception as e:
             print(f"An unexpected error occurred while writing to Excel: {e}\n")
 
-    def setup_project(self, data:dict=None):
+    def setup_project(self, data:dict=None) -> dict:
         if not data:
             flat_json_dict = self.read_json_dict()
         else:
@@ -266,7 +267,6 @@ class DataFrameSetup:
         proc_table = self.generate_wbs_cfa_style(table, custom_phase_order, "phase")
         lead_schedule_struct = self.determine_schedule_structure(custom_ordered_dict)
 
-        
         content = {
             "table": proc_table,
             "custom_ordered_dict": custom_ordered_dict,
@@ -276,7 +276,7 @@ class DataFrameSetup:
 
         return content
 
-    def read_json_dict(self):
+    def read_json_dict(self) -> list:
         j_file = os.path.join(self.input_path, self.input_basename)
 
         with open(j_file, 'r') as json_file:
@@ -287,7 +287,7 @@ class DataFrameSetup:
 
         return df_values
     
-    def _flatten_json(self, json_obj):
+    def _flatten_json(self, json_obj) -> dict:
         new_dic = {}
 
         def flatten(elem, flattened_key=""):
@@ -359,14 +359,14 @@ class DataFrameSetup:
         return custom_ordered_dict
 
     def _sort_inner_activities(self, json_dict:dict) -> list:
-        ref_location = list(json_dict.values())[0]["location"]
+        ref_location = list(json_dict.values())[0]["area"]
         nested_loc_list = []
         same_loc_list = []
 
-        for key, value in json_dict.items():
-            if value["location"] != ref_location:
+        for _, value in json_dict.items():
+            if value["area"] != ref_location:
                 nested_loc_list.append(same_loc_list)
-                ref_location = value["location"]
+                ref_location = value["area"]
                 same_loc_list = [value]
             else:
                 same_loc_list.append(value)
@@ -379,7 +379,7 @@ class DataFrameSetup:
 
         return ordered_list
 
-    def _bubble_sort_entries_by_dates(self, unsorted_list:list):
+    def _bubble_sort_entries_by_dates(self, unsorted_list:list) -> list:
         n = len(unsorted_list)
 
         for i in range(n):
@@ -508,7 +508,7 @@ class DataFrameSetup:
 
         return unsorted_list
 
-    def _bubble_sort_entries_by_overall_date(self, unsorted_list: list) -> list:
+    def _bubble_sort_entries_by_overall_date(self, unsorted_list:list) -> list:
         n = len(unsorted_list)
 
         for i in range(n):
@@ -524,8 +524,8 @@ class DataFrameSetup:
 
         return unsorted_list
 
-    def _calculate_overall_date(self, phase_dict: dict) -> dict:
-        for key, value in phase_dict.items():
+    def _calculate_overall_date(self, phase_dict:dict) -> dict:
+        for _, value in phase_dict.items():
             overall_date_delta = timedelta(0)
 
             current_start_list = value["start_list"]
