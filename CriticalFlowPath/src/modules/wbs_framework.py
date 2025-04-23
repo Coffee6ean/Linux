@@ -24,10 +24,19 @@ class WbsFramework:
         self.ordered_dict = project_ordered_dict
 
         #Module Attributes
+        self.wbs_index_col = 1
         self.wbs_start_row = 4
         self.wbs_start_col = 'A'
         self.default_hex_font_color = "00FFFFFF"
         self.default_hex_fill_color = "00FFFF00"
+
+        #Structures
+        self.project_content_headers = {
+            "color": ["color"],
+            "activity_code": ["activity_code", "activitycode", "code", "task_code", "act_code"],
+            "wbs_code": ["wbs_code", "wbscode"],
+            "activity_name": ["activity_name", "activityname", "act_name"], 
+        }
     
     @staticmethod
     def main(auto=True, is_framed=False, input_file_path=None, input_file_basename=None, input_file_extension=None, 
@@ -51,13 +60,18 @@ class WbsFramework:
             ]
 
             project.create_wbs_table(project.table)
-            project.process_wbs_column('activity code', color_list)
+            for header in project.project_content_headers.get("activity_code"):
+                try:
+                    project.process_wbs_column(header, color_list)
+                except:
+                    continue
+
             project.process_wbs_column('color', color_list)
 
     @staticmethod
     def generate_ins():
         WbsFramework.ynq_user_interaction(
-            "Run as Module as stand-alone? "
+            "Run module as stand-alone? "
         )
 
         setup_cls = setup.Setup.main()
@@ -205,6 +219,9 @@ class WbsFramework:
         
         self._write_data_to_excel(wbs_table, self.input_path, self.input_basename)
         
+        if not self.is_framed:
+            self._remove_index_column()
+        
     def _write_data_to_excel(self, proc_table, excel_path:str, 
                             excel_basename:str) -> None:
         if proc_table.empty:    
@@ -226,6 +243,21 @@ class WbsFramework:
                 print(f"Saved to sheet: {self.worksheet_name}\n")
             except Exception as e:
                 print(f"An unexpected error occurred: {e}\n")
+
+    def _remove_index_column(self) -> None:
+        basename = self.input_basename + '.' + self.input_extension
+        file = os.path.join(self.input_path, basename)
+        
+        try:
+            wb = load_workbook(filename=file)
+            ws = wb[self.worksheet_name]
+
+            ws.delete_cols(self.wbs_index_col)
+            
+            print("Successfully removed first column")
+            wb.save(file)
+        except:
+            pass
 
     def process_wbs_column(self, col_header:str, color_list:list) -> None:
         basename = self.input_basename + '.' + self.input_extension
