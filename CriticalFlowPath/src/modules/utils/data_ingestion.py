@@ -25,24 +25,24 @@ class DataIngestion:
         self.project_content_headers = {
             "entry": None, 
             "phase": ["phase"],
-            "location": ["location"], 
-            "area": ["area", "zone"],
+            "area": ["area"], 
+            "zone": ["zone"],
             "trade": ["trade"], 
             "color": ["color"],
             "parent_id": ["parent_id"], 
-            "activity_code": ["activity_code", "code", "task_code", "act_code"],
-            "wbs_code": ["wbs_code"],
-            "activity_name": ["activity_name", "act_name"], 
-            "activity_category": ["activity_category", "category"], 
-            "activity_status": ["activity_status", "status", "task_status"], 
+            "activity_code": ["activity_code", "activitycode", "code", "task_code", "act_code"],
+            "wbs_code": ["wbs_code", "wbscode"],
+            "activity_name": ["activity_name", "activityname", "act_name"], 
+            "activity_category": ["activity_category", "activitycategory", "category"], 
+            "activity_status": ["activity_status", "activitystatus", "status", "task_status"], 
             "activity_ins": None, 
             "start": ["start", "start_date", "start_dates"], 
             "finish": ["finish", "finish_date", "finish_dates", "end", "end_date"], 
-            "total_float": ["total_float"],
+            "total_float": ["total_float", "totalfloat"],
             "activity_successor_id": ["successor"],
             "activity_predecessor_id": ["predecessor"],
         }
-        self.json_struct_categories = ["phase", "location", "area", "trade", "activity_code"]
+        self.json_struct_categories = ["phase", "area", "zone", "trade", "activity_code"]
 
     @staticmethod
     def main(auto=True, input_file_path=None, input_file_basename=None, 
@@ -449,7 +449,7 @@ class DataIngestion:
             print(f"Error parsing date: {e}")
             return None
 
-    def _fill_missing_dates(self, json_obj:dict):
+    def _fill_missing_dates(self, json_obj:dict) -> dict:
         body_dict = json_obj["body"]
 
         for item in body_dict:
