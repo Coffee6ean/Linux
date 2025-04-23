@@ -13,8 +13,8 @@ sys.path.append("../")
 from CriticalFlowPath.keys.secrets import RSLTS_DIR
 
 class PostProcessingFramework():
-    def __init__(self, input_file_path, input_file_basename, input_file_extension, input_file_workweek,
-                 project_worksheet_name, project_table, project_ordered_dict, project_phase_order, 
+    def __init__(self, input_file_path, input_file_basename, input_file_extension, 
+                 input_file_workweek,project_worksheet_name, project_table, project_ordered_dict, project_phase_order, 
                  project_lead_struct, project_duration_processed, project_start_date, project_finish_date, time_scale):
         self.input_path = input_file_path
         self.input_basename = input_file_basename
@@ -35,6 +35,7 @@ class PostProcessingFramework():
         self.wbs_start_col = 'A'
 
         #Structures
+        self.time_scale_options = ["d", "w"]
         self.json_struct_categories = [
             "phase", 
             "area", 
@@ -50,10 +51,9 @@ class PostProcessingFramework():
         self.calendar_weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
     @staticmethod
-    def main(auto=True, input_file_path=None, input_file_basename=None, input_file_extension=None, input_file_workweek=None,
-             project_worksheet_name=None, project_table=None, project_ordered_dict=None, project_phase_order=None, 
-             project_lead_struct=None, project_duration_processed=None, project_start_date=None, project_finish_date=None,
-             time_scale=None):
+    def main(auto=True, input_file_path=None, input_file_basename=None, input_file_extension=None, 
+             input_file_workweek=None, project_worksheet_name=None, project_table=None, project_ordered_dict=None, project_phase_order=None, 
+             project_lead_struct=None, project_duration_processed=None, project_start_date=None, project_finish_date=None, time_scale=None):
         if auto:
             project = PostProcessingFramework.auto_generate_ins(
                 input_file_path, 
@@ -73,22 +73,32 @@ class PostProcessingFramework():
         else:
             project = PostProcessingFramework.generate_ins()
 
-        active_workbook, active_worksheet = project.return_excel_workspace(project.worksheet_name)
 
-        if active_workbook and active_worksheet:
+        if project:
             if not project.time_scale:
-                project.update_schedule_size(
-                    active_workbook, 
-                    active_worksheet, 
-                    project.ordered_dict, 
-                    project.table, 
-                    project.lead_struct,
-                    project.time_scale
-                )
+                print("Please choose the time scale to process the schedule: ")
+                scale_idx = PostProcessingFramework.display_options(project.time_scale_options)
+                project.time_scale = project.time_scale_options[scale_idx[0] - 1]
 
-            project.update_schedule_style(
-                project.lead_struct, project.json_struct_categories
-            )
+            active_workbook, active_worksheet = project.return_excel_workspace(project.worksheet_name)
+
+            if active_workbook and active_worksheet:
+                if not project.time_scale:
+                    project.update_schedule_size(
+                        active_workbook, 
+                        active_worksheet, 
+                        project.ordered_dict, 
+                        project.table, 
+                        project.lead_struct,
+                        project.time_scale
+                    )
+
+                project.update_schedule_style(
+                    active_workbook, 
+                    active_worksheet,
+                    project.lead_struct, 
+                    project.json_struct_categories
+                )
 
     @staticmethod
     def generate_ins():
@@ -103,7 +113,7 @@ class PostProcessingFramework():
             setup_cls.obj["input_file"].get("basename"),
             setup_cls.obj["input_file"].get("extension"),  
             setup_cls.obj["project"]["modules"]["MODULE_3"]["details"].get("workweek"),
-            "CFA - Schedule",
+            "CFA - WBS Table",
             setup_cls.obj["project"]["modules"]["MODULE_2"]["content"].get("table"),
             setup_cls.obj["project"]["modules"]["MODULE_3"].get("content"),
             setup_cls.obj["project"]["modules"]["MODULE_2"]["content"].get("custom_phase_order"),
@@ -111,15 +121,15 @@ class PostProcessingFramework():
             setup_cls.obj["project"]["modules"]["MODULE_3"]["details"]["calendar"]["processed"]["days"].get("total"),
             setup_cls.obj["project"]["modules"]["MODULE_1"]["details"].get("start_date"),
             setup_cls.obj["project"]["modules"]["MODULE_1"]["details"].get("finish_date"),
+            None
         )
 
         return ins
 
     @staticmethod
-    def auto_generate_ins(input_file_path, input_file_basename, input_file_extension, input_file_workweek,
-                          project_worksheet_name, project_table, project_ordered_dict, project_phase_order, 
-                          project_lead_struct, project_duration_processed, project_start_date, project_finish_date,
-                          time_scale):
+    def auto_generate_ins(input_file_path, input_file_basename, input_file_extension, 
+                          input_file_workweek, project_worksheet_name, project_table, project_ordered_dict, project_phase_order, 
+                          project_lead_struct, project_duration_processed, project_start_date, project_finish_date, time_scale):
         ins = PostProcessingFramework(
             input_file_path, 
             input_file_basename, 
@@ -139,6 +149,18 @@ class PostProcessingFramework():
         return ins
 
     @staticmethod
+    def ynq_user_interaction(prompt_message):
+        valid_responses = {'y', 'n', 'q'}  
+        
+        while True:
+            user_input = input(prompt_message).lower().strip()
+            
+            if user_input in valid_responses:
+                return user_input  
+            else:
+                print("Error. Invalid input, please try again. ['Y/y' for Yes, 'N/n' for No, 'Q/q' for Quit]\n")
+
+    @staticmethod
     def binary_user_interaction(prompt_message:str) -> bool:
         valid_responses = {'y', 'n'}  
         
@@ -152,6 +174,33 @@ class PostProcessingFramework():
                     return False 
             else:
                 print("Error. Invalid input, please try again. ['Y/y' for Yes, 'N/n' for No]\n")
+
+    @staticmethod
+    def display_options(file_list:list) -> list:
+        if not file_list:
+            print('Error: No elements found.')
+            return []
+
+        print(f'-- {len(file_list)} elements found:')
+        for idx, file in enumerate(file_list, start=1):
+            print(f'{idx}. {file}')
+
+        result = []
+        selection_input = input('\nEnter index numbers (comma-separated) to select elements to process: ').split(',')
+
+        for selection in selection_input:
+            selection = selection.strip()
+            if not selection.isdigit():
+                print(f'Error: Invalid input "{selection}", skipping.')
+                continue
+
+            index = int(selection)
+            if 1 <= index <= len(file_list):
+                result.append(index)
+            else:
+                print(f'Error: "{index}" is out of range (1 to {len(file_list)}).')
+
+        return result
 
     def return_excel_workspace(self, worksheet_name):
         basename = self.input_basename + '.' + self.input_extension
@@ -526,11 +575,11 @@ class PostProcessingFramework():
 
         print(f"Columns ({num_cols}) added successfully")
 
-    def update_schedule_style(self, lead_schedule_struct:str, json_struct_categories:list) -> None:
+    def update_schedule_style(self, active_workbook, active_worksheet, lead_schedule_struct:str, json_struct_categories:list) -> None:
+        wb = active_workbook
+        ws = active_worksheet
         basename = self.input_basename + '.' + self.input_extension
         file = os.path.join(self.input_path, basename)
-        wb = load_workbook(file)
-        ws = wb[self.worksheet_name]
         
         point_col_idx = self._find_column_idx(
             ws, 
@@ -870,8 +919,11 @@ class PostProcessingFramework():
             current_section = section_list[row_idx]
 
             if current_section and current_section != last_valid_section:
-                self._style_row_border(row, border_style)
-                last_valid_section = current_section
+                if current_section is None:
+                    continue
+                else:
+                    self._style_row_border(row, border_style)
+                    last_valid_section = current_section
 
         print("Post sectioning applied successfully.")
 
