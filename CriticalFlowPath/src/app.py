@@ -225,22 +225,10 @@ class App:
         mdl_2 = ins_obj["project"]["modules"].get("MODULE_2")
         mdl_3 = ins_obj["project"]["modules"].get("MODULE_3")
 
-        """ self._print_result("WbsFramework (Activity List) processing...")
-        mdls.WbsFramework.main(
-            auto, 
-            False,
-            ins_obj["input_file"].get("path"), 
-            ins_obj["input_file"].get("basename"),
-            ins_obj["input_file"].get("extension"),
-            self.activity_list_worksheet,
-            mdl_2["content"].get("table"),
-            mdl_2["content"].get("custom_ordered_dict"),
-        ) """
-
         self._print_result("WbsFramework (CFA) processing...")
         mdls.WbsFramework.main(
             auto, 
-            True,
+            False,
             ins_obj["input_file"].get("path"), 
             ins_obj["input_file"].get("basename"),
             ins_obj["input_file"].get("extension"),
