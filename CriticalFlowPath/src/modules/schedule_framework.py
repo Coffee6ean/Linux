@@ -611,25 +611,28 @@ class ScheduleFramework():
 
     def _determine_date_coverage(self, task_start:datetime, task_finish:datetime) -> tuple[int, int]:
         if task_start > task_finish:
-            raise ValueError(f"Task start date ({task_start}) cannot be after finish date ({task_finish})")
+            raise ValueError(f"Task start ({task_start}) cannot be after finish ({task_finish})")
+        
+        if not self.schedule_scale_based:
+            return (0, 0)
+        
+        for i in range(len(self.schedule_scale_based) - 1):
+            if self.schedule_scale_based[i][0] > self.schedule_scale_based[i+1][0]:
+                raise ValueError("Schedule periods must be in chronological order")
         
         offset = 0
-        for period in self.schedule_scale_based:
-            if period[0] >= task_start:
-                if period[0] > task_start:
-                    offset -= 1
-
+        for period_start, period_end in self.schedule_scale_based:
+            if task_start <= period_end:
                 break
             offset += 1
-
-        coverage = 1
-        for period in self.schedule_scale_based[offset:]:
-            if task_finish >= period[1]:
-                coverage += 1
-            else:
-                break
         
-        return offset, coverage
+        coverage = 0
+        for period_start, period_end in self.schedule_scale_based[offset:]:
+            if task_finish < period_start:
+                break
+            coverage += 1
+    
+        return (offset, coverage)
 
     def _assign_range_to_occupied(self, occupied_rows:dict, target_row:int, range_to_check:list) -> int:
         while any(target_col in occupied_rows.get(target_row, []) for target_col in range_to_check):
