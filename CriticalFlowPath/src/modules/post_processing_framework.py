@@ -33,6 +33,8 @@ class PostProcessingFramework():
         #Module Attributes
         self.wbs_start_row = 4
         self.wbs_start_col = 'A'
+        self.LIGHT_GRAY = "00F2F2F2"
+        self.DARK_GRAY = "00C0C0C0"
 
         #Structures
         self.time_scale_options = ["d", "w"]
@@ -83,15 +85,13 @@ class PostProcessingFramework():
             active_workbook, active_worksheet = project.return_excel_workspace(project.worksheet_name)
 
             if active_workbook and active_worksheet:
-                if not project.time_scale:
-                    project.update_schedule_size(
-                        active_workbook, 
-                        active_worksheet, 
-                        project.ordered_dict, 
-                        project.table, 
-                        project.lead_struct,
-                        project.time_scale
-                    )
+                project.update_schedule_size(
+                    active_workbook, 
+                    active_worksheet, 
+                    project.ordered_dict, 
+                    project.lead_struct,
+                    project.time_scale
+                )
 
                 project.update_schedule_style(
                     active_workbook, 
@@ -149,7 +149,7 @@ class PostProcessingFramework():
         return ins
 
     @staticmethod
-    def ynq_user_interaction(prompt_message):
+    def ynq_user_interaction(prompt_message:str):
         valid_responses = {'y', 'n', 'q'}  
         
         while True:
@@ -202,7 +202,17 @@ class PostProcessingFramework():
 
         return result
 
-    def return_excel_workspace(self, worksheet_name):
+    @staticmethod
+    def date_range(start:datetime, finish:datetime) -> list:
+        days = []
+        current = start
+        while current <= finish:
+            days.append(datetime.strftime(current, '%d-%b-%Y'))
+            current += timedelta(days=1)
+        
+        return days
+
+    def return_excel_workspace(self, worksheet_name:str):
         basename = self.input_basename + '.' + self.input_extension
         file = os.path.join(self.input_path, basename)
         
@@ -242,41 +252,29 @@ class PostProcessingFramework():
         return workbook, worksheet
 
     def update_schedule_size(self, active_workbook, active_worksheet, custom_ordered_dict:dict, 
-                              proc_table, lead_schedule_struct:str) -> None:
+                             lead_schedule_struct:str, time_scale:str, alloted_space:int=2) -> None:
         basename = self.input_basename + '.' + self.input_extension
         file = os.path.join(self.input_path, basename)
-        overlap_results = self._overlapping_dates(
+
+        overlap_results = self._calculate_overlapping_dates(
             custom_ordered_dict, 
-            lead_schedule_struct,
-            self.time_scale
+            time_scale
         )
-        entry_dict_available = {}
-        
-        ref_point = list(proc_table.index.get_level_values(lead_schedule_struct))[0]
-        count_ins = 0
+        available_results = self._calculate_available_instances(custom_ordered_dict)
 
-        for area in proc_table.index.get_level_values(lead_schedule_struct):
-            if area == ref_point:
-                count_ins += 1
-            else:
-                entry_dict_available.setdefault(ref_point, []).append(count_ins)
-                ref_point = area
-                count_ins = 1
-
-        entry_dict_available.setdefault(ref_point, []).append(count_ins)
         self._process_file(
             active_worksheet, 
             lead_schedule_struct, 
             overlap_results, 
-            entry_dict_available
+            available_results,
+            alloted_space
         )
 
         active_workbook.save(filename=file)
         print("Schedule Frame successfully updated")
         active_workbook.close()
 
-    def _overlapping_dates(self, custom_ordered_dict:dict, lead_schedule_struct:str, 
-                           alloted_space:int=2, time_scale:str='d') -> dict:
+    def _calculate_overlapping_dates(self, custom_ordered_dict:dict, time_scale:str='d') -> dict:
         lead_based_lists = []
         nested_list = []
         ref_lead = self._generate_compound_category_name(custom_ordered_dict[0])
@@ -298,16 +296,15 @@ class PostProcessingFramework():
         for location_list in lead_based_lists:
             sorted_list = self._bubble_sort_entries_by_dates(location_list)
             sorted_entries_list.append(sorted_list)
-
-        overlap_results = self._calculate_overlap(
-            sorted_entries_list, 
-            lead_schedule_struct, 
-            alloted_space,
+        
+        overlap_results = self._get_overlap(
+            sorted_entries_list,
             time_scale
         )
+
         return overlap_results
 
-    def _generate_compound_category_name(self, item: dict) -> str:
+    def _generate_compound_category_name(self, item:dict) -> str:
         category_names = []
 
         for category in self.wbs_final_categories.keys():
@@ -338,120 +335,121 @@ class PostProcessingFramework():
         sorted_list = unsorted_list
         return sorted_list
 
-    def _calculate_overlap(self, location_based_lists:list, lead_schedule_struct:str, 
-                           alloted_space:int, time_scale:str) -> dict:
+    def _get_overlap(self, location_based_lists:list, time_scale:str) -> dict:
         overlap = {}
 
         if time_scale == 'd':
-            overlap = self._day_based_overlap(location_based_lists, lead_schedule_struct, alloted_space)
+            overlap = self._day_based_overlap(location_based_lists)
         elif time_scale == 'w':
-            overlap = self._week_based_overlap(location_based_lists, lead_schedule_struct, alloted_space)            
+            overlap = self._week_based_overlap(location_based_lists)            
 
         return overlap
-        
-    def _day_based_overlap(self, location_based_lists:list, lead_schedule_struct:str, 
-                           alloted_space:int) -> dict:
-        overlap_results = []
 
+    def _day_based_overlap(self, location_based_lists:list) -> dict:
+        category_results = {}
+        
         for lead_list in location_based_lists:
+            if not lead_list:
+                continue
+            
+            ref_category = self._generate_compound_category_name(lead_list[0])
             active_overlaps = []
-            max_overlap = 0
-            ref_point = lead_list[0][lead_schedule_struct]
+            current_max = 0
+            activity_count = 0
 
             for activity in lead_list:
                 start = datetime.strptime(activity["start"], "%d-%b-%Y")
                 finish = datetime.strptime(activity["finish"], "%d-%b-%Y")
-
-                # Remove activities that have ended
+                activity_count += 1
+                
                 active_overlaps = [
                     (active_start, active_finish) 
                     for active_start, active_finish in active_overlaps 
                     if finish >= active_start and start <= active_finish
                 ]
 
-                # Add the current activity to active overlaps
-                active_overlaps.append((start, finish))
-
-                # Update the maximum overlap count
-                max_overlap = max(max_overlap, len(active_overlaps))
-
-            overlap_results.append((ref_point, max_overlap))
-
-        max_rows_dict = {}
-        for lead_cat, max_row in overlap_results:
-            if lead_cat in max_rows_dict:
-                max_rows_dict[lead_cat].append(max_row + alloted_space)
+                active_overlaps.append((start, finish))                
+                current_max = max(current_max, len(active_overlaps))
+            
+            if ref_category in category_results:
+                category_results[ref_category] = max(category_results[ref_category], current_max)
             else:
-                max_rows_dict[lead_cat] = [max_row + alloted_space]
-
-        return max_rows_dict
-    
-    def _week_based_overlap(self, location_based_lists: list, 
-                           lead_schedule_struct: str, 
-                           alloted_space: int) -> dict:
-        overlap_results = []
+                category_results[ref_category] = current_max
+            
+        return category_results
+        
+    def _week_based_overlap(self, location_based_lists:list) -> dict:
+        category_results = {}
 
         for lead_list in location_based_lists:
             if not lead_list:
                 continue
 
-            active_overlaps = []
-            max_overlap = 0
-            ref_point = lead_list[0].get(lead_schedule_struct, "UNKNOWN")
+            ref_category = self._generate_compound_category_name(lead_list[0])
+            active_weeks = {}  # level -> set of week dates
+            current_max = 0
 
             for activity in lead_list:
-                try:
-                    start_date = datetime.strptime(activity["start"], "%d-%b-%Y")
-                    finish_date = datetime.strptime(activity["finish"], "%d-%b-%Y")
-                except (KeyError, ValueError) as e:
-                    print(f"Invalid date format in activity: {e}")
-                    continue
+                start = datetime.strptime(activity["start"], "%d-%b-%Y")
+                finish = datetime.strptime(activity["finish"], "%d-%b-%Y")
 
-                week_start, week_finish = self._calculate_week(start_date, finish_date)
+                week_start, week_finish = self._calculate_week(start, finish)
+                weeks = set(self._get_week_range(week_start, week_finish))  # convert once
 
-                # Filter out non-overlapping activities
-                active_overlaps = [
-                    (active_start, active_finish) 
-                    for active_start, active_finish in active_overlaps 
-                    if week_finish >= active_start and week_start <= active_finish
-                ]
+                level = 0
+                while level in active_weeks and active_weeks[level].intersection(weeks):
+                    level += 1
 
-                active_overlaps.append((week_start, week_finish))
-                max_overlap = max(max_overlap, len(active_overlaps))
+                active_weeks.setdefault(level, set()).update(weeks)
+                current_max = max(current_max, level + 1)
 
-            if ref_point != "UNKNOWN":
-                overlap_results.append((ref_point, max_overlap))
+            category_results[ref_category] = max(category_results.get(ref_category, 0), current_max)
 
-        # Process results into output dictionary
-        max_rows_dict = {}
-        for lead_cat, max_row in overlap_results:
-            max_rows_dict.setdefault(lead_cat, []).append(max_row + alloted_space)
+        return category_results
 
-        return max_rows_dict
-    
-    def _calculate_week(self, start_date:datetime, 
-                       finish_date:datetime) -> tuple[datetime, datetime]:
+    def _calculate_week(self, start_date:datetime, finish_date:datetime) -> tuple:
+        weekday_map = {day: i for i, day in enumerate(self.calendar_weekdays)}
+        target_start = weekday_map[self.input_workweek[0]]
+        target_end = weekday_map[self.input_workweek[-1]]
 
-        def adjust_to_weekday(target_date, target_weekday):
-            while self.calendar_weekdays[target_date.weekday()] != target_weekday:
-                if self.calendar_weekdays[target_date.weekday()] < target_weekday:
-                    target_date += timedelta(days=1)
-                else:
-                    target_date -= timedelta(days=1)
-            return target_date
+        # Align to start of workweek
+        start_offset = (target_start - start_date.weekday()) % 7
+        week_start = start_date + timedelta(days=start_offset)
 
-        week_start = adjust_to_weekday(start_date, self.input_workweek[0])
-        week_finish = adjust_to_weekday(finish_date, self.input_workweek[-1])
+        # Align to end of workweek
+        end_offset = (target_end - finish_date.weekday()) % 7
+        week_finish = finish_date + timedelta(days=end_offset)
 
+        # Clamp if necessary
         if week_start > finish_date:
-            week_start = adjust_to_weekday(finish_date, self.input_workweek[0])
-        if week_finish < start_date:
-            week_finish = adjust_to_weekday(start_date, self.input_workweek[-1])
+            start_offset = (target_start - finish_date.weekday()) % 7
+            week_start = finish_date + timedelta(days=start_offset)
 
-        return (week_start, week_finish)
+        if week_finish < start_date:
+            end_offset = (target_end - start_date.weekday()) % 7
+            week_finish = start_date + timedelta(days=end_offset)
+
+        return week_start, week_finish
     
+    def _get_week_range(self, start_date:datetime, finish_date:datetime) -> list:
+        if start_date > finish_date:
+            return []
+
+        step = timedelta(days=len(self.calendar_weekdays))
+        count = ((finish_date - start_date).days // step.days) + 1
+        return [start_date + i * step for i in range(count)]
+
+    def _calculate_available_instances(self, custom_ordered_dict: dict) -> dict:
+        entry_dict_available = {}
+        
+        for item in custom_ordered_dict:
+            comp_lead_cat_title = self._generate_compound_category_name(item)
+            entry_dict_available[comp_lead_cat_title] = entry_dict_available.get(comp_lead_cat_title, 0) + 1
+        
+        return entry_dict_available
+
     def _process_file(self, active_worksheet, lead_schedule_struct:str, 
-                     overlap_results:dict, con_available_ins:dict) -> None:
+                     overlap_results:dict, available_results:dict, alloted_space:int) -> None:
         ws = active_worksheet
 
         print(f"Processing Excel file: {self.input_basename}")
@@ -463,10 +461,11 @@ class PostProcessingFramework():
         self._unmerge_columns(ws, wbs_start_col, end_col_idx)
         self._delete_excess_rows(
             ws, 
-            lead_schedule_struct, 
             overlap_results, 
-            con_available_ins
+            available_results,
+            alloted_space
         )
+
         self._delete_columns(ws, start_col_idx, end_col_idx)
         self._insert_columns(ws, start_col_idx, end_col_idx - start_col_idx)
     
@@ -516,44 +515,47 @@ class PostProcessingFramework():
 
         print(f"Column unmerging applied successfully: [{start_col_letter}, {end_col_letter}]")
 
-    def _delete_excess_rows(self, active_worksheet, column_header:str, 
-                            overlap_results:dict, con_available_ins:dict) -> None:
+    def _delete_excess_rows(self, active_worksheet, overlap_results:dict, 
+                                 available_results:dict, alloted_space:int) -> None:
         ws = active_worksheet
-        header_col = self._find_column_idx(active_worksheet, column_header, self.wbs_start_row)
-        all_current_locations = list(overlap_results.keys())
-
+        lead_idx = self.json_struct_categories.index(self.lead_struct)
+        grouping_levels = self.json_struct_categories[:lead_idx + 1]
         rows_to_delete = []
-        init_count = 0
-        max_rows = 0
-        for row in ws.iter_rows(min_row=self.wbs_start_row + 1,
-                                max_row=ws.max_row,
-                                min_col=header_col,
-                                max_col=header_col):
-            for cell in row:
-                if cell.value is not None:  
-                    init_count = 0
-                    if cell.value in all_current_locations:
-                        if len(overlap_results[cell.value]) > 1:
-                            if overlap_results[cell.value][0] > con_available_ins[cell.value][0]:
-                                max_rows = con_available_ins[cell.value][0]
-                                con_available_ins[cell.value].pop(0)
-                            else:
-                                max_rows = overlap_results[cell.value][0]
-                                overlap_results[cell.value].pop(0)
-                        else:
-                            if overlap_results[cell.value][0] > con_available_ins[cell.value][0]:
-                                max_rows = con_available_ins[cell.value][0]
-                            else:
-                                max_rows = overlap_results[cell.value][0]
+        starting_point = self.wbs_start_row + 1
 
-                if init_count > max_rows:
-                    rows_to_delete.append(cell.row)
-                
-            init_count += 1
+        # Build rows_dict following the table group order
+        rows_dict = {}
+        current_row = starting_point
+        grouped = self.table.groupby(level=grouping_levels, observed=True)
 
+        for group_key, group_data in grouped:
+            compound_key = "|".join(group_key)
+            num_rows = available_results.get(compound_key, 0)
+            for _ in range(num_rows):
+                rows_dict[current_row] = compound_key
+                current_row += 1
+
+        # Now determine which rows to delete
+        for group_key, group_data in grouped:
+            compound_category_name = "|".join(group_key)
+            allowed_rows = min(
+                available_results.get(compound_category_name, 0),
+                overlap_results.get(compound_category_name, 0) + alloted_space
+            )
+
+            # Get all worksheet rows associated with this group
+            group_rows = [row for row, key in rows_dict.items() if key == compound_category_name]
+
+            # If there are more rows than allowed, mark the excess for deletion
+            if len(group_rows) > allowed_rows:
+                excess = group_rows[allowed_rows:]  # keep the first 'allowed_rows', delete the rest
+                rows_to_delete.extend(excess)
+
+        # Sort in reverse to delete from bottom up
+        rows_to_delete.sort(reverse=True)
         for row in sorted(set(rows_to_delete), reverse=True):
             ws.delete_rows(row)
-        
+
         print("Excess rows removed successfully.")
 
     def _delete_columns(self, active_worksheet, start_column_idx:int, end_column_idx:int) -> None:
@@ -575,7 +577,8 @@ class PostProcessingFramework():
 
         print(f"Columns ({num_cols}) added successfully")
 
-    def update_schedule_style(self, active_workbook, active_worksheet, lead_schedule_struct:str, json_struct_categories:list) -> None:
+    def update_schedule_style(self, active_workbook, active_worksheet, 
+                              lead_schedule_struct:str, json_struct_categories:list) -> None:
         wb = active_workbook
         ws = active_worksheet
         basename = self.input_basename + '.' + self.input_extension
@@ -770,6 +773,9 @@ class PostProcessingFramework():
 
     def _apply_color_format(self, active_worksheet, start_col:int, start_row:int) -> None:
         ws = active_worksheet
+
+        if self.time_scale == 'w':
+            self.duration_processed = len(self._get_week_range(self.start_date, self.finish_date))
     
         self._paint_schedule_row(
             ws, 
