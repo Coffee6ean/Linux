@@ -220,7 +220,7 @@ class App:
             mdl_2["content"].get("referenced")
         )
 
-        """ self._print_result("WBSFramework processing...")
+        self._print_result("WBSFramework processing...")
         mdls.WbsFramework.main(
             auto, 
             ins_obj["input_file"].get("path"), 
@@ -228,7 +228,7 @@ class App:
             ins_obj["input_file"].get("extension"),
             self.wbs_table,
             mdl_3["content"].get("compared")
-        ) """
+        )
 
     def document_project_package(self, project_folder:str) -> None:
         ins_obj = self.obj["setup"]
