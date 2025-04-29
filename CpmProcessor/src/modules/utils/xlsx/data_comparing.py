@@ -356,6 +356,12 @@ class XlsxDataComparing:
         return result   
 
     def _calculate_time_difference(self, entry:dict, comp:dict) -> int:
+        """
+        Returns:
+        - Positive value: entry lasts longer than comp.
+        - Zero: Both have the same duration.
+        - Negative value: entry is shorter than comp.
+        """
         try:
             entry_start_obj = datetime.strptime(entry.get("start"), "%d-%b-%Y")
             entry_finish_obj = datetime.strptime(entry.get("finish"), "%d-%b-%Y")
@@ -370,6 +376,12 @@ class XlsxDataComparing:
             return 0
 
     def _calculate_time_shift(self, entry:dict, comp:dict) -> int:
+        """
+        Returns:
+        - Positive value: entry starts later than comp.
+        - Zero: Both start on the same day.
+        - Negative value: entry starts earlier than comp.
+        """
         try:
             entry_start_obj = datetime.strptime(entry.get("start"), "%d-%b-%Y")
             comp_start_obj = datetime.strptime(comp.get("start"), "%d-%b-%Y")
