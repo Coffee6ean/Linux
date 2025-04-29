@@ -34,7 +34,7 @@ class XlsxDataIngestion:
             "trade": ["trade"], 
             "color": ["color"],
             "activity_code": ["activity_code", "code", "task_code", "act_code"],
-            "wbs_code": ["wbs_code"],
+            "wbs_code": ["wbs_code", "activity_id"],
             "activity_name": ["activity_name", "act_name", "task_name"], 
             "activity_status": ["activity_status", "status", "task_status", "status_code"], 
             "activity_duration": ["activity_duration", "duration", "remaining_duration"],
