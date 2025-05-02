@@ -1,0 +1,11 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+# Keys
+keys/
+
+# Documentation
+docs/
+
+# Environments
+venv/
