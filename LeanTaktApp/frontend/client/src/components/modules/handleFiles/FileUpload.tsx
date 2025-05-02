@@ -18,6 +18,7 @@ export default function FileUpload({ fileType, onUpload }: FileUploadProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fileUploaded, setFileUploaded] = useState(false);
+  const [responseData, setResponseData] = useState(null);
 
   const getAcceptString = () => {
     const typeMap = {
@@ -29,7 +30,7 @@ export default function FileUpload({ fileType, onUpload }: FileUploadProps) {
     return typeMap[fileType];
   };
 
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     setError(null);
     setFileUploaded(false);
     const file = event.target.files?.[0];
@@ -70,6 +71,37 @@ export default function FileUpload({ fileType, onUpload }: FileUploadProps) {
     }
   };
 
+  const handleProcessClick = async () => {
+    if (!fileUploaded || isLoading) return;
+
+    setIsLoading(true)
+
+    try {
+      const response = await fetch("http://localhost:5000/api/process", {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          test: "Hello World"
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setResponseData(data)
+      console.log("Processing successful:", data);
+    } catch (error) {
+      setResponseData(error)
+      console.error("Error processing file:", error);
+    } finally {
+      setIsLoading(false)
+    };
+  };
+
   return (
     <Card className="p-6 max-w-md bg-white rounded-lg shadow-sm border border-gray-200">
       <div className="space-y-4">
@@ -78,7 +110,7 @@ export default function FileUpload({ fileType, onUpload }: FileUploadProps) {
           ref={fileInputRef} 
           type="file" 
           accept={getAcceptString()} 
-          onChange={handleFileChange} 
+          onChange={handleFileUpload} 
           className="hidden" 
         />
         
@@ -126,8 +158,8 @@ export default function FileUpload({ fileType, onUpload }: FileUploadProps) {
           </div>
         </div>
         
-        {/* Buttons container */}
-        <div className="flex flex-col sm:flex-row gap-2">
+        <div className="flex flex-col sm:flex-row gap-3">
+          {/* Upload Button */}
           <Button
             type="button"
             onClick={() => fileInputRef.current?.click()}
@@ -149,9 +181,10 @@ export default function FileUpload({ fileType, onUpload }: FileUploadProps) {
             )}
           </Button>
           
+          {/* Process Button */}
           <Button 
             disabled={!fileUploaded || isLoading}
-            onClick={() => console.log("Proceeding with the uploaded file")}
+            onClick={handleProcessClick}
             className={`flex-1 transition-colors ${
               fileUploaded 
                 ? 'bg-green-600 hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2' 
@@ -163,6 +196,9 @@ export default function FileUpload({ fileType, onUpload }: FileUploadProps) {
             </svg>
             Process
           </Button>
+        </div>
+        <div className="mt-4 p-4 bg-green-50 rounded-md">
+          <pre>{JSON.stringify(responseData, null, 2)}</pre>
         </div>
       </div>
     </Card>
