@@ -1,5 +1,7 @@
 // components/modules/FileUpload.tsx
 import { useRef, useState } from "react";
+import { DynamicForm } from "../forms/DynamicForm";
+
 import { Button } from "../../ui/button";
 import { Input } from "../../ui/input";
 import { Card } from "../../ui/card";
@@ -8,17 +10,18 @@ import { Loader2 } from "lucide-react";
 type FileType = 'xlsx' | 'pdf' | 'csv' | 'image';
 
 interface FileUploadProps {
-  fileType: FileType;
-  onUpload: (file: File) => Promise<void>;
+  fileType: string;
+  onUpload: (file: File) => void;
+  disabled?: boolean;
 }
 
-export default function FileUpload({ fileType, onUpload }: FileUploadProps) {
+export default function FileUpload({ fileType, onUpload, disabled }: FileUploadProps) {
+  //File state
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState<string>('No file selected');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
   const [fileUploaded, setFileUploaded] = useState(false);
-  const [responseData, setResponseData] = useState(null);
 
   const getAcceptString = () => {
     const typeMap = {
@@ -31,7 +34,7 @@ export default function FileUpload({ fileType, onUpload }: FileUploadProps) {
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    setError(null);
+    setFileError(null);
     setFileUploaded(false);
     const file = event.target.files?.[0];
     
@@ -53,7 +56,7 @@ export default function FileUpload({ fileType, onUpload }: FileUploadProps) {
 
     if (!isValidExtension) {
       setFileName('');
-      setError(`Please select a valid ${fileType.toUpperCase()} file`);
+      setFileError(`Please select a valid ${fileType} file`);
       return;
     }
 
@@ -64,7 +67,7 @@ export default function FileUpload({ fileType, onUpload }: FileUploadProps) {
       await onUpload(file);
       setFileUploaded(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to process file');
+      setFileError(err instanceof Error ? err.message : 'Failed to process file');
       setFileUploaded(false);
     } finally {
       setIsLoading(false);
@@ -88,19 +91,57 @@ export default function FileUpload({ fileType, onUpload }: FileUploadProps) {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`HTTP fileError! status: ${response.status}`);
       }
 
       const data = await response.json();
       setResponseData(data)
       console.log("Processing successful:", data);
-    } catch (error) {
-      setResponseData(error)
-      console.error("Error processing file:", error);
+    } catch (fileError) {
+      setResponseData(fileError)
+      console.fileError("Error processing file:", fileError);
     } finally {
       setIsLoading(false)
     };
   };
+
+  //Form state
+  const [formValue, setFormValues] = useState<Record<string, string>>({});
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const FormFields = [
+    {
+      id: "project_client",
+      label: "Client",
+      required: true,
+      placeholder: "Placeholder",
+    },
+    {
+      id: "project_name",
+      label: "Project Name",
+      required: true,
+      placeholder: "Placeholder",
+    },
+    {
+      id: "project_code",
+      label: "Project Code",
+      placeholder: "Placeholder",
+    },
+  ]
+
+  const handleFileChange = (file:File) => {
+    if (!file.name.endsWith()) {
+      if (!file.name.endsWith(".xlsx")) {
+        setFileError("Only .xlsx files are accepted");
+        return;
+      }
+      setFile(file);
+      setFileError(null);
+    }
+  }
+
+  const [responseData, setResponseData] = useState(null);
 
   return (
     <Card className="p-6 max-w-md bg-white rounded-lg shadow-sm border border-gray-200">
@@ -116,10 +157,10 @@ export default function FileUpload({ fileType, onUpload }: FileUploadProps) {
         
         {/* File status display */}
         <div className="space-y-2">
-          <h2 className="text-lg font-medium text-gray-800">Upload {fileType.toUpperCase()} File</h2>
+          <h2 className="text-lg font-medium text-gray-800">Upload {fileType} File</h2>
           
           <div className={`p-3 rounded-md border transition-colors ${
-            error ? 'border-red-200 bg-red-50' : 
+            fileError ? 'border-red-200 bg-red-50' : 
             fileUploaded ? 'border-green-200 bg-green-50' : 
             'border-gray-200 bg-gray-50'
           }`}>
@@ -139,7 +180,7 @@ export default function FileUpload({ fileType, onUpload }: FileUploadProps) {
               )}
               
               <span className={`text-sm truncate ${
-                error ? 'text-red-600' : 
+                fileError ? 'text-red-600' : 
                 fileUploaded ? 'text-green-600' : 
                 'text-gray-600'
               }`}>
@@ -147,12 +188,12 @@ export default function FileUpload({ fileType, onUpload }: FileUploadProps) {
               </span>
             </div>
             
-            {error && (
+            {fileError && (
               <div className="flex items-center gap-1 mt-1">
                 <svg className="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span className="text-sm text-red-600">{error}</span>
+                <span className="text-sm text-red-600">{fileError}</span>
               </div>
             )}
           </div>
@@ -163,8 +204,8 @@ export default function FileUpload({ fileType, onUpload }: FileUploadProps) {
           <Button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            disabled={isLoading}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            disabled={isLoading || disabled}
+            className={`flex-1 ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {isLoading ? (
               <>
