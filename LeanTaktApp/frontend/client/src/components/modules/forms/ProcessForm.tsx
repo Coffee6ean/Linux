@@ -79,8 +79,8 @@ export default function ProcessForm() {
     };
 
     return (
-        <Card>
-            <div>
+        <Card className="p-6">
+            <div className="space-y-4">
                 {/* File Upload Section */}
                 <div className="space-y-2">
                     <Label htmlFor="file-upload">Upload Excel File</Label>
@@ -140,7 +140,65 @@ export default function ProcessForm() {
                       />
                     </div>
         
-                    {/* Add other fields as needed */}
+                    <div>
+                      <Label htmlFor="project_title">Project Title</Label>
+                      <Input
+                        id="project_title"
+                        name="project_title"
+                        value={formData.project_title}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="project_subtitle">Project Subtitle</Label>
+                      <Input
+                        id="project_subtitle"
+                        name="project_subtitle"
+                        value={formData.project_subtitle}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="project_workweek">Project Workweek</Label>
+                      <Input
+                        id="project_workweek"
+                        name="project_workweek"
+                        value={formData.project_workweek}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="project_location">Project Location</Label>
+                      <Input
+                        id="project_location"
+                        name="project_location"
+                        value={formData.project_location}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="project_assignee">Project Assignee</Label>
+                      <Input
+                        id="project_assignee"
+                        name="project_assignee"
+                        value={formData.project_assignee}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="project_tags">Project Tags</Label>
+                      <Input
+                        id="project_tags"
+                        name="project_tags"
+                        value={formData.project_tags}
+                        onChange={handleInputChange}
+                      />
+                    </div>
                   </div>
                 )}
 
