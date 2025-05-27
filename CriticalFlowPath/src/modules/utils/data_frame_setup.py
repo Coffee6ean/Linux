@@ -21,11 +21,11 @@ class DataFrameSetup:
         self.project_data = project_data
 
         #Structures
-        self.json_struct_categories = ["phase", "area", "zone", "trade", "activity_code"]
+        self.json_struct_categories = ["phase", "area", "zone", "subzone", "level", "trade", "activity_code"]
         self.custom_phase_order = ["procurement", "milestone"]
-        self.project_table_index = ["phase", "area", "zone", "entry", "activity_code"]
+        self.project_table_index = ["phase", "area", "zone", "subzone", "level", "entry", "activity_code"]
         self.project_table_values = ["trade", "color", "activity_name", "start", "finish"]
-        self.wbs_final_categories = ["phase", "area", "zone"]
+        self.wbs_final_categories = ["phase", "area", "zone", "subzone", "level"]
 
     @staticmethod
     def main(auto=True, input_file_path=None, input_file_basename=None, 
