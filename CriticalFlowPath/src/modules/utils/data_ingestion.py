@@ -24,11 +24,13 @@ class DataIngestion:
         #Structures
         self.project_content_headers = {
             "entry": None, 
-            "phase": ["phase"],
-            "area": ["area"], 
-            "zone": ["zone"],
-            "trade": ["trade"], 
-            "color": ["color"],
+            "phase": ["phase", "phases"],
+            "area": ["area", "areas"], 
+            "zone": ["zone", "zones"],
+            "subzone": ["subzone", "sub_zone"],
+            "level": ["level", "levels"],
+            "trade": ["trade", "trades"], 
+            "color": ["color", "colors"],
             "parent_id": ["parent_id"], 
             "activity_code": ["activity_code", "activitycode", "code", "task_code", "act_code"],
             "wbs_code": ["wbs_code", "wbscode"],
@@ -42,7 +44,7 @@ class DataIngestion:
             "activity_successor_id": ["successor"],
             "activity_predecessor_id": ["predecessor"],
         }
-        self.json_struct_categories = ["phase", "area", "zone", "trade", "activity_code"]
+        self.json_struct_categories = ["phase", "area", "zone", "subzone", "level", "trade", "activity_code"]
 
     @staticmethod
     def main(auto=True, input_file_path=None, input_file_basename=None, 
