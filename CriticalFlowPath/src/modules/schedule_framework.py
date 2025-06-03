@@ -44,9 +44,11 @@ class ScheduleFramework():
         #Structures
         self.time_scale_options = ["d", "w"]
         self.wbs_final_categories = {
-            "phase": "thick",
-            "area": "no_border", 
+            "phase": "thin",
+            "area": "dashDot", 
             "zone": "dashed",
+            "subzone": "dotted",
+            "level": "hair",
         }
         self.allowed_headers = {
             "hyperlinks": ["activity_code", "activity_name", "wbs_code"]
