@@ -42,13 +42,17 @@ class PostProcessingFramework():
             "phase", 
             "area", 
             "zone", 
+            "subzone",
+            "level",
             "trade", 
             "activity_code"
         ]
         self.wbs_final_categories = {
             "phase": "thin",
-            "area": "dashed", 
-            "zone": "dotted",
+            "area": "dashDot", 
+            "zone": "dashed",
+            "subzone": "dotted",
+            "level": "hair",
         }
         self.calendar_weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
@@ -431,7 +435,13 @@ class PostProcessingFramework():
 
         return week_start, week_finish
     
-    def _get_week_range(self, start_date:datetime, finish_date:datetime) -> list:
+    def _get_week_range(self, start_date:datetime|str, finish_date:datetime|str) -> list:
+        if isinstance(start_date, str):
+            start_date = datetime.strptime(start_date, '%d-%b-%Y')
+
+        if isinstance(finish_date, str):
+            finish_date = datetime.strptime(finish_date, '%d-%b-%Y')
+
         if start_date > finish_date:
             return []
 
