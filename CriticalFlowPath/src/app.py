@@ -228,7 +228,7 @@ class App:
         self._print_result("WbsFramework (CFA) processing...")
         mdls.WbsFramework.main(
             auto, 
-            False,
+            True,
             ins_obj["input_file"].get("path"), 
             ins_obj["input_file"].get("basename"),
             ins_obj["input_file"].get("extension"),
