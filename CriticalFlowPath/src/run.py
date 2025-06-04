@@ -1,6 +1,7 @@
 import os
 import re
 import json
+import argparse
 from datetime import datetime
 import modules as mdls
 
@@ -30,8 +31,8 @@ class App:
         self.folder_structure = ["client", "name", "date"]
 
     @staticmethod
-    def main(auto:bool, payload:dict):
-        project = App.generate_ins(auto, payload)
+    def main(payload:dict):
+        project = App.generate_ins(payload)
 
         if project:
             #Generate Project Folder
@@ -45,13 +46,13 @@ class App:
             App.move_project_to_folder(project.obj["setup"], project_folder)
 
     @staticmethod
-    def generate_ins(auto:bool, payload:dict) -> dict:
+    def generate_ins(payload:dict) -> dict:
         if not payload:
             App.ynq_user_interaction(
                 "Is this a completly new project? "
             )
 
-        setup = mdls.Setup.main(auto, payload)
+        setup = mdls.Setup.main(payload)
 
         project_ins_dict = {"setup": setup.obj}
         ins = App(project_ins_dict)
@@ -379,4 +380,8 @@ class App:
 
 
 if __name__ == "__main__":
-    App.main(True, {})
+    """ parser = argparse.ArgumentParser()
+    parser.add_argument("--auto", action="store_true", help="Run without prompts")
+    args = parser.parse_args() """
+
+    App.main({})
