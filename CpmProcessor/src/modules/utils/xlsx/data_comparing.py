@@ -332,8 +332,8 @@ class XlsxDataComparing:
         result = {
             "entry": entry.get("entry"),
             "phase": source.get("phase"),
-            "location": source.get("location"),
             "area": source.get("area"),
+            "zone": source.get("zone"),
             "trade": source.get("trade"),
             "color": source.get("color"),
             "activity_code": source.get("activity_code"),
