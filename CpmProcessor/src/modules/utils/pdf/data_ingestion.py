@@ -31,8 +31,8 @@ class PdfDataIngestion:
         self.project_content_headers = {
             "entry": None, 
             "phase": ["phase"],
-            "location": ["location"], 
-            "area": ["area", "zone"],
+            "area": ["area"],
+            "zone": ["zone"], 
             "trade": ["trade"], 
             "color": ["color"],
             "parent_id": None, 
