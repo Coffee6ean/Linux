@@ -34,22 +34,23 @@ class Setup:
         )
 
     @staticmethod
-    def main(auto=True, payload:dict={}):
+    def main(payload:dict):
         ins = Setup.generate_ins(payload) 
  
         ins._print_result("DataIngestion processing...")
         data = ins._extract_data_from_file(
-            auto, 
+            payload["auto"], 
             ins.obj["input_file"]["path"], 
             ins.obj["input_file"]["basename"], 
             ins.obj["input_file"]["extension"],
+            ins.obj["input_file"]["roi"],
             RSLTS_DIR
         )
         ins._update_project_modules(data)
 
         ins._print_result("DataFrameSetup processing...")
         frame = ins._frame_data_from_file(
-            auto,
+            payload["auto"],
             ins.obj["input_file"]["path"], 
             ins.obj["input_file"]["basename"], 
             ins.obj["input_file"]["extension"],
@@ -60,7 +61,7 @@ class Setup:
 
         """ ins._print_result("DataRelationship processing...")
         link = ins._link_data_from_file(
-            auto,
+            payload["auto"],
             ins.obj["input_file"]["path"], 
             ins.obj["input_file"]["basename"], 
             ins.obj["input_file"]["extension"],
@@ -71,7 +72,7 @@ class Setup:
 
         ins._print_result("DataProcessing processing...")
         proc = ins._process_data_from_file(
-            auto,
+            payload["auto"],
             ins.obj["input_file"]["path"], 
             ins.obj["input_file"]["basename"], 
             ins.obj["input_file"]["extension"],
@@ -105,15 +106,15 @@ class Setup:
         else:
             input_file = Setup.return_valid_file(payload_dict["file_path"])
             input_file_roi = payload_dict["file_roi"]
-            input_project_client = payload_dict["client"]
-            input_project_name = payload_dict["name"]
-            input_project_code = payload_dict["code"]
-            input_project_title = payload_dict["title"]
-            input_project_subtitle = payload_dict["subtitle"]
-            input_project_workweek = payload_dict.get("workweek", "Mon-Sun")
-            input_project_location = payload_dict["location"]
-            input_project_asignee = payload_dict["assignee"]
-            input_project_tags = payload_dict["tags"]
+            input_project_client = payload_dict["project_client"]
+            input_project_name = payload_dict["project_name"]
+            input_project_code = payload_dict["project_code"]
+            input_project_title = payload_dict["project_title"]
+            input_project_subtitle = payload_dict["project_subtitle"]
+            input_project_workweek = payload_dict.get("project_workweek", "Mon-Sun")
+            input_project_location = payload_dict["project_location"]
+            input_project_asignee = payload_dict["project_assignee"]
+            input_project_tags = payload_dict["project_tags"]
 
         project_ins_dict = {
             "input_file": dict(
@@ -256,12 +257,13 @@ class Setup:
             raise ValueError("Invalid module key")
 
     def _extract_data_from_file(self, auto:str, input_file_path=None, input_file_basename=None, 
-                                input_file_extension=None, output_file_dir=None) -> dict:
+                                input_file_extension=None, input_file_roi=None, output_file_dir=None) -> dict:
         data = DataIngestion.main(
             auto,
             input_file_path,
             input_file_basename,
             input_file_extension,
+            input_file_roi,
             output_file_dir
         )
 
