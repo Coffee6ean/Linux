@@ -90,7 +90,7 @@ class XlsxDataReferencing:
         }
 
         if project:
-            ref_dict = XlsxDataReferencing.read_data_from_json(MCGOUGH, "ticket")
+            ref_dict = XlsxDataReferencing.read_data_from_json(CLAYCO, "ticket")
             cross_ref_results = project.cross_reference_new_data(
                 ref_dict.get("data").get("body"), project.data_dict["content"]["body"]
             )
@@ -344,8 +344,8 @@ class XlsxDataReferencing:
         result = {
             "entry": entry.get("entry"),
             "phase": source.get("phase"),
-            "location": source.get("location"),
             "area": source.get("area"),
+            "zone": source.get("zone"),
             "trade": source.get("trade"),
             "color": source.get("color"),
             "activity_code": source.get("activity_code"),
