@@ -10,7 +10,7 @@ from openpyxl.utils import get_column_letter, column_index_from_string
 
 class DataIngestion:
     def __init__(self, input_file_path, input_file_basename, 
-                 input_file_extension, output_file_dir):
+                 input_file_extension, input_file_roi, output_file_dir):
         self.input_path = input_file_path
         self.input_basename = input_file_basename
         self.input_extension = input_file_extension
@@ -19,7 +19,7 @@ class DataIngestion:
         self.xlsx_start_row = 1
 
         #Module attributes
-        self.ws_name = None
+        self.ws_name = input_file_roi
 
         #Structures
         self.project_content_headers = {
@@ -48,12 +48,13 @@ class DataIngestion:
 
     @staticmethod
     def main(auto=True, input_file_path=None, input_file_basename=None, 
-             input_file_extension=None, output_file_dir=None):
+             input_file_extension=None, input_file_roi=None, output_file_dir=None):
         if auto:
             project = DataIngestion.auto_generate_ins(
                 input_file_path, 
                 input_file_basename, 
-                input_file_extension, 
+                input_file_extension,
+                input_file_roi, 
                 output_file_dir
             )
         else:
@@ -134,11 +135,12 @@ class DataIngestion:
         
     @staticmethod
     def auto_generate_ins(input_file_path, input_file_basename, 
-                          input_file_extension, output_file_dir):
+                          input_file_extension, input_file_roi, output_file_dir):
         ins = DataIngestion(
             input_file_path, 
             input_file_basename, 
             input_file_extension, 
+            input_file_roi,
             output_file_dir
         )
         
