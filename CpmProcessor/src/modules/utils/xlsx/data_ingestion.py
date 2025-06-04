@@ -45,7 +45,7 @@ class XlsxDataIngestion:
             "successor_code": ["successor"],
             "predecessor_code": ["predecessor"],
         }
-        self.json_struct_categories = ["phase", "location", "area", "trade", "activity_code"]
+        self.json_struct_categories = ["phase", "area", "zone", "trade", "activity_code"]
 
     @staticmethod
     def main(auto=True, input_file_path=None, input_file_basename=None, 
@@ -474,7 +474,7 @@ class XlsxDataIngestion:
                     position = header_coordinates_list.index(parent_header)
                     key = header_key_list[position]
 
-                    if key == "area":
+                    if key == "zone":
                         json_activity[key] = "N/A"
                     else:
                         json_activity[key] = ""
