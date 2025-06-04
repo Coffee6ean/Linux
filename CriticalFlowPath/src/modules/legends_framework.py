@@ -43,7 +43,7 @@ class LegendsFramework():
         else:
             project = LegendsFramework.generate_ins()
         
-        active_workbook, active_worksheet = project.return_excel_workspace(project.worksheet_name)
+        active_workbook, active_worksheet = project.return_excel_workspace(auto, project.worksheet_name)
 
         if active_workbook and active_worksheet:
             project.generate_legends_table(
@@ -137,13 +137,21 @@ class LegendsFramework():
         with open(file, 'w') as writer:
             json.dump(json_dict, writer)
 
-    def return_excel_workspace(self, worksheet_name):
+    def return_excel_workspace(self, auto:bool, worksheet_name:str):
         basename = self.input_basename + '.' + self.input_extension
         file = os.path.join(self.input_path, basename)
         
         try:
-            workbook = load_workbook(filename=file)
-            worksheet = workbook[worksheet_name]
+            if auto:
+                workbook = load_workbook(filename=file)
+                worksheet = workbook.create_sheet(worksheet_name)
+                self.ws_name = worksheet_name
+                print(f"New worksheet '{worksheet_name}' created.\n")
+
+                return workbook, worksheet
+            else:
+                workbook = load_workbook(filename=file)
+                worksheet = workbook[worksheet_name]
         except KeyError:
             print(f"Error: Worksheet '{worksheet_name}' does not exist.")
             
