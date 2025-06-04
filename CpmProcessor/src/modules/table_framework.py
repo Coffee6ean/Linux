@@ -124,7 +124,7 @@ class TableFramework:
 
         proc_table = pd.pivot_table(
             reset_table,
-            index=["entry", "phase", "location", "area", "trade", "color", "activity_code"],
+            index=["entry", "phase", "area", "zone", "trade", "color", "activity_code"],
             values=["wbs_code", "activity_name", "activity_category", "start", "finish"],
             aggfunc="first",
             observed=True
