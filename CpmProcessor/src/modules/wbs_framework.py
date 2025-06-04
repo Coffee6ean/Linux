@@ -12,7 +12,7 @@ sys.path.append("../")
 from CriticalFlowPath.keys.secrets import RSLTS_DIR
 
 class WbsFramework:
-    def __init__(self, input_file_path, input_file_basename, input_file_extension, 
+    def __init__(self, input_file_path, input_file_basename, input_file_extension,
                  input_worksheet_name, project_ordered_dict):
         self.input_path = input_file_path
         self.input_basename = input_file_basename
@@ -31,24 +31,24 @@ class WbsFramework:
             "added": "#b5f26b",
             "naming": "#f26bf0",
             "new": "#f2b86b",
-            "updated": "#9f6bf2", 
+            "updated": "#9f6bf2",
             "modified": "#9f6bf2",
-            "matching": "5dc1e8", 
-            "removed": "f2706b", 
-            "duplicate": "c2110b", 
+            "matching": "5dc1e8",
+            "removed": "f2706b",
+            "duplicate": "c2110b",
             "invalid": "#f2ee6b",
             "n/a": "c1c9cc"
         }
-    
+
     @staticmethod
-    def main(auto=True, input_file_path=None, input_file_basename=None, input_file_extension=None, 
+    def main(auto=True, input_file_path=None, input_file_basename=None, input_file_extension=None,
              input_worksheet_name=None, project_ordered_dict=None):
         if auto:
             project = WbsFramework.auto_generate_ins(
-                input_file_path, 
-                input_file_basename, 
+                input_file_path,
+                input_file_basename,
                 input_file_extension,
-                input_worksheet_name, 
+                input_worksheet_name,
                 project_ordered_dict,
             )
         else:
@@ -59,7 +59,7 @@ class WbsFramework:
             proc_table, color_list = project.restructure_for_workable_table(table)
             project.create_wbs_table(proc_table)
             project.process_wbs_column('Activity Code', color_list)
-            project.process_wbs_column('Color', color_list) 
+            project.process_wbs_column('Color', color_list)
             project.style_categorized_column("activity category")
 
     @staticmethod
@@ -69,11 +69,11 @@ class WbsFramework:
         )
 
         setup_cls = setup.Setup.main()
-        
+
         ins = WbsFramework(
-            setup_cls.obj["input_file"].get("path"), 
+            setup_cls.obj["input_file"].get("path"),
             setup_cls.obj["input_file"].get("basename"),
-            setup_cls.obj["input_file"].get("extension"),  
+            setup_cls.obj["input_file"].get("extension"),
             "Compared - WBS Table",
             setup_cls.obj["project"]["modules"]["MODULE_3"].get("content"),
         )
@@ -84,13 +84,13 @@ class WbsFramework:
     def auto_generate_ins(input_file_path, input_file_basename, input_file_extension,
                           input_worksheet_name, project_ordered_dict):
         ins = WbsFramework(
-            input_file_path, 
-            input_file_basename, 
+            input_file_path,
+            input_file_basename,
             input_file_extension,
             input_worksheet_name,
             project_ordered_dict
         )
-        
+
         return ins
 
     @staticmethod
@@ -99,7 +99,7 @@ class WbsFramework:
         if len(file_list) == 0:
             print("Error. No files found")
             return -1
-        
+
         if len(file_list) > 1:
             print(f"-- {len(file_list)} files found:")
             idx = 0
@@ -107,7 +107,7 @@ class WbsFramework:
                 idx += 1
                 print(f"{idx}. {file}")
 
-            selection_idx = input("\nPlease enter the index number to select the one to process: ") 
+            selection_idx = input("\nPlease enter the index number to select the one to process: ")
         else:
             print(f"Single file found: {file_list[0]}")
             print("Will go ahead and process")
@@ -131,20 +131,20 @@ class WbsFramework:
         proc_table = pd.pivot_table(
             reset_table,
             index=[
-                "phase", 
-                "location", 
-                "area", 
-                "trade", 
-                "color", 
+                "phase",
+                "area",
+                "zone",
+                "trade",
+                "color",
                 "activity_code"
             ],
             values=[
-                "wbs_code", 
-                "activity_name", 
-                "activity_category", 
-                "start", 
-                "finish", 
-                "time_shift", 
+                "wbs_code",
+                "activity_name",
+                "activity_category",
+                "start",
+                "finish",
+                "time_shift",
                 "time_difference"
             ],
             aggfunc="first",
@@ -152,26 +152,26 @@ class WbsFramework:
         )
 
         return proc_table
-    
+
     def restructure_for_workable_table(self, table):
         proc_table = table.reset_index(drop=False)
         color_list = proc_table["color"].tolist()
 
         column_header_list = proc_table.columns.tolist()
         column_order = self._check_column_order(
-            column_header_list, 
+            column_header_list,
             self._bring_column_to_front(column_header_list, "wbs_code")
         )
         column_order = self._check_column_order(
-            column_order, 
+            column_order,
             self._send_column_to_back(column_order, "finish")
         )
         column_order = self._check_column_order(
-            column_order, 
+            column_order,
             self._send_column_to_back(column_order, "time_shift")
         )
         column_order = self._check_column_order(
-            column_order, 
+            column_order,
             self._send_column_to_back(column_order, "time_difference")
         )
 
@@ -179,8 +179,8 @@ class WbsFramework:
 
         column_renames = {
             "phase": "Phase",
-            "location": "Location",
             "area": "Area",
+            "zone": "Zone",
             "trade": "Trade",
             "color": "Color",
             "activity_code": "Activity Code",
@@ -211,9 +211,9 @@ class WbsFramework:
                 target = column_list.pop(target_idx)
                 ordered_list = [target] + column_list
                 break
-        
+
         return ordered_list
-    
+
     def _send_column_to_back(self, column_list:list, target_column:str) -> list:
         for idx, col in enumerate(column_list):
             if col == target_column:
@@ -221,14 +221,14 @@ class WbsFramework:
                 column_list[-1] = col
                 column_list[idx] = temp
                 break
-        
+
         return column_list
-    
+
     def create_wbs_table(self, proc_table) -> None:
         self._write_data_to_excel(proc_table)
 
     def _write_data_to_excel(self, proc_table) -> None:
-        if proc_table.empty:    
+        if proc_table.empty:
             print("Error. DataFrame is empty\n")
         else:
             basename = self.input_basename + '.' + self.input_extension
@@ -237,12 +237,12 @@ class WbsFramework:
             try:
                 with pd.ExcelWriter(file, engine="openpyxl", mode='a', if_sheet_exists='replace') as writer:
                     proc_table.to_excel(
-                        writer, 
-                        sheet_name=self.worksheet_name, 
-                        startrow=self.wbs_start_row - 1, 
+                        writer,
+                        sheet_name=self.worksheet_name,
+                        startrow=self.wbs_start_row - 1,
                         startcol=column_index_from_string(self.wbs_start_col) - 1
                     )
-                
+
                 print(f"Successfully converted JSON to Excel and saved to: {file}")
                 print(f"Saved to sheet: {self.worksheet_name}\n")
             except Exception as e:
@@ -266,13 +266,13 @@ class WbsFramework:
         ws = wb[self.worksheet_name]
 
         header_idx = self._find_column_idx(ws, col_header)
-        
-        for row in ws.iter_rows(min_row=self.wbs_start_row + 1, 
-                                max_row=ws.max_row, 
+
+        for row in ws.iter_rows(min_row=self.wbs_start_row + 1,
+                                max_row=ws.max_row,
                                 min_col=header_idx,
                                 max_col=header_idx):
             for cell in row:
-                color = self.entry_statuses[cell.value.lower()] if cell.value else "n/a" 
+                color = self.entry_statuses[cell.value.lower()] if cell.value else "n/a"
                 proc_color = self._process_hex_val(color)
                 self._style_cell(cell, proc_color)
 
@@ -297,21 +297,21 @@ class WbsFramework:
             print("Error: Color list is empty.")
             return
 
-        for idx, row in enumerate(ws.iter_rows(min_row=self.wbs_start_row + 1, 
-                                                max_row=ws.max_row, 
+        for idx, row in enumerate(ws.iter_rows(min_row=self.wbs_start_row + 1,
+                                                max_row=ws.max_row,
                                                 min_col=col_idx,
                                                 max_col=col_idx)):
             for cell in row:
                 color = col_list[idx]
                 proc_color = self._process_hex_val(color)
                 try:
-                    cell.fill = PatternFill(start_color=proc_color, 
-                                            end_color=proc_color, 
+                    cell.fill = PatternFill(start_color=proc_color,
+                                            end_color=proc_color,
                                             fill_type="solid")
                 except Exception as e:
                     print(f"Color hex not found: {proc_color}. Error: {e}")
-                    cell.fill = PatternFill(start_color=self.default_hex_fill_color, 
-                                            end_color=self.default_hex_fill_color, 
+                    cell.fill = PatternFill(start_color=self.default_hex_fill_color,
+                                            end_color=self.default_hex_fill_color,
                                             fill_type="solid")
 
         column_letter = get_column_letter(col_idx)
@@ -319,13 +319,13 @@ class WbsFramework:
 
     def _style_cell(self, cell, color:str) -> None:
         try:
-            cell.fill = PatternFill(start_color=color, 
-                                    end_color=color, 
+            cell.fill = PatternFill(start_color=color,
+                                    end_color=color,
                                     fill_type="solid")
         except Exception as e:
             print(f"Color hex not found: {color}. Error: {e}")
-            cell.fill = PatternFill(start_color=self.default_hex_fill_color, 
-                                    end_color=self.default_hex_fill_color, 
+            cell.fill = PatternFill(start_color=self.default_hex_fill_color,
+                                    end_color=self.default_hex_fill_color,
                                     fill_type="solid")
 
     def _process_hex_val(self, hex_val:str) -> str:
