@@ -34,8 +34,8 @@ class Setup:
         )
 
     @staticmethod
-    def main(auto=True):
-        ins = Setup.generate_ins()
+    def main(auto=True, payload:dict={}):
+        ins = Setup.generate_ins(payload) 
  
         ins._print_result("DataIngestion processing...")
         data = ins._extract_data_from_file(
@@ -82,62 +82,77 @@ class Setup:
             frame["content"]["custom_ordered_dict"],
         )
         ins._update_project_modules(proc)
-
+        ins.obj["status"] = "success"
+        
         return ins
         
     @staticmethod
-    def generate_ins():
-        input_file = Setup.return_valid_file(
-            input("Please enter the path to the file or directory: ").strip()
-        )
-        input_project_client = input("Enter Project Client: ").strip()
-        input_project_name = input("Enter Project Name: ").strip()
-        input_project_code = input("Enter Project Code: ").strip()
-        input_project_title = input("Enter Project Title: ").strip()
-        input_project_subtitle = input("Enter Project Subtitle: ").strip()
-        input_project_workweek = input("Enter Project Workweek (default. Mon-Sun): ").strip()
-        input_project_location = input("Enter Project Location: ").strip()
-        input_project_asignee = input("Enter Project Assignee: ").strip()
-        input_project_tags = input("Enter Project Tags: ").strip()
+    def generate_ins(payload_dict:dict):
+        if not payload_dict:
+            input_file = Setup.return_valid_file(
+                input("Please enter the path to the file or directory: ").strip()
+            )
+            input_file_roi = ""
+            input_project_client = input("Enter Project Client: ").strip()
+            input_project_name = input("Enter Project Name: ").strip()
+            input_project_code = input("Enter Project Code: ").strip()
+            input_project_title = input("Enter Project Title: ").strip()
+            input_project_subtitle = input("Enter Project Subtitle: ").strip()
+            input_project_workweek = input("Enter Project Workweek (default. Mon-Sun): ").strip()
+            input_project_location = input("Enter Project Location: ").strip()
+            input_project_asignee = input("Enter Project Assignee: ").strip()
+            input_project_tags = input("Enter Project Tags: ").strip()
+        else:
+            input_file = Setup.return_valid_file(payload_dict["file_path"])
+            input_file_roi = payload_dict["file_roi"]
+            input_project_client = payload_dict["client"]
+            input_project_name = payload_dict["name"]
+            input_project_code = payload_dict["code"]
+            input_project_title = payload_dict["title"]
+            input_project_subtitle = payload_dict["subtitle"]
+            input_project_workweek = payload_dict.get("workweek", "Mon-Sun")
+            input_project_location = payload_dict["location"]
+            input_project_asignee = payload_dict["assignee"]
+            input_project_tags = payload_dict["tags"]
 
         project_ins_dict = {
             "input_file": dict(
-                path = input_file.get("path"),
-                basename = input_file.get("basename"),
-                extension = input_file.get("extension"),
+                path=input_file.get("path"),
+                basename=input_file.get("basename"),
+                extension=input_file.get("extension"),
+                roi=input_file_roi
             ),
             "output_file": dict(
-                parent_directory = "== SECRET ==",
-                directories = {},
+                parent_directory="== SECRET ==",
+                directories={},
             ),
             "project": dict(
-                metadata = dict(
-                    id = None,
-                    continuity = None,
-                    dates = dict(
-                        created = Setup.return_valid_date(),
-                        finished = None,
+                metadata=dict(
+                    id=None,
+                    continuity=None,
+                    dates=dict(
+                        created=Setup.return_valid_date(),
+                        finished=None,
                     ),
-                    client = input_project_client,
-                    name = input_project_name,
-                    code = input_project_code,
-                    title = input_project_title,
-                    subtitle = input_project_subtitle,
-                    workweek = input_project_workweek if input_project_workweek else "Mon-Sun",
-                    location = input_project_location,
-                    assignee = input_project_asignee,
-                    tags = input_project_tags,
+                    client=input_project_client,
+                    name=input_project_name,
+                    code=input_project_code,
+                    title=input_project_title,
+                    subtitle=input_project_subtitle,
+                    workweek=input_project_workweek,
+                    location=input_project_location,
+                    assignee=input_project_asignee,
+                    tags=input_project_tags,
                 ),
-                modules = {},
+                modules={},
             ),
+            "status": ""
         }
 
-        ins = Setup(project_ins_dict)
-
-        return ins
+        return Setup(project_ins_dict)
 
     @staticmethod
-    def return_valid_file(input_file_dir:str) -> dict|int:        
+    def return_valid_file(input_file_dir:str) -> dict|int:
         if not os.path.exists(input_file_dir):
             raise FileNotFoundError("Error: Given directory or file does not exist in the system.")
 
