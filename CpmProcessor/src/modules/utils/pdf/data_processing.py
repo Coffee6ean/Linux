@@ -235,8 +235,8 @@ class PdfDataProcessing():
         for key, value in data_dict.items():
             tasks = [{
                 "phase": self._calculate_phase(entry.get("parent_name"), phases),
-                "location": "",
                 "area": "",
+                "zone": "",
                 "trade": "",
                 "color": "",
                 "parent_page": int(key),
