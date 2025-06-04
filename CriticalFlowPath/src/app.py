@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from run import App  # your main class
+from run import App
 
 app = Flask(__name__)
 
@@ -11,7 +11,7 @@ def health():
 def run_project():
     try:
         payload = request.get_json()
-        result = App.run_from_dict(payload)
+        result = App.main(payload)
         return jsonify(result), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
