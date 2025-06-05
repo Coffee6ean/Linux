@@ -30,7 +30,7 @@ class DataIngestion:
             "subzone": ["subzone", "sub_zone"],
             "level": ["level", "levels"],
             "trade": ["trade", "trades"], 
-            "color": ["color", "colors"],
+            "color": ["color", "colour", "colors", "colours"],
             "parent_id": ["parent_id"], 
             "activity_code": ["activity_code", "activitycode", "code", "task_code", "act_code"],
             "wbs_code": ["wbs_code", "wbscode"],
@@ -41,8 +41,8 @@ class DataIngestion:
             "start": ["start", "start_date", "start_dates"], 
             "finish": ["finish", "finish_date", "finish_dates", "end", "end_date"], 
             "total_float": ["total_float", "totalfloat"],
-            "activity_successor_id": ["successor"],
-            "activity_predecessor_id": ["predecessor"],
+            "activity_successor_id": ["successor", "successor"],
+            "activity_predecessor_id": ["predecessor", "predecessors"],
         }
         self.json_struct_categories = ["phase", "area", "zone", "subzone", "level", "trade", "activity_code"]
 
@@ -453,22 +453,26 @@ class DataIngestion:
             print(f"Error parsing date: {e}")
             return None
 
-    def _fill_missing_dates(self, json_obj:dict) -> dict:
-        body_dict = json_obj["body"]
+    def _fill_missing_dates(self, json_obj: dict) -> dict:
+        original_body = json_obj.get("body", [])
+        cleaned_body = []
 
-        for item in body_dict:
+        for item in original_body:
             start = item.get("start")
             finish = item.get("finish")
 
-            if start == "" and finish == "":
-                print(f"Both 'start' and 'finish' are missing for entry: {item['entry']}")
-            elif start == "":
-                item["start"] = finish
-            elif finish == "":
-                item["finish"] = start
-        
-        json_obj["body"] = body_dict
+            if not start and not finish:
+                print(f"[INFO] Skipping entry with no 'start' or 'finish': {item.get('entry')}")
+                continue
 
+            if not start:
+                item["start"] = finish
+            if not finish:
+                item["finish"] = start
+
+            cleaned_body.append(item)
+
+        json_obj["body"] = cleaned_body
         return json_obj
     
     def _project_dates(self, json_obj:dict):

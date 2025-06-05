@@ -1,0 +1,1813 @@
+{
+    "BUYOUT/PROCUREMENT": {
+        "details": {
+            "step": 2,
+            "type": null,
+            "description": ""
+        },
+        "content": {
+            "Prequalification & Bidding": {
+                "color": {
+                    "key": "dark_goldenrod",
+                    "name": "Dark Goldenrod",
+                    "hex_code": "#B8860B",
+                    "R": 184,
+                    "G": 134,
+                    "B": 11
+                },
+                "activities": [
+                    {"code": "15A", "name": "Vendor & Supplier Prequalification"},
+                    {"code": "15B", "name": "Bid Package Preparation"},
+                    {"code": "15C", "name": "Request for Proposals (RFP)"},
+                    {"code": "15D", "name": "Request for Quotes (RFQ)"},
+                    {"code": "15E", "name": "Bid Evaluation & Selection"},
+                    {"code": "15F", "name": "Value Engineering Review"},
+                    {"code": "15G", "name": "Scope Clarification Meetings"},
+                    {"code": "15H", "name": "Awarding Contracts"}
+                ]
+            },
+            "Material & Equipment Procurement": {
+                "color": {
+                    "key": "saddle_brown",
+                    "name": "Saddle Brown",
+                    "hex_code": "#8B4513",
+                    "R": 139,
+                    "G": 69,
+                    "B": 19
+                },
+                "activities": [
+                    {"code": "16A", "name": "Material Specification & Selection"},
+                    {"code": "16B", "name": "Long Lead Item Procurement"},
+                    {"code": "16C", "name": "Supplier Negotiations"},
+                    {"code": "16D", "name": "Purchase Order Issuance"},
+                    {"code": "16E", "name": "Quality Assurance & Compliance"},
+                    {"code": "16F", "name": "Logistics & Delivery Coordination"},
+                    {"code": "16G", "name": "Equipment Rental & Leasing"},
+                    {"code": "16H", "name": "Inventory Tracking & Management"}
+                ]
+            },
+            "Subcontractor Buyout": {
+                "color": {
+                    "key": "teal",
+                    "name": "Teal",
+                    "hex_code": "#008080",
+                    "R": 0,
+                    "G": 128,
+                    "B": 128
+                },
+                "activities": [
+                    {"code": "17A", "name": "Scope Review & Negotiation"},
+                    {"code": "17B", "name": "Subcontractor Prequalification"},
+                    {"code": "17C", "name": "Bid Leveling & Comparison"},
+                    {"code": "17D", "name": "Contract Execution"},
+                    {"code": "17E", "name": "Risk Management Assessment"},
+                    {"code": "17F", "name": "Payment Terms & Bonding Review"},
+                    {"code": "17G", "name": "Compliance & Insurance Verification"},
+                    {"code": "17H", "name": "Coordination with Project Schedule"}
+                ]
+            },
+            "Tracking & Reporting": {
+                "color": {
+                    "key": "slate_gray",
+                    "name": "Slate Gray",
+                    "hex_code": "#708090",
+                    "R": 112,
+                    "G": 128,
+                    "B": 144
+                },
+                "activities": [
+                    {"code": "18A", "name": "Procurement Schedule Monitoring"},
+                    {"code": "18B", "name": "Cost Tracking & Budget Control"},
+                    {"code": "18C", "name": "Vendor Performance Tracking"},
+                    {"code": "18D", "name": "Change Order Management"},
+                    {"code": "18E", "name": "Procurement Status Reporting"},
+                    {"code": "18F", "name": "Supply Chain Risk Mitigation"},
+                    {"code": "18G", "name": "Sustainability & Green Purchasing"},
+                    {"code": "18H", "name": "Final Buyout & Closeout Reports"}
+                ]
+            }
+        }
+    },               
+    "CIVIL": {
+        "details": {
+            "step": null,
+            "type": null
+        },
+        "content": {
+            "Underground Utilities": {
+                "color": {
+                    "key": "dark_cyan",
+                    "name": "Dark Cyan",
+                    "hex_code": "#008B8B",
+                    "R": 0,
+                    "G": 139,
+                    "B": 139
+                },                          
+                "activities": [
+                    {"code": "U0", "name": "Security Power for Camera System"},
+                    {"code": "U1", "name": "Sanitary - Excavation, Bedding, Backfill and Testing"},
+                    {"code": "U2", "name": "Water - Excavation, Bedding, Backfill and Testing"},
+                    {"code": "U3", "name": "Storm - Excavation, Bedding, Backfill and Testing"},
+                    {"code": "U4", "name": "Building Perimeter/Landscape Drains"},
+                    {"code": "U5", "name": "Site Electrical - Primaries and Transformer Install"},
+                    {"code": "U6", "name": "Site Electrical - Secondaries Install"},
+                    {"code": "U7", "name": "Site Electrical - Lights and EVs Install"},
+                    {"code": "U8", "name": "Site Electrical - Comms (Telus/Shaw etc)"}
+                ]
+            },
+            "Electrical Site Work": {
+                "color": {
+                    "key": "deep_sky_blue",
+                    "name": "Deep Sky Blue",
+                    "hex_code": "#00BFFF",
+                    "R": 0,
+                    "G": 191,
+                    "B": 255
+                },
+                "activities": [
+                    {"code": "ES", "name": "Pull Secondaries"},
+                    {"code": "EL", "name": "Pull Lights/EVs"}
+                ]
+            },
+            "Concrete Flatworks": {
+                "color": {
+                    "key": "ash_gray",
+                    "name": "Ash Gray",
+                    "hex_code": "#B2BEB5",
+                    "R": 178,
+                    "G": 190,
+                    "B": 181
+                },
+                "activities": [
+                    {"code": "C1", "name": "Ramp Slab Prep and Pour"},
+                    {"code": "C2", "name": "Curb + Gutter"},
+                    {"code": "C3", "name": "Pin-on Curbs"},
+                    {"code": "C4", "name": "Sidewalks Prep and Pour"},
+                    {"code": "C5", "name": "Site Stairs Prep and Pour"},
+                    {"code": "C6", "name": "Line Painting - Site and Parkade"},
+                    {"code": "C7",  "name":"Curb Stops"}
+                ]
+            },
+            "Asphalt Flatworks": {
+                "color": {
+                    "key": "Gunmetal",
+                    "name": "Gunmetal",
+                    "hex_code": "#2a3439",
+                    "R": 42,
+                    "G": 52,
+                    "B": 57
+                },             
+                "activities":[
+                    {"code":"A1","name":"Subgrade Gravels"},
+                    {"code":"A2","name":"Top Gravels and Base Layer Asphalt"},
+                    {"code":"A3","name":"Top Layer Asphalt"}
+                ]
+            },
+            "Temp Structures": {
+                "color": {
+                    "key": "lime_green",
+                    "name": "Lime Green",
+                    "hex_code": "#32CD32",
+                    "R": 50,
+                    "G": 205,
+                    "B": 50
+                },
+                "activities":[
+                    {"code":"N1","name":"Laydown / Parking Area Prep"},
+                    {"code":"N2","name":"Crane Pads"},
+                    {"code":"N3","name":"Access Roads for Trades"}
+                ]
+            },
+            "Garbage Bins": {
+                "color": {
+                    "key": "dark_olive_green",
+                    "name": "Dark Olive Green",
+                    "hex_code": "#556B2F",
+                    "R": 85,
+                    "G": 107,
+                    "B": 47
+                },        
+                "activities":[
+                    {"code":"B1","name":"Garbage Bin Prep, Install & Backfill"}
+                ]
+            },
+            "Earthworks": {
+                "color": {
+                    "key": "dark_sea_green",
+                    "name": "Dark Sea Green",
+                    "hex_code": "#8B8989",
+                    "R": 139,
+                    "G": 149,
+                    "B": 120
+                },                
+                "activities":[
+                    {"code":"EA","name":"Site Clearing (trees/demo)"},
+                    {"code":"EB","name":"Erosion & Sediment Control"},
+                    {"code":"EC","name":"Site Grubbing"},
+                    {"code":"ED","name":"Blasting"},
+                    {"code":"EF","name":"Site Cut/Fill"},
+                    {"code":"EG","name":"Process Aggregate"},
+                    {"code":"EH","name":"Site Grading/Shaping"},
+                    {"code":"EI","name":"Building Foundation Bulk Excavation"},
+                    {"code":"EJ","name":"Elevator - Sumps Pit Excavation"},
+                    {"code":"EK","name":"Elevator - Sumps Pit Backfill"},
+                    {"code":"EL","name":"UG Plumbing/Electrical Excavation and Backfill"},
+                    {"code":"EM","name":"Detailed Excavation - For Footings / Pad Footings"},
+                    {"code":"EN","name":"Backfill - Footings / Pad Footings"},
+                    {"code":"EO","name":"SOG Prep - Gravels & Compaction & Poly"},
+                    {"code":"EP","name":"Building Backfill - 1st Half / Weeping Tile"},
+                    {"code":"EQ","name":"Building Backfill - 2nd Half"}
+                ]
+            }
+        } 
+    },
+    "DEMOLITION": {
+        "details": {
+            "step": 5,
+            "type": null
+        },
+        "content": {
+            "Pre-Demolition Planning": {
+                "color": {
+                    "key": "dark_red",
+                    "name": "Dark Red",
+                    "hex_code": "#8B0000",
+                    "R": 139,
+                    "G": 0,
+                    "B": 0
+                },
+                "activities": [
+                    {"code": "27A", "name": "Site Survey & Condition Assessment"},
+                    {"code": "27B", "name": "Permit Acquisition & Regulatory Compliance"},
+                    {"code": "27C", "name": "Utility Disconnection & Coordination"},
+                    {"code": "27D", "name": "Structural Analysis & Safety Planning"},
+                    {"code": "27E", "name": "Environmental Impact & Hazardous Material Assessment"},
+                    {"code": "27F", "name": "Waste Management & Disposal Plan"},
+                    {"code": "27G", "name": "Public Notification & Safety Measures"},
+                    {"code": "27H", "name": "Demolition Equipment & Crew Mobilization"}
+                ]
+            },
+            "Selective Demolition": {
+                "color": {
+                    "key": "sienna",
+                    "name": "Sienna",
+                    "hex_code": "#A0522D",
+                    "R": 160,
+                    "G": 82,
+                    "B": 45
+                },
+                "activities": [
+                    {"code": "28A", "name": "Interior Strip-Out & Salvage"},
+                    {"code": "28B", "name": "Mechanical, Electrical, & Plumbing (MEP) Removal"},
+                    {"code": "28C", "name": "Roofing & Structural Component Removal"},
+                    {"code": "28D", "name": "Facade & Exterior Wall Demolition"},
+                    {"code": "28E", "name": "Flooring & Foundation Removal"},
+                    {"code": "28F", "name": "Asbestos & Hazardous Material Abatement"},
+                    {"code": "28G", "name": "Shoring & Temporary Bracing Installation"},
+                    {"code": "28H", "name": "Salvage & Recycling of Materials"}
+                ]
+            },
+            "Full Structure Demolition": {
+                "color": {
+                    "key": "dim_gray",
+                    "name": "Dim Gray",
+                    "hex_code": "#696969",
+                    "R": 105,
+                    "G": 105,
+                    "B": 105
+                },
+                "activities": [
+                    {"code": "29A", "name": "Implosion & Controlled Demolition"},
+                    {"code": "29B", "name": "Heavy Equipment Demolition (Excavators, Wrecking Ball)"},
+                    {"code": "29C", "name": "Concrete & Masonry Breakup"},
+                    {"code": "29D", "name": "Steel & Structural Component Cutting"},
+                    {"code": "29E", "name": "Dust & Noise Mitigation"},
+                    {"code": "29F", "name": "Vibration Monitoring & Structural Integrity Checks"},
+                    {"code": "29G", "name": "Material Sorting & Segregation"},
+                    {"code": "29H", "name": "Haul-Off & Site Cleanup"}
+                ]
+            },
+            "Post-Demolition & Site Restoration": {
+                "color": {
+                    "key": "olive_drab",
+                    "name": "Olive Drab",
+                    "hex_code": "#6B8E23",
+                    "R": 107,
+                    "G": 142,
+                    "B": 35
+                },
+                "activities": [
+                    {"code": "30A", "name": "Final Debris Removal & Site Cleanup"},
+                    {"code": "30B", "name": "Soil Remediation & Grading"},
+                    {"code": "30C", "name": "Underground Utility Verification"},
+                    {"code": "30D", "name": "Backfilling & Compaction"},
+                    {"code": "30E", "name": "Erosion Control & Drainage Management"},
+                    {"code": "30F", "name": "Site Safety & Inspection Clearance"},
+                    {"code": "30G", "name": "Final Documentation & Reporting"},
+                    {"code": "30H", "name": "Handover for Next Phase of Construction"}
+                ]
+            }
+        }
+    },        
+    "DESIGN": {
+        "details": {
+            "step": 1,
+            "type": null
+        },
+        "content": {
+            "Architectural Design": {
+                "color": {
+                    "key": "royal_blue",
+                    "name": "Royal Blue",
+                    "hex_code": "#4169E1",
+                    "R": 65,
+                    "G": 105,
+                    "B": 225
+                },
+                "activities": [
+                    {"code": "11A", "name": "Concept Development"},
+                    {"code": "11B", "name": "Schematic Design (SD)"},
+                    {"code": "11C", "name": "Design Development (DD)"},
+                    {"code": "11D", "name": "3D Renderings & Visualization"},
+                    {"code": "11E", "name": "Material & Finish Selection"},
+                    {"code": "11F", "name": "Building Code Compliance Review"},
+                    {"code": "11G", "name": "Site Planning & Zoning Review"},
+                    {"code": "11H", "name": "Interior Space Planning"}
+                ]
+            },
+            "Structural Engineering": {
+                "color": {
+                    "key": "dark_red",
+                    "name": "Dark Red",
+                    "hex_code": "#8B0000",
+                    "R": 139,
+                    "G": 0,
+                    "B": 0
+                },
+                "activities": [
+                    {"code": "12A", "name": "Structural Load Calculations"},
+                    {"code": "12B", "name": "Foundation & Footing Design"},
+                    {"code": "12C", "name": "Beam & Column Layout"},
+                    {"code": "12D", "name": "Seismic & Wind Analysis"},
+                    {"code": "12E", "name": "Steel & Concrete Reinforcement Design"},
+                    {"code": "12F", "name": "Structural Safety Review"},
+                    {"code": "12G", "name": "Structural Shop Drawings"},
+                    {"code": "12H", "name": "Building Envelope Analysis"}
+                ]
+            },
+            "Mechanical, Electrical & Plumbing (MEP) Design": {
+                "color": {
+                    "key": "dark_orange",
+                    "name": "Dark Orange",
+                    "hex_code": "#FF8C00",
+                    "R": 255,
+                    "G": 140,
+                    "B": 0
+                },
+                "activities": [
+                    {"code": "13A", "name": "HVAC System Design"},
+                    {"code": "13B", "name": "Electrical Load Calculation"},
+                    {"code": "13C", "name": "Lighting & Power Layout"},
+                    {"code": "13D", "name": "Plumbing System Layout"},
+                    {"code": "13E", "name": "Fire Protection System Design"},
+                    {"code": "13F", "name": "Energy Efficiency Analysis"},
+                    {"code": "13G", "name": "Low Voltage & Data Cabling Design"},
+                    {"code": "13H", "name": "Renewable Energy Integration"}
+                ]
+            },
+            "Permitting & Documentation": {
+                "color": {
+                    "key": "dark_green",
+                    "name": "Dark Green",
+                    "hex_code": "#006400",
+                    "R": 0,
+                    "G": 100,
+                    "B": 0
+                },
+                "activities": [
+                    {"code": "14A", "name": "Construction Permit Application"},
+                    {"code": "14B", "name": "Zoning & Land Use Approval"},
+                    {"code": "14C", "name": "Building Permit Submission"},
+                    {"code": "14D", "name": "Environmental Impact Study"},
+                    {"code": "14E", "name": "LEED Certification Planning"},
+                    {"code": "14F", "name": "Bidding & Procurement Support"},
+                    {"code": "14G", "name": "As-Built Documentation"},
+                    {"code": "14H", "name": "Owner & Stakeholder Presentations"}
+                ]
+            }
+        }
+    },
+    "EXTERIORS": {
+        "details": {
+            "step": 8,
+            "type": null
+        },
+        "content": {
+            "Facade": {
+                "color": {
+                    "key": "pale_silver",
+                    "name": "Pale Silver",
+                    "hex_code": "#C0C0C0",
+                    "R": 192,
+                    "G": 192,
+                    "B": 192
+                },                
+                "activities": [
+                    {"code": "AA", "name": "Mockup Install & Approval"},
+                    {"code": "AB", "name": "Window & Patio Door Prep"},
+                    {"code": "AC", "name": "Window & Patio Door Install"},
+                    {"code": "AD", "name": "Air Barrier & Foundation Tie-in"},
+                    {"code": "AE", "name": "Vents Install"},
+                    {"code": "AF", "name": "Window/Patio Door Liners and Flashing"},
+                    {"code": "AG", "name": "Insulation"},
+                    {"code": "AH", "name": "Strapping"},
+                    {"code": "AI", "name": "Siding Layout & Install"},
+                    {"code": "AJ", "name": "Soffit and Fascia/Trim"},
+                    {"code": "AK", "name": "Downspout"},
+                    {"code": "AL", "name": "Paint Touch Ups"}
+                ]
+            },
+            "Decking": {
+                "color": {
+                    "key": "brown_sugar",
+                    "name": "Brown Sugar",
+                    "hex_code": "#A86B4C",
+                    "R": 168,
+                    "G": 107,
+                    "B": 76
+                },                
+                "activities": [
+                    {"code": "D1", "name": "Vinyl Decking"},
+                    {"code": "D2", "name": "Measure Railings"},
+                    {"code": "D3", "name": "Install Railings"}
+                ]
+            },
+            "Building Cleaning": {
+                "color": {
+                    "key": "mint_green",
+                    "name": "Mint Green",
+                    "hex_code": "#98FF98",
+                    "R": 152,
+                    "G": 255,
+                    "B": 152
+                },                
+                "activities": [
+                    {"code": "C4", "name": "Pressure Washing Building & Decks"}
+                ]
+            },
+            "Stone Work": {
+                "color": {
+                    "key": "charcoal_gray",
+                    "name": "Charcoal Gray",
+                    "hex_code": "#36454F",
+                    "R": 54,
+                    "G": 69,
+                    "B": 79
+                },                
+                "activities":[
+                    {"code": "ST", "name": "Stonework-extra"}
+                ]
+            },
+            "Plumbing": {
+                "color": {
+                    "key": "midnight_blue",
+                    "name": "Midnight Blue",
+                    "hex_code": "#191970",
+                    "R": 25,
+                    "G": 25,
+                    "B": 112
+                },                
+                "activities":[
+                    {"code": "P1", "name": "Sump & Mainline Install"},
+                    {"code": "P2", "name": "Footing Sleeves Install"},
+                    {"code": "P3", "name": "Plumbing Elevator Drain"},
+                    {"code": "P4", "name": "UG Branch Lines Install"},
+                    {"code": "P5", "name": "Set lids, drains and clean outs elevations"},
+                    {"code": "P6", "name": "Trap Seal Primer Install"},
+                    {"code": "P7", "name": "SS Canning"},
+                    {"code": "P8", "name": "Pipe Tie-in"},
+                    {"code": "P9", "name": "Trench Drain"}
+                ]
+            },
+            "Survey Points": {
+                "color": {
+                    "key": "fern_green",
+                    "name": "Fern Green",
+                    "hex_code": "#4F7942",
+                    "R": 79,
+                    "G": 121,
+                    "B": 66
+                },                
+                "activities":[
+                    {"code": "S1", "name": "Elevator grade prep Surveyor"},
+                    {"code": "S2", "name": "Foundation Layout"},
+                    {"code": "S3", "name": "SS Grid Line Layout"}
+                ]
+            },
+            "Framing": {
+                "color": {
+                    "key": "chestnut",
+                    "name": "Chestnut",
+                    "hex_code": "#954535",
+                    "R": 149,
+                    "G": 69,
+                    "B": 53
+                },                
+                "activities":[
+                    {"code": "HD", "name": "Hold Down in SS Install"}
+                ]
+            },
+            "Foundation Finishing": {
+                "color": {
+                    "key": "khaki",
+                    "name": "Khaki",
+                    "hex_code": "#C3B091",
+                    "R": 195,
+                    "G": 176,
+                    "B": 145
+                },                
+                "activities":[
+                    {"code": "F1", "name": "Foundation insulation"},
+                    {"code": "F2", "name": "Foundation parging/stucco"}
+                ]
+            }
+        }
+    },
+    "FOUNDATIONS": {
+        "details": {
+            "step": 6,
+            "type": null
+        },
+        "content": {
+            "Concrete Pour": {
+                "category": "Concrete Pour",
+                "color": {
+                    "key": "slate_gray",
+                    "name": "Slate Gray",
+                    "hex_code": "#708090",
+                    "R": 112,
+                    "G": 128,
+                    "B": 144
+                },
+                "activities": [
+                    {"code": "CA", "name": "Strip & Pad Footings"},
+                    {"code": "CB", "name": "Wall & Columns"},
+                    {"code": "CC", "name": "Elevator Pit Slab"},
+                    {"code": "CD", "name": "Elevator Pit Walls"},
+                    {"code": "CE", "name": "SOG"},
+                    {"code": "CF", "name": "SOG Saw Cut"},
+                    {"code": "CG", "name": "SS"},
+                    {"code": "CH", "name": "Decks"},
+                    {"code": "CI", "name": "Concrete Finishing"},  
+                    {"code": "CJ", "name": "Curing of Concrete"}  
+                ]
+            },
+            "Formwork": {
+                "color": {
+                    "key": "beige",
+                    "name": "Beige",
+                    "hex_code": "#f5f5dc",
+                    "R": 245,
+                    "G": 245,
+                    "B": 220
+                },
+                "activities": [
+                    {"code": "FA", "name": "Strip & Pad & Ramp Footings Forming"},
+                    {"code": "FB", "name": "Elevator Slab Forming"},
+                    {"code": "FC", "name": "Elevator Walls Forming"},
+                    {"code": "FD", "name": "Wall & Columns & Ramp Forming"},
+                    {"code": "FE", "name": "Strip Forms"},
+                    {"code": "FF", "name": "SS Shoring & Embed Install"},
+                    {"code": "FG", "name": "Remove Shoring & Reshore"},
+                    {"code": "FH", "name": "Remove Reshoring"},
+                    {"code": "FI", "name": "Remove Deck Shoring"},
+                    {"code": "FJ", "name": "Pour Break Forming"},
+                    {"code": "FK", "name": "Pylon Sign Forming"},
+                    {"code": "FL", "name": "Formwork Inspection"}  
+                ]
+            },
+            "Waterproofing": {
+                "color": {
+                    "key": "navy_blue",
+                    "name": "Navy Blue",
+                    "hex_code": "#000080",
+                    "R": 0,
+                    "G": 0,
+                    "B": 128
+                },
+                "activities": [
+                    {"code": "W1", "name": "Elevator Pit Slab Waterproofing"},
+                    {"code": "W2", "name": "Elevator Pit Walls Waterproofing"},
+                    {"code": "W3", "name": "Foundation Wall - Damp Proof & Dimpleboard"},
+                    {"code": "W4", "name": "Foundation Drainage Installation"},  
+                    {"code": "W5", "name": "Waterproofing Membrane Application"}  
+                ]
+            },
+            "Electrical": {
+                "color": {
+                    "key": "electric_blue",
+                    "name": "Electric Blue",
+                    "hex_code": "#7DF9FF",
+                    "R": 125,
+                    "G": 249,
+                    "B": 255
+                },
+                "activities": [
+                    {"code": "E1", "name": "SOG In-Slab Electrical"},
+                    {"code": "E2", "name": "Sleeving in Walls"},
+                    {"code": "E3", "name": "SS Canning & Roughin"},
+                    {"code": "E4", "name": "Electrical Panel Installation"},  
+                    {"code": "E5", "name": "Final Electrical Inspection"}  
+                ]
+            },
+            "Rebar": {
+                "color": {
+                    "key": "dim_gray",
+                    "name": "Dim Gray",
+                    "hex_code": "#696969",
+                    "R": 105,
+                    "G": 105,
+                    "B": 105
+                },
+                "activities": [
+                    {"code": "R1", "name": "Strip & Pad Footing Rebar"},
+                    {"code": "R2", "name": "Elevator Pit Slab Rebar"},
+                    {"code": "R3", "name": "Elevator Pit Walls Rebar"},
+                    {"code": "R4", "name": "Walls & Columns Rebar"},
+                    {"code": "R5", "name": "SOG Rebar"},
+                    {"code": "R6", "name": "SS Bottom Mat"},
+                    {"code": "R7", "name": "SS Top Mat"},
+                    {"code": "R8", "name": "Rebar Tying and Placement"},  
+                    {"code": "R9", "name": "Rebar Inspection"}  
+                ]
+            },
+            "Soil Testing": {
+                "color": {
+                    "key": "peru",
+                    "name": "Peru",
+                    "hex_code": "#CD853F",
+                    "R": 205,
+                    "G": 133,
+                    "B": 63
+                },
+                "activities": [
+                    {"code": "ST1", "name": "Soil Compaction Testing"},
+                    {"code": "ST2", "name": "Soil Bearing Capacity Testing"},
+                    {"code": "ST3", "name": "Geotechnical Investigations"}
+                ]
+            },
+            "Foundation Drainage": {
+                "color": {
+                    "key": "powder_blue",
+                    "name": "Powder Blue",
+                    "hex_code": "#B0E0E6",
+                    "R": 176,
+                    "G": 224,
+                    "B": 230
+                },
+                "activities": [
+                    {"code": "FD1", "name": "Installation of French Drains"},
+                    {"code": "FD2", "name": "Foundation Drainage System Design"},
+                    {"code": "FD3", "name": "Inspection of Drainage Systems"}
+                ]
+            },
+            "Foundation Insulation": {
+                "color": {
+                    "key": "pale_golden_rod",
+                    "name": "Pale Golden Rod",
+                    "hex_code": "#EEE8AA",
+                    "R": 238,
+                    "G": 232,
+                    "B": 170
+                },                
+                "activities": [
+                    {"code": "FI1", "name": "Installation of Rigid Foam Insulation"},
+                    {"code": "FI2", "name": "Application of Spray Foam Insulation"},
+                    {"code": "FI3", "name": "Foundation Wall Insulation Inspection"}
+                ]
+            },
+            "Backfill Operations": {
+                "color": {
+                    "key": "forest_green",
+                    "name": "Forest Green",
+                    "hex_code": "#228B22",
+                    "R": 34,
+                    "G": 139,
+                    "B": 34
+                },                
+                "activities": [
+                    {"code": "BO1", "name": "Controlled Backfill Procedures"},
+                    {"code": "BO2", "name": "Compaction of Backfill Material"},
+                    {"code": "BO3", "name": "Backfill Material Testing"}
+                ]
+            },
+            "Others": {
+                "color": {
+                    "key": "light_gray",
+                    "name": "Light Gray",
+                    "hex_code": "#D3D3D3",
+                    "R": 211,
+                    "G": 211,
+                    "B": 211
+                },
+                "activities": [
+                    {"code": "O1", "name": "Miscellaneous Foundation Tasks"},
+                    {"code": "O2", "name": "Site Preparation for Foundations"},
+                    {"code": "O3", "name": "Foundation Safety Inspections"}
+                ]
+            }
+        }
+    },
+    "INTERIORS": {
+        "details": {
+            "step": 9,
+            "type": null
+        },
+        "content": {
+            "Framing": {
+                "color": {
+                    "key": "steel_blue",
+                    "name": "Steel Blue",
+                    "hex_code": "#4682B4",
+                    "R": 70,
+                    "G": 130,
+                    "B": 180
+                },
+                "activities": [
+                    {"code": "0A", "name": "Corridor Wall"},
+                    {"code": "0B", "name": "Exterior Wall"},
+                    {"code": "0C", "name": "Party Walls"},
+                    {"code": "0D", "name": "Suite Walls"},
+                    {"code": "0E", "name": "Joist & Sheathing"},
+                    {"code": "0F", "name": "Backframing"},
+                    {"code": "0G", "name": "Frame Decks"},
+                    {"code": "0H", "name": "Roof Trusses"},
+                    {"code": "0I", "name": "Roof Pop Ups"},
+                    {"code": "0J", "name": "Build-outs"},
+                    {"code": "0K", "name": "2nd Side Sheer Wall"},
+                    {"code": "0L", "name": "Temporary Bracing"},  
+                    {"code": "0M", "name": "Wall Sheathing Installation"},
+                    {"code": "0N", "name": "Window Framing"},  
+                    {"code": "0O", "name": "Door Framing"},  
+                    {"code": "0P", "name": "Rooftop Framing"},  
+                    {"code": "0Q", "name": "Soffit Installation"},  
+                    {"code": "0R", "name": "Fascia Installation"},  
+                    {"code": "0S", "name": "Structural Support Installation"},  
+                    {"code": "0T",  "name":"Scaffolding Setup"}  
+                ]
+            },
+            "Rough-Ins": {
+                "color": {
+                    "key": "dark_orange",
+                    "name": "Dark Orange",
+                    "hex_code": "#FF8C00",
+                    "R": 255,
+                    "G": 140,
+                    "B": 0
+                },
+                "activities": [
+                    {"code": "1A", "name": "Plumbing Rough-In"},
+                    {"code": "1B", "name": "HVAC Rough-In"},
+                    {"code": "1C", "name": "Electrical Rough-In"},
+                    {"code": "1D", "name": "Gas Line Installation"},
+                    {"code": "1E", "name": "Ventilation Duct Installation"},
+                    {"code": "1F", "name": "Fire Sprinkler Rough-In"},
+                    {"code": "1G", "name": "Data & Communication Wiring"},
+                    {"code": "1H", "name": "Security System Wiring"},
+                    {"code": "1I", "name": "Smoke & Carbon Detector Wiring"},
+                    {"code": "1J", "name": "Water Heater Installation"},
+                    {"code": "1K", "name": "Drainage & Waste System Installation"},
+                    {"code": "1L", "name": "In-Floor Heating Installation"},
+                    {"code": "1M", "name": "Backflow Prevention Setup"},
+                    {"code": "1N", "name": "Electrical Panel Setup"},
+                    {"code": "1O", "name": "Gas Meter Installation"},
+                    {"code": "1P", "name": "Exhaust Fan Installation"},
+                    {"code": "1Q", "name": "Hydronic Piping Installation"},
+                    {"code": "1R", "name": "Electrical Conduit Installation"},
+                    {"code": "1S", "name": "Low Voltage Wiring"},
+                    {"code": "1T", "name": "Temporary Power Setup"}
+                ]
+            },            
+            "Fire Sprinkler": {
+                "color": {
+                    "key": "coral",
+                    "name": "Coral",
+                    "hex_code": "#FF7F50",
+                    "R": 255,
+                    "G": 127,
+                    "B": 80
+                },
+                "activities": [
+                    {"code": "1A", "name": "Stand Pipes"},
+                    {"code": "1B", "name": "Rough In"},
+                    {"code": "1C", "name": "Zone Control Valves in Stairwells"},
+                    {"code": "1D", "name": "VI (Fire Alarm Verifications)"},
+                    {"code": "1E", "name": "Drops"},
+                    {"code": "1F", "name": "Extinguishers and All Cabinet Types"},
+                    {"code": "1G", "name": "Mains - 2nd and 3rd Floor"},
+                    {"code": "1H", "name": "Testing -- All Building"},
+                    {"code": "1I", "name": "Escutcheon Plates"},
+                    {"code": "1J", "name": "Fire System Commissioning"},
+                    {"code": "1K", "name": "Hydraulic Calculations"},  
+                    {"code": "1L", "name": "System Flush and Test"},  
+                    {"code": "1M", "name": "Installation of Sprinkler Heads"},  
+                    {"code": "1N", "name": "Maintenance and Inspection"},  
+                    {"code": "1O", "name": "Final Walkthrough with Fire Marshal"}  
+                ]
+            },
+            "Fitout": {
+                "color": {
+                    "key": "blue_sapphire",
+                    "name": "Blue Sapphire",
+                    "hex_code": "#126180",
+                    "R": 18,
+                    "G": 97,
+                    "B": 128
+                },
+                "activities": [
+                    {"code": "F1", "name": "Install Fixtures"},
+                    {"code": "F2", "name": "Install Furniture"},
+                    {"code": "F3", "name": "Painting and Finishing"},
+                    {"code": "F4", "name": "Flooring Installation"},
+                    {"code": "F5", "name": "Electrical Final Touches"},
+                    {"code": "F6", "name": "Final Inspection and Handover"}
+                ]
+            },
+            "Finishes": {
+                "color": {
+                    "key": "forest_green",
+                    "name": "Forest Green",
+                    "hex_code": "#228B22",
+                    "R": 34,
+                    "G": 139,
+                    "B": 34
+                },
+                "activities": [
+                    {"code": "2A", "name": "Drywall Installation"},
+                    {"code": "2B", "name": "Drywall Taping & Mudding"},
+                    {"code": "2C", "name": "Ceiling Texture Application"},
+                    {"code": "2D", "name": "Interior Painting"},
+                    {"code": "2E", "name": "Exterior Painting"},
+                    {"code": "2F", "name": "Cabinet Installation"},
+                    {"code": "2G", "name": "Countertop Installation"},
+                    {"code": "2H", "name": "Tile Flooring Installation"},
+                    {"code": "2I", "name": "Hardwood & Laminate Flooring"},
+                    {"code": "2J", "name": "Carpet Installation"},
+                    {"code": "2K", "name": "Baseboard & Trim Installation"},
+                    {"code": "2L", "name": "Interior Door Installation"},
+                    {"code": "2M", "name": "Closet Shelving Installation"},
+                    {"code": "2N", "name": "Light Fixture Installation"},
+                    {"code": "2O", "name": "Plumbing Fixture Installation"},
+                    {"code": "2P", "name": "Appliance Installation"},
+                    {"code": "2Q", "name": "Shower Glass Installation"},
+                    {"code": "2R", "name": "Mirror & Accessories Installation"},
+                    {"code": "2S", "name": "Exterior Siding Installation"},
+                    {"code": "2T", "name": "Final Cleaning & Touch-Ups"}
+                ]
+            },            
+            "Mechanical": {
+                "color": {
+                    "key": "charcoal",
+                    "name": "Charcoal",
+                    "hex_code": "#36454F",
+                    "R": 54,
+                    "G": 69,
+                    "B": 79
+                },
+                "activities": [
+                    {"code": "2A", "name": "Mechanical Layout (Mockup)"},
+                    {"code": "2B", "name": "Mechanical Backframe Precheck"},
+                    {"code": "2C", "name": "Exhaust Fan Wall Holes & Layout HVAC"},
+                    {"code": "2D", "name": "HVAC - MUA Ducting (Primary)"},
+                    {"code": "2E", "name": "HVAC - Shaft Ducting"},
+                    {"code": "2F", "name": "Refrigeration - Rough In"},
+                    {"code": "2G", "name": "Drops"},
+                    {"code": "2H", "name": "HVAC - Secondary Ducts (Suites and Parkade)"},
+                    {"code": "2I", "name": "Mech Controls"},
+                    {"code": "2J", "name": "Duct Insulation"},
+                    {"code": "2K", "name": "Equipment and Finishes"},
+                    {"code": "2L", "name": "Refrigeration Hook Ups"}, 
+                    {"code": "2M", "name": "Make-up Air Units"}, 
+                    {"code": "2N", "name": "Condensing Units & Heat Pumps"}, 
+                    {"code": "2O", "name": "Commissioning"}, 
+                    {"code": "2P", "name": "Balancing"},
+                    {"code": "2Q", "name": "System Flush and Test"},  
+                    {"code": "2R", "name": "Installation of Sprinkler Heads"},  
+                    {"code": "2S",  "name":"Hydraulic Testing"},  
+                    {"code":"2T","name":"Preventive Maintenance"}  
+                ]
+            },
+            "Drywall": {
+                "color": {
+                    "key": "light_slate_gray",
+                    "name": "Light Slate Gray",
+                    "hex_code": "#778899",
+                    "R": 119,
+                    "G": 136,
+                    "B": 153
+                },
+                "activities": [
+                    {"code": "3A", "name": "Preboarding/Insulation - Densglass Board (HVAC Liners in suites, Elect. Closets, false walls if not closed up)"},
+                    {"code": "3B", "name": "Preboarding/Insulation - Regular Board (MUA Main trunk ceiling, MUA shaft, shafts, tub walls, elevator fronts)"},
+                    {"code": "3C", "name": "N/A"},
+                    {"code": "3D", "name": "Steel Stud - Stand Pipes, Shafts, Elevator Fronts"},
+                    {"code": "3E", "name": "Boarding Ceiling & Walls"},
+                    {"code": "3F", "name": "Frame Bulkheads & Drop Ceilings (Suites and Corridor)"},
+                    {"code": "3G", "name": "Board Bulkheads & Dropped Ceilings (Suites and Corridor)"},
+                    {"code": "3H", "name": "Firetaping"},  
+                    {"code": "3I", "name": "Mud & Tape"},  
+                    {"code": "3J", "name": "Touch-Ups, Light Check, QC"},  
+                    {"code": "3K", "name": "Ceiling Texture"},  
+                    {"code": "3L", "name": "Drywall Repair and Patch"}  
+                ]
+            },
+            "Mud & Tape": {
+                "color": {
+                    "key": "pale_green",
+                    "name": "Pale Green",
+                    "hex_code": "#98FB98",
+                    "R": 152,
+                    "G": 251,
+                    "B": 152
+                },
+                "activities": [
+                    {"code": "3H", "name": "Firetaping"},
+                    {"code": "3I", "name": "Mud & Tape"},
+                    {"code": "3J", "name": "Touch-Ups, Light Check, QC"},
+                    {"code": "3T", "name": "Ceiling Texture"},
+                    {"code": "3K", "name": "Final Sanding"},  
+                    {"code": "3L", "name": "Joint Taping"},  
+                    {"code": "3M", "name": "Corner Bead Installation"},  
+                    {"code": "3N", "name": "Texture Application"}  
+                ]
+            },
+            "Insulation": {
+                "color": {
+                    "key": "light_yellow",
+                    "name": "Light Yellow",
+                    "hex_code": "#FFFFE0",
+                    "R": 255,
+                    "G": 255,
+                    "B": 224
+                },            
+                "activities": [
+                    {"code": "3K", "name": "Spray Foam - Joist Ends, Exterior Vents, Mechanical Penetrations"},
+                    {"code": "3L", "name": "Insulation & VB (Including Inspection) - Raftermates Included"},
+                    {"code": "3M", "name": "Batt Insulation Installation"},  
+                    {"code": "3N", "name": "Rigid Foam Board Installation"},  
+                    {"code": "3O", "name": "Soundproofing Insulation"},  
+                    {"code": "3P", "name": "Vapor Barrier Installation"},  
+                    {"code": "3Q", "name": "Blown-In Insulation"}  
+                ]
+            },
+            "Electrical": {
+                "color": {
+                    "key": "blue",
+                    "name": "Blue",
+                    "hex_code": "#0000FF",
+                    "R": 0,
+                    "G": 0,
+                    "B": 255
+                },            
+                "activities": [
+                    {"code": "INS", "name": "Inspection"},
+                    {"code": "4A", "name": "Predrill Corridor Joists"},
+                    {"code": "4B", "name": "Boxes Rough-In"},
+                    {"code": "4C", "name": "Feeders & Data"},
+                    {"code": "4D", "name": "Meter Closets"},
+                    {"code": "4E", "name": "Distribution Equipment Install"},
+                    {"code": "4F", "name": "Equipment Rough-In (ODUs, MUAs etc)"},
+                    {"code": "4G", "name": "Electrical and Security Wiring Rough-In with Firestopping"},
+                    {"code": "4H", "name": "Temp Outlets/Power"},
+                    {"code": "4I", "name": "Drops - Wiring, Boxes, with Firestopping"},
+                    {"code": "4J", "name": "FA Devices, Plugs, Switches, Lights"},
+                    {"code": "4K", "name": "Backsplash Plugs, Island Plugs, Appliances, Mech Hook Ups"},
+                    {"code": "4L", "name": "Cover Plates (All Finishes/Trims)"},
+                    {"code": "4M", "name": "Security Cameras"},
+                    {"code": "4N", "name": "Final Wiring Check"},  
+                    {"code": "4O", "name": "Load Testing"},  
+                    {"code": "4P", "name": "Power Distribution Panel Setup"},  
+                    {"code": "4Q", "name": "Grounding and Bonding"}  
+                ]
+            },
+            "Plumbing": {
+                "color": {
+                    "key": "dark_blue",
+                    "name": "Dark Blue",
+                    "hex_code": "#00008B",
+                    "R": 0,
+                    "G": 0,
+                    "B": 139
+                },            
+                "activities": [
+                    {"code": "5A", "name": "Sanitary & Water Risers Drill Out"},
+                    {"code": "5B", "name": "Sanitary Riser & Internal RWL"},
+                    {"code": "5C", "name": "Water Riser"},
+                    {"code": "5D", "name": "Water Mains"},
+                    {"code": "5E", "name": "Tub/Shower Install & Waterlines"},
+                    {"code": "5F", "name": "Testing - Water, Sanitary, & Tubs"},
+                    {"code": "5G", "name": "Expansion Joints & Laundry Boxes"},
+                    {"code": "5H", "name": "Sanitary Insulation (in attic)"},
+                    {"code": "5I", "name": "Finishes"},
+                    {"code": "5J", "name": "Plumbing QC/Cx"},
+                    {"code": "5K", "name": "Chlorinating"},
+                    {"code": "5L", "name": "Sanitary Rough-in"},
+                    {"code": "5M", "name": "Pipe Tie-In"},  
+                    {"code": "5N", "name": "Fixture Installation"},  
+                    {"code": "5O", "name": "Backflow Prevention Testing"},  
+                    {"code": "5P",  "name":"Drainage System Inspection"}  
+                ]
+            },
+            "Highstreet": {
+                "color": {
+                    "key": "safety_orange",
+                    "name": "Safety Orange",
+                    "hex_code": "#FF6700",
+                    "R": 255,
+                    "G": 103,
+                    "B": 0
+                },            
+                "activities": [
+                    {"code": "6A", "name": "Backframe Precheck"},
+                    {"code": "6B", "name": "Backframe"},
+                    {"code": "6C", "name": "Shear Wall"},
+                    {"code": "6D", "name": "Elevator Platform Removal"},
+                    {"code": "6E", "name": "Fire Caulking"},
+                    {"code": "6F", "name": "HVI QC Punchlist"},
+                    {"code": "6G", "name": "Walk Thru's With Sales"},
+                    {"code": "6H", "name": "Walk Thru's With Home Owners"},
+                    {"code": "6I", "name": "Final Inspections"},  
+                    {"code": "6J", "name": "Safety Compliance Check"},  
+                    {"code": "6K", "name": "Documentation Review"},  
+                    {"code": "6L", "name": "Site Cleanup and Preparation"}  
+                ]
+            },
+            "Paint": {
+                "color": {
+                    "key": "sky_blue",
+                    "name": "Sky Blue",
+                    "hex_code": "#87CEEB",
+                    "R": 135,
+                    "G": 206,
+                    "B": 235
+                },            
+                "activities": [
+                    {"code": "7A", "name": "Painting - (Stage 1) Suites/Corridors/Stairs - Prime & First Coat"},
+                    {"code": "7B", "name": "Painting - (Stage 2) Suite Final Coat & Trims & Doors"},
+                    {"code": "7C", "name": "Paint - Final Coat in Comm Areas & Mech Rms, Suite Touchups"},
+                    {"code": "7D", "name": "Paint Floor"},
+                    {"code": "7E", "name": "Touch-Up Paint for Trim and Moldings"},  
+                    {"code": "7F", "name": "Exterior Painting"},  
+                    {"code": "7G", "name": "Preparation and Masking"},  
+                    {"code": "7H", "name": "Cleanup and Disposal of Paint Materials"}  
+                ]
+            },
+            "Flooring": {
+                "color": {
+                    "key": "sienna",
+                    "name": "Sienna",
+                    "hex_code": "#882D17",
+                    "R": 136,
+                    "G": 45,
+                    "B": 23
+                },            
+                "activities": [
+                    {"code": "8A", "name": "Vinyl & Corridors/Stairs Carpet Tile/Floor Protection"},
+                    {"code": "8B", "name": "Tile Backsplashes"},
+                    {"code": "8C", "name": "Suite Carpet Roll"},
+                    {"code": "8D", "name": "Rubber Base"},
+                    {"code": "8E", "name": "Laminate Flooring Installation"},  
+                    {"code": "8F", "name": "Hardwood Flooring Installation"},  
+                    {"code": "8G", "name": "Floor Leveling and Preparation"},  
+                    {"code": "8H", "name": "Carpet Stretching and Finishing"}  
+                ]
+            },
+            "Cabinets": {
+                "color": {
+                    "key": "wood_brown",
+                    "name": "Wood Brown",
+                    "hex_code": "#C19A6B",
+                    "R": 193,
+                    "G": 154,
+                    "B": 107
+                },            
+                "activities": [
+                    {"code": "9A", "name": "Cabinet Boxes"},
+                    {"code": "9B", "name": "Countertops"},
+                    {"code": "9C", "name": "Cabinet Installation"},  
+                    {"code": "9D", "name": "Hardware Installation (Handles, Hinges)"},  
+                    {"code": "9E", "name": "Finish Touch-Ups on Cabinets"}  
+                ]
+            },
+            "Carpentry": {
+                "color": {
+                    "key": "saddle_brown",
+                    "name": "Saddle Brown",
+                    "hex_code": "#8B4513",
+                    "R": 139,
+                    "G": 69,
+                    "B": 19
+                },            
+                "activities": [
+                    {"code": "S1", "name": "Finishing - Trims, Doors & Frames (Stage 1)"},
+                    {"code": "S2", "name": "Finishing - Hardware, Sliding Doors (Stage 2)"},
+                    {"code": "S3", "name": "Handrail"},
+                    {"code": "S4", "name": "Bypass Door Install"},
+                    {"code": "S5", "name": "Custom Millwork Installation"},  
+                    {"code": "S6", "name": "Crown Molding Installation"},  
+                    {"code": "S7", "name": "Baseboard Installation"}  
+                ]
+            },
+            "Cleaning": {
+                "color": {
+                    "key": "light_green",
+                    "name": "Light Green",
+                    "hex_code": "#90EE90",
+                    "R": 144,
+                    "G": 238,
+                    "B": 144
+                },            
+                "activities": [
+                    {"code": "C1", "name": "Cleaning - Construction"},
+                    {"code": "C2", "name": "Final Clean"},
+                    {"code": "C3", "name": "Delivery Cleaning"},
+                    {"code": "C4", "name": "Post-Construction Window Cleaning"},  
+                    {"code": "C5", "name": "Pressure Washing Exterior Surfaces"}  
+                ]
+            },
+            "Appliances": {
+                "color": {
+                    "key": "steel_blue",
+                    "name": "Steel Blue",
+                    "hex_code": "#4682B4",
+                    "R": 70,
+                    "G": 130,
+                    "B": 180
+                },
+                "activities": [
+                    {"code": "AD", "name": "Appliance - Delivery"},
+                    {"code": "A1", "name": "Appliances - DW & Hood Vent"},
+                    {"code": "A2", "name": "Appliances - F, S, W&D"},
+                    {"code": "A3", "name": "Appliance Hook-Up"},  
+                    {"code": "A4", "name": "Final Appliance Inspection"}  
+                ]
+            },
+            "Others": {
+                "color": {
+                    "key": "light_gray",
+                    "name": "Light Gray",
+                    "hex_code": "#D3D3D3",
+                    "R": 211,
+                    "G": 211,
+                    "B": 211
+                },
+                "activities": [
+                    {"code": "BL", "name": "Blinds"}, 
+                    {"code": "B", "name": "Buffer Day"}, 
+                    {"code": "CO", "name": "Communications/Data (Shaw/Telus etc)"}, 
+                    {"code": "DF", "name": "Deficiencies"}, 
+                    {"code": "FS", "name": "Fire Stopping"}, 
+                    {"code": "GE", "name": "Gym Equipment"}, 
+                    {"code": "GY", "name": "Gypcrete & Acoustical Matting"}, 
+                    {"code": "HD", "name": "Home Owner Deficiencies"}, 
+                    {"code": "INS", "name": "Inspection"}, 
+                    {"code": "LD", "name": "Leak Detection"},
+                    {"code": "MA", "name": "Masonary, CMU Walls"},
+                    {"code": "MI", "name": "Mirrors"},
+                    {"code": "MD", "name": "Parkade metal door frame"},
+                    {"code": "PD", "name": "Overhead Doors"},
+                    {"code": "PS", "name": "Postal Specialties"},
+                    {"code": "RB", "name": "Roofing-Base Layer"},
+                    {"code": "RT", "name": "Roofing-Insulation & Top Capsheet"},
+                    {"code": "SH", "name": "Shelving-Wire"},
+                    {"code": "SI", "name": "Signage-Interior/Fire Plans & Manuals/Exterior"},
+                    {"code": "SM", "name": "Suite M&E Mockups"},
+                    {"code": "SS", "name": "Structural Steel Install"},
+                    {"code": "ST", "name": "Storefronts"},
+                    {"code": "WM", "name": "Wire Mesh Partitions (Lockers, mech equipment)"},
+                    {"code": "OT", "name": "Other Tasks"}  
+                ]
+            }
+        }
+    },
+    "MILESTONES": {
+        "details": {
+            "step": null,
+            "type": null
+        },
+        "content": {
+            "Pre-Construction Milestones": {
+                "color": {
+                    "key": "dark_orange",
+                    "name": "Dark Orange",
+                    "hex_code": "#FF8C00",
+                    "R": 255,
+                    "G": 140,
+                    "B": 0
+                },
+                "activities": [
+                    {"code": "39A", "name": "Project Kickoff Meeting"},
+                    {"code": "39B", "name": "Design Completion & Approvals"},
+                    {"code": "39C", "name": "Permits & Regulatory Approvals"},
+                    {"code": "39D", "name": "Budget & Funding Secured"},
+                    {"code": "39E", "name": "Contractor Procurement & Award"},
+                    {"code": "39F", "name": "Site Mobilization & Preparation"},
+                    {"code": "39G", "name": "Baseline Schedule Development"},
+                    {"code": "39H", "name": "Stakeholder Alignment & Sign-Off"}
+                ]
+            },
+            "Construction Milestones": {
+                "color": {
+                    "key": "forest_green",
+                    "name": "Forest Green",
+                    "hex_code": "#228B22",
+                    "R": 34,
+                    "G": 139,
+                    "B": 34
+                },
+                "activities": [
+                    {"code": "40A", "name": "Foundation Completion"},
+                    {"code": "40B", "name": "Superstructure Completion"},
+                    {"code": "40C", "name": "Enclosure (Building Weather-Tight)"},
+                    {"code": "40D", "name": "MEP Rough-In Completion"},
+                    {"code": "40E", "name": "Interior Finishes 50% Complete"},
+                    {"code": "40F", "name": "Sitework Substantially Complete"},
+                    {"code": "40G", "name": "Roofing System Installed"},
+                    {"code": "40H", "name": "Certificate of Occupancy Submission"}
+                ]
+            },
+            "Testing & Commissioning Milestones": {
+                "color": {
+                    "key": "royal_blue",
+                    "name": "Royal Blue",
+                    "hex_code": "#4169E1",
+                    "R": 65,
+                    "G": 105,
+                    "B": 225
+                },
+                "activities": [
+                    {"code": "41A", "name": "MEP Systems Testing & Balancing"},
+                    {"code": "41B", "name": "Life Safety & Fire Protection Testing"},
+                    {"code": "41C", "name": "Building Envelope Performance Testing"},
+                    {"code": "41D", "name": "Final Inspections & Punch List Created"},
+                    {"code": "41E", "name": "Substantial Completion Achieved"},
+                    {"code": "41F", "name": "Final Commissioning Report Completed"},
+                    {"code": "41G", "name": "Owner Training & Handover"},
+                    {"code": "41H", "name": "Certificate of Occupancy Received"}
+                ]
+            },
+            "Project Closeout Milestones": {
+                "color": {
+                    "key": "slate_gray",
+                    "name": "Slate Gray",
+                    "hex_code": "#708090",
+                    "R": 112,
+                    "G": 128,
+                    "B": 144
+                },
+                "activities": [
+                    {"code": "42A", "name": "Final Walkthrough & Punch List Completion"},
+                    {"code": "42B", "name": "Final As-Built Drawings & Documentation"},
+                    {"code": "42C", "name": "Warranty & Maintenance Manuals Delivered"},
+                    {"code": "42D", "name": "Final Payment & Contract Closeout"},
+                    {"code": "42E", "name": "Owner Move-In & Occupancy"},
+                    {"code": "42F", "name": "Final Performance Evaluation & Lessons Learned"},
+                    {"code": "42G", "name": "Post-Occupancy Review"},
+                    {"code": "42H", "name": "Project Completion & Celebration"}
+                ]
+            }
+        }
+    },    
+    "MOBILIZATION": {
+        "details": {
+            "step": 4,
+            "type": null
+        },
+        "content": {
+            "Project Kickoff": {
+                "color": {
+                    "key": "royal_blue",
+                    "name": "Royal Blue",
+                    "hex_code": "#4169E1",
+                    "R": 65,
+                    "G": 105,
+                    "B": 225
+                },
+                "activities": [
+                    {"code": "23A", "name": "Project Team Assembly"},
+                    {"code": "23B", "name": "Kickoff Meeting & Orientation"},
+                    {"code": "23C", "name": "Roles & Responsibilities Assignment"},
+                    {"code": "23D", "name": "Project Schedule Finalization"},
+                    {"code": "23E", "name": "Subcontractor & Vendor Coordination"},
+                    {"code": "23F", "name": "Permitting & Regulatory Compliance"},
+                    {"code": "23G", "name": "Stakeholder Communication Plan"},
+                    {"code": "23H", "name": "Risk Assessment & Contingency Planning"}
+                ]
+            },
+            "Site Setup & Logistics": {
+                "color": {
+                    "key": "dark_slate_gray",
+                    "name": "Dark Slate Gray",
+                    "hex_code": "#2F4F4F",
+                    "R": 47,
+                    "G": 79,
+                    "B": 79
+                },
+                "activities": [
+                    {"code": "24A", "name": "Construction Site Access Setup"},
+                    {"code": "24B", "name": "Temporary Offices & Storage Setup"},
+                    {"code": "24C", "name": "Utility Connections & Service Activation"},
+                    {"code": "24D", "name": "Material & Equipment Staging"},
+                    {"code": "24E", "name": "Safety & Emergency Planning"},
+                    {"code": "24F", "name": "Traffic & Delivery Coordination"},
+                    {"code": "24G", "name": "Security & Surveillance Setup"},
+                    {"code": "24H", "name": "Environmental Protection Measures"}
+                ]
+            },
+            "Procurement & Staffing": {
+                "color": {
+                    "key": "goldenrod",
+                    "name": "Goldenrod",
+                    "hex_code": "#DAA520",
+                    "R": 218,
+                    "G": 165,
+                    "B": 32
+                },
+                "activities": [
+                    {"code": "25A", "name": "Material & Equipment Procurement"},
+                    {"code": "25B", "name": "Subcontractor Mobilization"},
+                    {"code": "25C", "name": "Onboarding & Training Programs"},
+                    {"code": "25D", "name": "Labor & Workforce Planning"},
+                    {"code": "25E", "name": "Tools & Equipment Readiness"},
+                    {"code": "25F", "name": "Procurement Schedule Coordination"},
+                    {"code": "25G", "name": "Compliance & Insurance Verification"},
+                    {"code": "25H", "name": "Vendor Agreements & Contracts Finalization"}
+                ]
+            },
+            "Safety & Compliance": {
+                "color": {
+                    "key": "firebrick",
+                    "name": "Firebrick",
+                    "hex_code": "#B22222",
+                    "R": 178,
+                    "G": 34,
+                    "B": 34
+                },
+                "activities": [
+                    {"code": "26A", "name": "Site Safety Plan Development"},
+                    {"code": "26B", "name": "OSHA & Regulatory Training"},
+                    {"code": "26C", "name": "Emergency Response Planning"},
+                    {"code": "26D", "name": "PPE & Safety Equipment Distribution"},
+                    {"code": "26E", "name": "Safety Inspections & Hazard Analysis"},
+                    {"code": "26F", "name": "First Aid & Medical Readiness"},
+                    {"code": "26G", "name": "Fire Prevention & Protection Measures"},
+                    {"code": "26H", "name": "Daily Safety Briefings & Toolbox Talks"}
+                ]
+            }
+        }
+    },        
+    "ROOF": {
+        "details": {
+            "step": null,
+            "type": null
+        },
+        "content": {
+            "Roofing Structure": {
+                "color": {
+                    "key": "sienna",
+                    "name": "Sienna",
+                    "hex_code": "#A0522D",
+                    "R": 160,
+                    "G": 82,
+                    "B": 45
+                },
+                "activities": [
+                    {"code": "7A", "name": "Roof Truss Installation"},
+                    {"code": "7B", "name": "Roof Decking Installation"},
+                    {"code": "7C", "name": "Sheathing & Underlayment"},
+                    {"code": "7D", "name": "Structural Reinforcement"},
+                    {"code": "7E", "name": "Roof Framing for Skylights"},
+                    {"code": "7F", "name": "Parapet Wall Construction"},
+                    {"code": "7G", "name": "Roof Access Hatch Installation"},
+                    {"code": "7H", "name": "Roof Drainage Setup"}
+                ]
+            },
+            "Roofing System": {
+                "color": {
+                    "key": "dark_slate_gray",
+                    "name": "Dark Slate Gray",
+                    "hex_code": "#2F4F4F",
+                    "R": 47,
+                    "G": 79,
+                    "B": 79
+                },
+                "activities": [
+                    {"code": "8A", "name": "Asphalt Shingle Installation"},
+                    {"code": "8B", "name": "Metal Roofing Installation"},
+                    {"code": "8C", "name": "Tile & Slate Roofing"},
+                    {"code": "8D", "name": "Flat Roof Membrane Installation"},
+                    {"code": "8E", "name": "TPO/PVC Roofing System"},
+                    {"code": "8F", "name": "Built-Up Roofing (BUR)"},
+                    {"code": "8G", "name": "Green Roof Installation"},
+                    {"code": "8H", "name": "Cool Roof Coating Application"}
+                ]
+            },
+            "Flashing & Waterproofing": {
+                "color": {
+                    "key": "dark_cyan",
+                    "name": "Dark Cyan",
+                    "hex_code": "#008B8B",
+                    "R": 0,
+                    "G": 139,
+                    "B": 139
+                },
+                "activities": [
+                    {"code": "9A", "name": "Flashing Installation"},
+                    {"code": "9B", "name": "Roof Edge Metal Installation"},
+                    {"code": "9C", "name": "Chimney Flashing"},
+                    {"code": "9D", "name": "Skylight Flashing & Sealing"},
+                    {"code": "9E", "name": "Roof Waterproofing System"},
+                    {"code": "9F", "name": "Gutter & Downspout Installation"},
+                    {"code": "9G", "name": "Roof Expansion Joints"},
+                    {"code": "9H", "name": "Snow Guard Installation"}
+                ]
+            },
+            "Final Roof Elements": {
+                "color": {
+                    "key": "goldenrod",
+                    "name": "Goldenrod",
+                    "hex_code": "#DAA520",
+                    "R": 218,
+                    "G": 165,
+                    "B": 32
+                },
+                "activities": [
+                    {"code": "10A", "name": "Solar Panel Installation"},
+                    {"code": "10B", "name": "HVAC Rooftop Unit Setup"},
+                    {"code": "10C", "name": "Lightning Protection System"},
+                    {"code": "10D", "name": "Ventilation & Exhaust Fans"},
+                    {"code": "10E", "name": "Roof Safety Railings"},
+                    {"code": "10F", "name": "Antenna & Satellite Installation"},
+                    {"code": "10G", "name": "Final Roof Inspection"},
+                    {"code": "10H", "name": "Cleanup & Debris Removal"}
+                ]
+            }
+        }
+    },
+    "SITE_MAKE-READY": {
+        "details": {
+            "step": 3,
+            "type": null
+        },
+        "content": {
+            "Site Preparation": {
+                "color": {
+                    "key": "forest_green",
+                    "name": "Forest Green",
+                    "hex_code": "#228B22",
+                    "R": 34,
+                    "G": 139,
+                    "B": 34
+                },
+                "activities": [
+                    {"code": "19A", "name": "Site Survey & Staking"},
+                    {"code": "19B", "name": "Clearing & Grubbing"},
+                    {"code": "19C", "name": "Demolition of Existing Structures"},
+                    {"code": "19D", "name": "Erosion & Sediment Control"},
+                    {"code": "19E", "name": "Tree Protection & Removal"},
+                    {"code": "19F", "name": "Topsoil Stripping & Stockpiling"},
+                    {"code": "19G", "name": "Excavation & Grading"},
+                    {"code": "19H", "name": "Compaction & Soil Stabilization"}
+                ]
+            },
+            "Temporary Facilities & Utilities": {
+                "color": {
+                    "key": "dark_orchid",
+                    "name": "Dark Orchid",
+                    "hex_code": "#9932CC",
+                    "R": 153,
+                    "G": 50,
+                    "B": 204
+                },
+                "activities": [
+                    {"code": "20A", "name": "Temporary Power Installation"},
+                    {"code": "20B", "name": "Temporary Water Service"},
+                    {"code": "20C", "name": "Temporary Sewer & Drainage"},
+                    {"code": "20D", "name": "Temporary Fencing & Barricades"},
+                    {"code": "20E", "name": "Construction Trailer Setup"},
+                    {"code": "20F", "name": "Temporary Signage & Wayfinding"},
+                    {"code": "20G", "name": "Security & Surveillance Setup"},
+                    {"code": "20H", "name": "Emergency Access & Egress Planning"}
+                ]
+            },
+            "Access & Logistics": {
+                "color": {
+                    "key": "chocolate",
+                    "name": "Chocolate",
+                    "hex_code": "#D2691E",
+                    "R": 210,
+                    "G": 105,
+                    "B": 30
+                },
+                "activities": [
+                    {"code": "21A", "name": "Construction Roadway Installation"},
+                    {"code": "21B", "name": "Traffic Control & Flagging"},
+                    {"code": "21C", "name": "Material Laydown Area Setup"},
+                    {"code": "21D", "name": "Worker Parking & Shuttle Services"},
+                    {"code": "21E", "name": "Crane & Equipment Access Planning"},
+                    {"code": "21F", "name": "Dust & Noise Control Measures"},
+                    {"code": "21G", "name": "Stormwater Management Systems"},
+                    {"code": "21H", "name": "Snow & Ice Removal Plan (if applicable)"}
+                ]
+            },
+            "Environmental & Compliance": {
+                "color": {
+                    "key": "midnight_blue",
+                    "name": "Midnight Blue",
+                    "hex_code": "#191970",
+                    "R": 25,
+                    "G": 25,
+                    "B": 112
+                },
+                "activities": [
+                    {"code": "22A", "name": "Environmental Impact Assessments"},
+                    {"code": "22B", "name": "Hazardous Material Testing & Abatement"},
+                    {"code": "22C", "name": "Stormwater Pollution Prevention Plan (SWPPP)"},
+                    {"code": "22D", "name": "Wetlands & Protected Areas Compliance"},
+                    {"code": "22E", "name": "Noise & Vibration Monitoring"},
+                    {"code": "22F", "name": "Archaeological & Cultural Resource Protection"},
+                    {"code": "22G", "name": "Safety Compliance & Inspections"},
+                    {"code": "22H", "name": "Final Pre-Construction Readiness Review"}
+                ]
+            }
+        } 
+    },        
+    "SITE_WORK": {
+        "details": {
+            "step": 10,
+            "type": null
+        },
+        "content": {
+            "Excavation": {
+                "color": {
+                    "key": "saddle_brown",
+                    "name": "Saddle Brown",
+                    "hex_code": "#8B4513",
+                    "R": 139,
+                    "G": 69,
+                    "B": 19
+                },
+                "activities": [
+                    {"code": "3A", "name": "Site Clearing & Grubbing"},
+                    {"code": "3B", "name": "Excavation & Grading"},
+                    {"code": "3C", "name": "Trenching for Utilities"},
+                    {"code": "3D", "name": "Foundation Excavation"},
+                    {"code": "3E", "name": "Backfilling & Compaction"},
+                    {"code": "3F", "name": "Erosion Control Measures"},
+                    {"code": "3G", "name": "Dewatering & Drainage Prep"},
+                    {"code": "3H", "name": "Soil Stabilization"},
+                    {"code": "3I", "name": "Rock Removal & Blasting"}
+                ]
+            },
+            "Utilities": {
+                "color": {
+                    "key": "midnight_blue",
+                    "name": "Midnight Blue",
+                    "hex_code": "#191970",
+                    "R": 25,
+                    "G": 25,
+                    "B": 112
+                },
+                "activities": [
+                    {"code": "4A", "name": "Water Main Installation"},
+                    {"code": "4B", "name": "Sanitary Sewer Installation"},
+                    {"code": "4C", "name": "Storm Drain Installation"},
+                    {"code": "4D", "name": "Electrical Duct Bank Installation"},
+                    {"code": "4E", "name": "Gas Line Installation"},
+                    {"code": "4F", "name": "Telecom & Fiber Optic Installation"},
+                    {"code": "4G", "name": "Manhole & Vault Installation"},
+                    {"code": "4H", "name": "Fire Hydrant Installation"},
+                    {"code": "4I", "name": "Irrigation System Installation"}
+                ]
+            },
+            "Paving & Surfacing": {
+                "color": {
+                    "key": "dim_gray",
+                    "name": "Dim Gray",
+                    "hex_code": "#696969",
+                    "R": 105,
+                    "G": 105,
+                    "B": 105
+                },
+                "activities": [
+                    {"code": "5A", "name": "Subgrade Preparation"},
+                    {"code": "5B", "name": "Asphalt Paving"},
+                    {"code": "5C", "name": "Concrete Curb & Gutter"},
+                    {"code": "5D", "name": "Sidewalk Installation"},
+                    {"code": "5E", "name": "Parking Lot Striping"},
+                    {"code": "5F", "name": "Traffic Signage & Markings"},
+                    {"code": "5G", "name": "ADA Compliance Ramps"},
+                    {"code": "5H", "name": "Speed Bump Installation"},
+                    {"code": "5I", "name": "Bollard Installation"}
+                ]
+            },
+            "Landscaping": {
+                "color": {
+                    "key": "forest_green",
+                    "name": "Forest Green",
+                    "hex_code": "#228B22",
+                    "R": 34,
+                    "G": 139,
+                    "B": 34
+                },
+                "activities": [
+                    {"code": "6A", "name": "Topsoil Placement & Grading"},
+                    {"code": "6B", "name": "Sod & Grass Seeding"},
+                    {"code": "6C", "name": "Tree & Shrub Planting"},
+                    {"code": "6D", "name": "Mulching & Soil Treatment"},
+                    {"code": "6E", "name": "Irrigation System Installation"},
+                    {"code": "6F", "name": "Retaining Wall Construction"},
+                    {"code": "6G", "name": "Fencing Installation"},
+                    {"code": "6H", "name": "Site Furnishings Installation"},
+                    {"code": "6I", "name": "Final Site Cleanup"}
+                ]
+            }
+        }
+    },
+    "SUPERSTRUCTURE": {
+        "details": {
+            "step": 7,
+            "type": null
+        },
+        "content": {
+            "Structural Concrete": {
+                "color": {
+                    "key": "slate_gray",
+                    "name": "Slate Gray",
+                    "hex_code": "#708090",
+                    "R": 112,
+                    "G": 128,
+                    "B": 144
+                },
+                "activities": [
+                    {"code": "31A", "name": "Formwork Installation"},
+                    {"code": "31B", "name": "Rebar & Reinforcement Placement"},
+                    {"code": "31C", "name": "Concrete Pouring & Placement"},
+                    {"code": "31D", "name": "Post-Tensioning Operations"},
+                    {"code": "31E", "name": "Slab on Grade Construction"},
+                    {"code": "31F", "name": "Elevated Slab Construction"},
+                    {"code": "31G", "name": "Concrete Column & Beam Installation"},
+                    {"code": "31H", "name": "Curing & Strength Testing"}
+                ]
+            },
+            "Structural Steel": {
+                "color": {
+                    "key": "dark_slate_gray",
+                    "name": "Dark Slate Gray",
+                    "hex_code": "#2F4F4F",
+                    "R": 47,
+                    "G": 79,
+                    "B": 79
+                },
+                "activities": [
+                    {"code": "32A", "name": "Steel Fabrication & Delivery"},
+                    {"code": "32B", "name": "Column & Beam Erection"},
+                    {"code": "32C", "name": "Steel Connection & Bolting"},
+                    {"code": "32D", "name": "Welding & Structural Integrity Checks"},
+                    {"code": "32E", "name": "Decking & Shear Stud Installation"},
+                    {"code": "32F", "name": "Temporary Bracing & Stability Measures"},
+                    {"code": "32G", "name": "Fireproofing & Coating Applications"},
+                    {"code": "32H", "name": "Inspection & Quality Assurance"}
+                ]
+            },
+            "Masonry & Load-Bearing Walls": {
+                "color": {
+                    "key": "saddle_brown",
+                    "name": "Saddle Brown",
+                    "hex_code": "#8B4513",
+                    "R": 139,
+                    "G": 69,
+                    "B": 19
+                },
+                "activities": [
+                    {"code": "33A", "name": "CMU (Concrete Masonry Unit) Wall Installation"},
+                    {"code": "33B", "name": "Brick & Block Laying"},
+                    {"code": "33C", "name": "Grouting & Reinforcement Placement"},
+                    {"code": "33D", "name": "Lintel & Bond Beam Installation"},
+                    {"code": "33E", "name": "Cavity Wall Construction"},
+                    {"code": "33F", "name": "Insulated Concrete Forms (ICF) Installation"},
+                    {"code": "33G", "name": "Seismic Reinforcement & Anchoring"},
+                    {"code": "33H", "name": "Final Mortar & Pointing Work"}
+                ]
+            },
+            "Heavy Timber & Mass Timber Construction": {
+                "color": {
+                    "key": "peru",
+                    "name": "Peru",
+                    "hex_code": "#CD853F",
+                    "R": 205,
+                    "G": 133,
+                    "B": 63
+                },
+                "activities": [
+                    {"code": "34A", "name": "Glulam Beam & Column Installation"},
+                    {"code": "34B", "name": "Cross-Laminated Timber (CLT) Panel Installation"},
+                    {"code": "34C", "name": "Heavy Timber Bracing & Connections"},
+                    {"code": "34D", "name": "Fastener & Hardware Installation"},
+                    {"code": "34E", "name": "Fire-Resistant Coatings & Treatments"},
+                    {"code": "34F", "name": "Structural Inspection & Load Testing"},
+                    {"code": "34G", "name": "Moisture Protection & Sealing"},
+                    {"code": "34H", "name": "Timber Finishing & Protection"}
+                ]
+            }
+        }
+    },        
+    "TESTING & COMMISSIONING": {
+        "details": {
+            "step": 11,
+            "type": null
+        },
+        "content": {
+            "Mechanical Systems Commissioning": {
+                "color": {
+                    "key": "dark_cyan",
+                    "name": "Dark Cyan",
+                    "hex_code": "#008B8B",
+                    "R": 0,
+                    "G": 139,
+                    "B": 139
+                },
+                "activities": [
+                    {"code": "35A", "name": "HVAC System Startup & Balancing"},
+                    {"code": "35B", "name": "Chiller & Boiler Testing"},
+                    {"code": "35C", "name": "Pump & Fan Performance Verification"},
+                    {"code": "35D", "name": "Ductwork & Airflow Testing"},
+                    {"code": "35E", "name": "Refrigerant & Cooling System Inspection"},
+                    {"code": "35F", "name": "Exhaust & Ventilation System Testing"},
+                    {"code": "35G", "name": "Thermal Imaging & Efficiency Analysis"},
+                    {"code": "35H", "name": "Final System Performance Certification"}
+                ]
+            },
+            "Electrical Systems Commissioning": {
+                "color": {
+                    "key": "goldenrod",
+                    "name": "Goldenrod",
+                    "hex_code": "#DAA520",
+                    "R": 218,
+                    "G": 165,
+                    "B": 32
+                },
+                "activities": [
+                    {"code": "36A", "name": "Main Power & Distribution Testing"},
+                    {"code": "36B", "name": "Transformer & Generator Load Testing"},
+                    {"code": "36C", "name": "Lighting & Emergency Backup Verification"},
+                    {"code": "36D", "name": "Panel Board & Circuit Breaker Testing"},
+                    {"code": "36E", "name": "Voltage, Frequency, & Phase Testing"},
+                    {"code": "36F", "name": "Grounding & Lightning Protection Checks"},
+                    {"code": "36G", "name": "Fire Alarm & Life Safety System Testing"},
+                    {"code": "36H", "name": "Energy Efficiency & Power Quality Analysis"}
+                ]
+            },
+            "Plumbing & Fire Protection Testing": {
+                "color": {
+                    "key": "firebrick",
+                    "name": "Firebrick",
+                    "hex_code": "#B22222",
+                    "R": 178,
+                    "G": 34,
+                    "B": 34
+                },
+                "activities": [
+                    {"code": "37A", "name": "Water Pressure & Leak Testing"},
+                    {"code": "37B", "name": "Sanitary & Storm Drainage Flow Testing"},
+                    {"code": "37C", "name": "Backflow Prevention System Verification"},
+                    {"code": "37D", "name": "Hot Water Heater & Circulation Testing"},
+                    {"code": "37E", "name": "Sprinkler System Flow & Alarm Testing"},
+                    {"code": "37F", "name": "Hydrant & Standpipe Pressure Testing"},
+                    {"code": "37G", "name": "Gas Line Integrity & Leak Detection"},
+                    {"code": "37H", "name": "Final Plumbing & Fire Protection Certification"}
+                ]
+            },
+            "Building Envelope & Specialty Systems": {
+                "color": {
+                    "key": "steel_blue",
+                    "name": "Steel Blue",
+                    "hex_code": "#4682B4",
+                    "R": 70,
+                    "G": 130,
+                    "B": 180
+                },
+                "activities": [
+                    {"code": "38A", "name": "Air & Water Infiltration Testing"},
+                    {"code": "38B", "name": "Building Envelope Thermal Imaging"},
+                    {"code": "38C", "name": "Roof & Waterproofing System Inspection"},
+                    {"code": "38D", "name": "Elevator & Vertical Transport Testing"},
+                    {"code": "38E", "name": "Acoustics & Soundproofing Verification"},
+                    {"code": "38F", "name": "Security & Access Control System Testing"},
+                    {"code": "38G", "name": "Smart Building & Automation System Checks"},
+                    {"code": "38H", "name": "Final Certification & Turnover"}
+                ]
+            }
+        }
+    }        
+}
