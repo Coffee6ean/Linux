@@ -7,7 +7,7 @@ import modules as mdls
 
 import sys
 sys.path.append("../")
-from CriticalFlowPath.keys.secrets import RSLTS_DIR
+from CriticalFlowPath.config.paths import RSLTS_DIR
 
 class App:
     #Structures
@@ -18,6 +18,7 @@ class App:
         "delete": ["delete", "d"],
     }
     allowed_extensions = ["xlsx", "xml"]
+    project_folder_structure = ["client", "name", "date"]
 
     def __init__(self, project_ins_dict):
         self.obj = project_ins_dict
@@ -28,7 +29,6 @@ class App:
 
         #Structures
         self.project_documentation_title = "ticket.json"
-        self.folder_structure = ["client", "name", "date"]
 
     @staticmethod
     def main(payload:dict):
@@ -165,7 +165,6 @@ class App:
 
     @staticmethod
     def create_project_folder(project_ins:dict, parent_dir:str) -> None:
-        folder_structure = ["client", "name", "date"]
         entry_date = project_ins["project"]["metadata"]["dates"].get("created")
         entry_month = datetime.strptime(entry_date, "%d-%b-%y %H:%M:%S").month
         
@@ -185,11 +184,11 @@ class App:
         }
 
         def create_dir(directory_name:str, counter:int=0, new_directory:str=""):
-            if counter == len(folder_structure):
+            if counter == len(App.project_folder_structure):
                 os.makedirs(directory_name, exist_ok=True)
                 return directory_name
             else:
-                category = folder_structure[counter]
+                category = App.project_folder_structure[counter]
 
                 if category == "date": 
                     new_directory += calendar_months[entry_month] + '/' + entry_date
