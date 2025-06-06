@@ -17,7 +17,7 @@ from utils.data_processing import DataProcessing """
 
 import sys
 sys.path.append("../")
-from CriticalFlowPath.keys.secrets import RSLTS_DIR
+from CriticalFlowPath.config.paths import RSLTS_DIR
 
 class Setup:
     modules = 0

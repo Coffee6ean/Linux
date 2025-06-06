@@ -1,5 +1,4 @@
 import os
-import re
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -9,7 +8,7 @@ import plotly.graph_objects as go
 
 import sys
 sys.path.append("../")
-from CriticalFlowPath.keys.secrets import RSLTS_DIR
+from CriticalFlowPath.config.paths import RSLTS_DIR
 
 class AnalyticsFramework:
     def __init__(self, input_file_path, input_file_basename, input_file_extension, 

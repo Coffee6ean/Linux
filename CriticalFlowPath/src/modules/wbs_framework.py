@@ -1,5 +1,4 @@
 import os
-import re
 import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.utils import column_index_from_string, get_column_letter
@@ -10,7 +9,7 @@ from openpyxl.styles import PatternFill
 
 import sys
 sys.path.append("../")
-from CriticalFlowPath.keys.secrets import RSLTS_DIR
+from CriticalFlowPath.config.paths import RSLTS_DIR
 
 class WbsFramework:
     def __init__(self, is_framed, input_file_path, input_file_basename, input_file_extension, 

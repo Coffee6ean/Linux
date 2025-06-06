@@ -12,7 +12,7 @@ from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 
 import sys
 sys.path.append("../")
-from CriticalFlowPath.keys.secrets import RSLTS_DIR
+from CriticalFlowPath.config.paths import RSLTS_DIR
 
 class ScheduleFramework():
     def __init__(self, input_file_path, input_file_basename, input_file_extension, input_file_workweek,

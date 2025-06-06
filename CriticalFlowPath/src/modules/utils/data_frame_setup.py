@@ -1,5 +1,4 @@
 import os
-import re
 import json
 import pandas as pd
 from datetime import datetime, timedelta
@@ -7,7 +6,7 @@ from openpyxl.utils import column_index_from_string
 
 import sys
 sys.path.append("../")
-from CriticalFlowPath.keys.secrets import TEST_XLSX_DIR
+from CriticalFlowPath.config.paths import TEST_XLSX_DIR, TEST_PDF_DIR
 
 class DataFrameSetup:
     allowed_extensions = ["json"]
