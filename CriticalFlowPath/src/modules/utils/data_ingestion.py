@@ -34,7 +34,7 @@ class DataIngestion:
             "parent_id": ["parent_id"], 
             "activity_code": ["activity_code", "activitycode", "code", "task_code", "act_code"],
             "wbs_code": ["wbs_code", "wbscode"],
-            "activity_name": ["activity_name", "activityname", "act_name"], 
+            "activity_name": ["activity_name", "activityname", "act_name", "task_name"], 
             "activity_category": ["activity_category", "activitycategory", "category"], 
             "activity_status": ["activity_status", "activitystatus", "status", "task_status"], 
             "activity_ins": None, 
