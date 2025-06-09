@@ -104,7 +104,7 @@ class Setup:
             input_project_asignee = input("Enter Project Assignee: ").strip()
             input_project_tags = input("Enter Project Tags: ").strip()
         else:
-            input_file = Setup.return_valid_file(payload_dict["file_path"])
+            input_file = Setup.return_valid_file(payload_dict["file_name"])
             input_file_roi = payload_dict["file_roi"]
             input_project_client = payload_dict["project_client"]
             input_project_name = payload_dict["project_name"]
