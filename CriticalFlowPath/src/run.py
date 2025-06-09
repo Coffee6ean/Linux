@@ -45,6 +45,8 @@ class App:
             #Sort and Order File
             App.move_project_to_folder(project.obj["setup"], project_folder)
 
+            return project.obj
+
     @staticmethod
     def generate_ins(payload:dict) -> dict:
         if not payload:
