@@ -1,5 +1,8 @@
 import os
-from flask import Flask, request, jsonify
+import json
+import shutil
+from datetime import datetime
+from flask import Flask, request, jsonify, send_file
 from werkzeug.utils import secure_filename
 from run import App
 
@@ -11,41 +14,68 @@ app = Flask(__name__)
 ALLOWED_EXTENSIONS = {'xlsx', 'xls'}
 os.makedirs(UPLD_FOLDER, exist_ok=True)
 
+######## curl X GET [API endpoint] ########
+
 @app.route("/", methods=["GET"])
 def health():
     return jsonify({"status": "online"}), 200
 
-######## curl X GET [API endpoint] ########
+######## curl X POST [API endpoint] ########
 
-def allowed_file(filename):
+def allowed_file(filename:str) -> bool:
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@app.route('/api/upload-xlsx-table', methods=['POST'])
-def upload_xlsx_table_file():
-    if 'file' not in request.files:
-        return jsonify({"error": "No file part in the request"}), 400
+def save_uploaded_file(file_path:str) -> str:
+    if not os.path.isfile(file_path):
+        raise FileNotFoundError(f"File '{file_path}' does not exist.")
 
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
+    filename = os.path.basename(file_path)
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    saved_name = f"[{timestamp}]__{filename}"
+    save_path = os.path.join(UPLD_FOLDER, saved_name)
 
-    if not allowed_file(file.filename):
-        return jsonify({"error": "Invalid file type. Only .xlsx and .xls allowed."}), 400
+    shutil.copy(file_path, save_path)
+    return save_path
 
-    filename = secure_filename(file.filename)
-    file_path = os.path.join(UPLD_FOLDER, filename)
-    file.save(file_path)
+def process_file(payload:dict) -> dict:
+    processed_project_dict = App.main(payload)
 
-    # Trigger your model here if needed
-    return jsonify({"message": "File uploaded successfully", "path": file_path}), 200
+    return processed_project_dict
 
-@app.route("/api/run", methods=["POST"])
-def run_project():
+def return_processed_file(file_path:str):
+    return send_file(
+        file_path,
+        as_attachment=True,
+        download_name=os.path.basename(file_path),
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+
+# === FINAL API ENTRY POINT ===
+@app.route("/api/execute-cfa-cycle", methods=["POST"])
+def execute_module_cycle():
     try:
-        payload = request.get_json()
-        result = App.main(payload)
+        # Step 1: Upload file
+        if "file" not in request.files:
+            return jsonify({"error": "No file part in request"}), 400
+        
+        file = request.files["file"]
 
-        return jsonify(result), 200
+        # Step 2: Read and parse JSON
+        try:
+            payload = json.loads(file.read().decode("utf-8"))
+        except Exception:
+            return jsonify({"error": "Invalid JSON format"}), 400
+
+        target_path = payload["file_name"]
+        uploaded_path = save_uploaded_file(target_path)
+        payload["file_name"] = uploaded_path
+
+        # Step 2: Process file
+        processed_path = process_file(payload)
+
+        # Step 3: Return file
+        return return_processed_file(processed_path)
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
