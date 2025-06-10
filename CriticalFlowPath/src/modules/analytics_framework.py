@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+from datetime import datetime
 
 # Imported Helper - As Module
 """ import setup """
@@ -113,7 +114,7 @@ class AnalyticsFramework:
         return ins
     
     @staticmethod
-    def ynq_user_interaction(prompt_message):
+    def ynq_user_interaction(prompt_message:str):
         valid_responses = {'y', 'n', 'q'}  
         
         while True:
@@ -135,6 +136,7 @@ class AnalyticsFramework:
         self.contribution_column_chart(filtered_df, "phase", "trade", 0.075, "dark")
         self.contribution_column_chart(filtered_df, lead_schedule_struct, "trade", 0.075, "dark")
         self.lifeline_line_chart(filtered_df, "phase", "month", "dark")
+        self.activity_status_donut(filtered_df, "dark")
 
     def hardest_zones_heatmap(self, df_table, category_x:str, category_y:str, 
                               color_mode:str="light") -> None:
@@ -658,6 +660,80 @@ class AnalyticsFramework:
         activity_counts = activity_counts[activity_counts[category].isin(top_categories)]
 
         return activity_counts
+
+    def activity_status_donut(self, df_table, color_mode:str) -> None:
+        now = datetime.now()
+
+        if "start" not in df_table.columns or "finish" not in df_table.columns:
+            raise ValueError("The dataframe must include 'start' and 'finish' columns.")
+
+        df = df_table.copy()
+
+        # Convert if necessary
+        df["start"] = pd.to_datetime(df["start"], errors="coerce")
+        df["finish"] = pd.to_datetime(df["finish"], errors="coerce")
+
+        # Define activity status
+        def classify_activity(row):
+            if pd.isnull(row["start"]) or pd.isnull(row["finish"]):
+                return "Unknown"
+            elif row["finish"] < now:
+                return "Done"
+            elif row["start"] > now:
+                return "Upcoming"
+            else:
+                return "Ongoing"
+
+        df["status"] = df.apply(classify_activity, axis=1)
+
+        # Count by status
+        status_counts = (
+            df["status"]
+            .value_counts()
+            .reindex(["Done", "Ongoing", "Upcoming", "Unknown"], fill_value=0)
+            .reset_index()
+        )
+        status_counts.columns = ["status", "count"]
+
+        # Create the donut chart
+        try:
+            fig = go.Figure(
+                data=[go.Pie(
+                    labels=status_counts["status"],
+                    values=status_counts["count"],
+                    hole=0.4,
+                    textinfo="label+percent",
+                    insidetextorientation="radial",
+                    marker=dict(colors=px.colors.qualitative.Set2)
+                )]
+            )
+
+            fig_dict = self.fig_color_modes.get(color_mode, self.fig_color_modes["light"])
+
+            fig.update_layout(
+                title=dict(
+                    text="<b>Project Activity Status</b><br><sup>Done vs. Ongoing vs. Upcoming</sup>",
+                    x=0.5,
+                    font=fig_dict["font"]
+                ),
+                font=fig_dict["font"],
+                margin=dict(l=50, r=50, t=100, b=50),
+                plot_bgcolor=fig_dict["plot_bgcolor"],
+                paper_bgcolor=fig_dict["paper_bgcolor"],
+                legend=dict(
+                    title_text="Status",
+                    font=fig_dict["font"]
+                )
+            )
+
+            output_path = self.output_dir
+            output_basename = f"atcivity_time_status_{color_mode}.png"
+            output_file = os.path.join(output_path, output_basename)
+            fig.write_image(output_file, scale=2)
+            print(f"Line chart saved as '{output_file}'")
+
+        except Exception as e:
+            print(f"Error generating activity status donut chart: {e}")
 
 
 if __name__ == "__main__":
