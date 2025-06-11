@@ -2,13 +2,13 @@ import os
 import json
 import shutil
 from datetime import datetime
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify, send_file, send_from_directory
 from werkzeug.utils import secure_filename
 from run import App
 
 import sys
 sys.path.append("../")
-from CriticalFlowPath.config.paths import UPLD_FOLDER
+from CriticalFlowPath.config.paths import UPLD_FOLDER, EC2_INBOX_DIR
 
 app = Flask(__name__)
 ALLOWED_EXTENSIONS = {'xlsx', 'xls'}
@@ -19,6 +19,12 @@ os.makedirs(UPLD_FOLDER, exist_ok=True)
 @app.route("/", methods=["GET"])
 def health():
     return jsonify({"status": "online"}), 200
+
+@app.route("/api/download/<path:filename>", methods=["GET"])
+def download(filename):
+    downloads = os.path.join(app.root_path, "FlaskDownloads")
+    print(downloads + "/"  + filename)
+    return send_from_directory(downloads, filename)
 
 ######## curl X POST [API endpoint] ########
 
@@ -50,30 +56,51 @@ def return_processed_file(file_path:str):
         mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
 
-# === FINAL API ENTRY POINT ===
+@app.route("/api/upload-file", methods=["POST"])
+def upload_file():
+    try:
+        uploaded_file = request.files.get("file")
+        if not uploaded_file:
+            return jsonify({"error": "No file provided"}), 400
+
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        filename = f"[{timestamp}]__{uploaded_file.filename}"
+        save_path = os.path.join(EC2_INBOX_DIR, filename)
+
+        uploaded_file.save(save_path)
+
+        return jsonify({"message": "File uploaded successfully", "path": save_path}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route("/api/execute-cfa-cycle", methods=["POST"])
 def execute_module_cycle():
     try:
-        # Step 1: Upload file
-        if "file" not in request.files:
-            return jsonify({"error": "No file part in request"}), 400
-        
-        file = request.files["file"]
+        file = request.files.get("file")
+        config_file = request.files.get("config")
+        print(file)
+        print(config_file)
+        if not file or not config_file:
+            return jsonify({"error": "Missing 'file' or 'config' in request"}), 400
 
-        # Step 2: Read and parse JSON
-        try:
-            payload = json.loads(file.read().decode("utf-8"))
-        except Exception:
-            return jsonify({"error": "Invalid JSON format"}), 400
+        payload = json.loads(config_file.read().decode("utf-8"))
 
-        target_path = payload["file_name"]
-        uploaded_path = save_uploaded_file(target_path)
-        payload["file_name"] = uploaded_path
+        # Save uploaded Excel file
+        original_filename = file.filename
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        saved_name = f"[{timestamp}]__{original_filename}"
+        saved_path = os.path.join(UPLD_FOLDER, saved_name)
 
-        # Step 2: Process file
+        file.save(saved_path)
+
+        # Inject saved path into config payload
+        payload["file_name"] = saved_path
+
+        # Process file using your app logic
         processed_path = process_file(payload)
 
-        # Step 3: Return file
+        # Return the result file
         return return_processed_file(processed_path)
 
     except Exception as e:
