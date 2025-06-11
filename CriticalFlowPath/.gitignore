@@ -13,6 +13,6 @@ local_results/
 
 # Discontinued Modules
 CFA_Results_Local/
-CFA_Inbox/
+CFA_Inbox_Local/
 disc/
 tests/
