@@ -62,7 +62,7 @@ class App:
         return ins
 
     @staticmethod
-    def ynq_user_interaction(prompt_message):
+    def ynq_user_interaction(prompt_message:str):
         valid_responses = {'y', 'n', 'q'}  
         
         while True:
