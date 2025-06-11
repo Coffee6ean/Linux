@@ -2,13 +2,12 @@ import os
 import json
 import shutil
 from datetime import datetime
-from flask import Flask, request, jsonify, send_file, send_from_directory
-from werkzeug.utils import secure_filename
+from flask import Flask, request, jsonify, send_file, send_from_directory, abort
 from run import App
 
 import sys
 sys.path.append("../")
-from CriticalFlowPath.config.paths import UPLD_FOLDER, EC2_INBOX_DIR
+from CriticalFlowPath.config.paths import RSLTS_DIR, UPLD_FOLDER
 
 app = Flask(__name__)
 ALLOWED_EXTENSIONS = {'xlsx', 'xls'}
@@ -22,9 +21,13 @@ def health():
 
 @app.route("/api/download/<path:filename>", methods=["GET"])
 def download(filename):
-    downloads = os.path.join(app.root_path, "FlaskDownloads")
-    print(downloads + "/"  + filename)
-    return send_from_directory(downloads, filename)
+    full_path  = os.path.join(RSLTS_DIR, filename)
+    print("Downloading:", full_path)
+    
+    if not os.path.exists(full_path):
+        return abort(404, description="File not found")
+
+    return send_from_directory(directory=RSLTS_DIR, path=filename, as_attachment=True)
 
 ######## curl X POST [API endpoint] ########
 
