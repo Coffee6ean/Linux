@@ -1,6 +1,8 @@
 import os
+import io
 import json
 import shutil
+import zipfile
 from datetime import datetime
 from flask import Flask, request, jsonify, send_file, send_from_directory, abort
 from run import App
@@ -19,15 +21,46 @@ os.makedirs(UPLD_FOLDER, exist_ok=True)
 def health():
     return jsonify({"status": "online"}), 200
 
-@app.route("/api/download/<path:filename>", methods=["GET"])
-def download(filename):
-    full_path  = os.path.join(RSLTS_DIR, filename)
-    print("Downloading:", full_path)
+@app.route("/api/download-file/<path:file_name>", methods=["GET"])
+def download(file_name):
+    file_dir  = os.path.join(RSLTS_DIR, file_name)
+    print("Downloading:", file_dir)
     
-    if not os.path.exists(full_path):
-        return abort(404, description="File not found")
+    if not os.path.exists(file_dir):
+        return abort(404, description="Path not found")
+    
+    if not os.path.isfile(file_dir):
+        return abort(404, description="Path given is not a file")
 
-    return send_from_directory(directory=RSLTS_DIR, path=filename, as_attachment=True)
+    return send_from_directory(directory=RSLTS_DIR, path=file_name, as_attachment=True)
+
+@app.route("/api/download-folder/<path:folder_name>", methods=["GET"])
+def download_zip(folder_name):
+    folder_dir = os.path.join(RSLTS_DIR, folder_name)
+
+    if not os.path.exists(folder_dir) or not os.path.isdir(folder_dir):
+        return abort(404, description="Folder not found")
+    
+    if not os.path.isdir(folder_dir):
+        return abort(404, description="Path given is not a folder")
+
+    # Create in-memory zip file
+    memory_file = io.BytesIO()
+    with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zf:
+        for root, _, files in os.walk(folder_dir):
+            for file in files:
+                abs_path = os.path.join(root, file)
+                rel_path = os.path.relpath(abs_path, start=folder_dir)
+                zf.write(abs_path, arcname=rel_path)
+    memory_file.seek(0)
+
+    zip_name = f"{os.path.basename(folder_name)}.zip"
+    return send_file(
+        memory_file,
+        mimetype='application/zip',
+        as_attachment=True,
+        download_name=zip_name
+    )
 
 ######## curl X POST [API endpoint] ########
 
