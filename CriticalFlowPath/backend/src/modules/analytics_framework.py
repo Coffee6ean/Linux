@@ -9,7 +9,7 @@ from datetime import datetime
 
 import sys
 sys.path.append("../")
-from CriticalFlowPath.config.paths import RSLTS_DIR
+from backend.config.paths import RSLTS_DIR
 
 class AnalyticsFramework:
     def __init__(self, input_file_path, input_file_basename, input_file_extension, 
