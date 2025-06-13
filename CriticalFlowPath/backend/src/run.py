@@ -7,7 +7,7 @@ import modules as mdls
 
 import sys
 sys.path.append("../")
-from CriticalFlowPath.config.paths import RSLTS_DIR
+from backend.config.paths import RSLTS_DIR
 
 class App:
     #Structures
@@ -62,7 +62,7 @@ class App:
         return ins
 
     @staticmethod
-    def ynq_user_interaction(prompt_message:str):
+    def ynq_user_interaction(prompt_message:str) -> str:
         valid_responses = {'y', 'n', 'q'}  
         
         while True:
@@ -159,7 +159,7 @@ class App:
 
     @staticmethod
     def normalize_entry(entry_str:str) -> str:
-        special_chars = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
+        special_chars = re.compile('[@_!#$%^&*()<>?/\\|}{~:]')
         remove_special_chars = re.sub(special_chars, '', entry_str.lower())
         normalized_str = re.sub(' ', '_', remove_special_chars)
 
