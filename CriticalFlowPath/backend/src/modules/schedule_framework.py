@@ -12,7 +12,7 @@ from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 
 import sys
 sys.path.append("../")
-from CriticalFlowPath.config.paths import RSLTS_DIR
+from backend.config.paths import RSLTS_DIR
 
 class ScheduleFramework():
     def __init__(self, input_file_path, input_file_basename, input_file_extension, input_file_workweek,
@@ -236,26 +236,26 @@ class ScheduleFramework():
         return result
 
     @staticmethod
-    def hex2rgb(hex_color:str):
+    def hex2rgb(hex_color:str) -> tuple:
         trimmed_hex = hex_color.lstrip('#')
         calc_rgb = tuple(int(trimmed_hex[i:i+2], 16) for i in (0, 2, 4))
 
         return calc_rgb
 
     @staticmethod
-    def calculateLuminance(R, G, B) -> float:
+    def calculateLuminance(R:float, G:float, B:float) -> float:
         lum = 0.2126*(R/255.0)**2.2 + 0.7152*(G/255.0)**2.2 + 0.0722*(B/255.0)**2.2
 
         return lum
 
     @staticmethod
-    def write_data_to_json(file_title:str, json_dict:dict):
+    def write_data_to_json(file_title:str, json_dict:dict) -> None:
         file = os.path.join(RSLTS_DIR, file_title)
         
         with open(file, 'w') as writer:
             json.dump(json_dict, writer)
 
-    def return_excel_workspace(self, worksheet_name):
+    def return_excel_workspace(self, worksheet_name:str):
         basename = self.input_basename + '.' + self.input_extension
         file = os.path.join(self.input_path, basename)
         
@@ -420,7 +420,7 @@ class ScheduleFramework():
 
         return (start_of_week_date, end_of_week_date)
     
-    def _calculate_month(self, date:datetime, workweek:list) -> datetime:
+    def _calculate_month(self, date:datetime) -> datetime:
         return date.month() 
 
     def apply_schedule_gantt_style(self, active_worksheet, custom_ordered_dict:dict, proc_table) -> None:
