@@ -124,8 +124,8 @@ class Setup:
                 roi=input_file_roi
             ),
             "output_file": dict(
-                parent_directory="== SECRET ==",
-                directories={},
+                path="=== TBD ===",
+                basename="=== TBD ===",
             ),
             "project": dict(
                 metadata=dict(
