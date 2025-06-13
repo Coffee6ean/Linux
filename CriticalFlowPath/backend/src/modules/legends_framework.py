@@ -10,7 +10,7 @@ from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 
 import sys
 sys.path.append("../")
-from CriticalFlowPath.config.paths import RSLTS_DIR
+from backend.config.paths import RSLTS_DIR
 
 class LegendsFramework():
     def __init__(self, input_file_path, input_file_basename, input_file_extension, 
@@ -83,7 +83,7 @@ class LegendsFramework():
         return ins
 
     @staticmethod
-    def ynq_user_interaction(prompt_message):
+    def ynq_user_interaction(prompt_message:str) -> str:
         valid_responses = {'y', 'n', 'q'}  
         
         while True:
@@ -95,7 +95,7 @@ class LegendsFramework():
                 print("Error. Invalid input, please try again. ['Y/y' for Yes, 'N/n' for No, 'Q/q' for Quit]\n")
 
     @staticmethod
-    def display_directory_files(file_list):
+    def display_directory_files(file_list:list) -> int:
         selection_idx = -1  
 
         if len(file_list) == 0:
@@ -117,14 +117,14 @@ class LegendsFramework():
                 print('Error: Invalid input. Please enter a valid number.\n')
 
     @staticmethod
-    def hex2rgb(hex_color):
+    def hex2rgb(hex_color:str) -> tuple:
         trimmed_hex = hex_color.lstrip('#')
         calc_rgb = tuple(int(trimmed_hex[i:i+2], 16) for i in (0, 2, 4))
 
         return calc_rgb
 
     @staticmethod
-    def calculateLuminance(R, G, B):
+    def calculateLuminance(R:float, G:float, B:float):
         lum = 0.2126*(R/255.0)**2.2 + 0.7152*(G/255.0)**2.2 + 0.0722*(B/255.0)**2.2
 
         return lum
@@ -183,7 +183,7 @@ class LegendsFramework():
         
         return workbook, worksheet
 
-    def generate_legends_table(self, active_workbook, active_worksheet, og_table):
+    def generate_legends_table(self, active_workbook, active_worksheet, og_table) -> None:
         basename = self.input_basename + '.' + self.input_extension
         file = os.path.join(self.input_path, basename)
         wb = active_workbook
@@ -206,7 +206,7 @@ class LegendsFramework():
         wb.save(filename=file)
         print("Legends table generated successfully.")
 
-    def _define_column_width(self, proc_table):
+    def _define_column_width(self, proc_table) -> dict:
         phase_widths = {}
 
         for phase, group in proc_table.groupby(level="phase", observed=True):
