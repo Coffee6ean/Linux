@@ -5,13 +5,15 @@ import shutil
 import zipfile
 from datetime import datetime
 from flask import Flask, request, jsonify, send_file, send_from_directory, abort
-from run import App
+from flask_cors import CORS
 
 import sys
 sys.path.append("../")
-from CriticalFlowPath.config.paths import RSLTS_DIR, UPLD_FOLDER
+from backend.src.run import App
+from backend.config.paths import RSLTS_DIR, UPLD_FOLDER
 
 app = Flask(__name__)
+CORS(app)
 ALLOWED_EXTENSIONS = {'xlsx', 'xls'}
 os.makedirs(UPLD_FOLDER, exist_ok=True)
 
@@ -101,7 +103,7 @@ def upload_file():
 
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         filename = f"[{timestamp}]__{uploaded_file.filename}"
-        save_path = os.path.join(EC2_INBOX_DIR, filename)
+        save_path = os.path.join(UPLD_FOLDER, filename)
 
         uploaded_file.save(save_path)
 
@@ -114,13 +116,12 @@ def upload_file():
 def execute_module_cycle():
     try:
         file = request.files.get("file")
-        config_file = request.files.get("config")
-        print(file)
-        print(config_file)
+        config_file = request.form.get("config")
+
         if not file or not config_file:
             return jsonify({"error": "Missing 'file' or 'config' in request"}), 400
 
-        payload = json.loads(config_file.read().decode("utf-8"))
+        payload = json.loads(config_file)
 
         # Save uploaded Excel file
         original_filename = file.filename
@@ -130,10 +131,14 @@ def execute_module_cycle():
 
         file.save(saved_path)
 
-        # Inject saved path into config payload
+        # Inject data into config payload
         payload["file_name"] = saved_path
+        payload.setdefault("file_roi", "Sheet1")
+        payload.setdefault("auto", True)
 
         # Process file using your app logic
+        """ print(file)
+        print(payload) """
         processed_path = process_file(payload)
 
         # Return the result file
