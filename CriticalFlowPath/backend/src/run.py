@@ -43,6 +43,8 @@ class App:
             project.document_project_package(project_folder)
 
             #Sort and Order File
+            project.obj["setup"]["output_file"]["path"] = project_folder
+            project.obj["setup"]["output_file"]["basename"] = project.obj["setup"]["input_file"].get("basename")
             App.move_project_to_folder(project.obj["setup"], project_folder)
 
             return project.obj
@@ -166,43 +168,37 @@ class App:
         return normalized_str
 
     @staticmethod
-    def create_project_folder(project_ins:dict, parent_dir:str) -> None:
+    def create_project_folder(project_ins: dict, parent_dir: str) -> str:
         entry_date = project_ins["project"]["metadata"]["dates"].get("created")
         entry_month = datetime.strptime(entry_date, "%d-%b-%y %H:%M:%S").month
-        
+
         calendar_months = {
-            1:"Jan",
-            2:"Feb",
-            3:"Mar",
-            4:"Apr",
-            5:"May",
-            6:"Jun",
-            7:"Jul",
-            8:"Aug",
-            9:"Sep",
-            10:"Oct",
-            11:"Nov",
-            12:"Dec",
+            1: "Jan", 2: "Feb", 3: "Mar", 4: "Apr", 5: "May", 6: "Jun",
+            7: "Jul", 8: "Aug", 9: "Sep", 10: "Oct", 11: "Nov", 12: "Dec",
         }
 
-        def create_dir(directory_name:str, counter:int=0, new_directory:str=""):
+        def create_dir(directory_name: str, counter: int = 0) -> str:
             if counter == len(App.project_folder_structure):
                 os.makedirs(directory_name, exist_ok=True)
                 return directory_name
             else:
                 category = App.project_folder_structure[counter]
 
-                if category == "date": 
-                    new_directory += calendar_months[entry_month] + '/' + entry_date
+                if category == "date":
+                    # append month and date as folders
+                    new_directory = os.path.join(directory_name, calendar_months[entry_month], entry_date)
                 else:
-                    new_directory += project_ins["project"]["metadata"].get(category) + '/'
+                    # append the metadata category folder
+                    folder_name = project_ins["project"]["metadata"].get(category)
+                    if folder_name is None:
+                        folder_name = "Unknown"
+                    new_directory = os.path.join(directory_name, folder_name)
 
-                new_folder_dir = os.path.join(directory_name, new_directory)
-                return create_dir(new_folder_dir, counter + 1)
+                return create_dir(new_directory, counter + 1)
 
         folder = create_dir(parent_dir)
         return folder
-    
+
     @staticmethod
     def move_project_to_folder(project_ins:dict, parent_dir:str) -> None:
         input_path = project_ins["input_file"].get("path")
