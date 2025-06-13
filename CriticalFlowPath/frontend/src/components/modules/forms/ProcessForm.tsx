@@ -59,12 +59,9 @@ export default function ProcessForm() {
         try {
             const formPayLoad = new FormData();
             formPayLoad.append("file", file);
+            formPayLoad.append("config", JSON.stringify(formData))
 
-            Object.entries(formData).forEach(([key, value]) => {
-                formPayLoad.append(key, value)
-            });
-
-            const response = await fetch("http://localhost:5000/api/process", {
+            const response = await fetch("http://localhost:5000/api/execute-cfa-cycle", {
                 method: "POST",
                 body: formPayLoad,
             });
@@ -83,9 +80,9 @@ export default function ProcessForm() {
             <div className="space-y-4">
                 {/* File Upload Section */}
                 <div className="space-y-2">
-                    <Label htmlFor="file-upload">Upload Excel File</Label>
+                    <Label htmlFor="file_name">Upload Excel File</Label>
                     <Input
-                        id="file-upload"
+                        id="file_name"
                         type="file"
                         accept=".xlsx"
                         onChange={handleFileChange}
