@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { FileType } from "lucide-react";
+import config from '../../../config';
 
 export default function ProcessForm() {
     //Refs
@@ -49,32 +49,57 @@ export default function ProcessForm() {
     };
 
     const handleSubmit = async () => {
-        if (!file) {
-            setError("Please select a file first");
-            return;
+      if (!file) {
+        setError("Please select a file first");
+        return;
+      }
+    
+      setIsProcessing(true);
+    
+      try {
+        const formPayLoad = new FormData();
+        formPayLoad.append("file", file);
+        formPayLoad.append("config", JSON.stringify(formData));
+    
+        const response = await fetch(`${config.API_BASE_URL}/api/execute-cfa-cycle`, {
+          method: "POST",
+          body: formPayLoad,
+        });
+    
+        if (!response.ok) {
+          const err = await response.json();
+          console.error("Error:", err);
+          return;
         }
+    
+        // Get filename from content-disposition header
+        const disposition = response.headers.get("Content-Disposition");
+        let filename = "result.zip";
 
-        setIsProcessing(true);
-
-        try {
-            const formPayLoad = new FormData();
-            formPayLoad.append("file", file);
-            formPayLoad.append("config", JSON.stringify(formData))
-
-            const response = await fetch("http://localhost:5000/api/execute-cfa-cycle", {
-                method: "POST",
-                body: formPayLoad,
-            });
-
-            const result = await response.json();
-            console.log("Processing result:", result)
-        } catch (err) {
-            setError("Failed process file");
-        } finally {
-            setIsProcessing(false);
+        if (disposition && disposition.indexOf("attachment") !== -1) {
+          const filenameRegex = /file_name[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+          const matches = filenameRegex.exec(disposition);
+          if (matches != null && matches[1]) {
+            filename = matches[1].replace(/['"]/g, "");
+          }
         }
+    
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", filename);  // use actual filename here
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+    
+      } catch (err) {
+        setError("Failed to process file");
+      } finally {
+        setIsProcessing(false);
+      }
     };
-
+    
     return (
         <Card className="p-6">
             <div className="space-y-4">
