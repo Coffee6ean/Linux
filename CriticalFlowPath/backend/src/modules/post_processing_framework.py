@@ -10,7 +10,7 @@ from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 
 import sys
 sys.path.append("../")
-from CriticalFlowPath.config.paths import RSLTS_DIR
+from backend.config.paths import RSLTS_DIR
 
 class PostProcessingFramework():
     def __init__(self, input_file_path, input_file_basename, input_file_extension, 
@@ -153,7 +153,7 @@ class PostProcessingFramework():
         return ins
 
     @staticmethod
-    def ynq_user_interaction(prompt_message:str):
+    def ynq_user_interaction(prompt_message:str) -> str:
         valid_responses = {'y', 'n', 'q'}  
         
         while True:
@@ -501,7 +501,7 @@ class PostProcessingFramework():
             return 0
         return None
 
-    def _return_first_column_idx(self, active_worksheet, start_row_idx:int, start_col_idx:int):
+    def _return_first_column_idx(self, active_worksheet, start_row_idx:int, start_col_idx:int) -> int:
         ws = active_worksheet
 
         for row in ws.iter_rows(min_row=start_row_idx, min_col=start_col_idx, max_col=ws.max_column):
@@ -721,7 +721,7 @@ class PostProcessingFramework():
             )
 
     def _same_week_based_values(self, active_worksheet, starting_col_idx:int, 
-                                starting_row_idx:int, starting_day:str):
+                                starting_row_idx:int, starting_day:str) -> tuple[list, int]:
         ws = active_worksheet
         iterable_row = ws[starting_row_idx]
 
