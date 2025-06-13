@@ -6,7 +6,7 @@ from openpyxl.utils import column_index_from_string
 
 import sys
 sys.path.append("../")
-from CriticalFlowPath.config.paths import TEST_XLSX_DIR, TEST_PDF_DIR
+from backend.config.paths import TEST_XLSX_DIR, TEST_PDF_DIR
 
 class DataFrameSetup:
     allowed_extensions = ["json"]
