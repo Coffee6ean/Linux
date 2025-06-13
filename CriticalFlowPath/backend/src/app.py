@@ -5,6 +5,7 @@ import shutil
 import zipfile
 from datetime import datetime
 from flask import Flask, request, jsonify, send_file, send_from_directory, abort
+from werkzeug.utils import secure_filename
 from flask_cors import CORS
 
 import sys
@@ -115,34 +116,58 @@ def upload_file():
 @app.route("/api/execute-cfa-cycle", methods=["POST"])
 def execute_module_cycle():
     try:
+        # Get file and config from request
         file = request.files.get("file")
-        config_file = request.form.get("config")
+        config_json = request.form.get("config")
 
-        if not file or not config_file:
+        if not file or not config_json:
             return jsonify({"error": "Missing 'file' or 'config' in request"}), 400
 
-        payload = json.loads(config_file)
+        # Parse config JSON string to dict
+        payload = json.loads(config_json)
 
         # Save uploaded Excel file
-        original_filename = file.filename
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        original_filename = secure_filename(file.filename)
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         saved_name = f"[{timestamp}]__{original_filename}"
         saved_path = os.path.join(UPLD_FOLDER, saved_name)
-
         file.save(saved_path)
 
-        # Inject data into config payload
+        # Inject file path into payload
         payload["file_name"] = saved_path
         payload.setdefault("file_roi", "Sheet1")
         payload.setdefault("auto", True)
 
-        # Process file using your app logic
-        """ print(file)
-        print(payload) """
-        processed_path = process_file(payload)
+        # Process file (this should write output to a known results folder)
+        result_dict = process_file(payload)
 
-        # Return the result file
-        return return_processed_file(processed_path)
+        if isinstance(result_dict, dict):
+            output_folder = result_dict["setup"]["output_file"]["path"]
+        else:
+            output_folder = result_dict
+
+        if not output_folder or not os.path.isdir(output_folder):
+            return jsonify({"error": "Invalid output folder"}), 500
+
+        # Zip the processed output folder in-memory
+        memory_file = io.BytesIO()
+        with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zf:
+            for root, _, files in os.walk(output_folder):
+                for f in files:
+                    abs_file = os.path.join(root, f)
+                    rel_file = os.path.relpath(abs_file, start=output_folder)
+                    zf.write(abs_file, arcname=rel_file)
+        memory_file.seek(0)
+
+        zip_name = f"{output_folder}.zip"
+
+        # Return the zip as a download
+        return send_file(
+            memory_file,
+            mimetype='application/zip',
+            as_attachment=True,
+            download_name=zip_name
+        )
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
