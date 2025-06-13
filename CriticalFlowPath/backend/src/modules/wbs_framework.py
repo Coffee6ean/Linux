@@ -9,7 +9,7 @@ from openpyxl.styles import PatternFill
 
 import sys
 sys.path.append("../")
-from CriticalFlowPath.config.paths import RSLTS_DIR
+from backend.config.paths import RSLTS_DIR
 
 class WbsFramework:
     def __init__(self, is_framed, input_file_path, input_file_basename, input_file_extension, 
