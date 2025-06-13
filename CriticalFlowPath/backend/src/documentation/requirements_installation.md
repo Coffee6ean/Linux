@@ -40,6 +40,13 @@ pip install pandas
 pip install openpyxl
 pip install plotly
 pip install --upgrade kaleido
+pip install gunicorn
+```
+
+OR
+
+```bash
+pip install -r requirements.txt
 ```
 
 ---

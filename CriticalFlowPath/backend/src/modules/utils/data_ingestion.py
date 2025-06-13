@@ -232,8 +232,8 @@ class DataIngestion:
 
     @staticmethod
     def normalize_string(entry_str:str) -> str:
-        remove_bewteen_parenthesis = re.sub('(?<=\()(.*?)(?=\))', '', entry_str)
-        special_chars = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
+        remove_bewteen_parenthesis = re.sub('(?<=\\()(.*?)(?=\\))', '', entry_str)
+        special_chars = re.compile('[@_!#$%^&*()<>?/\\|}{~:]')
         remove_special_chars = re.sub(special_chars, '', remove_bewteen_parenthesis.lower()).strip()
         normalized_str = re.sub(' ', '_', remove_special_chars)
 
@@ -437,7 +437,7 @@ class DataIngestion:
     def _format_date_string(self, date_string:str, 
                            output_format="%d-%b-%Y") -> str|None:
         try:
-            special_chars = re.compile('[@_!#$%^&*()<>?\|}{~:]')
+            special_chars = re.compile('[@_!#$%^&*()<>?\\|}{~:]')
 
             if re.search(special_chars, date_string):
                 cleaned_date_string = re.sub(special_chars, '', date_string)

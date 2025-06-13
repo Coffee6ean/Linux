@@ -221,8 +221,8 @@ class Setup:
 
     @staticmethod
     def normalize_string(entry_str:str) -> str:
-        remove_bewteen_parenthesis = re.sub('(?<=\()(.*?)(?=\))', '', entry_str)
-        special_chars = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
+        remove_bewteen_parenthesis = re.sub('(?<=\\()(.*?)(?=\\))', '', entry_str)
+        special_chars = re.compile('[@_!#$%^&*()<>?/\\|}{~:]')
         remove_special_chars = re.sub(special_chars, '', remove_bewteen_parenthesis.lower()).strip()
         normalized_str = re.sub(' ', '_', remove_special_chars)
 
