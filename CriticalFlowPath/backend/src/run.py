@@ -3,7 +3,7 @@ import re
 import json
 import argparse
 from datetime import datetime
-import modules as mdls
+from . import modules as mdls
 
 import sys
 sys.path.append("../")
