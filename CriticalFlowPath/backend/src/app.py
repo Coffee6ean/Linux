@@ -20,7 +20,7 @@ os.makedirs(UPLD_FOLDER, exist_ok=True)
 
 ######## curl X GET [API endpoint] ########
 
-@app.route("/", methods=["GET"])
+@app.route("/api/", methods=["GET"])
 def health():
     return jsonify({"status": "online"}), 200
 
