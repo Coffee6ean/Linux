@@ -4,10 +4,10 @@ import json
 from datetime import datetime
 
 # Imported Helper - As Package 
-from modules.utils.data_ingestion import DataIngestion
-from modules.utils.data_frame_setup import DataFrameSetup
-from modules.utils.data_relationship import DataRelationship
-from modules.utils.data_processing import DataProcessing
+from .utils.data_ingestion import DataIngestion
+from .utils.data_frame_setup import DataFrameSetup
+from .utils.data_relationship import DataRelationship
+from .utils.data_processing import DataProcessing
 
 # Imported Helper - As Module
 """ from utils.data_ingestion import DataIngestion
