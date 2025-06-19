@@ -3,10 +3,10 @@ import re
 import json
 import argparse
 from datetime import datetime
-from . import modules as mdls
 
 import sys
 sys.path.append("../")
+from backend.src import modules as mdls
 from backend.config.paths import RSLTS_DIR
 
 class App:
