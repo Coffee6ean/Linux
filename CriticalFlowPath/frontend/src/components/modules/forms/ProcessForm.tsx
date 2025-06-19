@@ -61,7 +61,7 @@ export default function ProcessForm() {
         formPayLoad.append("file", file);
         formPayLoad.append("config", JSON.stringify(formData));
     
-        const response = await fetch(`${config.API_BASE_URL}/api/execute-cfa-cycle`, {
+        const response = await fetch(`${config.API_BASE_URL}/execute-cfa-cycle`, {
           method: "POST",
           body: formPayLoad,
         });
