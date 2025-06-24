@@ -1,6 +1,7 @@
 import os
 import re
 import json
+import copy
 import argparse
 from datetime import datetime
 
@@ -20,6 +21,13 @@ class App:
     allowed_extensions = ["xlsx", "xml"]
     project_folder_structure = ["client", "name", "date"]
 
+    ticket = {
+        "metadata": {},
+        "data": {},
+        "setup": {},
+        "process":{}
+    }
+
     def __init__(self, project_ins_dict):
         self.obj = project_ins_dict
         self.schedule_worksheet = "CFA - Schedule"
@@ -38,14 +46,18 @@ class App:
             #Generate Project Folder
             project_folder = App.create_project_folder(project.obj["setup"], RSLTS_DIR)
 
-            #Process and Document File
-            project.execute_project_package(project_folder)
-            project.document_project_package(project_folder)
+            #Process Project File
+            App.execute_full_project_framework(project, project_folder)
 
-            #Sort and Order File
-            project.obj["setup"]["output_file"]["path"] = project_folder
-            project.obj["setup"]["output_file"]["basename"] = project.obj["setup"]["input_file"].get("basename")
-            App.move_project_to_folder(project.obj["setup"], project_folder)
+            #Sort and Order Project File
+            App.move_project_to_folder(
+                project.obj["setup"], 
+                project_folder, 
+                project.obj["setup"]["input_file"].get("basename")
+            )
+
+            #Document Project File
+            App.document_project_package(project, project_folder, App.ticket)
 
             return project.obj
 
@@ -59,6 +71,14 @@ class App:
         setup = mdls.Setup.main(payload)
 
         project_ins_dict = {"setup": setup.obj}
+        App.clean_and_store_ticket_section(
+            project_ins_dict, 
+            "setup", 
+            "content", 
+            ["project","modules"], 
+            True
+        )
+
         ins = App(project_ins_dict)
 
         return ins
@@ -200,180 +220,283 @@ class App:
         return folder
 
     @staticmethod
-    def move_project_to_folder(project_ins:dict, parent_dir:str) -> None:
+    def write_data_to_json(file_title:str, json_dict:dict) -> None:
+        file = os.path.join(RSLTS_DIR, file_title)
+        
+        with open(file, 'w') as writer:
+            json.dump(json_dict, writer)
+
+    @staticmethod
+    def execute_full_project_framework(project_ins, project_folder:str, auto:bool=True) -> None:
+        setup = project_ins.obj["setup"]
+        modules = setup["project"]["modules"]
+
+        # Extract key modules
+        mdl_1 = modules.get("MODULE_1")
+        mdl_2 = modules.get("MODULE_2")
+        mdl_3 = modules.get("MODULE_3")
+
+        # Run CFA frameworks 
+        App.run_cfa_pipeline(
+            "CFA", 
+            True,
+            setup["input_file"].get("path"),
+            setup["input_file"].get("basename"),
+            setup["input_file"].get("extension"),
+            project_ins.schedule_worksheet, 
+            mdl_3["details"].get("workweek"),
+            mdl_2["content"].get("table"), 
+            mdl_3.get("content"),
+            mdl_2["content"].get("custom_phase_order"),
+            mdl_2["content"].get("lead_schedule_struct"),
+            mdl_3["details"]["calendar"]["processed"]["days"].get("total"),
+            mdl_1["details"].get("start_date"),
+            mdl_1["details"].get("finish_date"),
+            'd',
+            auto
+        )
+        App.run_cfa_pipeline(
+            "Macro CFA", 
+            True,
+            setup["input_file"].get("path"),
+            setup["input_file"].get("basename"),
+            setup["input_file"].get("extension"),
+            project_ins.schedule_worksheet_macro,
+            mdl_3["details"].get("workweek"),
+            mdl_2["content"].get("table"), 
+            mdl_3.get("content"),
+            mdl_2["content"].get("custom_phase_order"),
+            mdl_2["content"].get("lead_schedule_struct"),
+            mdl_3["details"]["calendar"]["processed"]["days"].get("total"),
+            mdl_1["details"].get("start_date"),
+            mdl_1["details"].get("finish_date"),
+            'w',
+            auto
+        )
+
+        App.ticket["metadata"] = setup["project"].get("metadata")
+        App.ticket["data"] = mdl_3.get("content")
+
+        # Legends Framework
+        App.run_legends_pipeline(
+            setup["input_file"].get("path"),
+            setup["input_file"].get("basename"),
+            setup["input_file"].get("extension"),
+            project_ins.legends_worksheet,
+            mdl_2["content"].get("table"),
+            auto
+        )
+
+        # Analytics Framework
+        App.run_analytics_pipeline(
+            setup["input_file"].get("path"),
+            setup["input_file"].get("basename"),
+            setup["input_file"].get("extension"),
+            project_folder,
+            mdl_2["content"].get("table"),
+            mdl_2["content"].get("lead_schedule_struct"),
+            auto
+        )
+
+    @staticmethod
+    def run_cfa_pipeline(header_title:str, is_framed:bool,
+                         project_path:str, project_basename:str, project_extension:str,
+                         project_worksheet:str, project_workweek:str, project_table, 
+                         project_dictionary:dict, project_phase_order, project_lead_struct, 
+                         project_duration, project_start_date:str, project_finish_date:str, 
+                         project_time_scale:str='d', auto:bool=True) -> None:
+        App._print_result(f"WbsFramework ({header_title}) processing...")
+        mdl_1 = mdls.WbsFramework.main(
+            auto,
+            is_framed,
+            project_path,
+            project_basename,
+            project_extension,
+            project_worksheet,
+            project_table,
+            project_dictionary
+        )
+        App.ticket["process"].setdefault("WbsFramework", mdl_1) 
+
+        App._print_result(f"ScheduleFramework ({header_title}) processing...")
+        mdl_2 = mdls.ScheduleFramework.main(
+            auto,
+            project_path,
+            project_basename,
+            project_extension,
+            project_workweek,
+            project_worksheet,
+            project_table,
+            project_dictionary,
+            project_phase_order,
+            project_lead_struct,
+            project_start_date,
+            project_finish_date,
+            project_time_scale
+        )
+        App.ticket["process"].setdefault("ScheduleFramework", mdl_2) 
+
+        App._print_result(f"PostProcessingFramework ({header_title}) processing...")
+        mdl_3 = mdls.PostProcessingFramework.main(
+            auto,
+            project_path,
+            project_basename,
+            project_extension,
+            project_workweek,
+            project_worksheet,
+            project_table,
+            project_dictionary,
+            project_phase_order,
+            project_lead_struct,
+            project_duration,
+            project_start_date,
+            project_finish_date,
+            project_time_scale
+        )
+        App.ticket["process"].setdefault("PostProcessingFramework", mdl_3) 
+
+    @staticmethod
+    def run_legends_pipeline(project_path, project_basename, project_extension, 
+                             project_worksheet, project_table, auto:bool=True) -> None:
+        App._print_result("LegendsFramework processing...")
+        lgnds = mdls.LegendsFramework.main(
+            auto,
+            project_path,
+            project_basename,
+            project_extension,
+            project_worksheet,
+            project_table
+        )
+        App.ticket["process"].setdefault("LegendsFramework", lgnds) 
+
+    @staticmethod
+    def run_analytics_pipeline(project_path, project_basename, project_extension, 
+                               project_folder, project_table, project_lead_struct, auto:bool=True):
+        App._print_result("AnalyticsFramework processing...")
+        nlytcs = mdls.AnalyticsFramework.main(
+            auto,
+            project_path,
+            project_basename,
+            project_extension,
+            project_folder,
+            project_table,
+            project_lead_struct
+        )
+        App.ticket["process"].setdefault("AnalyticsFramework", nlytcs) 
+
+    @staticmethod
+    def move_project_to_folder(project_ins:dict, project_file_path:str, project_file_basename:str) -> None:
+        App.ticket["setup"]["output_file"]["path"] = project_file_path
+        App.ticket["setup"]["output_file"]["basename"] = project_file_basename
+        
         input_path = project_ins["input_file"].get("path")
         input_basename = project_ins["input_file"].get("basename")
         input_extension = project_ins["input_file"].get("extension")
         basename = input_basename + '.' + input_extension
         
         init_dir = os.path.join(input_path, basename)
-        final_dir = os.path.join(parent_dir, basename)
+        final_dir = os.path.join(project_file_path, basename)
 
         os.rename(init_dir, final_dir)
 
     @staticmethod
-    def write_data_to_json(file_title:str, json_dict:dict):
-        file = os.path.join(RSLTS_DIR, file_title)
-        
-        with open(file, 'w') as writer:
-            json.dump(json_dict, writer)
-
-    def execute_project_package(self, project_folder:str, auto:bool=True) -> None:
-        ins_obj = self.obj["setup"]
-        mdl_1 = ins_obj["project"]["modules"].get("MODULE_1")
-        mdl_2 = ins_obj["project"]["modules"].get("MODULE_2")
-        mdl_3 = ins_obj["project"]["modules"].get("MODULE_3")
-
-        self._print_result("WbsFramework (CFA) processing...")
-        mdls.WbsFramework.main(
-            auto, 
-            True,
-            ins_obj["input_file"].get("path"), 
-            ins_obj["input_file"].get("basename"),
-            ins_obj["input_file"].get("extension"),
-            self.schedule_worksheet,
-            mdl_2["content"].get("table"),
-            mdl_2["content"].get("custom_ordered_dict"),
-        )
-
-        self._print_result("ScheduleFramework (CFA) processing...")
-        mdls.ScheduleFramework.main(
-            auto,
-            ins_obj["input_file"].get("path"), 
-            ins_obj["input_file"].get("basename"),
-            ins_obj["input_file"].get("extension"), 
-            mdl_3["details"].get("workweek"), 
-            self.schedule_worksheet,
-            mdl_2["content"].get("table"),
-            mdl_3.get("content"),
-            mdl_2["content"].get("custom_phase_order"),
-            mdl_2["content"].get("lead_schedule_struct"),
-            mdl_1["details"].get("start_date"),
-            mdl_1["details"].get("finish_date"),
-            'd',
-        )
-
-        self._print_result("PostProcessingFramework (CFA) processing...")
-        mdls.PostProcessingFramework.main(
-            auto,
-            ins_obj["input_file"].get("path"), 
-            ins_obj["input_file"].get("basename"),
-            ins_obj["input_file"].get("extension"),
-            mdl_3["details"].get("workweek"), 
-            self.schedule_worksheet,
-            mdl_2["content"].get("table"),
-            mdl_3.get("content"),
-            mdl_2["content"].get("custom_phase_order"),
-            mdl_2["content"].get("lead_schedule_struct"),
-            mdl_3["details"]["calendar"]["processed"]["days"].get("total"),
-            mdl_1["details"].get("start_date"),
-            mdl_1["details"].get("finish_date"),
-            'd',
-        )
-
-        self._print_result("WbsFramework (Macro CFA) processing...")
-        mdls.WbsFramework.main(
-            auto, 
-            True,
-            ins_obj["input_file"].get("path"), 
-            ins_obj["input_file"].get("basename"),
-            ins_obj["input_file"].get("extension"),
-            self.schedule_worksheet_macro,
-            mdl_2["content"].get("table"),
-            mdl_2["content"].get("custom_ordered_dict"),
-        )
-
-        self._print_result("ScheduleFramework (Macro CFA) processing...")
-        mdls.ScheduleFramework.main(
-            auto,
-            ins_obj["input_file"].get("path"), 
-            ins_obj["input_file"].get("basename"),
-            ins_obj["input_file"].get("extension"), 
-            mdl_3["details"].get("workweek"), 
-            self.schedule_worksheet_macro,
-            mdl_2["content"].get("table"),
-            mdl_3.get("content"),
-            mdl_2["content"].get("custom_phase_order"),
-            mdl_2["content"].get("lead_schedule_struct"),
-            mdl_1["details"].get("start_date"),
-            mdl_1["details"].get("finish_date"),
-            'w',
-        )
-
-        self._print_result("PostProcessingFramework (Macro CFA) processing...")
-        mdls.PostProcessingFramework.main(
-            auto,
-            ins_obj["input_file"].get("path"), 
-            ins_obj["input_file"].get("basename"),
-            ins_obj["input_file"].get("extension"),
-            mdl_3["details"].get("workweek"), 
-            self.schedule_worksheet_macro,
-            mdl_2["content"].get("table"),
-            mdl_3.get("content"),
-            mdl_2["content"].get("custom_phase_order"),
-            mdl_2["content"].get("lead_schedule_struct"),
-            mdl_3["details"]["calendar"]["processed"]["days"].get("total"),
-            mdl_1["details"].get("start_date"),
-            mdl_1["details"].get("finish_date"),
-            'w',
-        )
-
-        self._print_result("LegendsFramework processing...")
-        mdls.LegendsFramework.main(
-            auto,
-            ins_obj["input_file"].get("path"), 
-            ins_obj["input_file"].get("basename"),
-            ins_obj["input_file"].get("extension"), 
-            self.legends_worksheet,
-            mdl_2["content"].get("table"),
-        )
-        
-        self._print_result("AnalyticsFramework processing...")
-        mdls.AnalyticsFramework.main(
-            auto,
-            ins_obj["input_file"].get("path"), 
-            ins_obj["input_file"].get("basename"),
-            ins_obj["input_file"].get("extension"),
-            project_folder,
-            mdl_2["content"].get("table"),
-            mdl_2["content"].get("lead_schedule_struct"),
-        )
-
-    def document_project_package(self, project_folder:str) -> None:
-        ins_obj = self.obj["setup"]
-        mdl_1 = ins_obj["project"]["modules"].get("MODULE_1")
-        mdl_2 = ins_obj["project"]["modules"].get("MODULE_2")
-        mdl_3 = ins_obj["project"]["modules"].get("MODULE_3")
-        
-        ins_obj["project"]["metadata"]["dates"]["finished"] = App.return_valid_date()
-        
-        ticket_body = {
-            "metadata": ins_obj["project"].get("metadata"),
-            "data": mdl_1.get("content"),
-            "details": {
-                "MDL_1": mdl_1.get("details"),
-                "MDL_2": mdl_2.get("details"),
-                "MDL_3": mdl_3.get("details"),
-            },
-            "logs": {
-                "MDL_1": mdl_1.get("logs"),
-                "MDL_2": mdl_2.get("logs"),
-                "MDL_3": mdl_3.get("logs"),
-            },
-            "status": None,
-        }
-
-        basename = self.project_documentation_title
+    def document_project_package(project_ins, project_folder:str, ticket_dict:dict) -> None:
+        basename = project_ins.project_documentation_title
         file = os.path.join(project_folder, basename)
 
         with open(file, 'w') as writer:
-            json.dump(ticket_body, writer)
+            json.dump(ticket_dict, writer)
 
-    def _print_result(self, prompt_message:str) -> None:
+    @staticmethod
+    def _print_result(prompt_message:str) -> None:
         print()
         print()
         print(f'//========== {prompt_message} ==========//')
         print()
+
+    @staticmethod
+    def clean_and_store_ticket_section(source_dict:dict, parent_key:str, target_key:str, 
+                                     target_path:list, remove_all:bool=True) -> None:
+        ticket_copy = copy.deepcopy(source_dict)
+        target_section = App._navigate_to_path(ticket_copy[parent_key], target_path)
+
+        cleaned_section = App.clear_key_from_dictionary(target_section, target_key, remove_all)
+        ticket_section_replaced = App._replace_at_path(ticket_copy, cleaned_section, ["setup", "project"])
+ 
+        App.ticket[parent_key] = ticket_section_replaced
+
+    @staticmethod
+    def _check_dictionary_for_json_serializable(json_dict:dict) -> bool:
+        try:
+            json.dumps(json_dict)
+            return True
+        except (TypeError, OverflowError):
+            return False
+
+    @staticmethod
+    def clear_key_from_dictionary(json_dict:dict, target_key:str, multiple:bool) -> dict|None:
+        def traverse_dict_single(obj:dict|list, target_key:str) -> dict|list:
+            if isinstance(obj, dict):
+                if target_key in obj:
+                    obj.pop(target_key)
+                    return obj
+                for value in obj.values():
+                    result = traverse_dict_single(value, target_key)
+                    if result is not None:
+                        return obj
+            elif isinstance(obj, list):
+                for item in obj:
+                    result = traverse_dict_single(item, target_key)
+                    if result is not None:
+                        return obj
+            return None
+
+        def traverse_dict_multiple(obj:dict|list, target_key:str) -> dict|list:
+            if isinstance(obj, dict):
+                obj.pop(target_key, None)
+                for value in obj.values():
+                    traverse_dict_multiple(value, target_key)
+            elif isinstance(obj, list):
+                for item in obj:
+                    traverse_dict_multiple(item, target_key)
+            return obj
+
+        if multiple:
+            traverse_dict_multiple(json_dict, target_key)
+        else:
+            traverse_dict_single(json_dict, target_key)
+
+        return json_dict
+
+    @staticmethod
+    def _navigate_to_path(json_dict:dict, target_path:list) -> dict:
+        if not target_path:
+            return json_dict
+
+        key = target_path.pop(0)
+
+        if not isinstance(json_dict, dict) or key not in json_dict:
+            print(f"Key '{key}' not found.")
+            return None
+
+        return App._navigate_to_path(json_dict[key], target_path)
+    
+    @staticmethod
+    def _replace_at_path(json_dict:dict, replace_dict:dict, target_path:list) -> dict|None:
+        if not target_path:
+            print("Error: Empty target path; nothing to replace.")
+            return None
+
+        key = target_path[0]
+        if len(target_path) == 1:
+            json_dict[key] = replace_dict
+            return json_dict
+
+        if key not in json_dict or not isinstance(json_dict[key], dict):
+            print(f"Key '{key}' not found or not a dict.")
+            return None
+
+        return App._replace_at_path(json_dict[key], replace_dict, target_path[1:])
 
 
 if __name__ == "__main__":
