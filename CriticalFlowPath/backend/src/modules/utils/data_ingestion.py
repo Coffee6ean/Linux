@@ -98,20 +98,22 @@ class DataIngestion:
                 module_data["content"] = project.create_wbs_table_to_fill(processed_json, excel_path, excel_basename)
             else:
                 print("Error. Unsuported file type")
-                module_data["logs"]["status"].append((
-                    DataIngestion.__name__, 
-                    dict(Error=f"Unsuported input file extension: {project.input_extension}")
+                module_data["logs"]["status"].append(dict(
+                    Error=f"{DataIngestion.__name__}| Unsuported input file extension: {project.input_extension}"
                 ))
         else:
-            module_data["logs"]["status"] = {
-                DataIngestion.__name__: "Error. Module's instance was not generated correctly"
-            }
+            module_data["logs"]["status"].append(dict(
+                Error= f"{DataIngestion.__name__}| Module's instance was not generated correctly"
+            ))
             
         module_data["logs"]["finish"] = DataIngestion.return_valid_date()
         module_data["logs"]["run-time"] = DataIngestion.calculate_time_duration(
             module_data["logs"].get("start"), 
             module_data["logs"].get("finish")
         )
+        module_data["logs"]["status"].append(dict(
+            Info=f"{DataIngestion.__name__}| Module ran successfully"
+        ))
 
         return module_data
 
@@ -453,7 +455,7 @@ class DataIngestion:
             print(f"Error parsing date: {e}")
             return None
 
-    def _fill_missing_dates(self, json_obj: dict) -> dict:
+    def _fill_missing_dates(self, json_obj:dict) -> dict:
         original_body = json_obj.get("body", [])
         cleaned_body = []
 
