@@ -56,6 +56,16 @@ class PostProcessingFramework():
         }
         self.calendar_weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
+        #Module Results
+        self.module_data = {
+            "logs": {
+                "start": PostProcessingFramework.return_valid_date(),
+                "finish": None,
+                "run-time": None,
+                "status": [],
+            }
+        }
+
     @staticmethod
     def main(auto=True, input_file_path=None, input_file_basename=None, input_file_extension=None, 
              input_file_workweek=None, project_worksheet_name=None, project_table=None, project_ordered_dict=None, project_phase_order=None, 
@@ -103,6 +113,25 @@ class PostProcessingFramework():
                     project.lead_struct, 
                     project.json_struct_categories
                 )
+            else:
+                project.module_data["logs"]["status"].append(dict(
+                    Error= f"{PostProcessingFramework.__name__}| Could not open Excel file as Workbook & Worksheet"
+                ))
+        else:
+            project.module_data["logs"]["status"].append(dict(
+                Error= f"{PostProcessingFramework.__name__}| Could not open Excel file as Workbook & Worksheet"
+            ))
+
+        project.module_data["logs"]["finish"] = PostProcessingFramework.return_valid_date()
+        project.module_data["logs"]["run-time"] = PostProcessingFramework.calculate_time_duration(
+            project.module_data["logs"].get("start"), 
+            project.module_data["logs"].get("finish")
+        )
+        project.module_data["logs"]["status"].append(dict(
+            Info=f"{PostProcessingFramework.__name__}| Module ran successfully"
+        ))
+
+        return project.module_data
 
     @staticmethod
     def generate_ins():
@@ -151,6 +180,27 @@ class PostProcessingFramework():
         )
 
         return ins
+
+    @staticmethod
+    def return_valid_date() -> str:
+        now = datetime.now()
+        date_str = now.strftime("%d-%b-%y %H:%M:%S")
+
+        return date_str
+
+    @staticmethod
+    def calculate_time_duration(start_date:str, finish_date:str, 
+                                date_format:str="%d-%b-%y %H:%M:%S") -> float|int:
+        try:
+            start_time = datetime.strptime(start_date, date_format)
+            finish_time = datetime.strptime(finish_date, date_format)
+
+            minutes_duration = (finish_time - start_time).total_seconds()
+
+            return minutes_duration
+        except (ValueError, TypeError) as e:
+            print(f"Error calculating runtime: {e}")
+            return -1
 
     @staticmethod
     def ynq_user_interaction(prompt_message:str) -> str:
@@ -274,9 +324,19 @@ class PostProcessingFramework():
             alloted_space
         )
 
-        active_workbook.save(filename=file)
-        print("Schedule Frame successfully updated")
-        active_workbook.close()
+        try:
+            active_workbook.save(filename=file)
+            print("CFA Schedule frame successfully updated.")
+            self.module_data["logs"]["status"].append({
+                "Info": f"{PostProcessingFramework.__name__}| CFA Schedule Frame successfully updated."
+            })
+        except Exception as e:
+            print(f"Failed to update WBS Table: {e}")
+            self.module_data["logs"]["status"].append({
+                "Error": f"{PostProcessingFramework.__name__}| Failed to update CFA Frame: {e}"
+            })
+        finally:
+            active_workbook.close()
 
     def _calculate_overlapping_dates(self, custom_ordered_dict:dict, time_scale:str='d') -> dict:
         lead_based_lists = []
@@ -562,22 +622,39 @@ class PostProcessingFramework():
                 rows_to_delete.extend(excess)
 
         # Sort in reverse to delete from bottom up
-        rows_to_delete.sort(reverse=True)
-        for row in sorted(set(rows_to_delete), reverse=True):
-            ws.delete_rows(row)
+        try:
+            rows_to_delete.sort(reverse=True)
+            for row in sorted(set(rows_to_delete), reverse=True):
+                ws.delete_rows(row)
 
-        print("Excess rows removed successfully.")
+            print("Excess rows removed successfully.")
+            self.module_data["logs"]["status"].append({
+                "Info": f"{PostProcessingFramework.__name__}| Excess rows removed successfully."
+            })
+        except Exception as e:
+            self.module_data["logs"]["status"].append({
+                "Error": f"{PostProcessingFramework.__name__}| Failed to delete excess rows: {e}"
+            })
 
     def _delete_columns(self, active_worksheet, start_column_idx:int, end_column_idx:int) -> None:
         ws = active_worksheet
 
         amount_to_delete = end_column_idx - start_column_idx
-        ws.delete_cols(start_column_idx, amount_to_delete)
 
-        start_col_letter = get_column_letter(start_column_idx)
-        end_col_letter = get_column_letter(end_column_idx)
+        try:
+            ws.delete_cols(start_column_idx, amount_to_delete)
 
-        print(f"Columns deleted successfully: [{start_col_letter}, {end_col_letter}]")
+            start_col_letter = get_column_letter(start_column_idx)
+            end_col_letter = get_column_letter(end_column_idx)
+
+            print(f"Columns deleted successfully: [{start_col_letter}, {end_col_letter}]")
+            self.module_data["logs"]["status"].append({
+                "Info": f"{PostProcessingFramework.__name__}| Columns deleted successfully: [{start_col_letter}, {end_col_letter}]"
+            })
+        except Exception as e:
+            self.module_data["logs"]["status"].append({
+                "Error": f"{PostProcessingFramework.__name__}| Failed to delete columns: {e}"
+            })
 
     def _insert_columns(self, active_worksheet, start_column_idx:int, num_cols:int) -> None:
         ws = active_worksheet
@@ -619,10 +696,20 @@ class PostProcessingFramework():
             )
 
         self._style_file(ws, lead_schedule_struct, start_col_idx)
-
-        wb.save(filename=file)
-        print("WBS Table successfully updated")
-        wb.close()
+        
+        try:
+            wb.save(filename=file)
+            print("WBS Table successfully updated.")
+            self.module_data["logs"]["status"].append({
+                "Info": f"{PostProcessingFramework.__name__}| WBS Table successfully updated."
+            })
+        except Exception as e:
+            print(f"Failed to update WBS Table: {e}")
+            self.module_data["logs"]["status"].append({
+                "Error": f"{PostProcessingFramework.__name__}| Failed to update WBS Table: {e}"
+            })
+        finally:
+            wb.close()
 
     def _merge_until_different_value(self, active_worksheet, starting_col_idx:int, 
                                      starting_row_idx:int) -> None:
@@ -828,6 +915,9 @@ class PostProcessingFramework():
         )
 
         print("Workbook styled and saved successfully.")
+        self.module_data["logs"]["status"].append({
+            "Info": f"{PostProcessingFramework.__name__}| Workbook styled and saved successfully."
+        })
 
     def _paint_schedule_row(self, active_worksheet, start_col:str, start_row:int, 
                             duration:int, border_color:str, fill_color:str) -> None:
@@ -918,8 +1008,11 @@ class PostProcessingFramework():
                     thin = Side(border_style="thin", color="000000")
                     cell.border = Border(bottom=thin)
 
-        print(f"Post-styling successfully completed")
-
+        print(f"Post-styling successfully completed.")
+        self.module_data["logs"]["status"].append({
+            "Info": f"{PostProcessingFramework.__name__}| Post-styling successfully completed."
+        })
+        
     def _apply_horizontal_sectioning(self, active_worksheet, section_header:str, 
                                border_style:str, start_col:int) -> None:
         ws = active_worksheet
@@ -942,6 +1035,9 @@ class PostProcessingFramework():
                     last_valid_section = current_section
 
         print("Post sectioning applied successfully.")
+        self.module_data["logs"]["status"].append({
+            "Info": f"{PostProcessingFramework.__name__}| Post sectioning applied successfully."
+        })
 
     def _list_cell_values(self, active_worksheet, col_idx:int) -> list:
         ws = active_worksheet
@@ -957,7 +1053,7 @@ class PostProcessingFramework():
         
         return col_list 
 
-    def _style_row_border(self, row, border_style:str) -> None:
+    def _style_row_border(self, row:list, border_style:str) -> None:
         if border_style == "no_border":
             for cell in row:
                 current_border = cell.border if cell.border else Border()
