@@ -57,15 +57,18 @@ class DataProcessing:
                 project.start_date, project.finish_date, workweek_days
             )
         else:
-            module_data["logs"]["status"] = {
-                DataProcessing.__name__: "Error. Module's instance was not generated correctly"
-            }
+            module_data["logs"]["status"].append(dict(
+                f"{DataProcessing.__name__}| Module's instance was not generated correctly"
+            ))            
 
         module_data["logs"]["finish"] = DataProcessing.return_valid_date()
         module_data["logs"]["run-time"] = DataProcessing.calculate_time_duration(
             module_data["logs"].get("start"), 
             module_data["logs"].get("finish")
         )
+        module_data["logs"]["status"].append(dict(
+            Info=f"{DataProcessing.__name__}| Module ran successfully"
+        ))
 
         return module_data
 
@@ -125,7 +128,7 @@ class DataProcessing:
             print(f"Error calculating runtime: {e}")
             return -1
 
-    def restructure_project_dates(self):
+    def restructure_project_dates(self) -> tuple:
         proc_dict = self.project_data
         workweek_days = self._extract_workweek()
 
@@ -134,7 +137,7 @@ class DataProcessing:
 
         return proc_dict, workweek_days
 
-    def _extract_workweek(self):
+    def _extract_workweek(self) -> list:
         workdays = self.input_workweek.split('-')
         if len(workdays) != 2:
             return [] 
