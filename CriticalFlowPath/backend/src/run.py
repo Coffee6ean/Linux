@@ -59,7 +59,7 @@ class App:
             #Document Project File
             App.document_project_package(project, project_folder, App.ticket)
 
-            return project.obj
+            return App.ticket
 
     @staticmethod
     def generate_ins(payload:dict) -> dict:
