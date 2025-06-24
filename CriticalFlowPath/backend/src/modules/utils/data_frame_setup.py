@@ -66,20 +66,22 @@ class DataFrameSetup:
                     module_data["content"] = content
                 else:
                     print("Error. Unsuported file type")
-                    module_data["logs"]["status"].append((
-                        DataFrameSetup.__name__, 
-                        dict(Error=f"Unsuported input file extension: {project.input_extension}")
+                    module_data["logs"]["status"].append(dict(
+                        Error=f"{DataFrameSetup.__name__}| Unsuported input file extension: {project.input_extension}"
                     ))
         else:
-            module_data["logs"]["status"] = {
-                DataFrameSetup.__name__: "Error. Module's instance was not generated correctly"
-            }
+            module_data["logs"]["status"].append(dict(
+                Error= f"{DataFrameSetup.__name__}| Module's instance was not generated correctly"
+            ))
 
         module_data["logs"]["finish"] = DataFrameSetup.return_valid_date()
         module_data["logs"]["run-time"] = DataFrameSetup.calculate_time_duration(
             module_data["logs"].get("start"), 
             module_data["logs"].get("finish")
         )
+        module_data["logs"]["status"].append(dict(
+            Info=f"{DataFrameSetup.__name__}| Module ran successfully"
+        ))
 
         return module_data
 
@@ -116,7 +118,7 @@ class DataFrameSetup:
         return ins
 
     @staticmethod
-    def clear_directory(directory_path) -> None:
+    def clear_directory(directory_path:str) -> None:
         if os.path.isdir(directory_path):
             file_list = os.listdir(directory_path)
             for file in file_list:
@@ -229,8 +231,8 @@ class DataFrameSetup:
             return -1
 
     @staticmethod
-    def write_df_to_excel(proc_table, file_name, 
-                          ws_name, wbs_start_row, wbs_start_col) -> None:
+    def write_df_to_excel(proc_table, file_name:str, 
+                          ws_name:str, wbs_start_row:int, wbs_start_col:str) -> None:
         if proc_table.empty:
             print("Error: DataFrame is empty. No data to write.\n")
             return
@@ -257,12 +259,12 @@ class DataFrameSetup:
 
     def setup_project(self, data:dict=None) -> dict:
         if not data:
-            flat_json_dict = self.read_json_dict()
+            flat_json_obj = self.read_json_obj()
         else:
             df = self._flatten_json(data)
-            flat_json_dict = list(df.values())
+            flat_json_obj = list(df.values())
 
-        table, custom_ordered_dict, custom_phase_order = self.design_json_table(flat_json_dict)
+        table, custom_ordered_dict, custom_phase_order = self.design_json_table(flat_json_obj)
         proc_table = self.generate_wbs_cfa_style(table, custom_phase_order, "phase")
         lead_schedule_struct = self.determine_schedule_structure(custom_ordered_dict)
 
@@ -275,7 +277,7 @@ class DataFrameSetup:
 
         return content
 
-    def read_json_dict(self) -> list:
+    def read_json_obj(self) -> list:
         j_file = os.path.join(self.input_path, self.input_basename)
 
         with open(j_file, 'r') as json_file:
@@ -286,32 +288,32 @@ class DataFrameSetup:
 
         return df_values
     
-    def _flatten_json(self, json_obj) -> dict:
+    def _flatten_json(self, json_obj:dict) -> dict:
         new_dic = {}
 
-        def flatten(elem, flattened_key=""):
-            if type(elem) is dict:
-                keys_in_dic = list(elem.keys())
+        def flatten(obj:dict, flattened_key:str=""):
+            if type(obj) is dict:
+                keys_in_dic = list(obj.keys())
 
                 if "entry" in keys_in_dic:
-                    new_dic[flattened_key[:-1]] = elem
+                    new_dic[flattened_key[:-1]] = obj
                 else:
-                    for current_key in elem:
-                        flatten(elem[current_key], flattened_key + current_key + '|')
-            elif type(elem) is list:
+                    for current_key in obj:
+                        flatten(obj[current_key], flattened_key + current_key + '|')
+            elif type(obj) is list:
                 i = 0
-                for item in elem:
+                for item in obj:
                     flatten(item, flattened_key + str(i) + '|')
                     i += 1
             else:
-                new_dic[flattened_key[:-1]] = elem
+                new_dic[flattened_key[:-1]] = obj
 
         flatten(json_obj)
 
         return new_dic
 
-    def design_json_table(self, flat_json_dict:dict):
-        custom_ordered_dict = self._bring_to_top(flat_json_dict, "phase", self.custom_phase_order)
+    def design_json_table(self, flat_json_obj:dict):
+        custom_ordered_dict = self._bring_to_top(flat_json_obj, "phase", self.custom_phase_order)
         custom_date_ordered_dict_list = self._sort_inner_activities(custom_ordered_dict)
         custom_ordered_phase_dict = self._group_by_sorted_phases(custom_date_ordered_dict_list)
 
@@ -357,12 +359,12 @@ class DataFrameSetup:
         custom_ordered_dict = {item["entry"]:item for item in custom_ordered_dict}
         return custom_ordered_dict
 
-    def _sort_inner_activities(self, json_dict:dict) -> list:
-        ref_location = list(json_dict.values())[0]["area"]
+    def _sort_inner_activities(self, json_obj:dict) -> list:
+        ref_location = list(json_obj.values())[0]["area"]
         nested_loc_list = []
         same_loc_list = []
 
-        for _, value in json_dict.items():
+        for _, value in json_obj.items():
             if value["area"] != ref_location:
                 nested_loc_list.append(same_loc_list)
                 ref_location = value["area"]
@@ -399,12 +401,12 @@ class DataFrameSetup:
         sorted_list = unsorted_list
         return sorted_list
     
-    def _group_by_sorted_phases(self, json_dict:dict) -> dict:
-        ref_phase = json_dict[0]["phase"]
+    def _group_by_sorted_phases(self, json_obj:dict) -> dict:
+        ref_phase = json_obj[0]["phase"]
         nested_phase_list = []
         same_phase_list = []
 
-        for item in json_dict:
+        for item in json_obj:
             if item["phase"] != ref_phase:
                 nested_phase_list.append(same_phase_list)
                 ref_phase = item["phase"]
@@ -597,7 +599,7 @@ class DataFrameSetup:
         
         return column_list
     
-    def determine_schedule_structure(self, custom_ordered_dict: list) -> str:
+    def determine_schedule_structure(self, custom_ordered_dict:list) -> str:
         for category in reversed(self.wbs_final_categories):
             has_valid_entry = any(item.get(category) for item in custom_ordered_dict)
             
