@@ -61,6 +61,16 @@ class AnalyticsFramework:
             "light": self.color_light_mode,
             "dark": self.color_dark_mode,
         }
+
+        #Module Results
+        self.module_data = {
+            "logs": {
+                "start": AnalyticsFramework.return_valid_date(),
+                "finish": None,
+                "run-time": None,
+                "status": [],
+            }
+        }
     
     @staticmethod
     def main(auto=True, input_file_path=None, input_file_basename=None, input_file_extension=None, 
@@ -79,6 +89,21 @@ class AnalyticsFramework:
 
         if project:
             project.generate_lagging_indicators(project.table, project.lead_struct)
+        else:
+            project.module_data["logs"]["status"].append(dict(
+                Error= f"{AnalyticsFramework.__name__}| Module's instance was not generated correctly"
+            ))
+
+        project.module_data["logs"]["finish"] = AnalyticsFramework.return_valid_date()
+        project.module_data["logs"]["run-time"] = AnalyticsFramework.calculate_time_duration(
+            project.module_data["logs"].get("start"), 
+            project.module_data["logs"].get("finish")
+        )
+        project.module_data["logs"]["status"].append(dict(
+            Info=f"{AnalyticsFramework.__name__}| Module ran successfully"
+        ))
+
+        return project.module_data
     
     @staticmethod
     def generate_ins():
@@ -114,6 +139,27 @@ class AnalyticsFramework:
         return ins
     
     @staticmethod
+    def return_valid_date() -> str:
+        now = datetime.now()
+        date_str = now.strftime("%d-%b-%y %H:%M:%S")
+
+        return date_str
+
+    @staticmethod
+    def calculate_time_duration(start_date:str, finish_date:str, 
+                                date_format:str="%d-%b-%y %H:%M:%S") -> float|int:
+        try:
+            start_time = datetime.strptime(start_date, date_format)
+            finish_time = datetime.strptime(finish_date, date_format)
+
+            minutes_duration = (finish_time - start_time).total_seconds()
+
+            return minutes_duration
+        except (ValueError, TypeError) as e:
+            print(f"Error calculating runtime: {e}")
+            return -1
+
+    @staticmethod
     def ynq_user_interaction(prompt_message:str):
         valid_responses = {'y', 'n', 'q'}  
         
@@ -125,18 +171,26 @@ class AnalyticsFramework:
             else:
                 print("Error. Invalid input, please try again. ['Y/y' for Yes, 'N/n' for No, 'Q/q' for Quit]\n")
     
-    def generate_lagging_indicators(self, df_table, lead_schedule_struct:str):
+    def generate_lagging_indicators(self, df_table, lead_schedule_struct:str) -> None:
         df_table_reset = df_table.reset_index()
         filtered_df = df_table_reset[~df_table_reset["phase"].isin(self.categories_not_needed)]
 
-        self.hardest_zones_heatmap(filtered_df, lead_schedule_struct, "phase", "dark")
-        self.hardest_zones_horizontal_bar(filtered_df, "phase", lead_schedule_struct, "dark")
-        self.slowest_trade_column_chart(filtered_df, "phase", "trade", "dark")
-        self.busiest_phases_donut(filtered_df, "phase", 0.05, "dark")
-        self.contribution_column_chart(filtered_df, "phase", "trade", 0.075, "dark")
-        self.contribution_column_chart(filtered_df, lead_schedule_struct, "trade", 0.075, "dark")
-        self.lifeline_line_chart(filtered_df, "phase", "month", "dark")
-        self.activity_status_donut(filtered_df, "dark")
+        try:
+            self.hardest_zones_heatmap(filtered_df, lead_schedule_struct, "phase", "dark")
+            self.hardest_zones_horizontal_bar(filtered_df, "phase", lead_schedule_struct, "dark")
+            self.slowest_trade_column_chart(filtered_df, "phase", "trade", "dark")
+            self.busiest_phases_donut(filtered_df, "phase", 0.05, "dark")
+            self.contribution_column_chart(filtered_df, "phase", "trade", 0.075, "dark")
+            self.contribution_column_chart(filtered_df, lead_schedule_struct, "trade", 0.075, "dark")
+            self.lifeline_line_chart(filtered_df, "phase", "month", "dark")
+            self.activity_status_donut(filtered_df, "dark")
+            self.module_data["logs"]["status"].append(dict(
+                Info= f"{AnalyticsFramework.__name__}| Analytics generated successfully."
+            ))
+        except Exception as e:
+            self.module_data["logs"]["status"].append(dict(
+                Warning= f"{AnalyticsFramework.__name__}| Failed to generate Analytics."
+            ))
 
     def hardest_zones_heatmap(self, df_table, category_x:str, category_y:str, 
                               color_mode:str="light") -> None:
@@ -190,6 +244,9 @@ class AnalyticsFramework:
 
         except Exception as e:
             print(f"An error occurred while creating the chart: {e}")
+            self.module_data["logs"]["status"].append(dict(
+                Error= f"{AnalyticsFramework.__name__}| Failed to generate the 'Hardest Zones Heatmap' graph: {e}"
+            ))
 
     def _restructure_table_heatmap(self, df_table, category_x:str, category_y:str):
         # Group by category_y and category_x, and calculate activity count
@@ -266,6 +323,9 @@ class AnalyticsFramework:
 
         except Exception as e:
             print(f"An error occurred while creating the chart: {e}")
+            self.module_data["logs"]["status"].append(dict(
+                Error= f"{AnalyticsFramework.__name__}| Failed to generate the 'Hardest Zones Horizontal Bar Chart' graph: {e}"
+            ))
 
     def _restructure_table_horizontal_bar(self, df_table, category_x:str, category_y:str):
         # Convert categorical columns to strings (if necessary)
@@ -340,6 +400,9 @@ class AnalyticsFramework:
 
         except Exception as e:
             print(f"An error occurred while creating the chart: {e}")
+            self.module_data["logs"]["status"].append(dict(
+                Error= f"{AnalyticsFramework.__name__}| Failed to generate the 'Slowest Trade by Phase' graph: {e}"
+            ))
 
     def _restructure_slowest_column_chart(self, df_table, category_x:str, category_y:str):
         df_table["start"] = pd.to_datetime(df_table["start"], format='mixed')
@@ -406,6 +469,9 @@ class AnalyticsFramework:
 
         except Exception as e:
             print(f"An error occurred while creating the chart: {e}")
+            self.module_data["logs"]["status"].append(dict(
+                Error= f"{AnalyticsFramework.__name__}| Failed to generate the 'Busiest: {category.capitalize()}' graph: {e}"
+            ))
 
     def _restructure_table_donut(self, df_table, category:str, threshold:float):
         # Group and prepare data
@@ -495,6 +561,9 @@ class AnalyticsFramework:
 
         except Exception as e:
             print(f"An error occurred while creating the chart: {e}")
+            self.module_data["logs"]["status"].append(dict(
+                Error= f"{AnalyticsFramework.__name__}| Failed to generate the '{category_y.capitalize()} Contributions to {category_x.capitalize()} (Top 10 Trades)' graph: {e}"
+            ))
 
     def _restructure_table_contribution_column_chart(self, df_table, category_x:str, 
                                                 category_y:str, threshold:float=0.05):
@@ -610,6 +679,9 @@ class AnalyticsFramework:
 
         except Exception as e:
             print(f"An error occurred while creating the chart: {e}")
+            self.module_data["logs"]["status"].append(dict(
+                Error= f"{AnalyticsFramework.__name__}| Failed to generate the 'Busiest Time for {category.capitalize()}' graph: {e}"
+            ))
     
     def _restructure_table_line_chart(self, df_table, category:str, time_unit:str="month"):
         # Ensure the start and finish columns are datetime
@@ -734,6 +806,9 @@ class AnalyticsFramework:
 
         except Exception as e:
             print(f"Error generating activity status donut chart: {e}")
+            self.module_data["logs"]["status"].append(dict(
+                Error= f"{AnalyticsFramework.__name__}| Failed to generate the 'Project Activity Status' graph: {e}"
+            ))
 
 
 if __name__ == "__main__":
