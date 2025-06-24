@@ -1,6 +1,7 @@
 import os
 import json
 import pandas as pd
+from datetime import datetime
 from openpyxl import load_workbook
 from openpyxl.utils import column_index_from_string, get_column_letter
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
@@ -28,6 +29,16 @@ class LegendsFramework():
         self.dark_default_hex_font = "00000000"
         self.light_default_hex_font = "00FFFFFF"
 
+        #Module Results
+        self.module_data = {
+            "logs": {
+                "start": LegendsFramework.return_valid_date(),
+                "finish": None,
+                "run-time": None,
+                "status": [],
+            }
+        }
+
     @staticmethod
     def main(auto=True, input_file_path=None, input_file_basename=None, 
              input_file_extension=None, input_worksheet_name=None, project_table=None):
@@ -42,14 +53,34 @@ class LegendsFramework():
         else:
             project = LegendsFramework.generate_ins()
         
-        active_workbook, active_worksheet = project.return_excel_workspace(auto, project.worksheet_name)
+        if project:
+            active_workbook, active_worksheet = project.return_excel_workspace(auto, project.worksheet_name)
 
-        if active_workbook and active_worksheet:
-            project.generate_legends_table(
-                active_workbook, 
-                active_worksheet, 
-                project.table.reset_index()
-            )
+            if active_workbook and active_worksheet:
+                project.generate_legends_table(
+                    active_workbook, 
+                    active_worksheet, 
+                    project.table.reset_index()
+                )
+            else:
+                project.module_data["logs"]["status"].append(dict(
+                    Error= f"{LegendsFramework.__name__}| Could not open Excel file as Workbook & Worksheet"
+                ))
+        else:
+            project.module_data["logs"]["status"].append(dict(
+                Error= f"{LegendsFramework.__name__}| Module's instance was not generated correctly"
+            ))
+
+        project.module_data["logs"]["finish"] = LegendsFramework.return_valid_date()
+        project.module_data["logs"]["run-time"] = LegendsFramework.calculate_time_duration(
+            project.module_data["logs"].get("start"), 
+            project.module_data["logs"].get("finish")
+        )
+        project.module_data["logs"]["status"].append(dict(
+            Info=f"{LegendsFramework.__name__}| Module ran successfully"
+        ))
+
+        return project.module_data
 
     @staticmethod
     def generate_ins():
@@ -81,6 +112,27 @@ class LegendsFramework():
         )
         
         return ins
+
+    @staticmethod
+    def return_valid_date() -> str:
+        now = datetime.now()
+        date_str = now.strftime("%d-%b-%y %H:%M:%S")
+
+        return date_str
+
+    @staticmethod
+    def calculate_time_duration(start_date:str, finish_date:str, 
+                                date_format:str="%d-%b-%y %H:%M:%S") -> float|int:
+        try:
+            start_time = datetime.strptime(start_date, date_format)
+            finish_time = datetime.strptime(finish_date, date_format)
+
+            minutes_duration = (finish_time - start_time).total_seconds()
+
+            return minutes_duration
+        except (ValueError, TypeError) as e:
+            print(f"Error calculating runtime: {e}")
+            return -1
 
     @staticmethod
     def ynq_user_interaction(prompt_message:str) -> str:
@@ -201,10 +253,20 @@ class LegendsFramework():
         column_width_dict = self._define_column_width(proc_table)
 
         phases_df = dict(tuple(proc_table.groupby("phase", observed=True)))
-        self._print_phase_structure(ws, phases_df, column_width_dict)
 
-        wb.save(filename=file)
-        print("Legends table generated successfully.")
+        try:
+            self._print_phase_structure(ws, phases_df, column_width_dict)
+            print("Legends tables generated successfully.")
+            self.module_data["logs"]["status"].append(dict(
+                Info= f"{LegendsFramework.__name__}| Legends tables generated successfully."
+            ))
+        except Exception as e:
+            print("Failed to generate legends tables.")
+            self.module_data["logs"]["status"].append(dict(
+                Error= f"{LegendsFramework.__name__}| Failed to generate legends tables."
+            ))
+        finally:
+            wb.save(filename=file)
 
     def _define_column_width(self, proc_table) -> dict:
         phase_widths = {}
@@ -354,15 +416,21 @@ class LegendsFramework():
                 cell.font = Font(name="Calibri", size="12", bold=True, color=self.light_default_hex_font)
 
             ws.column_dimensions[get_column_letter(cell.column)].width = cell_width
-        except KeyError as e:
+        except Exception as e:
             print(f"Error styling cell at row {current_row}, column {current_col}: {e}")
+            self.module_data["logs"]["status"].append(dict(
+                Error= f"{LegendsFramework.__name__}| Error styling cell at row {current_row}, column {current_col}: {e}"
+            ))
 
-    def _process_hex_val(self, hex_val:str):
+    def _process_hex_val(self, hex_val:str) -> str:
         if '#' in hex_val:
             hex_val = hex_val.replace('#', "00")
 
         if len(hex_val) != 8:
             print(f"Error: Invalid hex value '{hex_val}'. Hex values must be 6 characters long.\n")
+            self.module_data["logs"]["status"].append(dict(
+                Warning= f"{LegendsFramework.__name__}| Invalid '{hex_val}' value."
+            ))
             return self.default_hex_fill_color
 
         return hex_val
