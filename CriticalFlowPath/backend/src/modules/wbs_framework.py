@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+from datetime import datetime
 from openpyxl import load_workbook
 from openpyxl.utils import column_index_from_string, get_column_letter
 from openpyxl.styles import PatternFill
@@ -36,6 +37,16 @@ class WbsFramework:
             "wbs_code": ["wbs_code", "wbscode"],
             "activity_name": ["activity_name", "activityname", "act_name"], 
         }
+
+        #Module Results
+        self.module_data = {
+            "logs": {
+                "start": WbsFramework.return_valid_date(),
+                "finish": None,
+                "run-time": None,
+                "status": [],
+            }
+        }
     
     @staticmethod
     def main(auto=True, is_framed=False, input_file_path=None, input_file_basename=None, input_file_extension=None, 
@@ -66,6 +77,21 @@ class WbsFramework:
                     continue
 
             project.process_wbs_column('color', color_list)
+        else:
+            project.module_data["logs"]["status"].append(dict(
+                Error= f"{WbsFramework.__name__}| Module's instance was not generated correctly"
+            ))
+
+        project.module_data["logs"]["finish"] = WbsFramework.return_valid_date()
+        project.module_data["logs"]["run-time"] = WbsFramework.calculate_time_duration(
+            project.module_data["logs"].get("start"), 
+            project.module_data["logs"].get("finish")
+        )
+        project.module_data["logs"]["status"].append(dict(
+            Info=f"{WbsFramework.__name__}| Module ran successfully"
+        ))
+
+        return project.module_data
 
     @staticmethod
     def generate_ins():
@@ -104,6 +130,27 @@ class WbsFramework:
         )
         
         return ins
+
+    @staticmethod
+    def return_valid_date() -> str:
+        now = datetime.now()
+        date_str = now.strftime("%d-%b-%y %H:%M:%S")
+
+        return date_str
+
+    @staticmethod
+    def calculate_time_duration(start_date:str, finish_date:str, 
+                                date_format:str="%d-%b-%y %H:%M:%S") -> float|int:
+        try:
+            start_time = datetime.strptime(start_date, date_format)
+            finish_time = datetime.strptime(finish_date, date_format)
+
+            minutes_duration = (finish_time - start_time).total_seconds()
+
+            return minutes_duration
+        except (ValueError, TypeError) as e:
+            print(f"Error calculating runtime: {e}")
+            return -1
 
     @staticmethod
     def ynq_user_interaction(prompt_message:str) -> str:
@@ -240,8 +287,14 @@ class WbsFramework:
                 
                 print(f"Successfully converted JSON to Excel and saved to: {file}")
                 print(f"Saved to sheet: {self.worksheet_name}\n")
+                self.module_data["logs"]["status"].append(dict(
+                    Info=f"{WbsFramework.__name__}| Successfully converted JSON to Excel and saved to: {file}"
+                ))
             except Exception as e:
-                print(f"An unexpected error occurred: {e}\n")
+                print(f"Failed to convert JSON to Excel file: {e}\n")
+                self.module_data["logs"]["status"].append(dict(
+                    Error= f"{WbsFramework.__name__}| Failed to convert JSON to Excel file: {e}"
+                ))
 
     def _remove_index_column(self) -> None:
         basename = self.input_basename + '.' + self.input_extension
@@ -253,10 +306,17 @@ class WbsFramework:
 
             ws.delete_cols(self.wbs_index_col)
             
-            print("Successfully removed first column")
-            wb.save(file)
-        except:
+            print("Successfully removed first column.")
+            self.module_data["logs"]["status"].append(dict(
+                Info=f"{WbsFramework.__name__}| Successfully removed first column."
+            ))
+        except Exception as e:
             pass
+            self.module_data["logs"]["status"].append(dict(
+                Error= f"{WbsFramework.__name__}| Failed to remove first column: {e}"
+            ))
+        finally:
+            wb.save(file)
 
     def process_wbs_column(self, col_header:str, color_list:list) -> None:
         basename = self.input_basename + '.' + self.input_extension
@@ -290,6 +350,9 @@ class WbsFramework:
 
         if not col_list:
             print("Error: Color list is empty.")
+            self.module_data["logs"]["status"].append(dict(
+                Error= f"{WbsFramework.__name__}| Color list is empty."
+            ))
             return
 
         for idx, row in enumerate(ws.iter_rows(min_row=self.wbs_start_row + 1, 
@@ -303,13 +366,19 @@ class WbsFramework:
                                             end_color=color, 
                                             fill_type="solid")
                 except Exception as e:
-                    print(f"Color hex not found: {color}. Error: {e}")
+                    print(f"'{color}' hex not found for {cell.coordinate}.")
+                    self.module_data["logs"]["status"].append(dict(
+                        Warning= f"{WbsFramework.__name__}| '{color}' hex not found for {cell.coordinate}."
+                    ))
                     cell.fill = PatternFill(start_color=self.default_hex_fill_color, 
                                             end_color=self.default_hex_fill_color, 
                                             fill_type="solid")
 
         column_letter = get_column_letter(col_idx)
-        print(f"Column ({column_letter}) styled successfully")
+        print(f"Column ({column_letter}) styled successfully.")
+        self.module_data["logs"]["status"].append(dict(
+            Info=f"{WbsFramework.__name__}| Column ({column_letter}) styled successfully"
+        ))
 
 
 if __name__ == "__main__":
