@@ -46,7 +46,7 @@ class Setup:
             ins.obj["input_file"]["roi"],
             RSLTS_DIR
         )
-        ins._update_project_modules(data)
+        Setup._update_project_modules(ins, data)
 
         ins._print_result("DataFrameSetup processing...")
         frame = ins._frame_data_from_file(
@@ -57,7 +57,7 @@ class Setup:
             RSLTS_DIR,
             data["content"]
         )
-        ins._update_project_modules(frame)
+        Setup._update_project_modules(ins, frame)
 
         """ ins._print_result("DataRelationship processing...")
         link = ins._link_data_from_file(
@@ -82,7 +82,7 @@ class Setup:
             RSLTS_DIR,
             frame["content"]["custom_ordered_dict"],
         )
-        ins._update_project_modules(proc)
+        Setup._update_project_modules(ins, proc)
         ins.obj["status"] = "success"
         
         return ins
@@ -243,18 +243,19 @@ class Setup:
         return f"MODULE_{count}"
 
     @staticmethod
-    def write_data_to_json(file_title:str, json_dict:dict):
+    def _update_project_modules(project_ins, data:dict) -> None:
+        module_key = project_ins.return_valid_module_key()
+        if module_key:
+            project_ins.obj["project"]["modules"][module_key] = data
+        else:
+            raise ValueError("Invalid module key")
+
+    @staticmethod
+    def write_data_to_json(file_title:str, json_obj:dict):
         file = os.path.join(RSLTS_DIR, file_title)
         
         with open(file, 'w') as writer:
-            json.dump(json_dict, writer)
-
-    def _update_project_modules(self, data:dict) -> None:
-        module_key = self.return_valid_module_key()
-        if module_key:
-            self.obj["project"]["modules"][module_key] = data
-        else:
-            raise ValueError("Invalid module key")
+            json.dump(json_obj, writer)
 
     def _extract_data_from_file(self, auto:str, input_file_path=None, input_file_basename=None, 
                                 input_file_extension=None, input_file_roi=None, output_file_dir=None) -> dict:
