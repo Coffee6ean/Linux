@@ -15,6 +15,8 @@ sys.path.append("../")
 from backend.config.paths import RSLTS_DIR
 
 class ScheduleFramework():
+    documentation_labels = ["ERROR", "INFO", "WARNING"]
+
     def __init__(self, input_file_path, input_file_basename, input_file_extension, input_file_workweek,
                  project_worksheet_name, project_table, project_ordered_dict, project_phase_order, project_lead_struct, 
                  project_start_date, project_finish_date, time_scale, input_start_row=1, input_start_col=""):
@@ -69,6 +71,16 @@ class ScheduleFramework():
             12:"Dec",
         }
 
+        #Module Results
+        self.module_data = {
+            "logs": {
+                "start": ScheduleFramework.return_valid_date(),
+                "finish": None,
+                "run-time": None,
+                "status": [],
+            }
+        }
+
     @staticmethod
     def main(auto=True, input_file_path=None, input_file_basename=None, input_file_extension=None, input_file_workweek=None, 
              project_worksheet_name=None, project_table=None, project_ordered_dict=None, project_phase_order=None, 
@@ -110,9 +122,24 @@ class ScheduleFramework():
                     project.ordered_dict
                 )
             else:
-                print("Error. Could not open Excel file as Workbook & Worksheet")
+                project.module_data["logs"]["status"].append(dict(
+                    Error= f"{ScheduleFramework.__name__}| Could not open Excel file as Workbook & Worksheet"
+                ))
+        else:
+            project.module_data["logs"]["status"].append(dict(
+                Error= f"{ScheduleFramework.__name__}| Module's instance was not generated correctly"
+            ))
 
-        return project
+        project.module_data["logs"]["finish"] = ScheduleFramework.return_valid_date()
+        project.module_data["logs"]["run-time"] = ScheduleFramework.calculate_time_duration(
+            project.module_data["logs"].get("start"), 
+            project.module_data["logs"].get("finish")
+        )
+        project.module_data["logs"]["status"].append(dict(
+            Info=f"{ScheduleFramework.__name__}| Module ran successfully"
+        ))
+
+        return project.module_data
 
     @staticmethod
     def generate_ins():
@@ -159,6 +186,27 @@ class ScheduleFramework():
         )
 
         return ins
+
+    @staticmethod
+    def return_valid_date() -> str:
+        now = datetime.now()
+        date_str = now.strftime("%d-%b-%y %H:%M:%S")
+
+        return date_str
+
+    @staticmethod
+    def calculate_time_duration(start_date:str, finish_date:str, 
+                                date_format:str="%d-%b-%y %H:%M:%S") -> float|int:
+        try:
+            start_time = datetime.strptime(start_date, date_format)
+            finish_time = datetime.strptime(finish_date, date_format)
+
+            minutes_duration = (finish_time - start_time).total_seconds()
+
+            return minutes_duration
+        except (ValueError, TypeError) as e:
+            print(f"Error calculating runtime: {e}")
+            return -1
 
     @staticmethod
     def ynq_user_interaction(prompt_message:str) -> str:
@@ -285,8 +333,8 @@ class ScheduleFramework():
         
         return workbook, worksheet
 
-    def create_schedule(self, active_workbook, active_worksheet, proc_table, 
-                        json_dict:list) -> dict:
+    def create_schedule(self, active_workbook, active_worksheet, 
+                        proc_table, json_dict:list) -> dict:
         basename = self.input_basename + '.' + self.input_extension
         file = os.path.join(self.input_path, basename)
 
@@ -304,6 +352,9 @@ class ScheduleFramework():
         
         active_workbook.save(filename=file)
         print("CFA Schedule successfully created")
+        self.module_data["logs"]["status"].append(dict(
+            Info= f"{ScheduleFramework.__name__}| CFA Schedule successfully created."
+        ))
         active_workbook.close()
 
         return reworked_custom_ordered_dict
@@ -350,6 +401,9 @@ class ScheduleFramework():
             ws, start_date, duration, self.start_row+3, self.start_col, "", True
         )
 
+        self.module_data["logs"]["status"].append(dict(
+            Info = f"{ScheduleFramework.__name__}| Schedule frame generated successfully."
+        ))
         print("Schedule frame generated successfully.")
 
     def _fill_schedule_row(self, active_worksheet, start_date:str, duration:int, 
@@ -392,6 +446,9 @@ class ScheduleFramework():
             
     def _scale_schedule_frame(self, project_dates:list, time_scale:str) -> list:
         if time_scale not in self.time_scale_options:
+            self.module_data["logs"]["status"].append(dict(
+                Error= f"{ScheduleFramework.__name__}| Invalid time scale: {time_scale}"
+            ))
             raise ValueError(f"Invalid time scale: {time_scale}. Use 'd', 'w', 'm', or 'y'")
         
         dates = []
@@ -484,9 +541,9 @@ class ScheduleFramework():
         completed_tasks = schedule_setup.get("completed_tasks", set())
 
         for idx, entry in enumerate(proc_table.index.get_level_values("entry")):
-            item = custom_ordered_dict[entry]
-            current_lead = self._generate_compound_category_name(item)
-            dates = item["dates"].get("processed", [])
+            obj = custom_ordered_dict[entry]
+            current_lead = self._generate_compound_category_name(obj)
+            dates = obj["dates"].get("processed", [])
 
             if not dates:
                 continue
@@ -509,17 +566,17 @@ class ScheduleFramework():
             for i in task_range:
                 cell = ws.cell(row=target_row, column=i)
 
-                if item.get("predecessor"):
-                    self._style_cell(cell, item, True)
+                if obj.get("predecessor"):
+                    self._style_cell(cell, obj, True)
                 else:
-                    self._style_cell(cell, item)
+                    self._style_cell(cell, obj)
 
                 if not original_sequence:
-                    self._add_comment(cell, item)
+                    self._add_comment(cell, obj)
 
                 original_sequence.append(cell.coordinate)
 
-            item["cell_sequence"] = {
+            obj["cell_sequence"] = {
                 "original": original_sequence,
                 "reworked": None
             }
@@ -527,7 +584,10 @@ class ScheduleFramework():
 
         missing_tasks = set(proc_table.index.get_level_values("entry")) - completed_tasks
         if missing_tasks:
-            print(f"Warning: The following tasks were not painted: {missing_tasks}")
+            self.module_data["logs"]["status"].append(dict(
+                Warning= f"{ScheduleFramework.__name__}| The following tasks were not painted: {missing_tasks}."
+            ))
+            print(f"Warning: The following tasks were not painted: {missing_tasks}.")
 
     def _week_based_schedule(self, active_worksheet, custom_ordered_dict:dict, proc_table, 
                                  schedule_setup:dict) -> None:
@@ -583,13 +643,16 @@ class ScheduleFramework():
 
         missing_tasks = set(proc_table.index.get_level_values("entry")) - completed_tasks
         if missing_tasks:
-            print(f"Warning: The following tasks were not painted: {missing_tasks}")
+            self.module_data["logs"]["status"].append(dict(
+                Warning= f"{ScheduleFramework.__name__}| The following tasks were not painted: {missing_tasks}."
+            ))
+            print(f"Warning: The following tasks were not painted: {missing_tasks}.")
     
-    def _generate_compound_category_name(self, item:dict) -> str:
+    def _generate_compound_category_name(self, json_obj:dict) -> str:
         category_names = []
 
         for category in self.wbs_final_categories.keys():
-            cat_name = item.get(category)
+            cat_name = json_obj.get(category)
             if cat_name:
                 category_names.append(cat_name)
 
@@ -599,6 +662,9 @@ class ScheduleFramework():
         date_range = []
 
         if task_start < project_start:
+            self.module_data["logs"]["status"].append(dict(
+                Warning= f"{ScheduleFramework.__name__}| Task start date is before project start date. Returning an empty range"
+            ))
             print("Warning: Task start date is before project start date. Returning an empty range.")
             return date_range
 
@@ -613,14 +679,20 @@ class ScheduleFramework():
 
     def _determine_date_coverage(self, task_start:datetime, task_finish:datetime) -> tuple[int, int]:
         if task_start > task_finish:
-            raise ValueError(f"Task start ({task_start}) cannot be after finish ({task_finish})")
+            self.module_data["logs"]["status"].append(dict(
+                Error= f"{ScheduleFramework.__name__}| Task start ({task_start}) cannot be after finish ({task_finish})."
+            ))
+            raise ValueError(f"Task start ({task_start}) cannot be after finish ({task_finish}).")
         
         if not self.schedule_scale_based:
             return (0, 0)
         
         for i in range(len(self.schedule_scale_based) - 1):
             if self.schedule_scale_based[i][0] > self.schedule_scale_based[i+1][0]:
-                raise ValueError("Schedule periods must be in chronological order")
+                self.module_data["logs"]["status"].append(dict(
+                    Error= f"{ScheduleFramework.__name__}| Schedule periods must be in chronological order."
+                ))
+                raise ValueError("Schedule periods must be in chronological order.")
         
         offset = 0
         for period_start, period_end in self.schedule_scale_based:
@@ -659,7 +731,10 @@ class ScheduleFramework():
                                     end_color=re.sub('#', "00", current_item.get("color")), 
                                     fill_type='solid')
             else:
-                print(f"Color hex not found for: {current_item['entry']}")
+                print(f"Color hex not found for: {current_item['entry']}.")
+                self.module_data["logs"]["status"].append(dict(
+                    Warning= f"{ScheduleFramework.__name__}| Color hex not found for: {current_item['entry']}."
+                ))
                 cell.fill = PatternFill(start_color=self.default_hex_fill_color, 
                                     end_color=self.default_hex_fill_color, 
                                     fill_type='solid')
@@ -674,7 +749,10 @@ class ScheduleFramework():
             cell.value = current_item.get("activity_code") if current_item.get("activity_code") else "NaN"
             
         except Exception as e:
-            print(f"Error. While painting cell: {e}")
+            self.module_data["logs"]["status"].append(dict(
+                Error= f"{ScheduleFramework.__name__}| While painting cell: {e}."
+            ))
+            print(f"Error. While painting cell: {e}.")
 
     def _add_comment(self, cell, current_item:dict) -> None:
         msg = f"""
