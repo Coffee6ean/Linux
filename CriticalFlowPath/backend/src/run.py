@@ -8,7 +8,7 @@ from datetime import datetime
 import sys
 sys.path.append("../")
 from backend.src import modules as mdls
-from backend.config.paths import RSLTS_DIR
+from backend.config.paths import RSLTS_DIR, TST_DIR
 
 class App:
     #Structures
