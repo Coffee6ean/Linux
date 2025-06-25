@@ -410,21 +410,23 @@ class PostProcessingFramework():
                         unsorted_list[j], unsorted_list[j + 1] = unsorted_list[j + 1], unsorted_list[j]
 
         return unsorted_list
-
-    def _get_overlap(self, location_based_lists:list, time_scale:str) -> dict:
-        overlap = {}
-
+    
+    def _get_overlap(self, location_based_lists: list, time_scale: str) -> dict:
         try:
             if time_scale == 'd':
-                overlap = self._day_based_overlap(location_based_lists)
+                return self._day_based_overlap(location_based_lists)
             elif time_scale == 'w':
-                overlap = self._week_based_overlap(location_based_lists)
+                return self._week_based_overlap(location_based_lists)
             else:
-                print(f"Warning: Invalid time scale '{time_scale}'. Expected 'd' or 'w'.")
+                raise ValueError(f"Invalid time scale: '{time_scale}'. Expected 'd' (day) or 'w' (week).")
         except Exception as e:
-            print(f"Error in _get_overlap: {e}")
+            err_msg = f"{self.__class__.__name__}| {str(e)}"
+            print(f"[ERROR] {err_msg}")
+            self.module_data["logs"]["status"].append(dict(
+                Error=f"{PostProcessingFramework.__name__}| {err_msg}"
+            ))
 
-        return overlap
+            return {}
 
     def _day_based_overlap(self, location_based_lists:list) -> dict:
         category_results = {}
@@ -436,7 +438,7 @@ class PostProcessingFramework():
             try:
                 ref_category = self._generate_compound_category_name(lead_list[0])
             except Exception as e:
-                print(f"Failed to generate category name for lead_list[0]: {lead_list[0]}, error: {e}")
+                print(f"Failed to generate category name for {lead_list[0]}, error: {e}")
                 continue
 
             active_overlaps = []
@@ -525,10 +527,13 @@ class PostProcessingFramework():
             return week_start, week_finish
 
         except Exception as e:
-            print(f"Error in _calculate_week with start_date={start_date} finish_date={finish_date}: {e}")
+            print(f"[ERROR] Failed to calculate week with start_date={start_date} and finish_date={finish_date}: {e}.")
+            self.module_data["logs"]["status"].append(dict(
+                Error= f"{PostProcessingFramework.__name__}| Failed to calculate week with start_date ({start_date}) and finish_date ({finish_date}): {e}."
+            ))
             return start_date, finish_date  # safe fallback
     
-    def _get_week_range(self, start_date:datetime|str, finish_date:datetime|str) -> list:
+    def _get_week_range(self, start_date:datetime|str, finish_date:datetime|str, obj_id:int=-1) -> list:
         try:
             if isinstance(start_date, str):
                 start_date = datetime.strptime(start_date, '%d-%b-%Y')
@@ -537,7 +542,10 @@ class PostProcessingFramework():
                 finish_date = datetime.strptime(finish_date, '%d-%b-%Y')
 
             if start_date > finish_date:
-                print(f"Warning: start_date {start_date} is after finish_date {finish_date}. Returning empty range.")
+                print(f"[Warning] start_date {start_date} is after finish_date {finish_date}. Returning empty range.")
+                self.module_data["logs"]["status"].append(dict(
+                    Warning= f"{PostProcessingFramework.__name__}| Failed to get week range for {obj_id}, start_date ({start_date}) is after finish_date ({finish_date})."
+                ))
                 return []
 
             step = timedelta(days=len(self.calendar_weekdays))
@@ -545,7 +553,7 @@ class PostProcessingFramework():
             return [start_date + i * step for i in range(count)]
 
         except Exception as e:
-            print(f"Error in _get_week_range with start_date={start_date}, finish_date={finish_date}: {e}")
+            print(f"[Error] _get_week_range with start_date={start_date}, finish_date={finish_date}: {e}")
             return []
 
     def _calculate_available_instances(self, custom_ordered_dict:dict) -> dict:
@@ -556,7 +564,10 @@ class PostProcessingFramework():
                 comp_lead_cat_title = self._generate_compound_category_name(item)
                 entry_dict_available[comp_lead_cat_title] = entry_dict_available.get(comp_lead_cat_title, 0) + 1
             except Exception as e:
-                print(f"Error generating compound name for item {item}: {e}")
+                print(f"[Error] Failed to generate compound name for item {item}: {e}.")
+                self.module_data["logs"]["status"].append(dict(
+                    Error= f"{PostProcessingFramework.__name__}| Failed to generate compound name for item {item}: {e}."
+                ))
                 continue  # skip bad entry, keep counting
 
         return entry_dict_available
@@ -564,12 +575,10 @@ class PostProcessingFramework():
     def _process_file(self, active_worksheet, lead_schedule_struct:str, 
                      overlap_results:dict, available_results:dict, alloted_space:int) -> None:
         ws = active_worksheet
-
-        print(f"Processing Excel file: {self.input_basename}")
         
         wbs_start_col = column_index_from_string(self.wbs_start_col)
         start_col_idx = self._find_column_idx(ws, lead_schedule_struct, self.wbs_start_row) + 1
-        end_col_idx = self._return_first_column_idx(ws, 1, 1)
+        end_col_idx = self._find_first_nonempty_string_column_idx(ws, 1, 1)
 
         self._unmerge_columns(ws, wbs_start_col, end_col_idx)
         self._delete_excess_rows(
@@ -582,52 +591,76 @@ class PostProcessingFramework():
         self._delete_columns(ws, start_col_idx, end_col_idx)
         self._insert_columns(ws, start_col_idx, end_col_idx - start_col_idx)
     
-    def _find_column_idx(self, active_worksheet, column_header:str, start_row:int) -> int|None:
-        ws = active_worksheet
-        start_col_idx = column_index_from_string(self.wbs_start_col)
-        normalized_header = column_header.strip().replace(" ", "_").lower()
-        
-        for row in ws.iter_rows(
-            min_row=start_row,
-            min_col=start_col_idx,
-            max_col=active_worksheet.max_column
-        ):
-            for cell in row:
-                if cell.value and isinstance(cell.value, str):
-                    normalized_cell_value = cell.value.strip().replace(" ", "_").lower()
-                    if normalized_header == normalized_cell_value:
+    def _find_column_idx(self, active_worksheet, column_header:str, start_row:int) -> int | None:
+        try:
+            ws = active_worksheet
+            start_col_idx = column_index_from_string(self.wbs_start_col)
+            normalized_header = column_header.strip().replace(" ", "_").lower()
+
+            for row in ws.iter_rows(
+                min_row=start_row,
+                min_col=start_col_idx,
+                max_col=ws.max_column
+            ):
+                for cell in row:
+                    if cell.value and isinstance(cell.value, str):
+                        normalized_cell_value = cell.value.strip().replace(" ", "_").lower()
+                        if normalized_header == normalized_cell_value:
+                            return cell.column
+
+            prompt = f"Column header '{column_header}' not found. Use default column 'A'?"
+            if PostProcessingFramework.binary_user_interaction(prompt):
+                return 0
+            return None
+
+        except Exception as e:
+            print(f"[ERROR] Failed to find column '{column_header}': {e}.")
+            self.module_data["logs"]["status"].append(dict(
+                Error= f"{PostProcessingFramework.__name__}| Failed to find column '{column_header}': {e}."
+            ))
+
+            return None
+
+    def _find_first_nonempty_string_column_idx(self, active_worksheet, start_row_idx:int, start_col_idx:int) -> int:
+        try:
+            ws = active_worksheet
+            for row in ws.iter_rows(min_row=start_row_idx, min_col=start_col_idx, max_col=ws.max_column):
+                for cell in row:
+                    if isinstance(cell.value, str) and cell.value.strip():
                         return cell.column
-        
-        if PostProcessingFramework.binary_user_interaction(
-            f"Column header '{column_header}' not found. Use default column 'A'?: "
-        ):
-            return 0
-        return None
 
-    def _return_first_column_idx(self, active_worksheet, start_row_idx:int, start_col_idx:int) -> int:
-        ws = active_worksheet
+            raise ValueError(f"Failed to determine first valid column.")
 
-        for row in ws.iter_rows(min_row=start_row_idx, min_col=start_col_idx, max_col=ws.max_column):
-            for cell in row:
-                if isinstance(cell.value, str) and cell.value:
-                    return cell.column
-        
-        print(f"Error. No valid value encountered in specified row [{start_row_idx}, {start_row_idx}]")
-        return -1
+        except Exception as e:
+            print(f"[ERROR] {e}")
+            self.module_data["logs"]["status"].append(dict(
+                Error= f"{PostProcessingFramework.__name__}| {e}."
+            ))
+
+            return -1
 
     def _unmerge_columns(self, active_worksheet, start_column_idx:int, end_column_idx:int) -> None:
         ws = active_worksheet
 
-        for merged_cell in list(ws.merged_cells.ranges):
-            if (merged_cell.bounds[0] >= start_column_idx and 
-                merged_cell.bounds[2] <= end_column_idx):
-                ws.unmerge_cells(str(merged_cell))
-        
-        start_col_letter = get_column_letter(start_column_idx)
-        end_col_letter = get_column_letter(end_column_idx)
+        try:
+            for merged_cell in list(ws.merged_cells.ranges):
+                if (merged_cell.bounds[0] >= start_column_idx and 
+                    merged_cell.bounds[2] <= end_column_idx):
+                    ws.unmerge_cells(str(merged_cell))
 
-        print(f"Column unmerging applied successfully: [{start_col_letter}, {end_col_letter}]")
+            start_col_letter = get_column_letter(start_column_idx)
+            end_col_letter = get_column_letter(end_column_idx)
 
+            print(f"Column unmerging applied successfully: [{start_col_letter}, {end_col_letter}].")
+            self.module_data["logs"]["status"].append({
+                "Info": f"{PostProcessingFramework.__name__}| Column unmerging applied successfully: [{start_col_letter}, {end_col_letter}]."
+            })
+        except Exception as e:
+            print(f"[ERROR] Failed during column unmerging: {e}")
+            self.module_data["logs"]["status"].append(dict(
+                Error= f"{PostProcessingFramework.__name__}| Failed during column unmerging: {e}"
+            ))
+            
     def _delete_excess_rows(self, active_worksheet, overlap_results:dict, 
                                  available_results:dict, alloted_space:int) -> None:
         ws = active_worksheet
@@ -705,7 +738,10 @@ class PostProcessingFramework():
         for _ in range(num_cols):
             ws.insert_cols(start_column_idx)
 
-        print(f"Columns ({num_cols}) added successfully")
+        print(f"Columns ({num_cols}) added successfully.")
+        self.module_data["logs"]["status"].append({
+            "Info": f"{PostProcessingFramework.__name__}| Columns ({num_cols}) added successfully."
+        })
 
     def update_schedule_style(self, active_workbook, active_worksheet, 
                               lead_schedule_struct:str, json_struct_categories:list) -> None:
@@ -729,7 +765,7 @@ class PostProcessingFramework():
             if item in relevant_keys
         }
         start_col_idx = point_col_idx + 1
-        end_col_idx = self._return_first_column_idx(ws, 1, 1)
+        end_col_idx = self._find_first_nonempty_string_column_idx(ws, 1, 1)
 
         self._delete_columns(ws, start_col_idx, end_col_idx)
 
