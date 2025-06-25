@@ -339,6 +339,9 @@ class PostProcessingFramework():
             active_workbook.close()
 
     def _calculate_overlapping_dates(self, custom_ordered_dict:dict, time_scale:str='d') -> dict:
+        if not isinstance(custom_ordered_dict, list) or not custom_ordered_dict:
+            raise ValueError("_calculate_overlapping_dates received invalid or empty list")
+    
         lead_based_lists = []
         nested_list = []
         ref_lead = self._generate_compound_category_name(custom_ordered_dict[0])
@@ -369,6 +372,9 @@ class PostProcessingFramework():
         return overlap_results
 
     def _generate_compound_category_name(self, item:dict) -> str:
+        if not isinstance(item, dict):
+            raise ValueError("_generate_compound_category_name expected a dict")
+    
         category_names = []
 
         for category in self.wbs_final_categories.keys():
@@ -379,67 +385,82 @@ class PostProcessingFramework():
         return "|".join(category_names)
 
     def _bubble_sort_entries_by_dates(self, unsorted_list:list) -> list:
+        if not unsorted_list:
+            raise ValueError("_bubble_sort_entries_by_dates received empty list")
+
         n = len(unsorted_list)
-
         for i in range(n):
-            for j in range(0, n-i-1):
-                date_typed_start = datetime.strptime(unsorted_list[j]["start"], "%d-%b-%Y")
-                date_typed_start_n1 = datetime.strptime(unsorted_list[j+1]["start"], "%d-%b-%Y")
+            for j in range(0, n - i - 1):
+                try:
+                    date_start_j = datetime.strptime(unsorted_list[j]["start"], "%d-%b-%Y")
+                    date_start_j1 = datetime.strptime(unsorted_list[j + 1]["start"], "%d-%b-%Y")
+                except Exception as e:
+                    raise ValueError(f"Invalid 'start' date format in entry: {e}")
 
-                if date_typed_start > date_typed_start_n1:
-                    unsorted_list[j], unsorted_list[j+1] = unsorted_list[j+1], unsorted_list[j]
+                if date_start_j > date_start_j1:
+                    unsorted_list[j], unsorted_list[j + 1] = unsorted_list[j + 1], unsorted_list[j]
+                elif date_start_j == date_start_j1:
+                    try:
+                        date_end_j = datetime.strptime(unsorted_list[j]["finish"], "%d-%b-%Y")
+                        date_end_j1 = datetime.strptime(unsorted_list[j + 1]["finish"], "%d-%b-%Y")
+                    except Exception as e:
+                        raise ValueError(f"Invalid 'finish' date format in entry: {e}")
 
-                elif date_typed_start == date_typed_start_n1:
-                    date_typed_end = datetime.strptime(unsorted_list[j]["finish"], "%d-%b-%Y")
-                    date_typed_end_n1 = datetime.strptime(unsorted_list[j+1]["finish"], "%d-%b-%Y")
+                    if date_end_j > date_end_j1:
+                        unsorted_list[j], unsorted_list[j + 1] = unsorted_list[j + 1], unsorted_list[j]
 
-                    if date_typed_end > date_typed_end_n1:
-                        unsorted_list[j], unsorted_list[j+1] = unsorted_list[j+1], unsorted_list[j]
-        
-        sorted_list = unsorted_list
-        return sorted_list
+        return unsorted_list
 
     def _get_overlap(self, location_based_lists:list, time_scale:str) -> dict:
         overlap = {}
 
-        if time_scale == 'd':
-            overlap = self._day_based_overlap(location_based_lists)
-        elif time_scale == 'w':
-            overlap = self._week_based_overlap(location_based_lists)            
+        try:
+            if time_scale == 'd':
+                overlap = self._day_based_overlap(location_based_lists)
+            elif time_scale == 'w':
+                overlap = self._week_based_overlap(location_based_lists)
+            else:
+                print(f"Warning: Invalid time scale '{time_scale}'. Expected 'd' or 'w'.")
+        except Exception as e:
+            print(f"Error in _get_overlap: {e}")
 
         return overlap
 
     def _day_based_overlap(self, location_based_lists:list) -> dict:
         category_results = {}
-        
+
         for lead_list in location_based_lists:
             if not lead_list:
                 continue
-            
-            ref_category = self._generate_compound_category_name(lead_list[0])
+
+            try:
+                ref_category = self._generate_compound_category_name(lead_list[0])
+            except Exception as e:
+                print(f"Failed to generate category name for lead_list[0]: {lead_list[0]}, error: {e}")
+                continue
+
             active_overlaps = []
             current_max = 0
-            activity_count = 0
 
             for activity in lead_list:
-                start = datetime.strptime(activity["start"], "%d-%b-%Y")
-                finish = datetime.strptime(activity["finish"], "%d-%b-%Y")
-                activity_count += 1
-                
+                try:
+                    start = datetime.strptime(activity["start"], "%d-%b-%Y")
+                    finish = datetime.strptime(activity["finish"], "%d-%b-%Y")
+                except Exception as e:
+                    print(f"Invalid date in activity: {activity}, error: {e}")
+                    continue
+
                 active_overlaps = [
-                    (active_start, active_finish) 
-                    for active_start, active_finish in active_overlaps 
+                    (active_start, active_finish)
+                    for active_start, active_finish in active_overlaps
                     if finish >= active_start and start <= active_finish
                 ]
 
-                active_overlaps.append((start, finish))                
+                active_overlaps.append((start, finish))
                 current_max = max(current_max, len(active_overlaps))
-            
-            if ref_category in category_results:
-                category_results[ref_category] = max(category_results[ref_category], current_max)
-            else:
-                category_results[ref_category] = current_max
-            
+
+            category_results[ref_category] = max(category_results.get(ref_category, 0), current_max)
+
         return category_results
         
     def _week_based_overlap(self, location_based_lists:list) -> dict:
@@ -449,73 +470,95 @@ class PostProcessingFramework():
             if not lead_list:
                 continue
 
-            ref_category = self._generate_compound_category_name(lead_list[0])
-            active_weeks = {}  # level -> set of week dates
+            try:
+                ref_category = self._generate_compound_category_name(lead_list[0])
+            except Exception as e:
+                print(f"Failed to generate category name for lead_list[0]: {lead_list[0]}, error: {e}")
+                continue
+
+            active_weeks = {}
             current_max = 0
 
             for activity in lead_list:
-                start = datetime.strptime(activity["start"], "%d-%b-%Y")
-                finish = datetime.strptime(activity["finish"], "%d-%b-%Y")
+                try:
+                    start = datetime.strptime(activity["start"], "%d-%b-%Y")
+                    finish = datetime.strptime(activity["finish"], "%d-%b-%Y")
 
-                week_start, week_finish = self._calculate_week(start, finish)
-                weeks = set(self._get_week_range(week_start, week_finish))  # convert once
+                    week_start, week_finish = self._calculate_week(start, finish)
+                    weeks = set(self._get_week_range(week_start, week_finish))
 
-                level = 0
-                while level in active_weeks and active_weeks[level].intersection(weeks):
-                    level += 1
+                    level = 0
+                    while level in active_weeks and active_weeks[level].intersection(weeks):
+                        level += 1
 
-                active_weeks.setdefault(level, set()).update(weeks)
-                current_max = max(current_max, level + 1)
+                    active_weeks.setdefault(level, set()).update(weeks)
+                    current_max = max(current_max, level + 1)
+
+                except Exception as e:
+                    print(f"Invalid week overlap data for activity: {activity}, error: {e}")
+                    continue
 
             category_results[ref_category] = max(category_results.get(ref_category, 0), current_max)
 
         return category_results
 
     def _calculate_week(self, start_date:datetime, finish_date:datetime) -> tuple:
-        weekday_map = {day: i for i, day in enumerate(self.calendar_weekdays)}
-        target_start = weekday_map[self.input_workweek[0]]
-        target_end = weekday_map[self.input_workweek[-1]]
+        try:
+            weekday_map = {day: i for i, day in enumerate(self.calendar_weekdays)}
+            target_start = weekday_map[self.input_workweek[0]]
+            target_end = weekday_map[self.input_workweek[-1]]
 
-        # Align to start of workweek
-        start_offset = (target_start - start_date.weekday()) % 7
-        week_start = start_date + timedelta(days=start_offset)
+            start_offset = (target_start - start_date.weekday()) % 7
+            week_start = start_date + timedelta(days=start_offset)
 
-        # Align to end of workweek
-        end_offset = (target_end - finish_date.weekday()) % 7
-        week_finish = finish_date + timedelta(days=end_offset)
+            end_offset = (target_end - finish_date.weekday()) % 7
+            week_finish = finish_date + timedelta(days=end_offset)
 
-        # Clamp if necessary
-        if week_start > finish_date:
-            start_offset = (target_start - finish_date.weekday()) % 7
-            week_start = finish_date + timedelta(days=start_offset)
+            if week_start > finish_date:
+                start_offset = (target_start - finish_date.weekday()) % 7
+                week_start = finish_date + timedelta(days=start_offset)
 
-        if week_finish < start_date:
-            end_offset = (target_end - start_date.weekday()) % 7
-            week_finish = start_date + timedelta(days=end_offset)
+            if week_finish < start_date:
+                end_offset = (target_end - start_date.weekday()) % 7
+                week_finish = start_date + timedelta(days=end_offset)
 
-        return week_start, week_finish
+            return week_start, week_finish
+
+        except Exception as e:
+            print(f"Error in _calculate_week with start_date={start_date} finish_date={finish_date}: {e}")
+            return start_date, finish_date  # safe fallback
     
     def _get_week_range(self, start_date:datetime|str, finish_date:datetime|str) -> list:
-        if isinstance(start_date, str):
-            start_date = datetime.strptime(start_date, '%d-%b-%Y')
+        try:
+            if isinstance(start_date, str):
+                start_date = datetime.strptime(start_date, '%d-%b-%Y')
 
-        if isinstance(finish_date, str):
-            finish_date = datetime.strptime(finish_date, '%d-%b-%Y')
+            if isinstance(finish_date, str):
+                finish_date = datetime.strptime(finish_date, '%d-%b-%Y')
 
-        if start_date > finish_date:
+            if start_date > finish_date:
+                print(f"Warning: start_date {start_date} is after finish_date {finish_date}. Returning empty range.")
+                return []
+
+            step = timedelta(days=len(self.calendar_weekdays))
+            count = ((finish_date - start_date).days // step.days) + 1
+            return [start_date + i * step for i in range(count)]
+
+        except Exception as e:
+            print(f"Error in _get_week_range with start_date={start_date}, finish_date={finish_date}: {e}")
             return []
 
-        step = timedelta(days=len(self.calendar_weekdays))
-        count = ((finish_date - start_date).days // step.days) + 1
-        return [start_date + i * step for i in range(count)]
-
-    def _calculate_available_instances(self, custom_ordered_dict: dict) -> dict:
+    def _calculate_available_instances(self, custom_ordered_dict:dict) -> dict:
         entry_dict_available = {}
-        
+
         for item in custom_ordered_dict:
-            comp_lead_cat_title = self._generate_compound_category_name(item)
-            entry_dict_available[comp_lead_cat_title] = entry_dict_available.get(comp_lead_cat_title, 0) + 1
-        
+            try:
+                comp_lead_cat_title = self._generate_compound_category_name(item)
+                entry_dict_available[comp_lead_cat_title] = entry_dict_available.get(comp_lead_cat_title, 0) + 1
+            except Exception as e:
+                print(f"Error generating compound name for item {item}: {e}")
+                continue  # skip bad entry, keep counting
+
         return entry_dict_available
 
     def _process_file(self, active_worksheet, lead_schedule_struct:str, 
