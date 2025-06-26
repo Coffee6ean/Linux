@@ -4,10 +4,6 @@ import pandas as pd
 from datetime import datetime, timedelta
 from openpyxl.utils import column_index_from_string
 
-import sys
-sys.path.append("../")
-from backend.config.paths import TST_DIR
-
 class DataFrameSetup:
     allowed_extensions = ["json"]
 
@@ -26,6 +22,21 @@ class DataFrameSetup:
         self.project_table_values = ["trade", "color", "activity_name", "start", "finish"]
         self.wbs_final_categories = ["phase", "area", "zone", "subzone", "level"]
 
+        #Module Results
+        self.module_data = {
+            "details": {
+                "json": None,
+                "df_rows": 0,
+            },
+            "logs": {
+                "start": DataFrameSetup.return_valid_date(),
+                "finish": None,
+                "run-time": None,
+                "status": [],
+            },
+            "content": {}
+        }
+
     @staticmethod
     def main(auto=True, input_file_path=None, input_file_basename=None, 
              input_file_extension=None, output_file_dir=None, project_data=None):
@@ -40,50 +51,36 @@ class DataFrameSetup:
         else:
             project = DataFrameSetup.generate_ins()
 
-        module_data = {
-            "details": {
-                "json": None,
-                "df_rows": 0,
-            },
-            "logs": {
-                "start": DataFrameSetup.return_valid_date(),
-                "finish": None,
-                "run-time": None,
-                "status": [],
-            },
-            "content": {}
-        }
-
         if project:
             if project.project_data:
                 content = project.setup_project(project.project_data["body"])
-                module_data["details"]["df_rows"] = content["table"].shape[0] + 1
-                module_data["content"] = content
+                project.module_data["details"]["df_rows"] = content["table"].shape[0] + 1
+                project.module_data["content"] = content
             else:
                 if project.input_extension in DataFrameSetup.allowed_extensions:
                     content = project.setup_project(project.project_data)
-                    module_data["details"] = content["table"].shape[0]
-                    module_data["content"] = content
+                    project.module_data["details"] = content["table"].shape[0]
+                    project.module_data["content"] = content
                 else:
                     print("Error. Unsuported file type")
-                    module_data["logs"]["status"].append(dict(
+                    project.module_data["logs"]["status"].append(dict(
                         Error=f"{DataFrameSetup.__name__}| Unsuported input file extension: {project.input_extension}"
                     ))
         else:
-            module_data["logs"]["status"].append(dict(
+            project.module_data["logs"]["status"].append(dict(
                 Error= f"{DataFrameSetup.__name__}| Module's instance was not generated correctly"
             ))
 
-        module_data["logs"]["finish"] = DataFrameSetup.return_valid_date()
-        module_data["logs"]["run-time"] = DataFrameSetup.calculate_time_duration(
-            module_data["logs"].get("start"), 
-            module_data["logs"].get("finish")
+        project.module_data["logs"]["finish"] = DataFrameSetup.return_valid_date()
+        project.module_data["logs"]["run-time"] = DataFrameSetup.calculate_time_duration(
+            project.module_data["logs"].get("start"), 
+            project.module_data["logs"].get("finish")
         )
-        module_data["logs"]["status"].append(dict(
+        project.module_data["logs"]["status"].append(dict(
             Info=f"{DataFrameSetup.__name__}| Module ran successfully"
         ))
 
-        return module_data
+        return project.module_data
 
     @staticmethod
     def generate_ins():
@@ -280,13 +277,23 @@ class DataFrameSetup:
     def read_json_obj(self) -> list:
         j_file = os.path.join(self.input_path, self.input_basename)
 
-        with open(j_file, 'r') as json_file:
-            data = json.load(json_file)
-        
-        df = self._flatten_json(data["body"])
-        df_values = list(df.values())
+        try:
+            with open(j_file, 'r') as json_file:
+                data = json.load(json_file)
 
-        return df_values
+            df = self._flatten_json(data["body"])
+            df_values = list(df.values())
+
+            return df_values
+        
+        except Exception as e:
+            err_msg = f"Failed to read JSON file: {e}"
+            print(f"[ERROR] {err_msg}")
+            self.module_data["logs"]["status"].append(dict(
+                Error=f"{DataFrameSetup.__name__}|{self.read_json_obj.__name__}| {err_msg}"
+            ))
+
+            return []
     
     def _flatten_json(self, json_obj:dict) -> dict:
         new_dic = {}
@@ -329,35 +336,50 @@ class DataFrameSetup:
         return df_table, custom_ordered_overall_dict, custom_phase_order
 
     def _bring_to_top(self, unordered_dict_list:list, category:str, order_cons:list) -> dict:
-        categorized_list = []
-        custom_order = []
-        normalized_category = category.lower().strip()
+        try:
+            categorized_list = []
+            custom_order = []
+            normalized_category = category.lower().strip()
 
-        normalized_dict_list = [
-            {**item, normalized_category: item[normalized_category]} 
-            for item in unordered_dict_list 
-            if item.get(normalized_category) is not None
-        ]
+            normalized_dict_list = [
+                {**item, normalized_category: item[normalized_category]} 
+                for item in unordered_dict_list 
+                if item.get(normalized_category) is not None
+            ]
 
-        for normalized_value in order_cons:
-            for item in normalized_dict_list:
-                if normalized_value.lower().strip() in item[normalized_category].lower().strip():
-                    categorized_list.append(item)
+            for normalized_value in order_cons:
+                for item in normalized_dict_list:
+                    if normalized_value.lower().strip() in item[normalized_category].lower().strip():
+                        categorized_list.append(item)
 
-        remaining_list = [
-            item for item in unordered_dict_list
-            if item not in categorized_list
-        ]
+            remaining_list = [
+                item for item in unordered_dict_list
+                if item not in categorized_list
+            ]
 
-        custom_ordered_dict = categorized_list + remaining_list
+            custom_ordered_dict = categorized_list + remaining_list
 
-        for item in custom_ordered_dict:
-            value = item[category]
-            if value not in custom_order:
-                custom_order.append(value)
-        
-        custom_ordered_dict = {item["entry"]:item for item in custom_ordered_dict}
-        return custom_ordered_dict
+            for item in custom_ordered_dict:
+                try:
+                    value = item[category]
+                    if value not in custom_order:
+                        custom_order.append(value)
+                except KeyError:
+                    warning_msg = f"Missing category '{category}' in entry: {item}"
+                    print(f"[WARNING] {warning_msg}")
+                    self.module_data["logs"]["status"].append(dict(
+                        Warning=f"{DataFrameSetup.__name__}|{self._bring_to_top.__name__}| {warning_msg}"
+                    ))
+            
+            return {item["entry"]:item for item in custom_ordered_dict}
+    
+        except Exception as e:
+            err_msg = f"Failed to reorder items by category '{category}': {e}"
+            print(f"[ERROR] {err_msg}")
+            self.module_data["logs"]["status"].append(dict(
+                Error=f"{DataFrameSetup.__name__}|{self._bring_to_top.__name__}| {err_msg}"
+            ))
+            return {}
 
     def _sort_inner_activities(self, json_obj:dict) -> list:
         ref_location = list(json_obj.values())[0]["area"]
@@ -381,26 +403,46 @@ class DataFrameSetup:
         return ordered_list
 
     def _bubble_sort_entries_by_dates(self, unsorted_list:list) -> list:
-        n = len(unsorted_list)
+        try:
+            n = len(unsorted_list)
 
-        for i in range(n):
-            for j in range(0, n-i-1):
-                date_typed_start = datetime.strptime(unsorted_list[j]["start"], "%d-%b-%Y")
-                date_typed_start_n1 = datetime.strptime(unsorted_list[j+1]["start"], "%d-%b-%Y")
+            for i in range(n):
+                for j in range(0, n - i - 1):
+                    try:
+                        entry_j = unsorted_list[j]
+                        entry_j1 = unsorted_list[j + 1]
 
-                if date_typed_start > date_typed_start_n1:
-                    unsorted_list[j], unsorted_list[j+1] = unsorted_list[j+1], unsorted_list[j]
+                        date_start_j = datetime.strptime(entry_j["start"], "%d-%b-%Y")
+                        date_start_j1 = datetime.strptime(entry_j1["start"], "%d-%b-%Y")
 
-                elif date_typed_start == date_typed_start_n1:
-                    date_typed_end = datetime.strptime(unsorted_list[j]["finish"], "%d-%b-%Y")
-                    date_typed_end_n1 = datetime.strptime(unsorted_list[j+1]["finish"], "%d-%b-%Y")
+                        if date_start_j > date_start_j1:
+                            unsorted_list[j], unsorted_list[j + 1] = unsorted_list[j + 1], unsorted_list[j]
 
-                    if date_typed_end > date_typed_end_n1:
-                        unsorted_list[j], unsorted_list[j+1] = unsorted_list[j+1], unsorted_list[j]
-        
-        sorted_list = unsorted_list
-        return sorted_list
-    
+                        elif date_start_j == date_start_j1:
+                            date_finish_j = datetime.strptime(entry_j["finish"], "%d-%b-%Y")
+                            date_finish_j1 = datetime.strptime(entry_j1["finish"], "%d-%b-%Y")
+
+                            if date_finish_j > date_finish_j1:
+                                unsorted_list[j], unsorted_list[j + 1] = unsorted_list[j + 1], unsorted_list[j]
+
+                    except Exception as e:
+                        warning_msg = f"Invalid date format in entries at index {j}: {e}"
+                        print(f"[WARNING] {warning_msg}")
+                        self.module_data["logs"]["status"].append(dict(
+                            Warning=f"{DataFrameSetup.__name__}|{self._bubble_sort_entries_by_dates.__name__}| {warning_msg}"
+                        ))
+                        continue
+
+            return unsorted_list
+
+        except Exception as e:
+            error_msg = f"Failed to sort entries by dates: {e}"
+            print(f"[ERROR] {error_msg}")
+            self.module_data["logs"]["status"].append(dict(
+                Error=f"{DataFrameSetup.__name__}|{self._bubble_sort_entries_by_dates.__name__}| {error_msg}"
+            ))
+            return unsorted_list
+   
     def _group_by_sorted_phases(self, json_obj:dict) -> dict:
         ref_phase = json_obj[0]["phase"]
         nested_phase_list = []
@@ -486,85 +528,131 @@ class DataFrameSetup:
         return ordered_phase_dict
 
     def _bubble_sort_dates(self, unsorted_list:list) -> list:
-        n = len(unsorted_list)
+        try:
+            n = len(unsorted_list)
 
-        for i in range(n):
-            for j in range(n-i-1):
-                value_j = unsorted_list[j]
-                value_j1 = unsorted_list[j+1]
+            for i in range(n):
+                for j in range(n-i-1):
+                    value_j = unsorted_list[j]
+                    value_j1 = unsorted_list[j+1]
 
-                try:
-                    if isinstance(value_j, str) and isinstance(value_j1, str):
-                        value_j = datetime.strptime(value_j, "%d-%b-%Y")
-                        value_j1 = datetime.strptime(value_j1, "%d-%b-%Y")
+                    try:
+                        if isinstance(value_j, str) and isinstance(value_j1, str):
+                            value_j = datetime.strptime(value_j, "%d-%b-%Y")
+                            value_j1 = datetime.strptime(value_j1, "%d-%b-%Y")
 
-                    elif isinstance(value_j, datetime) and isinstance(value_j1, datetime):
-                        value_j = value_j
-                        value_j1 = value_j1
-                except Exception as e:
-                    print(f"Error: {e}")
-                else:
-                    if value_j > value_j1:
-                        unsorted_list[j], unsorted_list[j+1] = unsorted_list[j+1], unsorted_list[j]
+                        elif isinstance(value_j, datetime) and isinstance(value_j1, datetime):
+                            value_j = value_j
+                            value_j1 = value_j1
+
+                        if value_j > value_j1:
+                            unsorted_list[j], unsorted_list[j+1] = unsorted_list[j+1], unsorted_list[j]
+                    except Exception as e:
+                        warning_msg = f"Skipping invalid date entry at index {j}: {e}"
+                        print(f"[WARNING] {warning_msg}")
+                        self.module_data["logs"]["status"].append(dict(
+                            Warning=f"{DataFrameSetup.__name__}|{self._bubble_sort_dates.__name__}| {warning_msg}"
+                        ))
+                        continue                      
+
+        except Exception as e:
+            error_msg = f"Failed to sort date list: {e}"
+            print(f"[ERROR] {error_msg}")
+            self.module_data["logs"]["status"].append(dict(
+                Error=f"{DataFrameSetup.__name__}|{self._bubble_sort_dates.__name__}| {error_msg}"
+            ))
 
         return unsorted_list
 
     def _bubble_sort_entries_by_overall_date(self, unsorted_list:list) -> list:
-        n = len(unsorted_list)
+        try:
+            n = len(unsorted_list)
 
-        for i in range(n):
-            for j in range(0, n-i-1):
-                key_j = list(unsorted_list[j].keys())[0]
-                key_j1 = list(unsorted_list[j + 1].keys())[0]
+            for i in range(n):
+                for j in range(0, n-i-1):
+                    key_j = list(unsorted_list[j].keys())[0]
+                    key_j1 = list(unsorted_list[j + 1].keys())[0]
 
-                date_j = datetime.strptime(unsorted_list[j][key_j], "%d-%b-%Y")
-                date_j1 = datetime.strptime(unsorted_list[j + 1][key_j1], "%d-%b-%Y")
+                    try:
+                        date_j = datetime.strptime(unsorted_list[j][key_j], "%d-%b-%Y")
+                        date_j1 = datetime.strptime(unsorted_list[j + 1][key_j1], "%d-%b-%Y")
 
-                if date_j > date_j1:
-                    unsorted_list[j], unsorted_list[j + 1] = unsorted_list[j + 1], unsorted_list[j]
+                        if date_j > date_j1:
+                            unsorted_list[j], unsorted_list[j + 1] = unsorted_list[j + 1], unsorted_list[j]
+                    
+                    except Exception as e:
+                        warning_msg = f"Skipping invalid date entry at index {j}: {e}"
+                        print(f"[WARNING] {warning_msg}")
+                        self.module_data["logs"]["status"].append(dict(
+                            Warning=f"{DataFrameSetup.__name__}|{self._bubble_sort_dates.__name__}| {warning_msg}"
+                        ))
+                        continue  
+        
+        except Exception as e:
+            error_msg = f"Failed to sort entry list by overall date: {e}"
+            print(f"[ERROR] {error_msg}")
+            self.module_data["logs"]["status"].append(dict(
+                Error=f"{DataFrameSetup.__name__}|{self._bubble_sort_entries_by_overall_date.__name__}| {error_msg}"
+            ))
 
         return unsorted_list
 
     def _calculate_overall_date(self, phase_dict:dict) -> dict:
-        for _, value in phase_dict.items():
-            overall_date_delta = timedelta(0)
+        try:
+            for key, value in phase_dict.items():
+                overall_date_delta = timedelta(0)
 
-            current_start_list = value["start_list"]
-            current_finish_list = value["finish_list"]
-            current_midpoint_obj = datetime.strptime(value["midpoint_date"], "%d-%b-%Y")
-            earliest_date_obj = datetime.strptime(value["earliest_date"], "%d-%b-%Y")
-            latest_date_obj = datetime.strptime(value["latest_date"], "%d-%b-%Y")
+                current_start_list = value["start_list"]
+                current_finish_list = value["finish_list"]
+                current_midpoint_obj = datetime.strptime(value["midpoint_date"], "%d-%b-%Y")
+                earliest_date_obj = datetime.strptime(value["earliest_date"], "%d-%b-%Y")
+                latest_date_obj = datetime.strptime(value["latest_date"], "%d-%b-%Y")
 
-            total_range_days = (latest_date_obj - earliest_date_obj).days
+                total_range_days = (latest_date_obj - earliest_date_obj).days
 
-            # Validate total range
-            if total_range_days <= 0:
-                value["overall_date"] = current_midpoint_obj.strftime("%d-%b-%Y")
-                continue
+                if total_range_days <= 0:
+                    value["overall_date"] = current_midpoint_obj.strftime("%d-%b-%Y")
+                    continue
 
-            for idx, start_date in enumerate(current_start_list):
-                start_date_obj = datetime.strptime(start_date, "%d-%b-%Y")
-                finish_date_obj = datetime.strptime(current_finish_list[idx], "%d-%b-%Y")
+                for idx, start_date in enumerate(current_start_list):
+                    try:
+                        start_date_obj = datetime.strptime(start_date, "%d-%b-%Y")
+                        finish_date_obj = datetime.strptime(current_finish_list[idx], "%d-%b-%Y")
+                        avg_date = start_date_obj + (finish_date_obj - start_date_obj) / 2
 
-                avg_date = start_date_obj + (finish_date_obj - start_date_obj) / 2
+                        if avg_date < current_midpoint_obj:
+                            weight = (current_midpoint_obj - avg_date).days / total_range_days
+                            overall_date_delta -= timedelta(days=weight * total_range_days * 0.1)
+                        elif avg_date > current_midpoint_obj:
+                            weight = (avg_date - current_midpoint_obj).days / total_range_days
+                            overall_date_delta += timedelta(days=weight * total_range_days * 0.1)
 
-                if avg_date < current_midpoint_obj:
-                    weight = (current_midpoint_obj - avg_date).days / total_range_days
-                    overall_date_delta -= timedelta(days=weight * total_range_days * 0.1)
-                elif avg_date > current_midpoint_obj:
-                    weight = (avg_date - current_midpoint_obj).days / total_range_days
-                    overall_date_delta += timedelta(days=weight * total_range_days * 0.1)
+                    except Exception as e:
+                        warn_msg = f"Invalid date in entry #{idx} for phase '{key}': {e}"
+                        print(f"[WARNING] {warn_msg}")
+                        self.module_data["logs"]["status"].append(dict(
+                            Warning=f"{DataFrameSetup.__name__}|{self._calculate_overall_date.__name__}| {warn_msg}"
+                        ))
+                        continue
 
-            overall_date = current_midpoint_obj + overall_date_delta
+                overall_date = current_midpoint_obj + overall_date_delta
 
-            if overall_date < earliest_date_obj:
-                overall_date = earliest_date_obj
-            elif overall_date > latest_date_obj:
-                overall_date = latest_date_obj
+                if overall_date < earliest_date_obj:
+                    overall_date = earliest_date_obj
+                elif overall_date > latest_date_obj:
+                    overall_date = latest_date_obj
 
-            value["overall_date"] = overall_date.strftime("%d-%b-%Y")
+                value["overall_date"] = overall_date.strftime("%d-%b-%Y")
 
-        return phase_dict
+            return phase_dict
+        
+        except Exception as e:
+            msg_err = f"Unexpected failure in _calculate_overall_date: {e}"
+            print(f"[ERROR] {msg_err}")
+            self.module_data["logs"]["status"].append(dict(
+                Error=f"{DataFrameSetup.__name__}|{self._calculate_overall_date.__name__}| {msg_err}"
+            ))
+            return phase_dict
 
     def generate_wbs_cfa_style(self, df_table, categories_list:list, category:str):
         custom_entry_list = list(df_table["entry"])
@@ -580,33 +668,47 @@ class DataFrameSetup:
         )
         column_header_list = proc_table.columns.tolist()
 
-        if "finish" in column_header_list and column_header_list[-1] != "finish":
-            ordered_header_list = self._order_table_cols(column_header_list)
-        else:
-            ordered_header_list = column_header_list
+        ordered_header_list = self._order_table_cols(column_header_list)
 
         proc_table = proc_table[ordered_header_list]
 
         return proc_table
 
-    def _order_table_cols(self, column_list:list) -> list:
+    def _order_table_cols(self, column_list: list) -> list:
+        if "finish" not in column_list:
+            warn_msg = "'finish' column not found in column list."
+            print(f"[WARNING] {warn_msg}")
+            self.module_data["logs"]["status"].append(dict(
+                Warning=f"{DataFrameSetup.__name__}|{self._order_table_cols.__name__}| {warn_msg}"
+            ))
+
+            return column_list
+
         for idx, col in enumerate(column_list):
             if col == "finish":
                 temp = column_list[-1]
                 column_list[-1] = col
                 column_list[idx] = temp
                 break
-        
+
         return column_list
     
-    def determine_schedule_structure(self, custom_ordered_dict:list) -> str:
-        for category in reversed(self.wbs_final_categories):
-            has_valid_entry = any(item.get(category) for item in custom_ordered_dict)
-            
-            if has_valid_entry:
-                return category
+    def determine_schedule_structure(self, custom_ordered_dict:list) -> str|None:
+        try:
+            for category in reversed(self.wbs_final_categories):
+                has_valid_entry = any(item.get(category) for item in custom_ordered_dict)
 
-        return None
+                if has_valid_entry:
+                    return category
+                
+        except Exception as e:
+            warn_msg = "No valid WBS category found in provided data."
+            print(f"[WARNING] {warn_msg}")
+            self.module_data["logs"]["status"].append(dict(
+                Warning=f"{DataFrameSetup.__name__}|{self.determine_schedule_structure.__name__}| {warn_msg}"
+            ))
+
+            return None
 
 
 if __name__ == "__main__":
