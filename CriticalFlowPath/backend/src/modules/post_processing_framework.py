@@ -411,7 +411,7 @@ class PostProcessingFramework():
 
         return unsorted_list
     
-    def _get_overlap(self, location_based_lists: list, time_scale: str) -> dict:
+    def _get_overlap(self, location_based_lists:list, time_scale:str) -> dict:
         try:
             if time_scale == 'd':
                 return self._day_based_overlap(location_based_lists)
@@ -448,18 +448,26 @@ class PostProcessingFramework():
                 try:
                     start = datetime.strptime(activity["start"], "%d-%b-%Y")
                     finish = datetime.strptime(activity["finish"], "%d-%b-%Y")
+
+                    if start > finish:
+                        raise ValueError(f"Start date {start} is after finish date {finish}.")
+
+                    active_overlaps = [
+                        (active_start, active_finish)
+                        for active_start, active_finish in active_overlaps
+                        if finish >= active_start and start <= active_finish
+                    ]
+
+                    active_overlaps.append((start, finish))
+                    current_max = max(current_max, len(active_overlaps))
+
                 except Exception as e:
-                    print(f"Invalid date in activity: {activity}, error: {e}")
+                    err_msg = f"Invalid day overlap data for activity '{activity}': {e}"
+                    print(f"[ERROR] {err_msg}")
+                    self.module_data["logs"]["status"].append({
+                        "Error": f"{PostProcessingFramework.__name__}| {err_msg}"
+                    })
                     continue
-
-                active_overlaps = [
-                    (active_start, active_finish)
-                    for active_start, active_finish in active_overlaps
-                    if finish >= active_start and start <= active_finish
-                ]
-
-                active_overlaps.append((start, finish))
-                current_max = max(current_max, len(active_overlaps))
 
             category_results[ref_category] = max(category_results.get(ref_category, 0), current_max)
 
@@ -475,7 +483,10 @@ class PostProcessingFramework():
             try:
                 ref_category = self._generate_compound_category_name(lead_list[0])
             except Exception as e:
-                print(f"Failed to generate category name for lead_list[0]: {lead_list[0]}, error: {e}")
+                print(f"[ERROR] Failed to generate category name for {lead_list[0]}: {e}")
+                self.module_data["logs"]["status"].append({
+                    "Error": f"{PostProcessingFramework.__name__}| Failed to generate category name for {lead_list[0]}: {e}"
+                })
                 continue
 
             active_weeks = {}
@@ -485,6 +496,9 @@ class PostProcessingFramework():
                 try:
                     start = datetime.strptime(activity["start"], "%d-%b-%Y")
                     finish = datetime.strptime(activity["finish"], "%d-%b-%Y")
+
+                    if start > finish:
+                        raise ValueError(f"Start date {start} is after finish date {finish}.")
 
                     week_start, week_finish = self._calculate_week(start, finish)
                     weeks = set(self._get_week_range(week_start, week_finish))
@@ -497,43 +511,48 @@ class PostProcessingFramework():
                     current_max = max(current_max, level + 1)
 
                 except Exception as e:
-                    print(f"Invalid week overlap data for activity: {activity}, error: {e}")
+                    err_msg = f"Invalid week overlap data for activity '{activity}': {e}"
+                    print(f"[ERROR] {err_msg}")
+                    self.module_data["logs"]["status"].append({
+                        "Error": f"{PostProcessingFramework.__name__}| {err_msg}"
+                    })
                     continue
 
             category_results[ref_category] = max(category_results.get(ref_category, 0), current_max)
 
         return category_results
 
-    def _calculate_week(self, start_date:datetime, finish_date:datetime) -> tuple:
+    def _calculate_week(self, start_date: datetime, finish_date: datetime) -> tuple:
         try:
+            if not self.input_workweek or not self.calendar_weekdays:
+                raise ValueError("Workweek or calendar weekdays configuration is missing.")
+
+            # Map weekday names to integers (0 = Monday, 6 = Sunday)
             weekday_map = {day: i for i, day in enumerate(self.calendar_weekdays)}
             target_start = weekday_map[self.input_workweek[0]]
             target_end = weekday_map[self.input_workweek[-1]]
 
-            start_offset = (target_start - start_date.weekday()) % 7
-            week_start = start_date + timedelta(days=start_offset)
+            # Move backwards to start of week (e.g., Monday)
+            start_offset = (start_date.weekday() - target_start) % 7
+            week_start = start_date - timedelta(days=start_offset)
 
-            end_offset = (target_end - finish_date.weekday()) % 7
-            week_finish = finish_date + timedelta(days=end_offset)
-
-            if week_start > finish_date:
-                start_offset = (target_start - finish_date.weekday()) % 7
-                week_start = finish_date + timedelta(days=start_offset)
-
-            if week_finish < start_date:
-                end_offset = (target_end - start_date.weekday()) % 7
-                week_finish = start_date + timedelta(days=end_offset)
+            # Move forward to end of week (e.g., Friday)
+            end_offset = (target_end - start_date.weekday()) % 7
+            week_finish = start_date + timedelta(days=end_offset)
 
             return week_start, week_finish
 
         except Exception as e:
-            print(f"[ERROR] Failed to calculate week with start_date={start_date} and finish_date={finish_date}: {e}.")
+            err_msg = (
+                f"{PostProcessingFramework.__name__}| Failed to calculate week for start_date={start_date}, finish_date={finish_date}: {e}"
+            )
+            print(f"[ERROR] {err_msg}")
             self.module_data["logs"]["status"].append(dict(
-                Error= f"{PostProcessingFramework.__name__}| Failed to calculate week with start_date ({start_date}) and finish_date ({finish_date}): {e}."
+                Error=err_msg
             ))
-            return start_date, finish_date  # safe fallback
-    
-    def _get_week_range(self, start_date:datetime|str, finish_date:datetime|str, obj_id:int=-1) -> list:
+            raise
+
+    def _get_week_range(self, start_date:datetime|str, finish_date:datetime|str) -> list:
         try:
             if isinstance(start_date, str):
                 start_date = datetime.strptime(start_date, '%d-%b-%Y')
@@ -542,18 +561,24 @@ class PostProcessingFramework():
                 finish_date = datetime.strptime(finish_date, '%d-%b-%Y')
 
             if start_date > finish_date:
-                print(f"[Warning] start_date {start_date} is after finish_date {finish_date}. Returning empty range.")
-                self.module_data["logs"]["status"].append(dict(
-                    Warning= f"{PostProcessingFramework.__name__}| Failed to get week range for {obj_id}, start_date ({start_date}) is after finish_date ({finish_date})."
-                ))
+                err_msg = f"start_date {start_date} > finish_date {finish_date}"
+                print(f"[Warning] {err_msg}. Returning empty range.")
+                self.module_data["logs"]["status"].append({
+                    "Warning": f"{PostProcessingFramework.__name__}| Week range empty for object: {err_msg}"
+                })
                 return []
 
             step = timedelta(days=len(self.calendar_weekdays))
             count = ((finish_date - start_date).days // step.days) + 1
+
+            if count > 1000:
+                print(f"[Warning] Excessive week count ({count}) from {start_date} to {finish_date}. Trimming to 1000.")
+                count = 1000
+
             return [start_date + i * step for i in range(count)]
 
         except Exception as e:
-            print(f"[Error] _get_week_range with start_date={start_date}, finish_date={finish_date}: {e}")
+            print(f"[ERROR] _get_week_range with start_date={start_date}, finish_date={finish_date}: {e}")
             return []
 
     def _calculate_available_instances(self, custom_ordered_dict:dict) -> dict:
