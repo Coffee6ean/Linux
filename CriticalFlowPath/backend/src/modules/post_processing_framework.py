@@ -385,30 +385,33 @@ class PostProcessingFramework():
         return "|".join(category_names)
 
     def _bubble_sort_entries_by_dates(self, unsorted_list:list) -> list:
-        if not unsorted_list:
-            raise ValueError("_bubble_sort_entries_by_dates received empty list")
+        try:
+            if not unsorted_list:
+                raise ValueError("Received empty list.")
 
-        n = len(unsorted_list)
-        for i in range(n):
-            for j in range(0, n - i - 1):
-                try:
-                    date_start_j = datetime.strptime(unsorted_list[j]["start"], "%d-%b-%Y")
-                    date_start_j1 = datetime.strptime(unsorted_list[j + 1]["start"], "%d-%b-%Y")
-                except Exception as e:
-                    raise ValueError(f"Invalid 'start' date format in entry: {e}")
-
-                if date_start_j > date_start_j1:
-                    unsorted_list[j], unsorted_list[j + 1] = unsorted_list[j + 1], unsorted_list[j]
-                elif date_start_j == date_start_j1:
+            n = len(unsorted_list)
+            for i in range(n):
+                for j in range(0, n - i - 1):
                     try:
-                        date_end_j = datetime.strptime(unsorted_list[j]["finish"], "%d-%b-%Y")
-                        date_end_j1 = datetime.strptime(unsorted_list[j + 1]["finish"], "%d-%b-%Y")
+                        date_start_j = datetime.strptime(unsorted_list[j]["start"], "%d-%b-%Y")
+                        date_start_j1 = datetime.strptime(unsorted_list[j + 1]["start"], "%d-%b-%Y")
                     except Exception as e:
-                        raise ValueError(f"Invalid 'finish' date format in entry: {e}")
+                        raise ValueError(f"Invalid 'start' date format in entry: {e}")
 
-                    if date_end_j > date_end_j1:
+                    if date_start_j > date_start_j1:
                         unsorted_list[j], unsorted_list[j + 1] = unsorted_list[j + 1], unsorted_list[j]
+                    elif date_start_j == date_start_j1:
+                        try:
+                            date_end_j = datetime.strptime(unsorted_list[j]["finish"], "%d-%b-%Y")
+                            date_end_j1 = datetime.strptime(unsorted_list[j + 1]["finish"], "%d-%b-%Y")
+                        except Exception as e:
+                            raise ValueError(f"Invalid 'finish' date format in entry: {e}")
 
+                        if date_end_j > date_end_j1:
+                            unsorted_list[j], unsorted_list[j + 1] = unsorted_list[j + 1], unsorted_list[j]
+        except Exception as e:
+            print("No valid dates found to sort.")
+        
         return unsorted_list
     
     def _get_overlap(self, location_based_lists:list, time_scale:str) -> dict:
@@ -524,6 +527,8 @@ class PostProcessingFramework():
 
     def _calculate_week(self, start_date: datetime, finish_date: datetime) -> tuple:
         try:
+            print(f"[DEBUG] input_workweek={self.input_workweek}, calendar_weekdays={self.calendar_weekdays}")
+
             weekday_map = {day: i for i, day in enumerate(self.calendar_weekdays)}
             target_start = weekday_map[self.input_workweek[0]]
             target_end = weekday_map[self.input_workweek[-1]]
