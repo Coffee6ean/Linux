@@ -83,6 +83,14 @@ def save_uploaded_file(file_path:str) -> str:
     return save_path
 
 def process_file(payload:dict) -> dict:
+    file_path = payload.get("file_name")
+
+    if not file_path or not os.path.exists(file_path):
+        raise FileNotFoundError(f"Invalid file path: {file_path}")
+
+    if os.stat(file_path).st_size == 0:
+        raise ValueError(f"Excel file is empty: {file_path}")
+
     processed_project_dict = App.main(payload)
 
     return processed_project_dict
@@ -132,6 +140,16 @@ def execute_module_cycle():
         saved_name = f"[{timestamp}]__{original_filename}"
         saved_path = os.path.join(UPLD_FOLDER, saved_name)
         file.save(saved_path)
+
+        # Validate uploaded file
+        if not os.path.exists(saved_path):
+            return jsonify({"error": f"File not saved: {saved_path}"}), 500
+
+        if os.stat(saved_path).st_size == 0:
+            return jsonify({"error": f"Uploaded file is empty: {saved_path}"}), 400
+
+        print(f"[INFO] File saved to: {saved_path}")
+        print(f"[INFO] Size: {os.stat(saved_path).st_size} bytes")
 
         # Inject file path into payload
         payload["file_name"] = saved_path
