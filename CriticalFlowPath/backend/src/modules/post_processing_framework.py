@@ -527,8 +527,6 @@ class PostProcessingFramework():
 
     def _calculate_week(self, start_date: datetime, finish_date: datetime) -> tuple:
         try:
-            print(f"[DEBUG] input_workweek={self.input_workweek}, calendar_weekdays={self.calendar_weekdays}")
-
             weekday_map = {day: i for i, day in enumerate(self.calendar_weekdays)}
             target_start = weekday_map[self.input_workweek[0]]
             target_end = weekday_map[self.input_workweek[-1]]
