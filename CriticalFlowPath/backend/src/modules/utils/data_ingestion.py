@@ -46,21 +46,8 @@ class DataIngestion:
         }
         self.json_struct_categories = ["phase", "area", "zone", "subzone", "level", "trade", "activity_code"]
 
-    @staticmethod
-    def main(auto=True, input_file_path=None, input_file_basename=None, 
-             input_file_extension=None, input_file_roi=None, output_file_dir=None):
-        if auto:
-            project = DataIngestion.auto_generate_ins(
-                input_file_path, 
-                input_file_basename, 
-                input_file_extension,
-                input_file_roi, 
-                output_file_dir
-            )
-        else:
-            project = DataIngestion.generate_ins()
-
-        module_data = {
+        #Module Results
+        self.module_data = {
             "details": {
                 "workbook": None,
                 "worksheet": None,
@@ -77,45 +64,59 @@ class DataIngestion:
             "content": {}
         }
 
+    @staticmethod
+    def main(auto=True, input_file_path=None, input_file_basename=None, 
+             input_file_extension=None, input_file_roi=None, output_file_dir=None):
+        if auto:
+            project = DataIngestion.auto_generate_ins(
+                input_file_path, 
+                input_file_basename, 
+                input_file_extension,
+                input_file_roi, 
+                output_file_dir
+            )
+        else:
+            project = DataIngestion.generate_ins()
+
         if project:
             if project.input_extension == "xlsx":
                 if project.ws_name is None:
                     worksheet = input("Please enter the name for the new or existing worksheet: ")
                 else:
                     worksheet = project.ws_name
-
-                xlsx_results = project.handle_xlsx(worksheet)
+                
+                xlsx_results = project.handle_xlsx(worksheet, auto)
                 basename = project.input_basename + '.' + project.input_extension 
-                module_data["details"]["workbook"] = os.path.join(project.input_path, basename)
-                module_data["details"]["worksheet"] = worksheet
-                module_data["details"]["start_date"] = xlsx_results.get("earliest_start")
-                module_data["details"]["finish_date"] = xlsx_results.get("latest_finish")
-                module_data["details"]["entry_count"] = xlsx_results.get("entry_count")
-                module_data["content"] = xlsx_results.get("nested_json")
+                project.module_data["details"]["workbook"] = os.path.join(project.input_path, basename)
+                project.module_data["details"]["worksheet"] = worksheet
+                project.module_data["details"]["start_date"] = xlsx_results.get("earliest_start")
+                project.module_data["details"]["finish_date"] = xlsx_results.get("latest_finish")
+                project.module_data["details"]["entry_count"] = xlsx_results.get("entry_count")
+                project.module_data["content"] = xlsx_results.get("nested_json")
             elif project.input_extension == "xml":
                 excel_path, excel_basename = DataIngestion.return_valid_file(project.output_file_dir)
                 processed_json = project.handle_xml()
-                module_data["content"] = project.create_wbs_table_to_fill(processed_json, excel_path, excel_basename)
+                project.module_data["content"] = project._create_wbs_table_to_fill(processed_json, excel_path, excel_basename)
             else:
                 print("Error. Unsuported file type")
-                module_data["logs"]["status"].append(dict(
+                project.module_data["logs"]["status"].append(dict(
                     Error=f"{DataIngestion.__name__}| Unsuported input file extension: {project.input_extension}"
                 ))
         else:
-            module_data["logs"]["status"].append(dict(
+            project.module_data["logs"]["status"].append(dict(
                 Error= f"{DataIngestion.__name__}| Module's instance was not generated correctly"
             ))
             
-        module_data["logs"]["finish"] = DataIngestion.return_valid_date()
-        module_data["logs"]["run-time"] = DataIngestion.calculate_time_duration(
-            module_data["logs"].get("start"), 
-            module_data["logs"].get("finish")
+        project.module_data["logs"]["finish"] = DataIngestion.return_valid_date()
+        project.module_data["logs"]["run-time"] = DataIngestion.calculate_time_duration(
+            project.module_data["logs"].get("start"), 
+            project.module_data["logs"].get("finish")
         )
-        module_data["logs"]["status"].append(dict(
+        project.module_data["logs"]["status"].append(dict(
             Info=f"{DataIngestion.__name__}| Module ran successfully"
         ))
 
-        return module_data
+        return project.module_data
 
     @staticmethod
     def generate_ins():
@@ -255,27 +256,63 @@ class DataIngestion:
             print(f"Error calculating runtime: {e}")
             return -1
 
-    def handle_xlsx(self, ws_name:str) -> tuple[dict, dict]:
-        _, ws = self._return_excel_workspace(ws_name)
-        file_headers = self._xlsx_return_header(ws)
+    def handle_xlsx(self, ws_name:str, auto:bool) -> tuple[dict, dict]:
+        try:
+            if auto:
+                _, ws = self._auto_return_excel_workspace(ws_name)
+            else:
+                _, ws = self._return_excel_workspace(ws_name)
 
-        json_header = self._json_fill_header(file_headers)
-        json_obj, entry_counter = self._json_fill_body(ws, json_header)
-        reworked_json = self._fill_missing_dates(json_obj)
-        earliest_start, latest_finish = self._project_dates(reworked_json)
-        nested_json = self._build_nested_dic(reworked_json)
-        
-        xlsx_results = {
-            "nested_json": nested_json,
-            "flattend_json": reworked_json,
-            "entry_count": entry_counter,
-            "earliest_start": earliest_start,
-            "latest_finish": latest_finish,
-        }
+            file_headers = self._xlsx_return_header(ws)
+            json_header = self._json_fill_header(file_headers)
+            json_obj, entry_counter = self._json_fill_body(ws, json_header)
+            reworked_json = self._fill_missing_dates(json_obj)
+            earliest_start, latest_finish = self._project_dates(reworked_json)
+            nested_json = self._build_nested_dic(reworked_json)
+            
+            xlsx_results = {
+                "nested_json": nested_json,
+                "flattend_json": reworked_json,
+                "entry_count": entry_counter,
+                "earliest_start": earliest_start,
+                "latest_finish": latest_finish,
+            }
+        except Exception as e:
+            err_msg = f"Failed to handle XLSX processing: {e}."
+            print(f"[ERROR] {err_msg}")
+            self.module_data["logs"]["status"].append(dict(
+                Error= f"{DataIngestion.__name__}|{self.handle_xlsx.__name__}| Failed to handle XLSX processing: {e}."
+            ))
 
-        return xlsx_results
+            xlsx_results = {
+                "nested_json": {},
+                "flattend_json": [],
+                "entry_count": 0,
+                "earliest_start": None,
+                "latest_finish": None,
+            }
+        finally:
+            return xlsx_results
     
-    def _return_excel_workspace(self, worksheet_name:str):
+    def _auto_return_excel_workspace(self, worksheet_name:str) -> tuple:
+        try:
+            basename = self.input_basename + '.' + self.input_extension
+            file = os.path.join(self.input_path, basename)
+
+            workbook = load_workbook(filename=file)
+            worksheet = workbook[worksheet_name]
+
+            return workbook, worksheet
+            
+        except Exception as e:
+            err_msg = f"Failed to return Excel workspace: {e}"
+            print(f"[ERROR] {err_msg}")
+            self.module_data["logs"]["status"].append(dict(
+                Error=f"{DataIngestion.__name__}|{self._return_excel_workspace.__name__}| {err_msg}"
+            ))
+            return None, None
+
+    def _return_excel_workspace(self, worksheet_name:str) -> tuple:
         basename = self.input_basename + '.' + self.input_extension
         file = os.path.join(self.input_path, basename)
 
@@ -346,80 +383,110 @@ class DataIngestion:
         return result
 
     def _json_fill_header(self, file_headers:list) -> dict:
-        json_obj = {
-            "start": None,
-            "finish": None,
-            "header": {key: None for key, _ in self.project_content_headers.items()},
-            "body": [],
-        }
+        try:
+            json_obj = {
+                "start": None,
+                "finish": None,
+                "header": {key: None for key, _ in self.project_content_headers.items()},
+                "body": [],
+            }
 
-        for coordinates, data in file_headers:
+            for coordinates, data in file_headers:
+                header_dict = json_obj["header"]
+
+                header_dict[data] = coordinates
+
+            return json_obj
+        
+        except Exception as e:
+            err_msg = f"Failed to build JSON header: {e}"
+            print(f"[ERROR] {err_msg}")
+            self.module_data["logs"]["status"].append(dict(
+                Error=f"{DataIngestion.__name__}|{self._json_fill_header.__name__}| {err_msg}"
+            ))
+            return {
+                "start": None,
+                "finish": None,
+                "header": {},
+                "body": [],
+            }
+
+    def _json_fill_body(self, active_worksheet, json_obj:dict) -> tuple[dict, int]:
+        try:
+            ws = active_worksheet
+            body_dict = json_obj["body"]
             header_dict = json_obj["header"]
 
-            header_dict[data] = coordinates
+            normalized_header = sorted(
+                {k: v for k, v in header_dict.items() if v is not None}.items(), 
+                key=lambda item: item[1]
+            )
 
-        return json_obj
+            header_coordinates_list = [dict_tuple[1] for dict_tuple in normalized_header]
+            header_key_list = [dict_tuple[0] for dict_tuple in normalized_header]
 
-    def _json_fill_body(self, active_worksheet, json_obj:dict) -> dict:
-        ws = active_worksheet
-        body_dict = json_obj["body"]
-        header_dict = json_obj["header"]
+            first_header_col_letter, first_header_row = self._get_column_coordinates(
+                header_dict, normalized_header[0][0]
+            )
+            last_header_col_letter, _ = self._get_column_coordinates(header_dict, normalized_header[-1][0])
+            first_header_col = column_index_from_string(first_header_col_letter)
+            last_header_col = column_index_from_string(last_header_col_letter)
 
-        normalized_header = sorted(
-            {k: v for k, v in header_dict.items() if v is not None}.items(), 
-            key=lambda item: item[1]
-        )
-
-        header_coordinates_list = [dict_tuple[1] for dict_tuple in normalized_header]
-        header_key_list = [dict_tuple[0] for dict_tuple in normalized_header]
-
-        first_header_col_letter, first_header_row = self._get_column_coordinates(
-            header_dict, normalized_header[0][0]
-        )
-        last_header_col_letter, _ = self._get_column_coordinates(header_dict, normalized_header[-1][0])
-        first_header_col = column_index_from_string(first_header_col_letter)
-        last_header_col = column_index_from_string(last_header_col_letter)
-
-        entry_counter = 1
-        for row in ws.iter_rows(min_row=first_header_row + 1, max_row=ws.max_row, 
-                                min_col=first_header_col, max_col=last_header_col):
-            json_activity = {key: None for key in header_dict.keys()}
-            json_activity["entry"] = entry_counter
-            for cell in row:
-                parent_header = next((val for val in header_coordinates_list if get_column_letter(cell.column) in val), None)
-                if cell.value:        
-                    position = header_coordinates_list.index(parent_header)
-                    key = header_key_list[position]
-                    json_activity[key] = self._normalize_data_value(key, cell.value)
-                else:
-                    position = header_coordinates_list.index(parent_header)
-                    key = header_key_list[position]
-
-                    if key == "area":
-                        json_activity[key] = "N/A"
+            entry_counter = 1
+            for row in ws.iter_rows(min_row=first_header_row + 1, max_row=ws.max_row, 
+                                    min_col=first_header_col, max_col=last_header_col):
+                json_activity = {key: None for key in header_dict.keys()}
+                json_activity["entry"] = entry_counter
+                for cell in row:
+                    parent_header = next((val for val in header_coordinates_list if get_column_letter(cell.column) in val), None)
+                    if cell.value:        
+                        position = header_coordinates_list.index(parent_header)
+                        key = header_key_list[position]
+                        json_activity[key] = self._normalize_data_value(key, cell.value)
                     else:
-                        json_activity[key] = ""
+                        position = header_coordinates_list.index(parent_header)
+                        key = header_key_list[position]
 
-            body_dict.append(json_activity)
-            entry_counter += 1
+                        if key == "area":
+                            json_activity[key] = "N/A"
+                        else:
+                            json_activity[key] = ""
 
-        return json_obj, entry_counter
+                body_dict.append(json_activity)
+                entry_counter += 1
+
+            return json_obj, entry_counter
+        except Exception as e:
+            err_msg = f"Failed to fill JSON body: {e}"
+            print(f"[ERROR] {err_msg}")
+            self.module_data["logs"]["status"].append(dict(
+                Error=f"{DataIngestion.__name__}|{self._json_fill_body.__name__}| {err_msg}"
+            ))
+            return json_obj, 0
     
-    def _get_column_coordinates(self, header_dict:dict, header_key:str):
+    def _get_column_coordinates(self, header_dict:dict, header_key:str) -> tuple[str, int]:
         coordinates = header_dict[header_key]
 
-        row_match = re.search(r'\d+', coordinates)
-        column_match = re.search(r'[a-zA-Z]+', coordinates)
+        try:
+            row_match = re.search(r'\d+', coordinates)
+            column_match = re.search(r'[a-zA-Z]+', coordinates)
 
-        if not row_match or not column_match:
-            raise ValueError(f"Invalid coordinates format: {coordinates}")
+            if not row_match or not column_match:
+                raise ValueError(f"Invalid coordinates format: {coordinates}")
 
-        row = int(row_match.group(0))
-        column = column_match.group(0)
+            row = int(row_match.group(0))
+            column = column_match.group(0)
 
-        return column, row 
+            return column, row 
+        except Exception as e:
+            err_msg = f"Failed to extract coordinates for '{header_key}': {e}"
+            print(f"[ERROR] {err_msg}")
+            self.module_data["logs"]["status"].append(dict(
+                Error=f"{DataIngestion.__name__}|{self._get_column_coordinates.__name__}| {err_msg}"
+            ))
+            return "", 0
 
-    def _normalize_data_value(self, header_column:str, cell_value):
+    def _normalize_data_value(self, header_column:str, cell_value) -> str|None:
         if isinstance(cell_value, str):
             if header_column == 'start' or header_column == 'finish':
                 result = self._format_date_string(cell_value)
@@ -436,8 +503,7 @@ class DataIngestion:
         else:
             return None
         
-    def _format_date_string(self, date_string:str, 
-                           output_format="%d-%b-%Y") -> str|None:
+    def _format_date_string(self, date_string:str, output_format="%d-%b-%Y") -> str|None:
         try:
             special_chars = re.compile('[@_!#$%^&*()<>?\\|}{~:]')
 
@@ -451,67 +517,111 @@ class DataIngestion:
             formatted_date = parsed_date.strftime(output_format)
 
             return formatted_date
-        except ValueError as e:
-            print(f"Error parsing date: {e}")
+        
+        except Exception as e:
+            err_msg = f"Could not parse date string '{date_string}': {e}"
+            print(f"[ERROR] {err_msg}")
+            self.module_data["logs"]["status"].append(dict(
+                Error=f"{DataIngestion.__name__}|{self._format_date_string.__name__}| {err_msg}"
+            ))
             return None
 
     def _fill_missing_dates(self, json_obj:dict) -> dict:
-        original_body = json_obj.get("body", [])
-        cleaned_body = []
+        try:
+            original_body = json_obj.get("body", [])
+            cleaned_body = []
 
-        for item in original_body:
-            start = item.get("start")
-            finish = item.get("finish")
+            for item in original_body:
+                start = item.get("start")
+                finish = item.get("finish")
 
-            if not start and not finish:
-                print(f"[INFO] Skipping entry with no 'start' or 'finish': {item.get('entry')}")
-                continue
+                if not start and not finish:
+                    msg = f"Skipping entry with no 'start' or 'finish': entry {item.get('entry')}"
+                    print(f"[INFO] {msg}")
+                    self.module_data["logs"]["status"].append(dict(
+                        Info=f"{DataIngestion.__name__}|{self._fill_missing_dates.__name__}| {msg}"
+                    ))
 
-            if not start:
-                item["start"] = finish
-            if not finish:
-                item["finish"] = start
+                    continue
 
-            cleaned_body.append(item)
+                if not start:
+                    item["start"] = finish
+                if not finish:
+                    item["finish"] = start
 
-        json_obj["body"] = cleaned_body
-        return json_obj
-    
-    def _project_dates(self, json_obj:dict):
-        body_dict = json_obj["body"]
+                cleaned_body.append(item)
+
+            json_obj["body"] = cleaned_body
+
+            return json_obj
         
-        start_list = [date["start"] for date in body_dict]
-        finish_list = [date["finish"] for date in body_dict]
+        except Exception as e:
+            err_msg = f"Failed to fill missing dates: {e}"
+            print(f"[ERROR] {err_msg}")
+            self.module_data["logs"]["status"].append(dict(
+                Error=f"{DataIngestion.__name__}|{self._fill_missing_dates.__name__}| {err_msg}"
+            ))
 
-        earliest_start = self._bubble_sort_dates(start_list)[0]        
-        latest_finish = self._bubble_sort_dates(finish_list)[-1]        
+            return json_obj
+    
+    def _project_dates(self, json_obj:dict) -> tuple:
+        try:
+            body_dict = json_obj["body"]
+            
+            start_list = [date["start"] for date in body_dict]
+            finish_list = [date["finish"] for date in body_dict]
 
-        return earliest_start, latest_finish
+            earliest_start = self._bubble_sort_dates(start_list)[0]        
+            latest_finish = self._bubble_sort_dates(finish_list)[-1]        
+
+            return earliest_start, latest_finish
+        
+        except Exception as e:
+            err_msg = f"Failed to compute project dates: {e}"
+            print(f"[ERROR] {err_msg}")
+            self.module_data["logs"]["status"].append(dict(
+                Error=f"{DataIngestion.__name__}|{self._project_dates.__name__}| {err_msg}"
+            ))
+
+            return None, None
 
     def _bubble_sort_dates(self, unsorted_list:list) -> list:
-        n = len(unsorted_list)
+        try:
+            n = len(unsorted_list)
 
-        for i in range(n):
-            for j in range(n-i-1):
-                value_j = unsorted_list[j]
-                value_j1 = unsorted_list[j+1]
+            for i in range(n):
+                for j in range(n-i-1):
+                    value_j = unsorted_list[j]
+                    value_j1 = unsorted_list[j+1]
 
-                try:
-                    if isinstance(value_j, str) and isinstance(value_j1, str):
-                        value_j = datetime.strptime(value_j, "%d-%b-%Y").date()
-                        value_j1 = datetime.strptime(value_j1, "%d-%b-%Y").date()
+                    try:
+                        if isinstance(value_j, str) and isinstance(value_j1, str):
+                            value_j = datetime.strptime(value_j, "%d-%b-%Y").date()
+                            value_j1 = datetime.strptime(value_j1, "%d-%b-%Y").date()
 
-                    elif isinstance(value_j1, datetime):
-                        value_j = value_j.date()
-                        value_j1 = value_j1.date()
+                        elif isinstance(value_j1, datetime):
+                            value_j = value_j.date()
+                            value_j1 = value_j1.date()
 
-                except Exception as e:
-                    print(f"Error: {e}")
-                else:
-                    if value_j > value_j1:
-                        unsorted_list[j], unsorted_list[j+1] = unsorted_list[j+1], unsorted_list[j]
+                        if value_j > value_j1:
+                            unsorted_list[j], unsorted_list[j+1] = unsorted_list[j+1], unsorted_list[j]
+
+                    except Exception as e:
+                        err_msg = f"Failed to parse date during sort: {e}"
+                        print(f"[WARNING] {err_msg}")
+                        self.module_data["logs"]["status"].append(dict(
+                            Warning=f"{DataIngestion.__name__}|{self._bubble_sort_dates.__name__}| {err_msg}"
+                        ))
+            
+            return unsorted_list
         
-        return unsorted_list
+        except Exception as e:
+            err_msg = f"Failed to sort date list: {e}"
+            print(f"[ERROR] {err_msg}")
+            self.module_data["logs"]["status"].append(dict(
+                Error=f"{DataIngestion.__name__}|{self._bubble_sort_dates.__name__}| {err_msg}"
+            ))
+            return unsorted_list
 
     def _build_nested_dic(self, json_obj:dict) -> dict:
         header_dict = json_obj["header"]
@@ -522,50 +632,67 @@ class DataIngestion:
             "body": {},
         }
 
-        def dict_management(obj, key_list, recursive_dict):
+        def dict_management(json_obj:dict, key_list:list, recursive_dict:dict):
             if not key_list:
                 return recursive_dict
 
             current_key = key_list.pop(0)
-            obj_key = obj.get(current_key)
+            obj_key = json_obj.get(current_key)
 
             if obj_key is not None and obj_key != "":
                 if len(key_list) < 1:
                     if obj_key not in recursive_dict:
                         recursive_dict[obj_key] = []
-                    recursive_dict[obj_key].append(obj)
+                    recursive_dict[obj_key].append(json_obj)
                 else:
                     if obj_key not in recursive_dict:
                         recursive_dict[obj_key] = {}
-                    dict_management(obj, key_list, recursive_dict[obj_key])
+                    dict_management(json_obj, key_list, recursive_dict[obj_key])
             else:
                 if "M_DATA" not in recursive_dict:
                     recursive_dict["M_DATA"] = []
-                recursive_dict["M_DATA"].append(obj)
+                recursive_dict["M_DATA"].append(json_obj)
 
             return recursive_dict
 
+        try:
+            for obj in body_dict:
+                keys = [category for category in self.json_struct_categories if obj.get(category) is not None]
+                nested_dict["body"] = dict_management(
+                    obj, keys, nested_dict["body"]
+                )
+            
+            return nested_dict
+    
+        except Exception as e:
+            err_msg = f"Failed to build nested JSON structure: {e}"
+            print(f"[ERROR] {err_msg}")
+            self.module_data["logs"]["status"].append(dict(
+                Error=f"{DataIngestion.__name__}|{self._build_nested_dic.__name__}| {err_msg}"
+            ))
 
-        for obj in body_dict:
-            keys = [category for category in self.json_struct_categories if obj.get(category) is not None]
-            nested_dict["body"] = dict_management(
-                obj, keys, nested_dict["body"]
-            )
-        
-        return nested_dict
+            return {"header": {}, "body": {}}
 
     def write_json(self, json_obj:dict, processed_json:bool=False) -> None:
         if processed_json:
             basename = f"processed_{self.output_json_basename}.json"
-            file = os.path.join(self.output_path, basename)
         else:
             basename = f"{self.output_json_basename}.json"
-            file = os.path.join(self.output_path, basename)
+            
+        file_dir = os.path.join(self.output_path, basename)
 
-        with open(file, 'w') as file_writer:
-            json.dump(json_obj, file_writer)
+        try:
+            with open(file_dir, 'w') as file_writer:
+                json.dump(json_obj, file_writer)
 
-        print(f"JSON data successfully created and saved to {basename}.")
+            print(f"JSON data successfully created and saved to {basename}.")
+        
+        except Exception as e:
+            err_msg = f"Failed to write JSON to file: {e}"
+            print(f"[ERROR] {err_msg}")
+            self.module_data["logs"]["status"].append(dict(
+                Error=f"{DataIngestion.__name__}|{self.write_json.__name__}| {err_msg}"
+            ))
 
     def handle_xml(self):
         basename = self.input_basename + '.' + self.input_extension
@@ -589,7 +716,7 @@ class DataIngestion:
 
         return json_dict_list   
         
-    def create_wbs_table_to_fill(self, data:list, excel_path:str, 
+    def _create_wbs_table_to_fill(self, data:list, excel_path:str, 
                                  excel_basename:str):
         proc_table = self._generate_wbs_to_fill(data)
         self._write_data_to_excel(proc_table, excel_path, excel_basename)
