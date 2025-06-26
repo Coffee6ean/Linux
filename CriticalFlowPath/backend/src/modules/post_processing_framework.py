@@ -844,16 +844,22 @@ class PostProcessingFramework():
                 start_row = merge_range[0].row
                 end_row = merge_range[-1].row
 
-                ws.merge_cells(
-                    start_row=start_row,
-                    start_column=starting_col_idx,
-                    end_row=end_row,
-                    end_column=starting_col_idx
-                )
-
-                for row in range(start_row, end_row + 1):
-                    cell = ws.cell(row=row, column=starting_col_idx)
-                    cell.border = thin_border
+                # Merge the cells first
+                try:
+                    ws.merge_cells(
+                        start_row=start_row,
+                        start_column=starting_col_idx,
+                        end_row=end_row,
+                        end_column=starting_col_idx
+                    )
+                    
+                    # Apply border only to the top-left cell of the merged range
+                    top_left_cell = ws.cell(row=start_row, column=starting_col_idx)
+                    top_left_cell.border = thin_border
+                    
+                except Exception as e:
+                    print(f"Error processing merge range ({start_row}, {starting_col_idx}) to ({end_row}, {starting_col_idx}): {e}")
+                    # Continue processing other ranges even if one fails
 
     def _style_file(self, active_worksheet, lead_schedule_struct:str, 
                     start_col:int, start_row:int=1) -> None:
