@@ -305,8 +305,8 @@ class PostProcessingFramework():
         
         return workbook, worksheet
 
-    def update_schedule_size(self, active_workbook, active_worksheet, custom_ordered_dict:dict, 
-                             lead_schedule_struct:str, time_scale:str, alloted_space:int=2) -> None:
+    def update_schedule_size(self, active_workbook, active_worksheet, custom_ordered_dict: dict, 
+                         lead_schedule_struct: str, time_scale: str, alloted_space: int = 2) -> None:
         basename = self.input_basename + '.' + self.input_extension
         file = os.path.join(self.input_path, basename)
 
@@ -324,6 +324,9 @@ class PostProcessingFramework():
             alloted_space
         )
 
+        # Add data validation before saving
+        self._validate_worksheet_data(active_worksheet)
+
         try:
             active_workbook.save(filename=file)
             print("CFA Schedule frame successfully updated.")
@@ -335,8 +338,46 @@ class PostProcessingFramework():
             self.module_data["logs"]["status"].append({
                 "Error": f"{PostProcessingFramework.__name__}| Failed to update CFA Frame: {e}"
             })
+            
+            # Try saving with a backup name
+            try:
+                backup_file = file.replace(f'.{self.input_extension}', f'_backup.{self.input_extension}')
+                active_workbook.save(filename=backup_file)
+                print(f"Saved backup file: {backup_file}")
+            except Exception as backup_error:
+                print(f"Backup save also failed: {backup_error}")
+                
         finally:
             active_workbook.close()
+
+    def _validate_worksheet_data(self, worksheet):
+        """Validate and clean worksheet data before saving"""
+        try:
+            for row in worksheet.iter_rows():
+                for cell in row:
+                    if cell.value is not None:
+                        # Handle different data types
+                        if isinstance(cell.value, str):
+                            # Remove null characters and other problematic characters
+                            cell.value = cell.value.replace('\x00', '').replace('\r', '').replace('\n', ' ')
+                            # Truncate very long strings (Excel limit is 32,767 characters)
+                            if len(cell.value) > 32767:
+                                cell.value = cell.value[:32767]
+                        elif isinstance(cell.value, (list, dict, tuple)):
+                            # Convert complex objects to strings
+                            cell.value = str(cell.value)[:32767]
+                        elif not isinstance(cell.value, (int, float, bool)):
+                            # Convert other types to string
+                            try:
+                                cell.value = str(cell.value)[:32767]
+                            except:
+                                cell.value = "DATA_ERROR"
+                                
+            print("Worksheet data validation completed successfully.")
+            
+        except Exception as e:
+            print(f"Error during data validation: {e}")
+            # Continue anyway - validation is just a safety measure
 
     def _calculate_overlapping_dates(self, custom_ordered_dict:dict, time_scale:str='d') -> dict:
         if not isinstance(custom_ordered_dict, list) or not custom_ordered_dict:
