@@ -524,19 +524,13 @@ class PostProcessingFramework():
 
     def _calculate_week(self, start_date: datetime, finish_date: datetime) -> tuple:
         try:
-            if not self.input_workweek or not self.calendar_weekdays:
-                raise ValueError("Workweek or calendar weekdays configuration is missing.")
-
-            # Map weekday names to integers (0 = Monday, 6 = Sunday)
             weekday_map = {day: i for i, day in enumerate(self.calendar_weekdays)}
             target_start = weekday_map[self.input_workweek[0]]
             target_end = weekday_map[self.input_workweek[-1]]
 
-            # Move backwards to start of week (e.g., Monday)
             start_offset = (start_date.weekday() - target_start) % 7
             week_start = start_date - timedelta(days=start_offset)
 
-            # Move forward to end of week (e.g., Friday)
             end_offset = (target_end - start_date.weekday()) % 7
             week_finish = start_date + timedelta(days=end_offset)
 
@@ -550,6 +544,7 @@ class PostProcessingFramework():
             self.module_data["logs"]["status"].append(dict(
                 Error=err_msg
             ))
+            
             raise
 
     def _get_week_range(self, start_date:datetime|str, finish_date:datetime|str) -> list:
