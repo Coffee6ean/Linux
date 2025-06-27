@@ -727,8 +727,10 @@ class ScheduleFramework():
             
             color = current_item.get("color")
             if color:
-                cell.fill = PatternFill(start_color=re.sub('#', "00", current_item.get("color")), 
-                                    end_color=re.sub('#', "00", current_item.get("color")), 
+                color_value = current_item.get("color", "")
+                formatted_color = "00" + color_value.lstrip('#')
+                cell.fill = PatternFill(start_color=formatted_color, 
+                                    end_color=formatted_color, 
                                     fill_type='solid')
             else:
                 print(f"Color hex not found for: {current_item['entry']}.")
