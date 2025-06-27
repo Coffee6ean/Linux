@@ -773,7 +773,7 @@ class PostProcessingFramework():
             for batch_start, batch_size in consecutive_batches:
                 try:
                     ws.delete_rows(batch_start, amount=batch_size)
-                    print(f"Deleted batch: rows {batch_start} to {batch_start + batch_size - 1}")
+                    #print(f"Deleted batch: rows {batch_start} to {batch_start + batch_size - 1}")
                 except Exception as batch_error:
                     # Fallback: delete individually for this batch
                     print(f"Batch deletion failed, falling back to individual deletion: {batch_error}")
