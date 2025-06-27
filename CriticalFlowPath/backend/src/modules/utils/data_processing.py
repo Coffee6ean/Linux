@@ -140,27 +140,41 @@ class DataProcessing:
 
     def _extract_workweek(self) -> list:
         try:
+            if not self.input_workweek:
+                raise ValueError("input_workweek is None or empty")
+                
             workdays = self.input_workweek.split('-')
             if len(workdays) != 2:
                 raise ValueError("Workweek must be a dash-separated range (e.g., 'Mon-Fri').")
             
-            init_day, final_day = workdays[0], workdays[-1]
-
-            if init_day not in self.calendar_weekdays or final_day not in self.calendar_weekdays:
-                raise ValueError(f"Workweek range contains invalid days: {init_day}, {final_day}")
+            init_day = workdays[0].strip()
+            final_day = workdays[-1].strip()
+            
+            if not hasattr(self, 'calendar_weekdays') or not self.calendar_weekdays:
+                raise ValueError("calendar_weekdays is not properly initialized")
+            
+            if init_day not in self.calendar_weekdays:
+                raise ValueError(f"Initial day '{init_day}' not found in calendar_weekdays: {self.calendar_weekdays}")
+            
+            if final_day not in self.calendar_weekdays:
+                raise ValueError(f"Final day '{final_day}' not found in calendar_weekdays: {self.calendar_weekdays}")
 
             start_idx = self.calendar_weekdays.index(init_day)
             end_idx = self.calendar_weekdays.index(final_day)
-
+            
             if start_idx <= end_idx:
                 workweek = self.calendar_weekdays[start_idx:end_idx + 1]
             else:
                 workweek = self.calendar_weekdays[start_idx:] + self.calendar_weekdays[:end_idx + 1]
             
             return workweek
+            
         except Exception as e:
             err_msg = f"Failed to extract workweek: {e}"
             print(f"[ERROR] {err_msg}")
+            print(f"[DEBUG] input_workweek: '{self.input_workweek}'")
+            print(f"[DEBUG] calendar_weekdays: {getattr(self, 'calendar_weekdays', 'NOT SET')}")
+            
             self.module_data["logs"]["status"].append(dict(
                 Error=f"{DataProcessing.__name__}|{self._extract_workweek.__name__}| {err_msg}"
             ))
