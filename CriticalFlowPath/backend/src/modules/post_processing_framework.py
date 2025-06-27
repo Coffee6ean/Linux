@@ -325,7 +325,7 @@ class PostProcessingFramework():
         )
 
         # Add data validation before saving
-        self._validate_worksheet_data(active_worksheet)
+        #self._validate_worksheet_data(active_worksheet)
 
         try:
             active_workbook.save(filename=file)
