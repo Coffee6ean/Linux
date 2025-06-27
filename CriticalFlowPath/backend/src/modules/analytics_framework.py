@@ -799,7 +799,7 @@ class AnalyticsFramework:
             )
 
             output_path = self.output_dir
-            output_basename = f"atcivity_time_status_{color_mode}.png"
+            output_basename = f"activity_time_status_{color_mode}.png"
             output_file = os.path.join(output_path, output_basename)
             fig.write_image(output_file, scale=2)
             print(f"Line chart saved as '{output_file}'")
