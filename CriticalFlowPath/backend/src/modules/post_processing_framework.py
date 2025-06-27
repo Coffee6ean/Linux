@@ -722,7 +722,7 @@ class PostProcessingFramework():
             ))
             
     def _delete_excess_rows(self, active_worksheet, overlap_results:dict, 
-                                 available_results:dict, alloted_space:int) -> None:
+                         available_results:dict, alloted_space:int) -> None:
         ws = active_worksheet
         lead_idx = self.json_struct_categories.index(self.lead_struct)
         grouping_levels = self.json_struct_categories[:lead_idx + 1]
@@ -757,20 +757,69 @@ class PostProcessingFramework():
                 excess = group_rows[allowed_rows:]  # keep the first 'allowed_rows', delete the rest
                 rows_to_delete.extend(excess)
 
-        # Sort in reverse to delete from bottom up
+        # Optimized deletion process
         try:
-            rows_to_delete.sort(reverse=True)
-            for row in sorted(set(rows_to_delete), reverse=True):
-                ws.delete_rows(row)
+            if not rows_to_delete:
+                print("No excess rows to delete.")
+                return
+                
+            # Remove duplicates and sort in reverse order
+            unique_rows = sorted(set(rows_to_delete), reverse=True)
+            total_rows = len(unique_rows)
+                        
+            # Method 1: Batch deletion for consecutive rows
+            consecutive_batches = self._get_consecutive_batches(unique_rows)
+            
+            for batch_start, batch_size in consecutive_batches:
+                try:
+                    ws.delete_rows(batch_start, amount=batch_size)
+                    print(f"Deleted batch: rows {batch_start} to {batch_start + batch_size - 1}")
+                except Exception as batch_error:
+                    # Fallback: delete individually for this batch
+                    print(f"Batch deletion failed, falling back to individual deletion: {batch_error}")
+                    for row in range(batch_start + batch_size - 1, batch_start - 1, -1):
+                        try:
+                            ws.delete_rows(row)
+                        except Exception as row_error:
+                            print(f"Failed to delete row {row}: {row_error}")
 
             print("Excess rows removed successfully.")
             self.module_data["logs"]["status"].append({
-                "Info": f"{PostProcessingFramework.__name__}| Excess rows removed successfully."
+                "Info": f"{PostProcessingFramework.__name__}| {total_rows} excess rows removed successfully."
             })
+            
         except Exception as e:
+            error_msg = f"Failed to delete excess rows: {e}"
+            print(error_msg)
             self.module_data["logs"]["status"].append({
-                "Error": f"{PostProcessingFramework.__name__}| Failed to delete excess rows: {e}"
+                "Error": f"{PostProcessingFramework.__name__}| {error_msg}"
             })
+
+    def _get_consecutive_batches(self, sorted_rows_desc:list) -> list:
+        if not sorted_rows_desc:
+            return []
+        
+        batches = []
+        current_batch_end = sorted_rows_desc[0]
+        current_batch_size = 1
+        
+        for i in range(1, len(sorted_rows_desc)):
+            if sorted_rows_desc[i] == current_batch_end - current_batch_size:
+                # This row is consecutive with the current batch
+                current_batch_size += 1
+            else:
+                # End current batch and start a new one
+                batch_start = current_batch_end - current_batch_size + 1
+                batches.append((batch_start, current_batch_size))
+                
+                current_batch_end = sorted_rows_desc[i]
+                current_batch_size = 1
+        
+        # Add the last batch
+        batch_start = current_batch_end - current_batch_size + 1
+        batches.append((batch_start, current_batch_size))
+        
+        return batches
 
     def _delete_columns(self, active_worksheet, start_column_idx:int, end_column_idx:int) -> None:
         ws = active_worksheet
