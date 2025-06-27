@@ -28,6 +28,7 @@ function Upload() {
     ];
 
     const requirements = [
+        "Excel sheet must be titiled 'Sheet1'",
         "Excel format (.xlsx or .xls)",
         "Proper date formatting (YYYY-M-DD)",
         "HEX color codes starting with #",
