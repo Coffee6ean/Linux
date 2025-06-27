@@ -151,10 +151,16 @@ def execute_module_cycle():
         print(f"[INFO] File saved to: {saved_path}")
         print(f"[INFO] Size: {os.stat(saved_path).st_size} bytes")
 
-        # Inject file path into payload
+        # Modify Payload: Inject file path and handle workweek entries
         payload["file_name"] = saved_path
         payload.setdefault("file_roi", "Sheet1")
         payload.setdefault("auto", True)
+
+        if "project_workweek_start" in payload:
+            payload.setdefault(
+                "project_workweek", 
+                f"{payload["project_workweek_start"]}-{payload["project_workweek_finish"]}"
+            )
 
         # Process file (this should write output to a known results folder)
         result_dict = process_file(payload)
