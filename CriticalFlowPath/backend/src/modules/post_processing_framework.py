@@ -329,6 +329,7 @@ class PostProcessingFramework():
 
         try:
             active_workbook.save(filename=file)
+            active_workbook.close()
             print("CFA Schedule frame successfully updated.")
             self.module_data["logs"]["status"].append({
                 "Info": f"{PostProcessingFramework.__name__}| CFA Schedule Frame successfully updated."
@@ -346,38 +347,6 @@ class PostProcessingFramework():
                 print(f"Saved backup file: {backup_file}")
             except Exception as backup_error:
                 print(f"Backup save also failed: {backup_error}")
-                
-        finally:
-            active_workbook.close()
-
-    def _validate_worksheet_data(self, worksheet):
-        """Validate and clean worksheet data before saving"""
-        try:
-            for row in worksheet.iter_rows():
-                for cell in row:
-                    if cell.value is not None:
-                        # Handle different data types
-                        if isinstance(cell.value, str):
-                            # Remove null characters and other problematic characters
-                            cell.value = cell.value.replace('\x00', '').replace('\r', '').replace('\n', ' ')
-                            # Truncate very long strings (Excel limit is 32,767 characters)
-                            if len(cell.value) > 32767:
-                                cell.value = cell.value[:32767]
-                        elif isinstance(cell.value, (list, dict, tuple)):
-                            # Convert complex objects to strings
-                            cell.value = str(cell.value)[:32767]
-                        elif not isinstance(cell.value, (int, float, bool)):
-                            # Convert other types to string
-                            try:
-                                cell.value = str(cell.value)[:32767]
-                            except:
-                                cell.value = "DATA_ERROR"
-                                
-            print("Worksheet data validation completed successfully.")
-            
-        except Exception as e:
-            print(f"Error during data validation: {e}")
-            # Continue anyway - validation is just a safety measure
 
     def _calculate_overlapping_dates(self, custom_ordered_dict:dict, time_scale:str='d') -> dict:
         if not isinstance(custom_ordered_dict, list) or not custom_ordered_dict:
@@ -655,6 +624,33 @@ class PostProcessingFramework():
         self._delete_columns(ws, start_col_idx, end_col_idx)
         self._insert_columns(ws, start_col_idx, end_col_idx - start_col_idx)
     
+    def _validate_worksheet_data(self, worksheet) -> None:
+        try:
+            for row in worksheet.iter_rows():
+                for cell in row:
+                    if cell.value is not None:
+                        # Handle different data types
+                        if isinstance(cell.value, str):
+                            # Remove null characters and other problematic characters
+                            cell.value = cell.value.replace('\x00', '').replace('\r', '').replace('\n', ' ')
+                            # Truncate very long strings (Excel limit is 32,767 characters)
+                            if len(cell.value) > 32767:
+                                cell.value = cell.value[:32767]
+                        elif isinstance(cell.value, (list, dict, tuple)):
+                            # Convert complex objects to strings
+                            cell.value = str(cell.value)[:32767]
+                        elif not isinstance(cell.value, (int, float, bool)):
+                            # Convert other types to string
+                            try:
+                                cell.value = str(cell.value)[:32767]
+                            except:
+                                cell.value = "DATA_ERROR"
+                                
+            print("Worksheet data validation completed successfully.")
+            
+        except Exception as e:
+            print(f"Error during data validation: {e}")
+
     def _find_column_idx(self, active_worksheet, column_header:str, start_row:int) -> int | None:
         try:
             ws = active_worksheet
@@ -842,6 +838,7 @@ class PostProcessingFramework():
         
         try:
             wb.save(filename=file)
+            wb.close()
             print("WBS Table successfully updated.")
             self.module_data["logs"]["status"].append({
                 "Info": f"{PostProcessingFramework.__name__}| WBS Table successfully updated."
@@ -851,8 +848,6 @@ class PostProcessingFramework():
             self.module_data["logs"]["status"].append({
                 "Error": f"{PostProcessingFramework.__name__}| Failed to update WBS Table: {e}"
             })
-        finally:
-            wb.close()
 
     def _merge_until_different_value(self, active_worksheet, starting_col_idx:int, 
                                      starting_row_idx:int) -> None:
